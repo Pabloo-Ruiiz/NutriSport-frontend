@@ -17,8 +17,20 @@ const MENSAJES: Record<string, (detalle: unknown) => string> = {
   min: (e) => `El valor mínimo es ${limite((e as Detalle)['min'])}.`,
   max: (e) => `El valor máximo es ${limite((e as Detalle)['max'])}.`,
   pattern: () => 'El formato no es válido.',
+  // Validadores propios (core/util/validadores.ts).
+  contrasenaSegura: (e) => MENSAJES_CONTRASENA[(e as { motivo?: string })?.motivo ?? ''] ?? MENSAJE_GENERICO,
+  coincideCon: () => 'Las contraseñas no coinciden.',
+  noSoloEspacios: () => 'Escribe algo más que espacios.',
   // Texto que devuelve el backend (p. ej. "Ya existe una cuenta con este correo").
   servidor: (texto) => textoServidor(texto),
+};
+
+/** Motivos de contrasenaSegura() (PASSWORD_MIN y PASSWORD_MAX de core/util/validadores.ts). */
+const MENSAJES_CONTRASENA: Record<string, string> = {
+  corta: 'La contraseña debe tener al menos 10 caracteres.',
+  larga: 'La contraseña puede tener como máximo 72 caracteres.',
+  sinLetra: 'La contraseña debe incluir al menos una letra.',
+  sinNumero: 'La contraseña debe incluir al menos un número.',
 };
 
 /** "2.450", "0,5": con los decimales que tenga el límite (máximo 2). */

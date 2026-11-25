@@ -108,11 +108,15 @@ export class ApiError extends Error {
    * Redondea hacia arriba para no invitar a reintentar antes de tiempo.
    */
   mensajeEspera(): string {
-    const segundos = this.retryAfterSegundos;
-    if (segundos === null) return 'Inténtalo de nuevo más tarde.';
-    if (segundos <= 0) return 'Ya puedes intentarlo de nuevo.';
-    return `Inténtalo de nuevo en ${duracion(segundos)}.`;
+    return textoEspera(this.retryAfterSegundos);
   }
+}
+
+/** "Inténtalo de nuevo en 12 minutos." a partir de unos segundos de espera (o null si no se sabe). */
+export function textoEspera(segundos: number | null): string {
+  if (segundos === null) return 'Inténtalo de nuevo más tarde.';
+  if (segundos <= 0) return 'Ya puedes intentarlo de nuevo.';
+  return `Inténtalo de nuevo en ${duracion(segundos)}.`;
 }
 
 /** "45 segundos", "1 minuto", "12 minutos", "1 hora", "2 horas y 5 minutos". */
