@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detalle de receta · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  .heroe { display:grid; grid-template-columns:360px 1fr; gap:24px; align-items:center; }
+  .heroe__img { aspect-ratio:16/11; border-radius:16px; background:#E9E3D8; position:relative; overflow:hidden; }
+  .heroe__img .plato { position:absolute; inset:10% 20%; border-radius:999px; background:#fff; box-shadow:0 10px 22px rgba(0,0,0,.2); }
+  .heroe__img .plato::before { content:""; position:absolute; inset:14%; border-radius:999px; background:radial-gradient(circle at 34% 40%,#E3B65C 0 18%,transparent 19%),radial-gradient(circle at 62% 38%,#E8D29A 0 20%,transparent 21%),radial-gradient(circle at 52% 66%,#C97B3A 0 14%,transparent 15%),radial-gradient(circle at 38% 68%,#6BA84F 0 9%,transparent 10%),radial-gradient(circle,#F1E2BE 0 70%,#E7D3A6 71%); }
+  .ing { width:100%; border-collapse:collapse; font-size:13px; }
+  .ing th { text-align:left; font:600 12px var(--ns-font-body); color:var(--ns-text-secondary); background:var(--ns-surface-muted); padding:9px 12px; }
+  .ing td { padding:10px 12px; border-top:1px solid var(--ns-border); vertical-align:middle; }
+  .ing td.num { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
+  .ing b { font-weight:600; }
+  .ing .orig { display:block; font-size:12px; color:var(--ns-text-tertiary); }
+  .ing tr.sin td { background:#FFFBF2; }
+  .estado { font:600 12px var(--ns-font-body); white-space:nowrap; }
+  .e-ok { color:var(--ns-success); } .e-est { color:var(--ns-warning); } .e-desp { color:var(--ns-text-tertiary); } .e-sin { color:var(--ns-error); }
+  .kpi4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .kpi4 > div { border:1px solid var(--ns-border); border-radius:12px; padding:10px; text-align:center; }
+  .kpi4 b { display:block; font:800 22px/28px var(--ns-font-display); font-variant-numeric:tabular-nums; }
+  .paso { display:flex; gap:12px; padding:10px 0; border-top:1px solid var(--ns-border); font-size:14px; line-height:21px; }
+  .paso:first-of-type { border-top:0; }
+  .paso__n { width:26px; height:26px; border-radius:999px; background:var(--ns-ink-950); color:#fff; display:grid; place-items:center; font:700 12px var(--ns-font-body); flex:none; }
+  .rel { display:flex; gap:10px; align-items:center; padding:8px 0; }
+  .rel .mini { width:44px; height:44px; border-radius:10px; background:#E9E3D8; position:relative; flex:none; }
+  .rel .mini::after { content:""; position:absolute; inset:7px; border-radius:999px; background:#fff; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" data-active="plan"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="breadcrumb">Recetas <i data-i="chevron-right" class="icon-14"></i>Pollo <i data-i="chevron-right" class="icon-14"></i><strong>Chicken Couscous</strong></div>
+      <div class="topbar__spacer"></div>
+      <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+      <button class="btn btn--primary"><i data-i="plus"></i>Registrar comida</button>
+    </header>
+    <main class="content">
+      <section class="card heroe" style="margin-bottom:20px">
+        <div class="heroe__img"><div class="plato"></div></div>
+        <div>
+          <div class="row gap-6" style="flex-wrap:wrap"><span class="badge badge--neutral"><i data-i="utensils"></i>TheMealDB</span><span class="badge badge--neutral">Pollo</span><span class="badge badge--neutral">Marroquí</span><span class="badge badge--warning">Aproximado · 9 de 10 ingredientes</span></div>
+          <h1 style="font:800 30px/38px var(--ns-font-display);letter-spacing:-.02em;margin-top:10px">Chicken Couscous</h1>
+          <p class="secondary" style="margin-top:4px">Cuscús con pollo, garbanzos y orejones · receta original en inglés</p>
+          <div class="row gap-16" style="margin-top:14px;font-size:14px">
+            <span><b class="tnum" style="font:800 20px var(--ns-font-display)">≈ 390</b> <span class="muted">kcal/ración</span></span>
+            <span class="c-protein" style="font-weight:600">≈ 22 g proteína</span>
+            <span class="muted">4 raciones (supuestas)</span>
+          </div>
+          <div class="row gap-8" style="margin-top:18px;flex-wrap:wrap">
+            <button class="btn btn--primary"><i data-i="calendar"></i>Añadir al plan</button>
+            <button class="btn btn--secondary"><i data-i="basket"></i>Añadir ingredientes a la lista</button>
+            <button class="btn btn--secondary" aria-pressed="true"><i data-i="heart" class="c-fat"></i>Favorita</button>
+            <button class="btn btn--ghost"><i data-i="plus"></i>Registrar como comida</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid cols-12">
+        <div class="span-7 stack gap-20">
+          <section class="card card--flush">
+            <div class="card__header" style="padding:18px 20px 12px;margin:0">
+              <div><div class="card__title">Ingredientes y cantidades</div><div class="card__subtitle">Medida original de la receta y su conversión a gramos</div></div>
+              <div class="card__actions"><span class="caption">Raciones</span><div class="qty"><span class="qty__btn"><i data-i="minus"></i></span><span class="qty__val" style="min-width:40px">4</span><span class="qty__btn"><i data-i="plus"></i></span></div></div>
+            </div>
+            <table class="ing">
+              <thead><tr><th>Ingrediente</th><th>Medida original</th><th style="text-align:right">Gramos</th><th>Conversión</th></tr></thead>
+              <tbody>
+                <tr><td><b>Aceite de oliva</b><span class="orig">Olive Oil</span></td><td>1 tbsp</td><td class="num">≈ 13,5</td><td><span class="estado e-ok">Exacta (porción USDA)</span></td></tr>
+                <tr><td><b>Cebolla</b><span class="orig">Onion</span></td><td>1 chopped</td><td class="num">≈ 110</td><td><span class="estado e-est">Estimada (unidad mediana)</span></td></tr>
+                <tr><td><b>Pechuga de pollo</b><span class="orig">Chicken Breast</span></td><td>200g</td><td class="num">200</td><td><span class="estado e-ok">Exacta</span></td></tr>
+                <tr><td><b>Jengibre molido</b><span class="orig">Ginger</span></td><td>pinch</td><td class="num">0</td><td><span class="estado e-desp">Despreciable</span></td></tr>
+                <tr class="sin"><td><b>Harissa</b><span class="orig">Harissa Spice · sin emparejar</span></td><td>2 tblsp</td><td class="num">—</td><td><span class="estado e-sin">Sin datos</span></td></tr>
+                <tr><td><b>Orejones de albaricoque</b><span class="orig">Dried Apricots</span></td><td>10</td><td class="num">≈ 35</td><td><span class="estado e-est">Estimada (porción)</span></td></tr>
+                <tr><td><b>Garbanzos cocidos</b><span class="orig">Chickpeas</span></td><td>220g</td><td class="num">220</td><td><span class="estado e-ok">Exacta</span></td></tr>
+                <tr><td><b>Cuscús (en seco)</b><span class="orig">Couscous</span></td><td>200g</td><td class="num">200</td><td><span class="estado e-ok">Exacta</span></td></tr>
+                <tr><td><b>Caldo de pollo</b><span class="orig">Chicken Stock</span></td><td>200ml</td><td class="num">≈ 200</td><td><span class="estado e-est">Estimada (densidad 1)</span></td></tr>
+                <tr><td><b>Cilantro fresco</b><span class="orig">Coriander</span></td><td>Handful</td><td class="num">0</td><td><span class="estado e-desp">Despreciable</span></td></tr>
+              </tbody>
+            </table>
+            <div class="row gap-8" style="padding:12px 20px"><i data-i="info" class="icon-16 muted"></i><span class="caption">Los nombres en español salen del catálogo; el original de TheMealDB aparece debajo.</span><button class="btn btn--ghost btn--sm ml-auto"><i data-i="alert"></i>Corregir un ingrediente</button></div>
+          </section>
+
+          <section class="card">
+            <div class="card__header"><div><div class="card__title">Instrucciones</div><div class="card__subtitle">Texto original de TheMealDB (en inglés)</div></div><div class="card__actions"><span class="badge badge--neutral">EN</span></div></div>
+            <div class="paso"><span class="paso__n">1</span><span>Heat the olive oil in a large frying pan and cook the onion for 1-2 mins just until softened.</span></div>
+            <div class="paso"><span class="paso__n">2</span><span>Add the chicken and fry for 7-10 mins until cooked through and the onions have turned golden.</span></div>
+            <button class="btn btn--ghost btn--sm" style="margin-top:6px"><i data-i="chevron-down"></i>Ver todas las instrucciones</button>
+          </section>
+        </div>
+
+        <div class="span-5 stack gap-20">
+          <section class="card">
+            <div class="card__header">
+              <div><div class="card__title">Nutrición calculada</div><div class="card__subtitle">Por ración · 4 raciones supuestas</div></div>
+              <div class="card__actions"><span class="badge badge--warning">Aproximado</span></div>
+            </div>
+            <div class="kpi4">
+              <div><b>≈ 390</b><span class="caption">kcal</span></div>
+              <div><b class="c-protein">≈ 22</b><span class="caption">Proteínas (g)</span></div>
+              <div><b class="c-carbs">≈ 59</b><span class="caption">Hidratos (g)</span></div>
+              <div><b style="color:#A8285A">≈ 6,6</b><span class="caption">Grasas (g)</span></div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="row" style="justify-content:space-between;font-size:13px"><span>Completitud del cálculo</span><b class="tnum">97 % de la masa</b></div>
+              <div class="progress progress--sm" style="margin-top:6px"><span class="bg-kcal" style="width:97%"></span></div>
+              <div class="caption" style="margin-top:6px">9 de 10 ingredientes resueltos · 1 sin datos (harissa) · 3 conversiones estimadas</div>
+            </div>
+            <div class="alert alert--warning" style="margin-top:14px"><i data-i="alert"></i><div><strong>Valores estimados a partir de los ingredientes</strong>No son medidos. Las raciones son supuestas: ajústalas si sabes cuántas salen.</div></div>
+            <div class="row" style="margin-top:12px"><button class="btn btn--secondary btn--sm"><i data-i="list"></i>Ver cómo se calcula</button><span class="caption ml-auto">Valores: USDA FoodData Central</span></div>
+            <hr class="divider">
+            <div class="row" style="justify-content:space-between;font-size:13px"><span>Para tu cena de hoy (te faltan ≈ 560 kcal)</span><b class="tnum">1,5 raciones ≈ 585 kcal</b></div>
+          </section>
+
+          <section class="card">
+            <div class="card__header"><div><div class="card__title">Alérgenos</div><div class="card__subtitle">Derivados de los ingredientes emparejados</div></div></div>
+            <div class="row gap-6" style="flex-wrap:wrap"><span class="caption">Contiene:</span><span class="badge badge--neutral">Gluten (cuscús)</span><span class="badge badge--neutral">Apio (caldo)</span></div>
+            <div class="alert alert--warning" style="margin-top:12px"><i data-i="alert"></i><div><strong>Alérgenos sin verificar</strong>Un ingrediente (harissa) no está emparejado. Si tienes alergias estrictas, esta receta no se usará en tus menús automáticos.</div></div>
+          </section>
+
+          <section class="card">
+            <div class="card__header"><div class="card__title">Recetas relacionadas</div></div>
+            <div class="rel"><span class="mini" style="background:#E9E3D8"></span><div><b style="font-weight:600;font-size:14px">Teriyaki Chicken Casserole</b><div class="caption">Pollo · Cálculo pendiente</div></div></div>
+            <div class="rel"><span class="mini" style="background:#F0E6D8"></span><div><b style="font-weight:600;font-size:14px">Bowl de pollo, quinoa y verduras</b><div class="caption">Propia · 812 kcal · 72 g P</div></div></div>
+            <div class="rel"><span class="mini" style="background:#E6DCCB"></span><div><b style="font-weight:600;font-size:14px">Ayam Percik</b><div class="caption">Pollo · Cálculo pendiente</div></div></div>
+          </section>
+        </div>
+      </div>
+      <div class="disclaimer" style="margin-top:18px"><i data-i="info"></i><span>Receta e imagen: <a href="#" style="color:var(--ns-green-700)">TheMealDB</a> · Valores nutricionales: USDA FoodData Central y catálogo NutriSport · Estimaciones orientativas. Imagen representada con una ilustración en este mockup.</span></div>
+    </main>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

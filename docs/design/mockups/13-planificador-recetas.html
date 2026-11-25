@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recetas en el planificador · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  .lay { display:grid; grid-template-columns:minmax(0,1fr) 430px; gap:20px; align-items:start; }
+  .dias { display:grid; grid-template-columns:96px repeat(3,minmax(0,1fr)); gap:8px; }
+  .dh { background:#fff; border:1px solid var(--ns-border); border-radius:12px; padding:10px 12px; }
+  .dh.ent { background:linear-gradient(180deg,var(--ns-data-activity-bg),#fff 70%); border-color:#A5F3FC; }
+  .dh.hoy { box-shadow:0 0 0 1px var(--ns-ink-950); border-color:var(--ns-ink-950); }
+  .dh b { font:700 15px var(--ns-font-display); }
+  .dh .k { font-size:12px; color:var(--ns-text-tertiary); margin-top:4px; }
+  .dh .k b { font:600 13px var(--ns-font-body); color:var(--ns-text); }
+  .fr { display:flex; align-items:center; font:600 13px var(--ns-font-body); color:var(--ns-text-secondary); }
+  .sl { background:#fff; border:1px solid var(--ns-border); border-radius:12px; padding:10px; min-height:76px; display:flex; flex-direction:column; gap:4px; }
+  .sl b { font-weight:600; font-size:13px; line-height:17px; }
+  .sl .m { font-size:12px; color:var(--ns-text-tertiary); }
+  .sl.ok { background:#FCFCFD; } .sl.ok b { color:var(--ns-text-secondary); }
+  .sl.vacio { border:1.5px dashed var(--ns-green-700); background:var(--ns-green-50); align-items:center; justify-content:center; color:var(--ns-green-800); font-weight:600; font-size:13px; flex-direction:row; gap:6px; box-shadow:0 0 0 3px var(--ns-green-50); }
+  .drawer { background:#fff; border:1px solid var(--ns-border); border-radius:16px; box-shadow:var(--ns-shadow-lg); padding:18px; display:flex; flex-direction:column; gap:12px; }
+  .cand { border:1px solid var(--ns-border); border-radius:14px; padding:12px; display:flex; gap:12px; align-items:center; }
+  .cand.is-sel { border-color:var(--ns-green-700); box-shadow:0 0 0 3px var(--ns-green-50); }
+  .cand.off { background:var(--ns-surface-muted); }
+  .cand .im { width:52px; height:52px; border-radius:12px; background:#E9E3D8; position:relative; flex:none; }
+  .cand .im::after { content:""; position:absolute; inset:8px; border-radius:999px; background:#fff; }
+  .cand b { font-weight:600; font-size:14px; display:block; }
+  .cand .n { font-size:12px; color:var(--ns-text-secondary); font-variant-numeric:tabular-nums; }
+  .ajuste { text-align:right; flex:none; }
+  .ajuste b { font:700 15px var(--ns-font-display); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" data-active="plan"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__title">Planificador</div>
+      <div class="topbar__spacer"></div>
+      <div class="search"><i data-i="search"></i><span>Buscar alimentos, recetas…</span><span class="kbd">Ctrl K</span></div>
+      <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+      <button class="btn btn--primary"><i data-i="plus"></i>Registrar comida</button>
+    </header>
+    <main class="content">
+      <div class="page-head" style="align-items:center">
+        <div class="row gap-8">
+          <button class="icon-btn icon-btn--bordered" aria-label="Anterior"><i data-i="chevron-left"></i></button>
+          <span style="font:700 16px var(--ns-font-display);padding:0 6px">16 – 22 nov 2026</span>
+          <button class="icon-btn icon-btn--bordered" aria-label="Siguiente"><i data-i="chevron-right"></i></button>
+          <span class="caption" style="margin-left:8px">Mostrando vie–dom</span>
+        </div>
+        <div class="page-head__actions">
+          <button class="btn btn--secondary"><i data-i="basket"></i>Lista de la compra</button>
+          <button class="btn btn--primary"><i data-i="refresh"></i>Regenerar semana</button>
+        </div>
+      </div>
+
+      <div class="lay">
+        <div class="dias">
+          <div></div>
+          <div class="dh"><b>Vie 20</b><div class="k"><b>2.432</b> / 2.400 kcal<br><span class="c-carbs" style="font-weight:600">HC 274 g</span></div></div>
+          <div class="dh ent hoy"><div class="row"><b>Sáb 21</b><span class="badge badge--activity" style="margin-left:8px">Entreno</span></div><div class="k"><b>2.122</b> / 2.680 kcal<br><span class="c-carbs" style="font-weight:600">HC 277 g</span></div></div>
+          <div class="dh"><b>Dom 22</b><div class="k"><b>2.240</b> / 2.300 kcal<br><span class="c-carbs" style="font-weight:600">HC 252 g</span></div></div>
+
+          <div class="fr">Desayuno</div>
+          <div class="sl ok"><b>Yogur sin lactosa con granola</b><span class="m">450 kcal · P 28 g</span></div>
+          <div class="sl ok"><b>Avena con frutos rojos y plátano</b><span class="m">520 kcal · P 22 g</span></div>
+          <div class="sl"><b>Tortitas de avena y plátano</b><span class="m">540 kcal · P 26 g</span></div>
+
+          <div class="fr">Media mañana</div>
+          <div class="sl ok"><b>Fruta y frutos secos</b><span class="m">290 kcal · P 7 g</span></div>
+          <div class="sl ok"><b>Yogur sin lactosa con nueces</b><span class="m">410 kcal · P 18 g</span></div>
+          <div class="sl"><b>Macedonia de fruta</b><span class="m">200 kcal · P 3 g</span></div>
+
+          <div class="fr">Comida</div>
+          <div class="sl ok"><b>Bowl de pollo, quinoa y verduras</b><span class="m">812 kcal · P 72 g</span></div>
+          <div class="sl ok"><b>Bowl de pollo, quinoa y verduras</b><span class="m">812 kcal · P 72 g</span></div>
+          <div class="sl"><b>Paella de marisco</b><span class="m">720 kcal · P 40 g</span></div>
+
+          <div class="fr">Merienda</div>
+          <div class="sl ok"><b>Yogur sin lactosa con fruta</b><span class="m">260 kcal · P 15 g</span></div>
+          <div class="sl"><b>Tostadas con plátano y miel</b><span class="m">380 kcal · P 11 g</span><span class="badge badge--activity" style="align-self:flex-start">Pre-entreno</span></div>
+          <div class="sl"><b>Yogur sin lactosa con fruta</b><span class="m">260 kcal · P 15 g</span></div>
+
+          <div class="fr">Cena</div>
+          <div class="sl ok"><b>Tortilla de patata y ensalada</b><span class="m">620 kcal · P 28 g</span></div>
+          <div class="sl vacio"><i data-i="plus" class="icon-16"></i>Añadir receta</div>
+          <div class="sl"><b>Crema de calabaza y huevo</b><span class="m">520 kcal · P 24 g</span></div>
+        </div>
+
+        <aside class="drawer" aria-label="Añadir receta">
+          <div class="row gap-8"><span class="card__title">Añadir receta · Cena</span><button class="icon-btn ml-auto" style="width:32px;height:32px" aria-label="Cerrar"><i data-i="x" class="icon-16"></i></button></div>
+          <div class="caption" style="margin-top:-8px">Sáb 21 · día de entreno · te faltan ≈ 560 kcal · objetivo de proteína: 150 g (llevas 112 g)</div>
+          <div class="input"><i data-i="search" class="icon-16 muted"></i><span class="muted">Buscar en recetas disponibles</span></div>
+          <div class="row gap-6"><span class="chip is-selected" style="height:28px"><i data-i="check"></i>Aptas para cena</span><span class="chip" style="height:28px">Favoritas</span><span class="chip" style="height:28px"><i data-i="shield-check"></i>Compatibles</span></div>
+
+          <div class="cand is-sel">
+            <span class="im"></span>
+            <div style="flex:1"><b>Chicken Couscous</b><span class="n">1,5 raciones · ≈ 585 kcal · ≈ 33 g P</span>
+              <div class="row gap-6" style="margin-top:4px"><span class="badge badge--neutral"><i data-i="utensils"></i>TheMealDB</span><span class="badge badge--warning">Aproximado</span></div></div>
+            <div class="ajuste"><b>101 %</b><div class="caption">del día</div></div>
+          </div>
+          <div class="cand">
+            <span class="im" style="background:#F0E6D8"></span>
+            <div style="flex:1"><b>Pollo al horno con boniato</b><span class="n">1 ración · 650 kcal · 52 g P</span>
+              <div class="row gap-6" style="margin-top:4px"><span class="badge badge--neutral"><i data-i="database"></i>Propia</span><span class="badge badge--info">Calculado</span></div></div>
+            <div class="ajuste"><b>103 %</b><div class="caption">del día</div></div>
+          </div>
+          <div class="cand">
+            <span class="im" style="background:#F4E4DC"></span>
+            <div style="flex:1"><b>Salmón con patata asada</b><span class="n">1 ración · 690 kcal · 42 g P</span>
+              <div class="row gap-6" style="margin-top:4px"><span class="badge badge--neutral"><i data-i="database"></i>Propia</span><span class="badge badge--info">Calculado</span></div></div>
+            <div class="ajuste"><b>105 %</b><div class="caption">del día</div></div>
+          </div>
+          <div class="cand off">
+            <span class="im" style="background:#E6DCCB"></span>
+            <div style="flex:1"><b style="color:var(--ns-text-secondary)">Teriyaki Chicken Casserole</b><span class="n">Cálculo pendiente: ábrela para calcularla</span></div>
+            <span class="badge badge--neutral">No disponible</span>
+          </div>
+
+          <div class="card card--ai" style="padding:14px">
+            <div class="row gap-8"><span class="badge badge--ai"><i data-i="sparkles"></i>Sugerencia IA</span><span class="caption">para Chicken Couscous</span></div>
+            <p style="font-size:13px;line-height:19px;margin-top:8px">Hoy entrenas y te faltan 38 g de proteína. <b>Aumenta la pechuga de pollo de 200 g a 300 g.</b></p>
+            <div class="row gap-8" style="margin-top:8px;font-size:12px" ><i data-i="check" class="icon-14 c-kcal"></i><span class="secondary">Recalculado con el catálogo: <b class="tnum" style="color:var(--ns-text)">≈ +5,6 g P y +30 kcal por ración</b></span></div>
+            <div class="row gap-8" style="margin-top:10px"><button class="btn btn--secondary btn--sm">Aplicar</button><button class="btn btn--ghost btn--sm">Descartar</button></div>
+          </div>
+
+          <div class="row gap-12" style="margin-top:2px">
+            <span class="caption">Raciones</span>
+            <div class="qty"><span class="qty__btn"><i data-i="minus"></i></span><span class="qty__val" style="min-width:48px">1,5</span><span class="qty__btn"><i data-i="plus"></i></span></div>
+            <button class="btn btn--primary ml-auto"><i data-i="plus"></i>Añadir a la cena</button>
+          </div>
+          <div class="disclaimer"><i data-i="info"></i><span>Las recetas con cálculo incompleto o incompatibles con tus restricciones no se pueden añadir. Recetas de TheMealDB · valores: USDA y catálogo.</span></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

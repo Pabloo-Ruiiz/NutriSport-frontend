@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buscador de alimentos y productos · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  .bloque-titulo { display:flex; align-items:center; gap:8px; margin:18px 0 8px; }
+  .res { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--ns-border); border-radius:12px; background:#fff; margin-bottom:8px; }
+  .res.is-sel { border-color:var(--ns-green-700); box-shadow:0 0 0 3px var(--ns-green-50); }
+  .res b { font-weight:600; display:block; }
+  .res__img { width:48px; height:48px; border-radius:10px; flex:none; display:grid; place-items:center; }
+  .envase { width:30px; height:38px; border-radius:6px 6px 9px 9px; position:relative; }
+  .envase::after { content:""; position:absolute; left:4px; right:4px; top:10px; height:12px; border-radius:3px; background:rgba(255,255,255,.85); }
+  .ficha-img { width:96px; height:96px; border-radius:16px; background:#F2F4F7; display:grid; place-items:center; flex:none; }
+  .ficha-img .envase { width:54px; height:70px; border-radius:10px 10px 16px 16px; }
+  .ficha-img .envase::after { left:8px; right:8px; top:18px; height:22px; }
+  .nf { width:100%; border-collapse:collapse; font-size:13px; }
+  .nf th { text-align:right; font:600 12px var(--ns-font-body); color:var(--ns-text-secondary); padding:6px 0; border-bottom:2px solid var(--ns-ink-900); }
+  .nf th:first-child { text-align:left; }
+  .nf td { padding:7px 0; border-bottom:1px solid var(--ns-border); font-variant-numeric:tabular-nums; text-align:right; }
+  .nf td:first-child { text-align:left; }
+  .nf tr.sub td:first-child { padding-left:14px; color:var(--ns-text-secondary); }
+  .nf tr.fuerte td { font-weight:700; }
+  .nd { color:var(--ns-text-tertiary); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" data-active="comidas"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="breadcrumb">Comidas <i data-i="chevron-right" class="icon-14"></i>Añadir comida <i data-i="chevron-right" class="icon-14"></i><strong>Buscar alimento</strong></div>
+      <div class="topbar__spacer"></div>
+      <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+    </header>
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <div class="page-head__title">Buscar alimento o producto</div>
+          <div class="page-head__sub">Primero buscamos en tu catálogo. Los productos comerciales se consultan en Open Food Facts cuando lo pides.</div>
+        </div>
+        <div class="page-head__actions"><button class="btn btn--secondary"><i data-i="barcode"></i>Escanear código</button></div>
+      </div>
+
+      <div class="grid cols-12">
+        <section class="span-7">
+          <div class="card">
+            <div class="row gap-12">
+              <div class="input is-focus" style="flex:1"><i data-i="search" class="icon-16 muted"></i>yogur natural sin lactosa<span class="input__suffix"><i data-i="x" class="icon-16"></i></span></div>
+              <div class="input" style="width:170px;justify-content:space-between"><span>Merienda</span><i data-i="chevron-down" class="icon-16 muted"></i></div>
+            </div>
+
+            <div class="bloque-titulo"><span class="overline">En tu catálogo</span><span class="caption">· 2 resultados</span></div>
+            <div class="res">
+              <div class="res__img" style="background:var(--ns-surface-muted);color:var(--ns-ink-700)"><i data-i="database"></i></div>
+              <div style="flex:1"><b>Yogur natural sin lactosa</b><span class="caption">Genérico · 59 kcal · P 3,5 · HC 4,6 · G 3,0 por 100 g</span></div>
+              <span class="badge badge--neutral"><i data-i="database"></i>Catálogo</span>
+              <button class="icon-btn icon-btn--bordered" style="width:32px;height:32px" aria-label="Ver"><i data-i="chevron-right" class="icon-16"></i></button>
+            </div>
+            <div class="res is-sel">
+              <div class="res__img" style="background:#EEF4FF"><span class="envase" style="background:#7FA7F5"></span></div>
+              <div style="flex:1"><b>Yogur natural sin lactosa</b><span class="caption">Marca Ejemplo · 61 kcal por 100 g · guardado al escanearlo</span></div>
+              <span class="badge badge--neutral"><i data-i="barcode"></i>Open Food Facts</span>
+              <button class="icon-btn icon-btn--bordered" style="width:32px;height:32px" aria-label="Ver"><i data-i="chevron-right" class="icon-16"></i></button>
+            </div>
+
+            <div class="bloque-titulo"><span class="overline">Productos comerciales</span><span class="caption">· Open Food Facts · 24 resultados</span></div>
+            <div class="res">
+              <div class="res__img" style="background:#FFF4E5"><span class="envase" style="background:#F2B36B"></span></div>
+              <div style="flex:1"><b>Yogur griego natural sin lactosa</b><span class="caption">Marca Ejemplo · 115 kcal · P 5,4 · HC 3,9 · G 8,8 por 100 g</span></div>
+              <span class="badge badge--neutral"><i data-i="barcode"></i>Open Food Facts</span>
+              <button class="icon-btn icon-btn--bordered" style="width:32px;height:32px" aria-label="Ver"><i data-i="chevron-right" class="icon-16"></i></button>
+            </div>
+            <div class="res">
+              <div class="res__img" style="background:#FDF0F5"><span class="envase" style="background:#E88AAE"></span></div>
+              <div style="flex:1"><b>Yogur proteico sin lactosa, fresa</b><span class="caption">Marca Ejemplo · 63 kcal · P 10,0 · HC 4,8 · G 0,2 por 100 g</span></div>
+              <span class="badge badge--neutral"><i data-i="barcode"></i>Open Food Facts</span>
+              <button class="icon-btn icon-btn--bordered" style="width:32px;height:32px" aria-label="Ver"><i data-i="chevron-right" class="icon-16"></i></button>
+            </div>
+            <div class="res" style="background:var(--ns-surface-muted)">
+              <div class="res__img" style="background:#fff"><span class="envase" style="background:#D0D5DD"></span></div>
+              <div style="flex:1"><b style="color:var(--ns-text-secondary)">Yogur bebible sin lactosa, plátano</b><span class="caption">Marca Ejemplo</span></div>
+              <span class="badge badge--warning"><i data-i="alert"></i>Información nutricional incompleta</span>
+            </div>
+            <div class="row" style="justify-content:space-between;margin-top:6px">
+              <span class="caption">Las búsquedas en Open Food Facts tienen un límite por minuto: se hacen solo al pulsar el botón.</span>
+              <button class="btn btn--secondary btn--sm"><i data-i="search"></i>Ver más productos</button>
+            </div>
+            <div class="disclaimer" style="margin-top:14px"><i data-i="info"></i><span>Datos de productos de <a href="#" style="color:var(--ns-green-700)">Open Food Facts</a> (ODbL), aportados por su comunidad: pueden contener errores.</span></div>
+          </div>
+        </section>
+
+        <aside class="span-5 card">
+          <div class="row gap-16" style="align-items:flex-start">
+            <div class="ficha-img"><span class="envase" style="background:#7FA7F5"></span></div>
+            <div style="flex:1">
+              <div class="row gap-6" style="flex-wrap:wrap"><span class="badge badge--neutral"><i data-i="barcode"></i>Open Food Facts</span><span class="badge badge--restriction"><i data-i="shield-check"></i>Compatible: sin lactosa</span></div>
+              <div style="font:700 19px/26px var(--ns-font-display);margin-top:8px">Yogur natural sin lactosa</div>
+              <div class="caption">Marca Ejemplo · 4 × 125 g · EAN 8412345678905</div>
+            </div>
+          </div>
+
+          <table class="nf" style="margin-top:18px">
+            <thead><tr><th>Información nutricional</th><th>por 100 g</th><th>por ración (125 g)</th></tr></thead>
+            <tbody>
+              <tr class="fuerte"><td>Energía</td><td>61 kcal</td><td>76 kcal</td></tr>
+              <tr><td>Grasas</td><td>3,1 g</td><td>3,9 g</td></tr>
+              <tr class="sub"><td>de las cuales saturadas</td><td>2,0 g</td><td>2,5 g</td></tr>
+              <tr><td>Hidratos de carbono</td><td>4,7 g</td><td>5,9 g</td></tr>
+              <tr class="sub"><td>de los cuales azúcares</td><td>4,7 g</td><td>5,9 g</td></tr>
+              <tr><td>Fibra</td><td class="nd">—</td><td class="nd">—</td></tr>
+              <tr><td>Proteínas</td><td>3,6 g</td><td>4,5 g</td></tr>
+              <tr><td>Sal</td><td>0,12 g</td><td>0,15 g</td></tr>
+            </tbody>
+          </table>
+          <div class="caption" style="margin-top:6px">— Dato no disponible en la fuente (no se cuenta como 0).</div>
+
+          <div style="margin-top:14px"><div class="overline" style="margin-bottom:4px">Ingredientes</div><p class="secondary" style="font-size:13px;line-height:19px">Leche desnatada sin lactosa, leche en polvo sin lactosa, fermentos lácticos, enzima lactasa.</p></div>
+          <div style="margin-top:12px"><div class="overline" style="margin-bottom:6px">Alérgenos</div>
+            <div class="row gap-6" style="flex-wrap:wrap"><span class="caption" style="width:96px">Contiene</span><span class="badge badge--neutral">Leche</span></div>
+            <div class="row gap-6" style="margin-top:6px"><span class="caption" style="width:96px">Puede contener</span><span class="badge badge--neutral">Frutos de cáscara</span></div>
+            <div class="caption" style="margin-top:6px">Datos de alérgenos de la fuente, sin revisar por NutriSport. Sin lactosa: compatible con tu intolerancia.</div>
+          </div>
+
+          <hr class="divider">
+          <div class="row gap-12">
+            <div class="field" style="flex:1"><span class="label">Cantidad</span><div class="input" style="justify-content:space-between"><span>1 ración (125 g)</span><i data-i="chevron-down" class="icon-16 muted"></i></div></div>
+            <div class="field" style="width:120px"><span class="label">Unidades</span><div class="qty" style="height:40px"><span class="qty__btn"><i data-i="minus"></i></span><span class="qty__val" style="min-width:40px">1</span><span class="qty__btn"><i data-i="plus"></i></span></div></div>
+          </div>
+          <div class="row" style="margin-top:12px;justify-content:space-between;font-size:13px"><span class="secondary">Total</span><b class="tnum">76 kcal · P 4,5 g · HC 5,9 g · G 3,9 g</b></div>
+          <button class="btn btn--primary btn--lg btn--block" style="margin-top:14px"><i data-i="plus"></i>Añadir a la merienda</button>
+          <div class="disclaimer" style="margin-top:10px"><i data-i="info"></i><span>Datos de Open Food Facts (ODbL) · <a href="#" style="color:var(--ns-green-700)">ver ficha en openfoodfacts.org</a></span></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>
