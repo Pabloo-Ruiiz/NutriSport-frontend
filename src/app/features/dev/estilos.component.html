@@ -1,0 +1,105 @@
+<main id="contenido" class="estilos ns-stack">
+  <header class="ns-stack estilos__cabecera">
+    <p class="ns-text-overline ns-text-tertiary">Solo en desarrollo</p>
+    <h1 class="ns-text-h1">Guía de estilos</h1>
+    <p class="ns-text-body-lg ns-text-secondary">
+      Tokens de color, tipografía, radios y sombras de DESIGN.md. Usa siempre los tokens semánticos en los componentes.
+    </p>
+  </header>
+
+  @for (paleta of paletas; track paleta.titulo) {
+    <section class="ns-stack" [attr.aria-labelledby]="'paleta-' + $index">
+      <h2 class="ns-text-h2" [id]="'paleta-' + $index">{{ paleta.titulo }}</h2>
+      <ul class="estilos__muestras" role="list">
+        @for (muestra of paleta.muestras; track muestra.token) {
+          <li class="estilos__muestra">
+            <span class="estilos__color" [style.background]="variable(muestra.token)" aria-hidden="true"></span>
+            <span class="ns-text-body-strong">{{ muestra.token }}</span>
+            <span class="ns-text-caption ns-text-tertiary ns-tnum">{{ valores()[muestra.token] }}</span>
+            <span class="ns-text-body-sm ns-text-secondary">{{ muestra.uso }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <section class="ns-stack" aria-labelledby="titulo-estados">
+    <h2 class="ns-text-h2" id="titulo-estados">Estados</h2>
+    <ul class="estilos__estados" role="list">
+      @for (estado of estados; track estado.nombre) {
+        <li
+          class="estilos__estado"
+          [style.color]="variable(estado.texto)"
+          [style.background]="variable(estado.fondo)"
+          [style.border-color]="variable(estado.borde)"
+        >
+          <span class="ns-text-body-strong">{{ estado.nombre }}</span>
+          <span class="ns-text-caption">{{ estado.texto }} · {{ estado.fondo }} · {{ estado.borde }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="ns-stack" aria-labelledby="titulo-tipografia">
+    <h2 class="ns-text-h2" id="titulo-tipografia">Escala tipográfica</h2>
+    <dl class="estilos__escala">
+      @for (estilo of escala; track estilo.clase) {
+        <div class="estilos__fila">
+          <dt class="ns-stack estilos__especificacion">
+            <code class="ns-text-caption">.{{ estilo.clase }}</code>
+            <span class="ns-text-caption ns-text-tertiary">{{ estilo.especificacion }}</span>
+          </dt>
+          <dd [class]="estilo.clase">{{ estilo.ejemplo }}</dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <section class="ns-stack" aria-labelledby="titulo-radios">
+    <h2 class="ns-text-h2" id="titulo-radios">Radios</h2>
+    <ul class="estilos__cajas" role="list">
+      @for (radio of radios; track radio) {
+        <li class="estilos__caja-item">
+          <span
+            class="estilos__caja estilos__caja--radio"
+            [style.border-radius]="variable(radio)"
+            aria-hidden="true"
+          ></span>
+          <span class="ns-text-body-strong">{{ radio }}</span>
+          <span class="ns-text-caption ns-text-tertiary">{{ valores()[radio] }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="ns-stack" aria-labelledby="titulo-sombras">
+    <h2 class="ns-text-h2" id="titulo-sombras">Sombras</h2>
+    <ul class="estilos__cajas" role="list">
+      @for (sombra of sombras; track sombra) {
+        <li class="estilos__caja-item">
+          <span
+            class="estilos__caja estilos__caja--sombra"
+            [style.box-shadow]="variable(sombra)"
+            aria-hidden="true"
+          ></span>
+          <span class="ns-text-body-strong">{{ sombra }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="ns-stack" aria-labelledby="titulo-iconos">
+    <h2 class="ns-text-h2" id="titulo-iconos">Iconos (Lucide)</h2>
+    <p class="ns-text-body ns-text-secondary">
+      Registrados en app.config.ts. Uso: &lt;svg lucideIcon="coffee" aria-hidden="true"&gt;&lt;/svg&gt;
+    </p>
+    <ul class="estilos__cajas" role="list">
+      @for (icono of iconos; track icono) {
+        <li class="estilos__caja-item estilos__icono">
+          <svg [lucideIcon]="icono" aria-hidden="true"></svg>
+          <code class="ns-text-caption">{{ icono }}</code>
+        </li>
+      }
+    </ul>
+  </section>
+</main>

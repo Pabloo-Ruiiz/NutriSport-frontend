@@ -119,7 +119,7 @@ Estoy desarrollando el frontend de NutriSport AI: una SPA en Angular para que de
 
 El frontend tiene su propio repositorio, separado del backend Spring Boot; el proyecto Angular está en la raíz del repositorio. Consume la API REST descrita en #file:docs/NutriSport_API.md (convenciones, sesión, errores, tipos, endpoints, flujos y validaciones), generada a partir del OpenAPI del backend #file:docs/NutriSport-API.json. Si los dos no coinciden, manda el JSON, salvo las discrepancias del §11 de NutriSport_API.md. La identidad visual y las pantallas están en #file:docs/DESIGN.md.
 
-Stack: Angular 22 con componentes standalone, TypeScript en modo estricto, SCSS, signals (signal, computed, effect, input, output, model), el control flow nuevo (@if, @for, @switch), formularios reactivos tipados, HttpClient con interceptores funcionales, rutas con carga perezosa (loadComponent y loadChildren), Angular CDK (dialog, overlay, a11y, drag-drop), lucide-angular para los iconos y ngx-echarts para los gráficos. Sin NgModules, sin Angular Material y sin librerías de estado: el estado compartido va en servicios con signals. Los tests usan Vitest (el runner que trae el proyecto).
+Stack: Angular 22 con componentes standalone, TypeScript en modo estricto, SCSS, signals (signal, computed, effect, input, output, model), el control flow nuevo (@if, @for, @switch), formularios reactivos tipados, HttpClient con interceptores funcionales, rutas con carga perezosa (loadComponent y loadChildren), Angular CDK (dialog, overlay, a11y, drag-drop), @lucide/angular para los iconos (provideLucideIcons y <svg lucideIcon="…">) y ngx-echarts para los gráficos. Sin NgModules, sin Angular Material y sin librerías de estado: el estado compartido va en servicios con signals. Los tests usan Vitest (el runner que trae el proyecto).
 
 Estructura de src/app: core (models, services, interceptors, guards, layout, util), shared (ui, pipes, design) y features/<dominio> (auth, onboarding, dashboard, perfil, configuracion, alimentos, comidas, analisis, actividad, admin y, en la Ampliación, productos, recetas, planificador, compra, estadisticas, asistente). Estilos globales en src/styles (tokens, abstracts, base, utilities, vendors). Alias: @core/*, @shared/*, @features/*, @env/*.
 
@@ -575,7 +575,7 @@ Después de fusionar: `git checkout main && git pull && git branch -d feature/02
 Trasladar a SCSS la identidad visual de `DESIGN.md` (§2, §3, §6 y §9): *tokens* primitivos y semánticos, Manrope e Inter autoalojadas, escala tipográfica, *breakpoints*, utilidades mínimas y los mismos valores en TypeScript para los gráficos.
 
 ## Tareas
-- [ ] Instalar `@fontsource-variable/manrope`, `@fontsource-variable/inter`, `lucide-angular` y `@angular/cdk`
+- [ ] Instalar `@fontsource-variable/manrope`, `@fontsource-variable/inter`, `@lucide/angular` y `@angular/cdk`
 - [ ] Crear `src/styles` con `tokens/`, `abstracts/`, `base/`, `utilities/` y `vendors/` según `DESIGN.md` §9.1–9.4
 - [ ] Crear `shared/design/tokens.ts` con los valores que necesitan ECharts y la lógica
 - [ ] Crear el `LayoutService` con signals (`esMovil`, `esTablet`) a partir de `BreakpointObserver`
@@ -628,8 +628,10 @@ git checkout -b feature/03-sistema-diseno
 ### Ejecución (en orden)
 
 ```bash
-npm i @angular/cdk lucide-angular @fontsource-variable/manrope @fontsource-variable/inter
+npm i @angular/cdk @lucide/angular @fontsource-variable/manrope @fontsource-variable/inter
 ```
+
+> **Iconos:** se usa `@lucide/angular`, el paquete oficial actual de Lucide (standalone y con signals). El antiguo `lucide-angular` solo declara compatibilidad hasta Angular 21 y `npm i` falla con Angular 22. Los iconos se registran con `provideLucideIcons(...)` y se pintan con `<svg lucideIcon="nombre">`.
 
 #### Prompt 3.1 · Tokens y estilos globales
 
@@ -650,7 +652,7 @@ En angular.json, apunta "styles" a src/styles/styles.scss y añade stylePreproce
 1. Crea src/app/shared/design/tokens.ts con export const TOKENS = { ... } as const: los colores de datos (kcal, proteína, hidratos, grasa, actividad, peso), ink950, border, textSecondary, textTertiary, success, warning, error, info, fontBody y fontDisplay, con los mismos valores HEX que los tokens SCSS (es el único sitio de src/app donde se permiten HEX, porque ECharts no lee variables CSS).
 2. Crea src/app/core/layout/layout.service.ts (providedIn root) con BreakpointObserver del CDK y los breakpoints de DESIGN.md §9.2: signals de solo lectura esMovil (< 768 px), esTablet (768–1023 px) y esEscritorio (≥ 1024 px), con toSignal.
 3. Crea features/dev/estilos.component (standalone, OnPush) que muestre: las paletas primaria, tinta, IA, datos y estados como muestras con su nombre de token; la escala tipográfica completa; ejemplos de radios y sombras. Regístralo en app.routes.ts como ruta 'dev/estilos' solo si !environment.production (usa un array de rutas condicional).
-4. Registra los iconos de Lucide con LucideAngularModule.pick({...}) en un proveedor de app.config.ts (provideIcons o importProvidersFrom, según la versión instalada), empezando por los de DESIGN.md §4: coffee, utensils, moon, apple, zap, dumbbell, camera, sparkles, scan-barcode, shopping-basket, scale, activity, shield-check, mail-check, plus, x, check, chevron-left, chevron-right, menu, log-out, user, settings, house, chart-column, bot, calendar, trash-2, pencil, copy, search, info, triangle-alert, circle-alert, circle-check, eye, eye-off, lock, star. Comprueba los nombres exactos en la versión instalada de lucide-angular.
+4. Registra los iconos con @lucide/angular (NO uses lucide-angular): en app.config.ts, provideLucideIcons(LucideCoffee, LucideUtensils, LucideMoon, LucideApple, LucideZap, LucideDumbbell, LucideCamera, LucideSparkles, LucideScanBarcode, LucideShoppingBasket, LucideScale, LucideActivity, LucideShieldCheck, LucideMailCheck, LucidePlus, LucideX, LucideCheck, LucideChevronLeft, LucideChevronRight, LucideMenu, LucideLogOut, LucideUser, LucideSettings, LucideHouse, LucideChartColumn, LucideBot, LucideCalendar, LucideTrash2, LucidePencil, LucideCopy, LucideSearch, LucideInfo, LucideTriangleAlert, LucideCircleAlert, LucideCircleCheck, LucideEye, LucideEyeOff, LucideLock, LucideStar) con los iconos de DESIGN.md §4 y los de uso general. Comprueba en node_modules/@lucide/angular que esos nombres existen. En las plantillas se pintan importando LucideDynamicIcon: <svg lucideIcon="coffee" aria-hidden="true"></svg> (los iconos nuevos que se usen más adelante se añaden a provideLucideIcons).
 ```
 
 ### Comprobación
@@ -683,7 +685,7 @@ git push -u origin feature/03-sistema-diseno
 
 ```markdown
 ## Qué incluye
-- [x] Instalar `@fontsource-variable/manrope`, `@fontsource-variable/inter`, `lucide-angular` y `@angular/cdk`
+- [x] Instalar `@fontsource-variable/manrope`, `@fontsource-variable/inter`, `@lucide/angular` y `@angular/cdk`
 - [x] Crear `src/styles` con `tokens/`, `abstracts/`, `base/`, `utilities/` y `vendors/` según `DESIGN.md` §9.1–9.4
 - [x] Crear `shared/design/tokens.ts` con los valores que necesitan ECharts y la lógica
 - [x] Crear el `LayoutService` con signals (`esMovil`, `esTablet`) a partir de `BreakpointObserver`
@@ -5268,17 +5270,18 @@ Lista de control de lo que crea cada paso (además de las pruebas `*.spec.ts` qu
 3. **Proxy en desarrollo y nginx en producción:** el navegador solo habla con un origen (`localhost:4200` o el del nginx), así que no hace falta CORS ni `withCredentials`, y la cookie con `Path=/api/v1/auth` y `SameSite=Strict` funciona sin cambios. nginx **sustituye** `X-Forwarded-For` y `X-Forwarded-Proto`, como exige el backend.
 4. **Clases con sufijo** (`NsButtonComponent`) en lugar del `NsButton` de los ejemplos de `DESIGN.md` §9.6, para seguir la convención del Prompt 0. Los selectores (`ns-button`, `button[nsButton]`) son los de `DESIGN.md`.
 5. **Sin Storybook ni Style Dictionary** (recomendados en `DESIGN.md` §9.1 y §9.4): los *tokens* se escriben a mano en SCSS y en `tokens.ts`, y la página `/dev/componentes` (solo en desarrollo) hace de catálogo visual.
-6. **Fuentes:** `@fontsource-variable/manrope` y `@fontsource-variable/inter` autoalojadas (sin Google Fonts).
-7. **Sin pantalla "Uso de IA" con contadores:** el backend no expone los análisis y mensajes usados en el día. Configuración muestra los límites (20 análisis y 50 mensajes al día) como texto y el 429 informa del límite al alcanzarlo.
-8. **Sin "Panel" de administración con KPIs** (`DESIGN.md` §7.17): no hay endpoints de métricas. La zona de administración empieza en Usuarios. Incidencias y validación de alimentos de usuario son Visión.
-9. **Historial de comidas por rangos de 92 días** (máximo del backend) con "Cargar 30 días más" en lugar de paginación infinita, y sin filtro por origen en el servidor (se filtra en el cliente sobre lo cargado).
-10. **Fotos siempre convertidas a JPEG en el cliente** (lado mayor ≤ 2048 px, calidad 0,85) con `<canvas>`; así se evitan HEIC y WebP, que el backend no acepta.
-11. **Escáner:** `BarcodeDetector` cuando el navegador lo tenga y `@zxing/browser` como alternativa; la introducción manual del código está siempre visible.
-12. **Estado de la Ampliación por *polling*** también en el asistente: el backend devuelve la respuesta completa (sin *streaming*), así que se muestra "Escribiendo…" mientras dura la petición.
-13. **Modo oscuro, PWA y multi-idioma** son Visión; los textos se escriben directamente en castellano en las plantillas (sin `@angular/localize`).
-14. **Fecha de "hoy"** calculada en el navegador con la zona del usuario; el backend usa Europe/Madrid. Para un usuario en España coinciden; el resumen sin `fecha` usa siempre la del servidor.
-15. **Recetas sin publicar en la administración:** la API no tiene un listado de administración de recetas ni devuelve el campo `publicada`. La pestaña Recetas busca con `GET /recetas`, publica justo después de crear y guarda en la sesión las recetas recién creadas. Si hace falta más, se puede añadir un `GET /admin/recetas` al backend.
-16. **Mis alimentos sin listado propio:** `GET /alimentos` exige texto de búsqueda; los alimentos propios se reconocen por `fuente = USUARIO` y, sin texto, se muestran los de recientes y frecuentes.
+6. **Iconos con `@lucide/angular`** (no `lucide-angular`, que nombra `DESIGN.md` §4 y §9.4): el paquete antiguo solo declara compatibilidad hasta Angular 21. El nuevo es el oficial de Lucide; los iconos se registran con `provideLucideIcons(...)` y se usan con `<svg lucideIcon="nombre">`.
+7. **Fuentes:** `@fontsource-variable/manrope` y `@fontsource-variable/inter` autoalojadas (sin Google Fonts).
+8. **Sin pantalla "Uso de IA" con contadores:** el backend no expone los análisis y mensajes usados en el día. Configuración muestra los límites (20 análisis y 50 mensajes al día) como texto y el 429 informa del límite al alcanzarlo.
+9. **Sin "Panel" de administración con KPIs** (`DESIGN.md` §7.17): no hay endpoints de métricas. La zona de administración empieza en Usuarios. Incidencias y validación de alimentos de usuario son Visión.
+10. **Historial de comidas por rangos de 92 días** (máximo del backend) con "Cargar 30 días más" en lugar de paginación infinita, y sin filtro por origen en el servidor (se filtra en el cliente sobre lo cargado).
+11. **Fotos siempre convertidas a JPEG en el cliente** (lado mayor ≤ 2048 px, calidad 0,85) con `<canvas>`; así se evitan HEIC y WebP, que el backend no acepta.
+12. **Escáner:** `BarcodeDetector` cuando el navegador lo tenga y `@zxing/browser` como alternativa; la introducción manual del código está siempre visible.
+13. **Estado de la Ampliación por *polling*** también en el asistente: el backend devuelve la respuesta completa (sin *streaming*), así que se muestra "Escribiendo…" mientras dura la petición.
+14. **Modo oscuro, PWA y multi-idioma** son Visión; los textos se escriben directamente en castellano en las plantillas (sin `@angular/localize`).
+15. **Fecha de "hoy"** calculada en el navegador con la zona del usuario; el backend usa Europe/Madrid. Para un usuario en España coinciden; el resumen sin `fecha` usa siempre la del servidor.
+16. **Recetas sin publicar en la administración:** la API no tiene un listado de administración de recetas ni devuelve el campo `publicada`. La pestaña Recetas busca con `GET /recetas`, publica justo después de crear y guarda en la sesión las recetas recién creadas. Si hace falta más, se puede añadir un `GET /admin/recetas` al backend.
+17. **Mis alimentos sin listado propio:** `GET /alimentos` exige texto de búsqueda; los alimentos propios se reconocen por `fuente = USUARIO` y, sin texto, se muestran los de recientes y frecuentes.
 
 ---
 

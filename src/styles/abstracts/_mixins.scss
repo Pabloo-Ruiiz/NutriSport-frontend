@@ -1,0 +1,39 @@
+// Mixins comunes. No generan CSS hasta que se incluyen.
+
+// Foco visible (DESIGN.md §2.7): 2 px sólido en verde 700, separado 2 px.
+// Sobre superficies oscuras (ink-950) se usa green-400.
+@mixin focus-ring($sobre-oscuro: false) {
+  @if $sobre-oscuro {
+    outline: 2px solid var(--ns-green-400);
+  } @else {
+    outline: 2px solid var(--ns-focus-ring);
+  }
+  outline-offset: 2px;
+}
+
+// Corta el texto en una línea con puntos suspensivos.
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Oculta visualmente un elemento sin ocultarlo a los lectores de pantalla.
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Contenido que solo se aplica si el usuario pide reducir el movimiento.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
