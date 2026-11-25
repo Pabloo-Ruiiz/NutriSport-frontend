@@ -1,0 +1,132 @@
+// Diálogo y bottom sheet (DESIGN.md §5.6). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  // Ocupa el alto máximo que da el panel del overlay (90dvh en móvil).
+  max-height: inherit;
+  border-radius: var(--ns-radius-2xl);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  box-shadow: var(--ns-shadow-xl);
+  animation: ns-dialog-entrada var(--ns-duration-base) var(--ns-ease-out);
+}
+
+:host(.ns-dialog--sheet) {
+  border-radius: var(--ns-radius-2xl) var(--ns-radius-2xl) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: ns-sheet-entrada var(--ns-duration-slow) var(--ns-ease-out);
+}
+
+.ns-dialog__asa {
+  align-self: center;
+  width: 36px;
+  height: 4px;
+  margin-top: var(--ns-space-2);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-border-strong);
+}
+
+.ns-dialog__cabecera {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-5) var(--ns-space-6) var(--ns-space-3);
+}
+
+.ns-dialog__titulo {
+  flex: 1;
+  min-width: 0;
+}
+
+.ns-dialog__cerrar {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: -6px -10px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  @include bp.down(md) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+    }
+  }
+}
+
+.ns-dialog__cuerpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--ns-space-2) var(--ns-space-6) var(--ns-space-5);
+}
+
+.ns-dialog__pie {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-4) var(--ns-space-6);
+  border-top: 1px solid var(--ns-border);
+
+  &:empty {
+    display: none;
+  }
+}
+
+// En el bottom sheet las acciones van a ancho completo, la principal arriba (§5.3).
+:host(.ns-dialog--sheet) {
+  .ns-dialog__cabecera,
+  .ns-dialog__cuerpo,
+  .ns-dialog__pie {
+    padding-inline: var(--ns-space-4);
+  }
+
+  .ns-dialog__pie {
+    flex-direction: column-reverse;
+  }
+}
+
+@keyframes ns-dialog-entrada {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes ns-sheet-entrada {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@include m.reduced-motion {
+  :host,
+  :host(.ns-dialog--sheet) {
+    animation: none;
+  }
+}

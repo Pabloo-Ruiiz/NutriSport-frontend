@@ -1,6 +1,12 @@
 // Estilos estructurales del overlay del CDK (diálogos, drawer, desplegables).
 @use '@angular/cdk/overlay-prebuilt.css';
 
+// Contenedor de diálogos, drawer y desplegables en la capa modal (§6.9). El CDK usa 1000 por
+// defecto; con el token, los toasts (--ns-z-toast, fuera del overlay) quedan por encima.
+.cdk-overlay-container {
+  z-index: var(--ns-z-modal);
+}
+
 // Fondo oscuro de diálogos y drawer (DESIGN.md §6.4) en la capa overlay (§6.9).
 .cdk-overlay-dark-backdrop {
   z-index: var(--ns-z-overlay);

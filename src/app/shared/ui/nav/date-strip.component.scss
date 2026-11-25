@@ -1,0 +1,107 @@
+// Tira de fechas (DESIGN.md §5.13). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  max-width: 100%;
+}
+
+.ns-date-strip__dias {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(7, minmax(40px, 1fr));
+  gap: var(--ns-space-1);
+  min-width: 0;
+}
+
+.ns-date-strip__flecha,
+.ns-date-strip__dia {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.ns-date-strip__flecha {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--ns-radius-md);
+  color: var(--ns-text-secondary);
+
+  &:hover:not(:disabled) {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+}
+
+.ns-date-strip__dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 64px;
+  padding: var(--ns-space-2) 0 var(--ns-space-1);
+  border-radius: var(--ns-radius-lg);
+  color: var(--ns-text);
+
+  &:hover:not(:disabled):not(.ns-date-strip__dia--seleccionado) {
+    background: var(--ns-surface-muted);
+  }
+}
+
+.ns-date-strip__semana {
+  color: var(--ns-text-tertiary);
+  font: 500 0.75rem/1rem var(--ns-font-body);
+  text-transform: capitalize;
+}
+
+.ns-date-strip__numero {
+  font: 600 1rem/1.5rem var(--ns-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+// Hoy: número en verde y subrayado (no solo color).
+.ns-date-strip__dia--hoy .ns-date-strip__numero {
+  color: var(--ns-text-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ns-date-strip__dia--seleccionado {
+  background: var(--ns-surface-inverse);
+  color: var(--ns-text-inverse);
+
+  .ns-date-strip__semana,
+  .ns-date-strip__numero {
+    color: var(--ns-text-inverse);
+  }
+}
+
+.ns-date-strip__punto {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--ns-radius-full);
+}
+
+.ns-date-strip__punto--visible {
+  background: var(--ns-green-500);
+}
+
+// Sobre el fondo oscuro, el punto en verde claro (contraste).
+.ns-date-strip__dia--seleccionado .ns-date-strip__punto--visible {
+  background: var(--ns-green-400);
+}

@@ -1,0 +1,75 @@
+// Pestañas. Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+}
+
+// En pantallas estrechas la lista se desplaza en horizontal en lugar de partirse.
+.ns-tabs__lista {
+  display: flex;
+  gap: var(--ns-space-1);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--ns-border);
+  scrollbar-width: none;
+}
+
+.ns-tabs__tab {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--ns-space-2);
+  height: 44px;
+  padding: 0 var(--ns-space-3);
+  border: 0;
+  background: transparent;
+  color: var(--ns-text-secondary);
+  font: 500 0.875rem/1.25rem var(--ns-font-body);
+  white-space: nowrap;
+  cursor: pointer;
+
+  // Subrayado de la activa (además del peso: no depende solo del color).
+  &::after {
+    content: '';
+    position: absolute;
+    right: var(--ns-space-2);
+    bottom: -1px;
+    left: var(--ns-space-2);
+    height: 2px;
+    border-radius: var(--ns-radius-full);
+    background: transparent;
+  }
+
+  &:hover:not(:disabled) {
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ns-tabs__tab--activa {
+  color: var(--ns-text);
+  font-weight: 600;
+
+  &::after {
+    background: var(--ns-action-primary);
+  }
+}
+
+// Los paneles se proyectan: el estilo de foco se aplica con :host ::ng-deep para no exigir clases.
+:host ::ng-deep .ns-tabs__panel {
+  padding-top: var(--ns-space-4);
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}

@@ -1,0 +1,151 @@
+// Toasts (DESIGN.md §5.11). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  position: fixed;
+  right: var(--ns-space-6);
+  bottom: var(--ns-space-6);
+  z-index: var(--ns-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  width: 360px;
+  max-width: calc(100vw - 2 * var(--ns-space-4));
+  // El contenedor no bloquea clics; los toasts sí.
+  pointer-events: none;
+
+  // En móvil, arriba y a lo ancho, debajo de la muesca.
+  @include bp.down(md) {
+    top: calc(var(--ns-space-3) + env(safe-area-inset-top));
+    right: var(--ns-space-4);
+    bottom: auto;
+    left: var(--ns-space-4);
+    width: auto;
+    max-width: none;
+  }
+}
+
+.ns-toasts__region {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.ns-toast {
+  --ns-toast-color: var(--ns-info);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-3) var(--ns-space-3) var(--ns-space-3) var(--ns-space-4);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+  box-shadow: var(--ns-shadow-lg);
+  pointer-events: auto;
+  animation: ns-toast-entrada var(--ns-duration-base) var(--ns-ease-out);
+}
+
+.ns-toast--success {
+  --ns-toast-color: var(--ns-success);
+}
+.ns-toast--error {
+  --ns-toast-color: var(--ns-error);
+}
+.ns-toast--warning {
+  --ns-toast-color: var(--ns-warning);
+}
+
+.ns-toast__icono {
+  flex-shrink: 0;
+  color: var(--ns-toast-color);
+}
+
+.ns-toast__contenido {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ns-toast__titulo {
+  font-weight: 600;
+}
+
+.ns-toast__mensaje {
+  color: var(--ns-text-secondary);
+}
+
+.ns-toast__accion {
+  margin-top: var(--ns-space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ns-text-link);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-toast__cerrar {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-tertiary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  // Área táctil de 44 px en móvil.
+  @include bp.down(md) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+    }
+  }
+}
+
+@keyframes ns-toast-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@include m.reduced-motion {
+  .ns-toast {
+    animation: none;
+  }
+}

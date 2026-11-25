@@ -12,18 +12,35 @@ import {
   NsButtonComponent,
   NsButtonSize,
   NsButtonVariant,
+  NS_TABS,
   NsCheckboxComponent,
   NsChipGroupComponent,
+  NsConfirmService,
+  NsDateStripComponent,
+  NsDialogService,
+  NsDialogSize,
+  NsDisclaimerComponent,
+  NsDisclaimerContext,
+  NsDrawerComponent,
   NsEmptyStateComponent,
   NsFormFieldComponent,
   NsInputDirective,
+  NsMetricComponent,
   NsOpcion,
+  NsPaginatorComponent,
+  NsProgressBarComponent,
+  NsQuantityInputComponent,
+  NsRingComponent,
   NsSegmentedComponent,
   NsSelectComponent,
   NsSkeletonComponent,
   NsSpinnerComponent,
+  NsStepperComponent,
   NsSwitchComponent,
+  NsToastService,
 } from '@shared/ui';
+import { hoyLocal, sumarDias } from '@core/util/fechas';
+import { DatosDialogoEjemplo, DialogoEjemploComponent } from './dialogo-ejemplo.component';
 
 interface Aviso {
   type: NsAlertType;
@@ -55,6 +72,16 @@ interface Aviso {
     NsSwitchComponent,
     NsSegmentedComponent,
     NsChipGroupComponent,
+    NsDisclaimerComponent,
+    NsDrawerComponent,
+    NsQuantityInputComponent,
+    NsRingComponent,
+    NsProgressBarComponent,
+    NsMetricComponent,
+    ...NS_TABS,
+    NsStepperComponent,
+    NsDateStripComponent,
+    NsPaginatorComponent,
   ],
   templateUrl: './componentes.component.html',
   styleUrl: './componentes.component.scss',
@@ -71,7 +98,30 @@ export class ComponentesComponent {
     { id: 'avisos', titulo: 'Avisos' },
     { id: 'carga', titulo: 'Spinner y skeleton' },
     { id: 'vacios', titulo: 'Estados vacíos' },
+    { id: 'dialogos', titulo: 'Diálogos y drawer' },
+    { id: 'toasts', titulo: 'Toasts' },
+    { id: 'disclaimer', titulo: 'Aviso orientativo' },
+    { id: 'datos', titulo: 'Datos y progreso' },
+    { id: 'navegacion', titulo: 'Navegación' },
   ];
+
+  /* Datos y progreso */
+  protected readonly consumidas = signal(560);
+
+  /* Navegación */
+  protected readonly pestanas: NsOpcion<string>[] = [
+    { valor: 'ingredientes', etiqueta: 'Ingredientes', icono: 'shopping-basket' },
+    { valor: 'pasos', etiqueta: 'Preparación', icono: 'utensils' },
+    { valor: 'nutricion', etiqueta: 'Nutrición', icono: 'chart-column' },
+    { valor: 'opiniones', etiqueta: 'Opiniones', deshabilitada: true },
+  ];
+  protected readonly pestana = signal<string | null>('ingredientes');
+  protected readonly pasosPerfil = ['Datos personales', 'Objetivo', 'Actividad', 'Preferencias'];
+  protected readonly pasoActual = signal(1);
+  protected readonly hoy = hoyLocal();
+  protected readonly fecha = signal(this.hoy);
+  protected readonly diasConDatos = [-6, -5, -3, -2, -1, 0].map((dias) => sumarDias(this.hoy, dias));
+  protected readonly pagina = signal(1);
 
   /* Botones */
   protected readonly variantesBoton: NsButtonVariant[] = ['primary', 'ai', 'secondary', 'ghost', 'danger'];
@@ -130,6 +180,9 @@ export class ComponentesComponent {
     deportes: new FormControl<string[]>(['gimnasio']),
     comida: new FormControl<string | null>('comida'),
     comidaBloqueada: new FormControl<string | null>({ value: 'cena', disabled: true }),
+    gramos: new FormControl<number | null>(150, Validators.required),
+    raciones: new FormControl<number | null>(1),
+    racionesBloqueadas: new FormControl<number | null>({ value: 2, disabled: true }),
   });
 
   constructor() {
@@ -188,4 +241,83 @@ export class ComponentesComponent {
   protected restaurarAvisos(): void {
     this.cerrados.set(new Set());
   }
+
+  /* Diálogos, confirmación y drawer */
+  private readonly dialogos = inject(NsDialogService);
+  private readonly confirmacion = inject(NsConfirmService);
+  protected readonly toasts = inject(NsToastService);
+
+  protected readonly tamanosDialogo: NsDialogSize[] = ['sm', 'md', 'lg'];
+  protected readonly resultado = signal('Aún no has abierto ningún diálogo.');
+  protected readonly drawerAbierto = signal(false);
+
+  protected abrirDialogo(tamano: NsDialogSize, parrafos = 2): void {
+    const ref = this.dialogos.open<DialogoEjemploComponent, string, DatosDialogoEjemplo>(DialogoEjemploComponent, {
+      titulo: 'Añadir comida',
+      size: tamano,
+      data: { tamano, parrafos },
+    });
+    ref.closed.subscribe((nombre) =>
+      this.resultado.set(nombre ? `Diálogo cerrado con: "${nombre}"` : 'Diálogo cancelado.'),
+    );
+  }
+
+  protected async confirmarSimple(): Promise<void> {
+    const ok = await this.confirmacion.confirmar({
+      titulo: '¿Duplicar el menú de esta semana?',
+      mensaje: 'Se copiarán las comidas planificadas a la semana que viene.',
+      textoConfirmar: 'Duplicar menú',
+    });
+    this.resultado.set(`Confirmación simple: ${ok}`);
+  }
+
+  protected async confirmarPeligro(): Promise<void> {
+    const ok = await this.confirmacion.confirmar({
+      titulo: '¿Eliminar la comida?',
+      mensaje: 'Se borrará «Cena · 718 kcal» de tu historial. Esta acción no se puede deshacer.',
+      textoConfirmar: 'Eliminar comida',
+      peligro: true,
+    });
+    this.resultado.set(`Confirmación destructiva: ${ok}`);
+  }
+
+  protected async confirmarPassword(): Promise<void> {
+    const password = await this.confirmacion.confirmar({
+      titulo: 'Eliminar tu cuenta',
+      mensaje: 'Se borrarán tu perfil, tus comidas, tus planes y tu historial. No podrás recuperarlos.',
+      textoConfirmar: 'Eliminar cuenta',
+      peligro: true,
+      pedirPassword: true,
+    });
+    this.resultado.set(
+      password === false ? 'Eliminación cancelada.' : `Contraseña recibida (${password.length} caracteres).`,
+    );
+  }
+
+  /* Toasts */
+  protected toastExito(): void {
+    this.toasts.exito('Cena guardada', '718 kcal añadidas a hoy.', {
+      texto: 'Deshacer',
+      ejecutar: () => this.toasts.info('Cena eliminada', 'Hemos deshecho el registro.'),
+    });
+  }
+
+  protected toastError(): void {
+    this.toasts.error('No hemos podido guardar', 'Revisa tu conexión e inténtalo de nuevo.');
+  }
+
+  protected toastInfo(): void {
+    this.toasts.info('Menú actualizado', 'Hemos cambiado la cena del jueves.');
+  }
+
+  protected toastAviso(): void {
+    this.toasts.mostrar({ tipo: 'warning', titulo: 'Te quedan 2 análisis hoy', duracion: 8000 });
+  }
+
+  protected variosToasts(): void {
+    for (let i = 1; i <= 5; i++) this.toasts.info(`Notificación ${i} de 5`, 'Solo se ven 3 a la vez; el resto espera.');
+  }
+
+  /* Aviso orientativo */
+  protected readonly contextosDisclaimer: NsDisclaimerContext[] = ['analisis', 'menu', 'asistente', 'receta'];
 }

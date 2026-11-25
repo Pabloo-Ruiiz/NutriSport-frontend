@@ -1,0 +1,61 @@
+// Anillo de progreso (DESIGN.md §5.14). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.ns-ring__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ns-ring__pista,
+.ns-ring__relleno,
+.ns-ring__exceso {
+  fill: none;
+}
+
+.ns-ring__pista {
+  stroke: var(--ns-surface-sunken);
+}
+
+.ns-ring__relleno,
+.ns-ring__exceso {
+  stroke-linecap: round;
+}
+
+// Exceso: rayas sobre --ns-warning, para que no dependa solo del color.
+.ns-ring__patron-fondo {
+  fill: var(--ns-warning);
+}
+
+.ns-ring__patron-raya {
+  fill: var(--ns-warning-border);
+}
+
+// Las barras accesibles ocupan el anillo pero no se ven.
+.ns-ring__barra {
+  @include m.sr-only;
+}
+
+.ns-ring__centro {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 70%;
+  color: var(--ns-text);
+  text-align: center;
+}
+
+.ns-ring__texto-exceso {
+  color: var(--ns-warning);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+}

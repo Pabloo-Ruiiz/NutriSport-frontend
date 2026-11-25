@@ -136,3 +136,19 @@
     text-align: center;
   }
 }
+
+.catalogo__anillo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ns-space-4);
+}
+
+.catalogo__anillos {
+  --ns-cluster-gap: var(--ns-space-6);
+  justify-content: center;
+}
+
+.catalogo__tira {
+  max-width: 560px;
+}

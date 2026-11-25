@@ -1,0 +1,87 @@
+// Panel lateral (drawer). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+.ns-drawer {
+  display: flex;
+  flex-direction: column;
+  max-width: 100vw;
+  height: 100%;
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  box-shadow: var(--ns-shadow-xl);
+  animation: ns-drawer-entrada var(--ns-duration-slow) var(--ns-ease-out);
+}
+
+.ns-drawer__cabecera {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-4) var(--ns-space-6);
+  border-bottom: 1px solid var(--ns-border);
+}
+
+.ns-drawer__titulo {
+  flex: 1;
+  min-width: 0;
+}
+
+.ns-drawer__cerrar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -6px -12px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-drawer__cuerpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--ns-space-5) var(--ns-space-6);
+}
+
+.ns-drawer__pie {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-4) var(--ns-space-6);
+  border-top: 1px solid var(--ns-border);
+
+  &:empty {
+    display: none;
+  }
+}
+
+@keyframes ns-drawer-entrada {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@include m.reduced-motion {
+  .ns-drawer {
+    animation: none;
+  }
+}
