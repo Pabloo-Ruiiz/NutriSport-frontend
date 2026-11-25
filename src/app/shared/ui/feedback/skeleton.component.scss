@@ -1,0 +1,48 @@
+// Skeleton (DESIGN.md §5.15). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: var(--ns-radius-sm);
+  background: var(--ns-surface-muted);
+
+  // Brillo: una franja clara que cruza el bloque. Solo se anima transform.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--ns-surface) 70%, transparent) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: ns-skeleton-brillo 1.4s var(--ns-ease-out) infinite;
+  }
+}
+
+:host(.ns-skeleton--circle) {
+  border-radius: var(--ns-radius-full);
+}
+
+:host(.ns-skeleton--rect) {
+  border-radius: var(--ns-radius-lg);
+}
+
+@include m.reduced-motion {
+  :host::after {
+    content: none;
+    animation: none;
+  }
+}
+
+@keyframes ns-skeleton-brillo {
+  to {
+    transform: translateX(100%);
+  }
+}

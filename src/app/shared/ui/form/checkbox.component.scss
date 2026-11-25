@@ -1,0 +1,75 @@
+// Casilla (DESIGN.md §5.4). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: inline-flex;
+}
+
+.ns-checkbox__fila {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+  color: var(--ns-text);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+  cursor: pointer;
+
+  // Fila entera como objetivo táctil de 44 px en móvil.
+  @include bp.down(md) {
+    min-height: 44px;
+  }
+}
+
+.ns-checkbox__caja {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+// El input nativo ocupa la caja: se dibuja él mismo y el check va encima.
+.ns-checkbox__nativo {
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 1px solid var(--ns-border-input);
+  border-radius: var(--ns-radius-xs);
+  background: var(--ns-surface);
+  cursor: inherit;
+  transition:
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    border-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover:not(:disabled) {
+    border-color: var(--ns-ink-700);
+  }
+
+  &:checked {
+    border-color: var(--ns-action-primary);
+    background: var(--ns-action-primary);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-checkbox__check {
+  position: absolute;
+  inset: 2px;
+  color: var(--ns-text-inverse);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ns-duration-fast) var(--ns-ease-out);
+}
+
+.ns-checkbox__nativo:checked + .ns-checkbox__check {
+  opacity: 1;
+}
+
+:host(.ns-checkbox--deshabilitado) .ns-checkbox__fila {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

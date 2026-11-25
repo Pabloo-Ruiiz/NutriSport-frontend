@@ -1,0 +1,59 @@
+// Caja de campo común a nsInput y ns-select (DESIGN.md §5.2). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+@mixin caja {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 var(--ns-space-3);
+  border: 1px solid var(--ns-border-input);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    box-shadow var(--ns-duration-fast) var(--ns-ease-out);
+
+  &::placeholder {
+    color: var(--ns-text-tertiary);
+    opacity: 1;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--ns-ink-700);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: var(--ns-action-primary);
+    box-shadow: var(--ns-shadow-focus);
+  }
+
+  &:disabled {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text-tertiary);
+    cursor: not-allowed;
+  }
+
+  // 44 px en móvil; 16 px de letra evita que iOS amplíe la página al enfocar.
+  @include bp.down(md) {
+    height: 44px;
+    font-size: 1rem;
+  }
+}
+
+@mixin caja-error {
+  border-color: var(--ns-error);
+
+  &:hover:not(:disabled) {
+    border-color: var(--ns-error);
+  }
+
+  &:focus,
+  &:focus-visible {
+    border-color: var(--ns-error);
+  }
+}

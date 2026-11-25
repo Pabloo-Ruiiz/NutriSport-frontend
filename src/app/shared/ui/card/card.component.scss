@@ -1,0 +1,93 @@
+// Tarjeta (DESIGN.md §5.5). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+  min-width: 0;
+  padding: var(--ns-space-5);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-xl);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  box-shadow: var(--ns-shadow-xs);
+  text-align: start;
+}
+
+:host(.ns-card--padding-sm) {
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-4);
+}
+
+:host(.ns-card--padding-lg) {
+  padding: var(--ns-space-6);
+}
+
+/* Cabecera */
+.ns-card__cabecera {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-2);
+}
+
+.ns-card__titulos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ns-card__acciones {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--ns-space-1);
+  // Sube un poco para que un botón de 32 px quede alineado con la línea del título.
+  margin-block: -4px;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.ns-card__cuerpo {
+  min-width: 0;
+}
+
+/* Variante IA: borde índigo claro e icono sparkles (§2.3: índigo solo para IA) */
+:host(.ns-card--ai) {
+  border-color: var(--ns-ai-100);
+}
+
+.ns-card__icono-ia {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--ns-action-ai);
+}
+
+/* Variante interactiva: toda la tarjeta es un enlace o un botón */
+:host(.ns-card--interactive) {
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    box-shadow var(--ns-duration-fast) var(--ns-ease-out);
+}
+
+:host(.ns-card--interactive:hover:not(:disabled)) {
+  border-color: var(--ns-border-strong);
+  box-shadow: var(--ns-shadow-sm);
+}
+
+:host(.ns-card--interactive:focus-visible) {
+  @include m.focus-ring;
+}
+
+:host(.ns-card--interactive:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: var(--ns-shadow-xs);
+}

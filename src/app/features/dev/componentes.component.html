@@ -1,0 +1,317 @@
+<main id="contenido" class="catalogo ns-stack">
+  <header class="ns-stack catalogo__cabecera">
+    <p class="ns-text-overline ns-text-tertiary">Solo en desarrollo</p>
+    <h1 class="ns-text-h1">Componentes</h1>
+    <p class="ns-text-body-lg ns-text-secondary">
+      Variantes, tamaños y estados de los componentes de <code>shared/ui</code> (DESIGN.md §5). Los estados
+      <strong>hover</strong> y <strong>foco</strong> son reales: pasa el ratón o recorre la página con <kbd>Tab</kbd>.
+    </p>
+    <p class="ns-text-body">
+      <a class="ns-text-link" routerLink="/dev/estilos">Ver la guía de estilos (tokens)</a>
+    </p>
+    <nav aria-label="Secciones del catálogo">
+      <ul class="ns-cluster catalogo__indice" role="list">
+        @for (seccion of secciones; track seccion.id) {
+          <li>
+            <a [href]="'#' + seccion.id" class="ns-text-link">{{ seccion.titulo }}</a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Botones -->
+  <section class="ns-stack" id="botones" aria-labelledby="titulo-botones">
+    <h2 class="ns-text-h2" id="titulo-botones">Botones</h2>
+
+    <h3 class="ns-text-h4">Variantes y estados</h3>
+    <div class="catalogo__tabla" role="table" aria-label="Variantes y estados de botón">
+      <div class="catalogo__fila catalogo__fila--titulo" role="row">
+        <span role="columnheader">Variante</span>
+        <span role="columnheader">Normal</span>
+        <span role="columnheader">Con icono</span>
+        <span role="columnheader">Deshabilitado</span>
+        <span role="columnheader">Cargando</span>
+      </div>
+      @for (variante of variantesBoton; track variante) {
+        <div class="catalogo__fila" role="row">
+          <code role="rowheader">{{ variante }}</code>
+          <span role="cell"><button nsButton type="button" [variant]="variante">Guardar</button></span>
+          <span role="cell">
+            <button nsButton type="button" [variant]="variante" [icon]="variante === 'ai' ? 'sparkles' : 'plus'">
+              {{ variante === 'ai' ? 'Analizar foto' : 'Añadir' }}
+            </button>
+          </span>
+          <span role="cell"><button nsButton type="button" [variant]="variante" disabled>Guardar</button></span>
+          <span role="cell"><button nsButton type="button" [variant]="variante" loading>Guardando</button></span>
+        </div>
+      }
+    </div>
+
+    <h3 class="ns-text-h4">Tamaños</h3>
+    <div class="ns-cluster">
+      @for (tamano of tamanosBoton; track tamano) {
+        <button nsButton type="button" [size]="tamano" icon="plus">Tamaño {{ tamano }}</button>
+      }
+    </div>
+
+    <h3 class="ns-text-h4">Icono al final, enlace y ancho completo</h3>
+    <div class="ns-cluster">
+      <button nsButton type="button" variant="secondary" icon="chevron-right" iconPosition="end">Siguiente</button>
+      <a nsButton variant="ghost" routerLink="/dev/estilos" icon="chevron-left">Enlace a la guía de estilos</a>
+      <a nsButton variant="secondary" routerLink="/dev/estilos" disabled>Enlace deshabilitado</a>
+    </div>
+    <div class="catalogo__estrecho">
+      <button nsButton type="button" fullWidth icon="check" [loading]="guardando()" (click)="simularGuardado()">
+        {{ guardando() ? 'Guardando…' : 'Pulsa para simular 2 s de carga' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Formularios -->
+  <section class="ns-stack" id="formularios" aria-labelledby="titulo-formularios">
+    <h2 class="ns-text-h2" id="titulo-formularios">Formularios</h2>
+
+    <form class="catalogo__formulario" [formGroup]="form" (ngSubmit)="validarTodo()">
+      <h3 class="ns-text-h4 catalogo__ancho">Campos de texto</h3>
+      <ns-form-field label="Nombre" hint="Como quieres que te llamemos.">
+        <input nsInput formControlName="nombre" placeholder="Ana" autocomplete="given-name" />
+      </ns-form-field>
+      <ns-form-field label="Peso" sufijo="kg" hint="Pésate por la mañana, en ayunas." obligatorio>
+        <input nsInput type="number" inputmode="decimal" step="0.1" formControlName="peso" />
+      </ns-form-field>
+      <ns-form-field label="Correo (error de validación)" obligatorio>
+        <input nsInput type="email" formControlName="email" autocomplete="email" />
+      </ns-form-field>
+      <ns-form-field label="Correo (error del servidor)">
+        <input nsInput type="email" formControlName="emailServidor" />
+      </ns-form-field>
+      <ns-form-field label="Deshabilitado">
+        <input nsInput formControlName="bloqueado" />
+      </ns-form-field>
+      <ns-form-field label="Notas" hint="Máximo 200 caracteres.">
+        <textarea nsInput formControlName="notas" rows="3" placeholder="¿Algo que debamos saber?"></textarea>
+      </ns-form-field>
+
+      <h3 class="ns-text-h4 catalogo__ancho">Selector</h3>
+      <ns-form-field label="Objetivo">
+        <ns-select formControlName="objetivo" [opciones]="objetivos" placeholder="Elige tu objetivo" />
+      </ns-form-field>
+      <ns-form-field label="Objetivo (error)" obligatorio>
+        <ns-select formControlName="objetivoError" [opciones]="objetivos" placeholder="Elige tu objetivo" />
+      </ns-form-field>
+      <ns-form-field label="Objetivo (deshabilitado)">
+        <ns-select formControlName="objetivoBloqueado" [opciones]="objetivos" />
+      </ns-form-field>
+
+      <h3 class="ns-text-h4 catalogo__ancho">Casilla e interruptor</h3>
+      <div class="ns-stack catalogo__grupo">
+        <ns-checkbox formControlName="terminos">Acepto las condiciones de uso</ns-checkbox>
+        <ns-checkbox formControlName="terminosBloqueado">Casilla deshabilitada</ns-checkbox>
+      </div>
+      <div class="ns-stack catalogo__grupo">
+        <ns-switch formControlName="avisos">Recordatorios de comidas</ns-switch>
+        <ns-switch formControlName="avisosBloqueado">Interruptor deshabilitado</ns-switch>
+      </div>
+
+      <h3 class="ns-text-h4 catalogo__ancho">Segmentado (flechas del teclado)</h3>
+      <ns-form-field label="Periodo">
+        <ns-segmented formControlName="periodo" [opciones]="periodos" />
+      </ns-form-field>
+      <ns-form-field label="Periodo (deshabilitado)">
+        <ns-segmented formControlName="periodoBloqueado" [opciones]="periodos" />
+      </ns-form-field>
+
+      <h3 class="ns-text-h4 catalogo__ancho">Chips</h3>
+      <ns-form-field class="catalogo__ancho" label="Deportes (selección múltiple)" hint="Yoga está deshabilitado.">
+        <ns-chip-group formControlName="deportes" [opciones]="deportes" multiple />
+      </ns-form-field>
+      <ns-form-field label="Comida (selección simple)">
+        <ns-chip-group formControlName="comida" [opciones]="comidas" />
+      </ns-form-field>
+      <ns-form-field label="Comida (deshabilitado)">
+        <ns-chip-group formControlName="comidaBloqueada" [opciones]="comidas" />
+      </ns-form-field>
+
+      <div class="ns-cluster catalogo__ancho catalogo__acciones">
+        <button nsButton type="button" variant="secondary" (click)="simularErrorServidor()">
+          Repetir error del servidor
+        </button>
+        <button nsButton type="submit">Validar todo</button>
+      </div>
+      <pre class="catalogo__valor ns-text-caption catalogo__ancho">{{ form.getRawValue() | json }}</pre>
+    </form>
+  </section>
+
+  <!-- Tarjetas -->
+  <section class="ns-stack" id="tarjetas" aria-labelledby="titulo-tarjetas">
+    <h2 class="ns-text-h2" id="titulo-tarjetas">Tarjetas</h2>
+    <div class="catalogo__rejilla">
+      <ns-card>
+        <h3 nsCardTitulo>Comidas de hoy</h3>
+        <p nsCardSubtitulo>3 de 5 registradas</p>
+        <button nsCardAcciones nsButton type="button" variant="ghost" size="sm" icon="pencil">Editar</button>
+        <p class="ns-text-body ns-text-secondary">Variante <code>default</code> con título, subtítulo y acción.</p>
+      </ns-card>
+
+      <ns-card variant="metric">
+        <h3 nsCardTitulo>Proteínas</h3>
+        <p class="ns-text-metric-lg ns-tnum">112 g</p>
+        <ns-badge variant="success">▲ 8 % frente a ayer</ns-badge>
+      </ns-card>
+
+      <ns-card variant="ai">
+        <h3 nsCardTitulo>Sugerencia del asistente</h3>
+        <p nsCardSubtitulo>Basada en tu última semana</p>
+        <p class="ns-text-body ns-text-secondary">
+          Los días de entreno te quedas corto de hidratos. Prueba a añadir arroz o avena en la comida previa.
+        </p>
+      </ns-card>
+
+      <a nsCard variant="interactive" routerLink="/dev/estilos">
+        <h3 nsCardTitulo>Tarjeta enlace</h3>
+        <p class="ns-text-body ns-text-secondary">Variante <code>interactive</code> sobre un &lt;a&gt;.</p>
+      </a>
+
+      <button nsCard variant="interactive">
+        <h3 nsCardTitulo>Tarjeta botón</h3>
+        <p class="ns-text-body ns-text-secondary">Variante <code>interactive</code> sobre un &lt;button&gt;.</p>
+      </button>
+
+      <button nsCard variant="interactive" disabled>
+        <h3 nsCardTitulo>Tarjeta deshabilitada</h3>
+        <p class="ns-text-body ns-text-secondary">Un &lt;button&gt; con disabled.</p>
+      </button>
+    </div>
+
+    <h3 class="ns-text-h4">Relleno</h3>
+    <div class="catalogo__rejilla">
+      <ns-card padding="sm"
+        ><p class="ns-text-body">padding <code>sm</code> · 16 px</p></ns-card
+      >
+      <ns-card padding="md"
+        ><p class="ns-text-body">padding <code>md</code> · 20 px</p></ns-card
+      >
+      <ns-card padding="lg"
+        ><p class="ns-text-body">padding <code>lg</code> · 24 px</p></ns-card
+      >
+    </div>
+  </section>
+
+  <!-- Badges -->
+  <section class="ns-stack" id="badges" aria-labelledby="titulo-badges">
+    <h2 class="ns-text-h2" id="titulo-badges">Badges</h2>
+    <div class="ns-cluster">
+      @for (badge of variantesBadge; track badge.variant) {
+        <ns-badge [variant]="badge.variant" [icon]="badge.icono">{{ badge.texto }}</ns-badge>
+      }
+    </div>
+    <h3 class="ns-text-h4">Restricciones alimentarias (neutral + shield-check)</h3>
+    <div class="ns-cluster">
+      <ns-badge icon="shield-check">Sin gluten</ns-badge>
+      <ns-badge icon="shield-check">Sin lactosa</ns-badge>
+      <ns-badge icon="shield-check">Vegetariana</ns-badge>
+    </div>
+  </section>
+
+  <!-- Avisos -->
+  <section class="ns-stack" id="avisos" aria-labelledby="titulo-avisos">
+    <h2 class="ns-text-h2" id="titulo-avisos">Avisos</h2>
+    @for (aviso of avisos; track aviso.type) {
+      @if (!cerrados().has(aviso.type)) {
+        <ns-alert [type]="aviso.type" [titulo]="aviso.titulo" dismissible (cerrar)="cerrarAviso(aviso.type)">
+          {{ aviso.texto }}
+          @if (aviso.type === 'error') {
+            <ng-container ngProjectAs="[nsAlertAcciones]">
+              <button nsButton type="button" variant="secondary" size="sm">Reintentar</button>
+              <button nsButton type="button" variant="ghost" size="sm">Continuar manualmente</button>
+            </ng-container>
+          }
+        </ns-alert>
+      }
+    }
+    @if (cerrados().size) {
+      <div>
+        <button nsButton type="button" variant="ghost" size="sm" (click)="restaurarAvisos()">
+          Mostrar los avisos cerrados
+        </button>
+      </div>
+    }
+    <ns-alert type="info">Aviso sin título ni botón de cerrar.</ns-alert>
+  </section>
+
+  <!-- Spinner y skeleton -->
+  <section class="ns-stack" id="carga" aria-labelledby="titulo-carga">
+    <h2 class="ns-text-h2" id="titulo-carga">Spinner y skeleton</h2>
+    <div class="ns-cluster catalogo__spinners">
+      <ns-spinner [size]="16" />
+      <ns-spinner [size]="24" />
+      <ns-spinner [size]="32" etiqueta="Cargando" class="ns-text-ai" />
+    </div>
+
+    <h3 class="ns-text-h4">Formas (sin brillo con prefers-reduced-motion)</h3>
+    <div class="catalogo__rejilla">
+      <div class="ns-stack catalogo__esqueleto">
+        <code>line</code>
+        <ns-skeleton />
+        <ns-skeleton width="70%" />
+        <ns-skeleton width="40%" />
+      </div>
+      <div class="ns-stack catalogo__esqueleto">
+        <code>circle</code>
+        <div class="ns-cluster">
+          <ns-skeleton shape="circle" [width]="32" />
+          <ns-skeleton shape="circle" />
+          <ns-skeleton shape="circle" [width]="56" />
+        </div>
+      </div>
+      <div class="ns-stack catalogo__esqueleto">
+        <code>rect</code>
+        <ns-skeleton shape="rect" />
+      </div>
+    </div>
+
+    <h3 class="ns-text-h4">Tarjeta de comida cargando</h3>
+    <ns-card class="catalogo__estrecho" role="group" aria-busy="true" aria-label="Cargando comida">
+      <div class="catalogo__comida">
+        <ns-skeleton shape="rect" [width]="56" [height]="56" />
+        <div class="ns-stack catalogo__comida-texto">
+          <ns-skeleton width="60%" />
+          <ns-skeleton width="35%" height="0.75rem" />
+        </div>
+      </div>
+    </ns-card>
+  </section>
+
+  <!-- Estados vacíos -->
+  <section class="ns-stack" id="vacios" aria-labelledby="titulo-vacios">
+    <h2 class="ns-text-h2" id="titulo-vacios">Estados vacíos</h2>
+    <div class="catalogo__rejilla">
+      <ns-card>
+        <ns-empty-state
+          icon="utensils"
+          titulo="Aún no has registrado comidas hoy"
+          descripcion="Añade lo que has comido para ver cuánto te queda para tu objetivo."
+          [nivelTitulo]="3"
+        >
+          <button nsButton type="button" icon="plus">Registrar comida</button>
+        </ns-empty-state>
+      </ns-card>
+      <ns-card>
+        <ns-empty-state
+          icon="cloud-off"
+          titulo="No hemos podido cargar la página"
+          descripcion="Comprueba tu conexión e inténtalo de nuevo."
+          [nivelTitulo]="3"
+        >
+          <button nsButton type="button">Reintentar</button>
+          <a nsButton variant="secondary" routerLink="/dev/estilos">Volver al inicio</a>
+        </ns-empty-state>
+        <p class="ns-text-caption ns-text-tertiary catalogo__codigo">Código de error: 503</p>
+      </ns-card>
+      <ns-card>
+        <ns-empty-state icon="search" titulo="Sin resultados" [nivelTitulo]="3" />
+      </ns-card>
+    </div>
+  </section>
+</main>

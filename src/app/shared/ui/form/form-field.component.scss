@@ -1,0 +1,93 @@
+// Campo de formulario y .ns-input (DESIGN.md §5.2 y §5.3). Sin encapsulación: todo va con prefijo.
+@use 'campo';
+
+.ns-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ns-form-field__label {
+  color: var(--ns-text);
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+}
+
+.ns-form-field__obligatorio {
+  margin-left: 2px;
+  color: var(--ns-error);
+}
+
+.ns-form-field__control {
+  position: relative;
+}
+
+// La unidad va dentro del campo, a la derecha; el texto deja hueco para ella.
+.ns-form-field__control--sufijo .ns-input {
+  padding-right: calc(var(--ns-space-3) * 2 + var(--ns-sufijo-ch, 2) * 1ch);
+}
+
+.ns-form-field__sufijo {
+  position: absolute;
+  top: 0;
+  right: var(--ns-space-3);
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  color: var(--ns-text-tertiary);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+  pointer-events: none;
+}
+
+.ns-form-field__hint,
+.ns-form-field__error {
+  margin: 0;
+  font: 500 0.75rem/1rem var(--ns-font-body);
+}
+
+.ns-form-field__hint {
+  color: var(--ns-text-tertiary);
+}
+
+.ns-form-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-1);
+  color: var(--ns-error);
+
+  &[hidden] {
+    display: none;
+  }
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+/* Input y textarea (directiva nsInput) */
+.ns-input {
+  @include campo.caja;
+}
+
+textarea.ns-input {
+  height: auto;
+  min-height: 88px;
+  padding-block: var(--ns-space-2);
+  resize: vertical;
+}
+
+.ns-input--error {
+  @include campo.caja-error;
+}
+
+// Sin flechas en los numéricos: la unidad ocupa ese hueco.
+.ns-input[type='number'] {
+  appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}

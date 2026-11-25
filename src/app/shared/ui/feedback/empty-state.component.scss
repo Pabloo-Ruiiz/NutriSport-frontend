@@ -1,0 +1,49 @@
+// Estado vacío (DESIGN.md §5.15). Solo tokens --ns-*.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ns-space-2);
+  padding: var(--ns-space-8) var(--ns-space-4);
+  text-align: center;
+}
+
+.ns-empty-state__circulo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--ns-space-2);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface-muted);
+  color: var(--ns-text-secondary);
+}
+
+.ns-empty-state__titulo {
+  color: var(--ns-text);
+}
+
+// Máximo dos líneas (§5.15).
+.ns-empty-state__descripcion {
+  display: -webkit-box;
+  max-width: 40ch;
+  overflow: hidden;
+  color: var(--ns-text-secondary);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.ns-empty-state__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--ns-space-2);
+  margin-top: var(--ns-space-3);
+
+  &:empty {
+    display: none;
+  }
+}
