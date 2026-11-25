@@ -1,0 +1,43 @@
+name: Frontend CI
+
+# Se ejecuta en cada push a main y en cada pull request: si algo falla, la PR muestra una ✗ roja.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Solo necesita leer el código.
+permissions:
+  contents: read
+
+# Si subes otro commit a la misma rama, cancela la ejecución anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validar:
+    name: Validar frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v6
+
+      - name: Preparar Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Comprobar el formato (Prettier)
+        run: npx prettier --check "src/**/*.{ts,html,scss}"
+
+      - name: Ejecutar los tests
+        run: npx ng test --watch=false
+
+      - name: Compilar para producción
+        run: npx ng build --configuration production
