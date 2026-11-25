@@ -1,0 +1,101 @@
+// Estructura común de las pantallas de autenticación (DESIGN.md §7.1 y §7.2). Solo tokens --ns-*.
+:host {
+  display: block;
+}
+
+.ns-auth-form__cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  margin-bottom: var(--ns-space-8);
+}
+
+.ns-auth-form__titulo {
+  margin: 0;
+}
+
+.ns-auth-form__subtitulo {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-auth-form__campos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+}
+
+.ns-auth-form__casillas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.ns-auth-form__casilla {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+}
+
+// Explicación bajo el texto de una casilla.
+.ns-auth-form__detalle {
+  display: block;
+  margin-top: 2px;
+  color: var(--ns-text-secondary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.ns-auth-form__error {
+  margin: 0 0 0 calc(18px + var(--ns-space-2));
+  color: var(--ns-error);
+  font: 500 0.75rem/1rem var(--ns-font-body);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.ns-auth-form__fila {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: calc(-1 * var(--ns-space-2));
+}
+
+.ns-auth-form__enlace,
+.ns-auth-form__enlace-boton {
+  color: var(--ns-text-link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--ns-radius-xs);
+  }
+}
+
+// Botón con aspecto de enlace (abre un diálogo, no navega).
+.ns-auth-form__enlace-boton {
+  align-self: flex-start;
+  min-height: 24px;
+  margin-left: calc(18px + var(--ns-space-2));
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ns-auth-form__pie {
+  margin: var(--ns-space-6) 0 0;
+  color: var(--ns-text-secondary);
+  text-align: center;
+}

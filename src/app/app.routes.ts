@@ -55,9 +55,22 @@ export const routes: Routes = [
         path: '',
         canActivate: [invitadoGuard],
         children: [
-          { path: 'login', title: 'Iniciar sesión', ...pendiente(9) },
-          { path: 'registro', title: 'Crear cuenta', ...pendiente(9) },
-          { path: 'registro/revisa-tu-email', title: 'Revisa tu email', ...pendiente(9) },
+          {
+            path: 'login',
+            title: 'Iniciar sesión',
+            loadComponent: () => import('@features/auth/login/login.component').then((m) => m.LoginComponent),
+          },
+          {
+            path: 'registro',
+            title: 'Crear cuenta',
+            loadComponent: () => import('@features/auth/registro/registro.component').then((m) => m.RegistroComponent),
+          },
+          {
+            path: 'registro/revisa-tu-email',
+            title: 'Revisa tu email',
+            loadComponent: () =>
+              import('@features/auth/registro/revisa-tu-email.component').then((m) => m.RevisaTuEmailComponent),
+          },
           { path: 'recuperar-password', title: 'Recuperar contraseña', ...pendiente(10) },
         ],
       },

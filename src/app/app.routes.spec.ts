@@ -62,7 +62,7 @@ describe('rutas', () => {
   it('sin sesión, /inicio lleva a /login?volver=/inicio', async () => {
     await harness.navigateByUrl('/inicio');
     expect(url()).toBe('/login?volver=%2Finicio');
-    expect(texto()).toContain('Pantalla en construcción (paso 9)');
+    expect(texto()).toContain('Bienvenido de nuevo');
     expect(tituloPestana()).toBe('Iniciar sesión · NutriSport');
   });
 

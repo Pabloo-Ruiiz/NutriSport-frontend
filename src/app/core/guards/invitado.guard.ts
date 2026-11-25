@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 
+import type { Rol } from '../models';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -12,7 +13,12 @@ export const invitadoGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   if (!auth.autenticado()) return true;
 
-  const roles = auth.cuenta()?.roles ?? [];
-  const soloAdmin = roles.length > 0 && roles.every((rol) => rol === 'ADMIN');
-  return inject(Router).parseUrl(soloAdmin ? '/admin/usuarios' : '/inicio');
+  return inject(Router).parseUrl(rutaDeInicio(auth.cuenta()?.roles));
 };
+
+/** Página de inicio según los roles: /admin/usuarios si solo es ADMIN; si no, /inicio. */
+export function rutaDeInicio(roles: readonly Rol[] | null | undefined): string {
+  const lista = roles ?? [];
+  const soloAdmin = lista.length > 0 && lista.every((rol) => rol === 'ADMIN');
+  return soloAdmin ? '/admin/usuarios' : '/inicio';
+}
