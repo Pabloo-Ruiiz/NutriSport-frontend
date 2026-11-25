@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escáner de código de barras · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  body { background:#E9EDF2; }
+  .lienzo { display:flex; gap:40px; padding:40px 48px 48px; width:max-content; }
+  .pantalla-titulo { font:700 15px/22px var(--ns-font-display); margin:0 0 12px 6px; color:var(--ns-ink-700); }
+  .pantalla-titulo span { font:500 13px var(--ns-font-body); color:var(--ns-text-tertiary); margin-left:6px; }
+  .movil { width:390px; height:844px; border-radius:44px; border:10px solid var(--ns-ink-950); background:var(--ns-bg); overflow:hidden; position:relative; box-shadow:0 30px 60px -20px rgba(16,24,40,.35); display:flex; flex-direction:column; }
+  .estado { height:40px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 26px; font:600 14px var(--ns-font-body); color:var(--ns-text); background:var(--ns-surface); }
+  .estado i { font-style:normal; letter-spacing:2px; font-size:12px; }
+  .estado--oscuro { background:#0B0F14; color:#fff; }
+  .cab { height:56px; flex:none; display:flex; align-items:center; gap:10px; padding:0 16px; background:var(--ns-surface); border-bottom:1px solid var(--ns-border); }
+  .cab__titulo { font:700 17px/24px var(--ns-font-display); flex:1; }
+  .cuerpo { flex:1; overflow:hidden; padding:16px; display:flex; flex-direction:column; gap:14px; }
+  .cuerpo > * { flex:none; }
+  .pie-fijo { padding:12px 16px 26px; background:var(--ns-surface); border-top:1px solid var(--ns-border); flex:none; display:flex; flex-direction:column; gap:8px; }
+  /* cámara */
+  .camara { flex:1; position:relative; background:radial-gradient(ellipse at 50% 45%,#3A4350 0%,#1A1F26 60%,#0B0F14 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; }
+  .camara__top { position:absolute; top:12px; left:16px; right:16px; display:flex; align-items:center; justify-content:space-between; }
+  .boton-redondo { width:40px; height:40px; border-radius:999px; background:rgba(255,255,255,.14); display:grid; place-items:center; color:#fff; }
+  .envase-grande { position:absolute; width:210px; height:300px; border-radius:30px 30px 46px 46px; background:linear-gradient(160deg,#9BB9F7,#5F87E0); top:150px; box-shadow:0 20px 40px rgba(0,0,0,.4); }
+  .envase-grande::before { content:""; position:absolute; left:22px; right:22px; top:52px; height:70px; border-radius:12px; background:rgba(255,255,255,.9); }
+  .marco { position:relative; width:280px; height:160px; z-index:2; }
+  .marco span { position:absolute; width:34px; height:34px; border:4px solid #fff; }
+  .marco .a { top:0; left:0; border-right:0; border-bottom:0; border-radius:12px 0 0 0; }
+  .marco .b { top:0; right:0; border-left:0; border-bottom:0; border-radius:0 12px 0 0; }
+  .marco .c { bottom:0; left:0; border-right:0; border-top:0; border-radius:0 0 0 12px; }
+  .marco .d { bottom:0; right:0; border-left:0; border-top:0; border-radius:0 0 12px 0; }
+  .codigo { position:absolute; left:40px; right:40px; top:36px; height:72px; background:#fff; border-radius:4px; padding:8px 10px 18px; }
+  .codigo::before { content:""; display:block; height:100%; background:repeating-linear-gradient(90deg,#111 0 2px,#fff 2px 4px,#111 4px 5px,#fff 5px 8px,#111 8px 11px,#fff 11px 12px); }
+  .codigo::after { content:"8 412345 678905"; position:absolute; left:0; right:0; bottom:2px; text-align:center; font:600 12px/14px var(--ns-font-body); color:#111; letter-spacing:1px; }
+  .linea-escaneo { position:absolute; left:10px; right:10px; top:78px; height:2px; background:var(--ns-green-400); box-shadow:0 0 12px var(--ns-green-400); }
+  .ayuda { position:relative; z-index:2; margin-top:22px; font:500 14px/20px var(--ns-font-body); background:rgba(11,18,32,.7); padding:8px 14px; border-radius:999px; }
+  .camara__pie { position:absolute; bottom:28px; left:16px; right:16px; display:flex; flex-direction:column; gap:10px; z-index:2; }
+  .btn--claro { background:#fff; color:var(--ns-ink-900); }
+  .detectado { position:absolute; z-index:3; top:420px; left:16px; right:16px; background:#fff; color:var(--ns-text); border-radius:14px; padding:12px 14px; display:flex; gap:10px; align-items:center; box-shadow:var(--ns-shadow-lg); }
+  .spin { width:18px; height:18px; border-radius:999px; border:2.5px solid var(--ns-green-100); border-top-color:var(--ns-green-700); flex:none; }
+  /* resultado */
+  .prod { display:flex; gap:14px; align-items:center; }
+  .prod__img { width:72px; height:72px; border-radius:14px; background:#EEF4FF; display:grid; place-items:center; flex:none; }
+  .prod__img i { width:38px; height:50px; border-radius:8px 8px 12px 12px; background:#7FA7F5; position:relative; display:block; }
+  .macros4 { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; text-align:center; }
+  .macros4 div { background:#fff; border:1px solid var(--ns-border); border-radius:12px; padding:8px 4px; }
+  .macros4 b { display:block; font:700 16px var(--ns-font-display); font-variant-numeric:tabular-nums; }
+  .ilus-vacia { width:72px; height:72px; border-radius:999px; background:var(--ns-surface-muted); display:grid; place-items:center; color:var(--ns-ink-700); }
+  .ilus-vacia .icon { width:30px; height:30px; }
+</style>
+</head>
+<body>
+<div class="lienzo">
+
+  <section>
+    <h2 class="pantalla-titulo">1 · Escáner <span>cámara del móvil</span></h2>
+    <div class="movil">
+      <div class="estado estado--oscuro"><span>17:02</span><i>●●● ◔</i></div>
+      <div class="camara">
+        <div class="camara__top"><span class="boton-redondo" aria-label="Cerrar"><i data-i="x"></i></span><span style="font:600 15px var(--ns-font-body)">Escanear código</span><span class="boton-redondo" aria-label="Linterna"><i data-i="zap"></i></span></div>
+        <div class="envase-grande" aria-hidden="true"></div>
+        <div class="marco" style="margin-top:-40px"><span class="a"></span><span class="b"></span><span class="c"></span><span class="d"></span><div class="codigo"></div><div class="linea-escaneo"></div></div>
+        <div class="ayuda">Centra el código de barras en el marco</div>
+        <div class="detectado" role="status" aria-live="polite"><span class="spin"></span><div><b style="font-weight:600">Código detectado: 8412345678905</b><div class="caption">Buscando el producto…</div></div></div>
+        <div class="camara__pie">
+          <button class="btn btn--claro btn--lg btn--block"><i data-i="pencil"></i>Introducir código</button>
+          <span style="text-align:center;font-size:12px;color:#CBD5E1">También puedes buscarlo por nombre</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="pantalla-titulo">2 · Resultado del escaneo <span>producto encontrado</span></h2>
+    <div class="movil">
+      <div class="estado"><span>17:02</span><i>●●● ◔</i></div>
+      <div class="cab"><button class="icon-btn" aria-label="Volver"><i data-i="chevron-left"></i></button><div class="cab__titulo">Producto</div><span class="badge badge--neutral"><i data-i="barcode"></i>Open Food Facts</span></div>
+      <div class="cuerpo">
+        <div class="prod">
+          <div class="prod__img"><i></i></div>
+          <div><b style="font:700 17px/23px var(--ns-font-display);display:block">Yogur natural sin lactosa</b><span class="caption">Marca Ejemplo · 4 × 125 g</span><div class="caption">EAN 8412345678905</div></div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="overline">Por ración (125 g)</span><span class="caption">por 100 g: 61 kcal</span></div>
+          <div class="macros4">
+            <div><b>76</b><span class="caption">kcal</span></div>
+            <div><b class="c-protein">4,5</b><span class="caption">P (g)</span></div>
+            <div><b class="c-carbs">5,9</b><span class="caption">HC (g)</span></div>
+            <div><b style="color:#A8285A">3,9</b><span class="caption">G (g)</span></div>
+          </div>
+        </div>
+        <div class="row gap-6" style="flex-wrap:wrap"><span class="caption">Contiene:</span><span class="badge badge--neutral">Leche</span><span class="caption">Trazas:</span><span class="badge badge--neutral">Frutos de cáscara</span></div>
+        <div class="row gap-6"><span class="badge badge--restriction"><i data-i="shield-check"></i>Compatible con tu intolerancia a la lactosa</span></div>
+        <div class="field"><span class="label">Cantidad</span>
+          <div class="row gap-8"><span class="chip is-selected"><i data-i="check"></i>1 ración (125 g)</span><span class="chip">2 raciones</span><span class="chip">Gramos</span></div>
+        </div>
+        <div class="field"><span class="label">Añadir a</span><div class="input" style="justify-content:space-between"><span>Merienda · hoy 17:00</span><i data-i="chevron-down" class="icon-16 muted"></i></div></div>
+        <div class="disclaimer"><i data-i="info"></i><span>Datos de Open Food Facts (ODbL) · sin revisar por NutriSport</span></div>
+      </div>
+      <div class="pie-fijo">
+        <button class="btn btn--primary btn--lg btn--block"><i data-i="plus"></i>Añadir · 76 kcal</button>
+        <button class="btn btn--ghost btn--block"><i data-i="barcode"></i>Escanear otro</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="pantalla-titulo">3 · Producto no encontrado <span>y código manual</span></h2>
+    <div class="movil">
+      <div class="estado"><span>17:04</span><i>●●● ◔</i></div>
+      <div class="cab"><button class="icon-btn" aria-label="Volver"><i data-i="chevron-left"></i></button><div class="cab__titulo">Introducir código</div></div>
+      <div class="cuerpo">
+        <div class="field"><span class="label">Código de barras (8 a 14 dígitos)</span><div class="input is-focus"><i data-i="barcode" class="icon-16 muted"></i><span class="tnum">8410000000001</span></div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin-top:22px">
+          <div class="ilus-vacia"><i data-i="search"></i></div>
+          <div style="font:700 19px/26px var(--ns-font-display)">No encontramos este producto</div>
+          <p class="secondary" style="font-size:14px;line-height:21px;max-width:290px">No está en tu catálogo ni en Open Food Facts. Puedes buscarlo por nombre o crear el alimento con los datos de la etiqueta.</p>
+        </div>
+        <div class="alert alert--info"><i data-i="info"></i><div>Si Open Food Facts no responde, los productos que ya has escaneado siguen funcionando igual.</div></div>
+      </div>
+      <div class="pie-fijo">
+        <button class="btn btn--primary btn--lg btn--block"><i data-i="plus"></i>Crear alimento</button>
+        <button class="btn btn--secondary btn--block"><i data-i="search"></i>Buscar por nombre</button>
+        <button class="btn btn--ghost btn--block"><i data-i="barcode"></i>Escanear otro</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asistente IA · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  .main { height:100vh; }
+  .chat-layout { flex:1; min-height:0; display:grid; grid-template-columns:280px minmax(0,1fr) 300px; }
+  /* Lista de conversaciones */
+  .convs { border-right:1px solid var(--ns-border); background:#fff; display:flex; flex-direction:column; min-height:0; }
+  .convs__head { padding:16px; display:flex; flex-direction:column; gap:12px; border-bottom:1px solid var(--ns-border); }
+  .convs__list { padding:8px; overflow:auto; }
+  .convs__group { font:600 12px/16px var(--ns-font-body); text-transform:uppercase; letter-spacing:.06em; color:var(--ns-text-tertiary); padding:12px 10px 6px; }
+  .conv { display:flex; flex-direction:column; gap:2px; padding:10px; border-radius:10px; }
+  .conv b { font-weight:600; font-size:13px; } .conv span { font-size:12px; color:var(--ns-text-tertiary); }
+  .conv:hover { background:var(--ns-surface-muted); }
+  .conv.is-active { background:var(--ns-ai-50); } .conv.is-active b { color:var(--ns-ai-700); }
+  /* Chat */
+  .chat { display:flex; flex-direction:column; min-height:0; background:var(--ns-bg); }
+  .chat__head { height:64px; flex:none; display:flex; align-items:center; gap:12px; padding:0 24px; border-bottom:1px solid var(--ns-border); background:#fff; }
+  .status { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ns-success); font-weight:500; }
+  .status::before { content:""; width:6px; height:6px; border-radius:9px; background:var(--ns-green-500); }
+  .chat__body { flex:1; min-height:0; overflow:auto; padding:24px 32px; display:flex; flex-direction:column; gap:20px; }
+  .day-sep { align-self:center; font:500 12px/16px var(--ns-font-body); color:var(--ns-text-tertiary); background:#fff; border:1px solid var(--ns-border); padding:2px 10px; border-radius:99px; }
+  .msg { display:flex; gap:12px; max-width:760px; }
+  .msg--user { align-self:flex-end; flex-direction:row-reverse; }
+  .bubble { padding:12px 16px; border-radius:20px; font-size:15px; line-height:23px; }
+  .msg--user .bubble { background:var(--ns-ink-950); color:#fff; border-bottom-right-radius:6px; }
+  .msg--ai .bubble { background:#fff; border:1px solid var(--ns-border); border-top-left-radius:6px; box-shadow:var(--ns-shadow-xs); }
+  .bubble p + p { margin-top:10px; }
+  .msg__meta { font-size:12px; color:var(--ns-text-tertiary); margin-top:6px; display:flex; gap:10px; align-items:center; }
+  .msg__meta .icon { width:15px; height:15px; }
+  .tools { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .tool { display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 9px; border-radius:99px; background:var(--ns-surface-muted); color:var(--ns-text-secondary); font:500 12px/1 var(--ns-font-body); border:1px solid var(--ns-border); }
+  .tool .icon { width:12px; height:12px; color:var(--ns-ai-600); }
+  .data-card { margin-top:12px; border:1px solid var(--ns-border); border-radius:14px; overflow:hidden; }
+  .data-card table { width:100%; border-collapse:collapse; font-size:13px; }
+  .data-card th { text-align:left; padding:8px 12px; font:600 11px/16px var(--ns-font-body); text-transform:uppercase; letter-spacing:.05em; color:var(--ns-text-tertiary); background:var(--ns-surface-muted); }
+  .data-card td { padding:10px 12px; border-top:1px solid var(--ns-border); font-variant-numeric:tabular-nums; }
+  .recipe-card { margin-top:12px; display:flex; gap:12px; align-items:center; padding:12px; border:1px solid var(--ns-border); border-radius:14px; background:#fff; }
+  .recipe-card .thumb { width:64px; height:64px; }
+  .recipe-card b { font-weight:600; display:block; }
+  .cursor { display:inline-block; width:8px; height:18px; margin-left:2px; vertical-align:-3px; border-radius:2px; background:var(--ns-ai-600); }
+  @media (prefers-reduced-motion:no-preference){ .cursor { animation:blink 1s steps(2) infinite; } @keyframes blink { 50% { opacity:0; } } }
+  /* Compositor */
+  .composer { flex:none; padding:12px 32px 16px; background:linear-gradient(180deg,rgba(247,249,251,0),var(--ns-bg) 30%); }
+  .suggestions { display:flex; gap:8px; margin-bottom:10px; flex-wrap:nowrap; overflow:hidden; }
+  .composer__box { display:flex; align-items:flex-end; gap:8px; padding:10px 10px 10px 16px; background:#fff; border:1px solid var(--ns-border-input); border-radius:16px; box-shadow:var(--ns-shadow-md); }
+  .composer__input { flex:1; min-height:44px; padding:10px 0; font-size:15px; color:var(--ns-text-tertiary); }
+  .send { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:var(--ns-ai-600); color:#fff; border:0; }
+  .send .icon { width:18px; height:18px; }
+  /* Contexto */
+  .ctx { border-left:1px solid var(--ns-border); background:#fff; padding:20px; overflow:auto; display:flex; flex-direction:column; gap:20px; }
+  @media (max-width:1279px){ .chat-layout { grid-template-columns:240px minmax(0,1fr); } .ctx { display:none; } }
+  @media (max-width:767px){ .chat-layout { grid-template-columns:1fr; } .convs { display:none; } }
+  .ctx__sec + .ctx__sec { border-top:1px solid var(--ns-border); padding-top:20px; }
+  .mini { display:grid; grid-template-columns:1fr auto; gap:4px 8px; font-size:13px; align-items:center; }
+  .mini b { font-weight:600; font-variant-numeric:tabular-nums; }
+  .mini .progress { grid-column:1 / -1; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" data-active="ia"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__title">Asistente IA</div>
+      <div class="topbar__spacer"></div>
+      <div class="search"><i data-i="search"></i><span>Buscar alimentos, recetas…</span><span class="kbd">Ctrl K</span></div>
+      <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+      <button class="btn btn--primary"><i data-i="plus"></i>Registrar comida</button>
+    </header>
+
+    <div class="chat-layout">
+      <!-- Conversaciones -->
+      <nav class="convs" aria-label="Conversaciones">
+        <div class="convs__head">
+          <button class="btn btn--ai btn--block"><i data-i="plus"></i>Nueva conversación</button>
+          <div class="search" style="width:100%;height:36px"><i data-i="search"></i><span style="font-size:13px">Buscar conversaciones</span></div>
+        </div>
+        <div class="convs__list">
+          <div class="convs__group">Hoy</div>
+          <div class="conv is-active"><b>Proteína y merienda pre-entreno</b><span>Tostadas con plátano y miel…</span></div>
+          <div class="convs__group">Ayer</div>
+          <div class="conv"><b>Resumen de la semana 46</b><span>Cumpliste el objetivo 5 de 7 días…</span></div>
+          <div class="convs__group">Esta semana</div>
+          <div class="conv"><b>Cenas rápidas sin lactosa</b><span>Te propongo 5 cenas de menos de…</span></div>
+          <div class="conv"><b>Hidratación en tiradas largas</b><span>Como orientación general…</span></div>
+          <div class="convs__group">Noviembre</div>
+          <div class="conv"><b>Ajustar objetivo de peso</b><span>Un ritmo de 0,25–0,5 % del peso…</span></div>
+          <div class="conv"><b>Carbohidratos en días de series</b><span>Según tus registros, los martes…</span></div>
+          <div class="conv"><b>Desayunos con más proteína</b><span>Puedes sumar 15–20 g con…</span></div>
+        </div>
+      </nav>
+
+      <!-- Chat -->
+      <section class="chat">
+        <div class="chat__head">
+          <div class="avatar avatar--ai avatar--lg"><i data-i="sparkles"></i></div>
+          <div><div style="font:700 16px/22px var(--ns-font-display)">Asistente NutriSport</div><div class="status">Conectado a tus datos</div></div>
+          <div class="row gap-8 ml-auto">
+            <span class="badge badge--neutral"><i data-i="lock"></i>Solo lectura de tus datos</span>
+            <button class="icon-btn" aria-label="Renombrar"><i data-i="pencil" class="icon-16"></i></button>
+            <button class="icon-btn" aria-label="Más opciones"><i data-i="more"></i></button>
+          </div>
+        </div>
+
+        <div class="chat__body" aria-live="polite">
+          <span class="day-sep">Hoy · 16:42</span>
+
+          <div class="msg msg--user">
+            <div><div class="bubble">¿Cuánta proteína tomé ayer y cómo voy hoy?</div></div>
+          </div>
+
+          <div class="msg msg--ai">
+            <div class="avatar avatar--ai"><i data-i="sparkles"></i></div>
+            <div>
+              <div class="bubble">
+                <div class="tools"><span class="tool"><i data-i="database"></i>Comidas 20–21 nov</span><span class="tool"><i data-i="target"></i>Objetivos diarios</span></div>
+                <p>Ayer tomaste <b>146 g de proteína</b>, prácticamente tu objetivo. Hoy llevas <b>112 g de 150 g</b>, así que te faltan unos 38 g.</p>
+                <div class="data-card">
+                  <table>
+                    <thead><tr><th>Día</th><th>Proteína</th><th>Objetivo</th><th style="width:38%">Progreso</th></tr></thead>
+                    <tbody>
+                      <tr><td>Vie 20 nov</td><td><b>146 g</b></td><td>150 g</td><td><div class="row gap-8"><div class="progress" style="flex:1"><span class="bg-protein" style="width:97%"></span></div><span class="caption">97 %</span></div></td></tr>
+                      <tr><td>Sáb 21 nov <span class="caption">(hoy)</span></td><td><b>112 g</b></td><td>150 g</td><td><div class="row gap-8"><div class="progress" style="flex:1"><span class="bg-protein" style="width:75%"></span></div><span class="caption">75 %</span></div></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p style="margin-top:12px">La cena de tu plan, <b>salmón con patata asada</b>, aporta 42 g, con lo que cerrarías el día en tu objetivo.</p>
+              </div>
+              <div class="msg__meta"><span>16:42</span><i data-i="copy"></i><i data-i="thumbs-up"></i></div>
+            </div>
+          </div>
+
+          <div class="msg msg--user">
+            <div><div class="bubble">Hoy tengo el rodaje de 12 km a las 18:30. ¿Qué meriendo antes? Recuerda que no tomo lactosa.</div></div>
+          </div>
+
+          <div class="msg msg--ai">
+            <div class="avatar avatar--ai"><i data-i="sparkles"></i></div>
+            <div>
+              <div class="bubble">
+                <div class="tools"><span class="tool"><i data-i="calendar"></i>Plan semanal</span><span class="tool"><i data-i="activity"></i>Entrenamiento de hoy</span><span class="tool"><i data-i="shield"></i>Restricciones</span></div>
+                <p>Para un rodaje de unos 65 minutos a intensidad media, como orientación general conviene una merienda rica en carbohidratos y baja en grasa y fibra, <b>entre 1,5 y 2 horas antes</b>.</p>
+                <p>Tu plan ya incluye una opción que encaja y no lleva lactosa:</p>
+                <div class="recipe-card">
+                  <div class="thumb thumb--toast"></div>
+                  <div style="flex:1">
+                    <b>Tostadas integrales con plátano y miel</b>
+                    <span class="caption">380 kcal · HC 72 g · P 11 g · G 6 g · 5 min</span>
+                    <div class="row gap-6" style="margin-top:6px"><span class="badge badge--restriction"><i data-i="shield-check"></i>Sin lactosa</span><span class="badge badge--activity">Pre-entreno</span></div>
+                  </div>
+                  <div class="stack gap-8">
+                    <button class="btn btn--secondary btn--sm"><i data-i="plus"></i>Registrar a las 17:00</button>
+                    <button class="btn btn--secondary btn--sm">Ver receta</button>
+                  </div>
+                </div>
+                <p style="margin-top:12px">Si prefieres algo más ligero, un plátano con un puñado de dátiles aporta unos 50 g de carbohidratos<span class="cursor"></span></p>
+              </div>
+              <div class="msg__meta"><span class="c-ai" style="font-weight:600">Escribiendo…</span><button class="btn btn--ghost btn--sm" style="height:26px"><i data-i="x"></i>Detener</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="composer">
+          <div class="suggestions">
+            <span class="chip chip--ai"><i data-i="sparkles"></i>Resumen semanal</span>
+            <span class="chip chip--ai"><i data-i="sparkles"></i>Cena de recuperación</span>
+            <span class="chip chip--ai"><i data-i="sparkles"></i>Cambiar una cena</span>
+          </div>
+          <div class="composer__box">
+            <button class="icon-btn" aria-label="Adjuntar foto"><i data-i="camera"></i></button>
+            <div class="composer__input">Pregunta sobre tus comidas, tu plan o tu progreso…</div>
+            <button class="send" aria-label="Enviar"><i data-i="send"></i></button>
+          </div>
+          <div class="disclaimer" style="margin-top:8px;justify-content:center"><i data-i="info"></i>Orientativo: no sustituye el consejo de un profesional sanitario o dietista-nutricionista.</div>
+        </div>
+      </section>
+
+      <!-- Contexto -->
+      <aside class="ctx" aria-label="Contexto del asistente">
+        <div class="ctx__sec">
+          <div class="row" style="margin-bottom:12px"><span class="card__title" style="font-size:15px">Contexto de hoy</span><span class="caption ml-auto">sáb. 21 nov</span></div>
+          <div class="mini">
+            <span>Energía</span><b>1.742 / 2.680 kcal</b><div class="progress progress--sm"><span class="bg-kcal" style="width:65%"></span></div>
+            <span>Proteínas</span><b>112 / 150 g</b><div class="progress progress--sm"><span class="bg-protein" style="width:75%"></span></div>
+            <span>Hidratos</span><b>205 / 340 g</b><div class="progress progress--sm"><span class="bg-carbs" style="width:60%"></span></div>
+            <span>Grasas</span><b>54 / 80 g</b><div class="progress progress--sm"><span class="bg-fat" style="width:68%"></span></div>
+          </div>
+        </div>
+        <div class="ctx__sec">
+          <div class="overline" style="margin-bottom:10px">Entrenamiento</div>
+          <div class="row gap-12">
+            <div class="kpi__icon" style="width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--ns-data-activity-bg);color:var(--ns-data-activity)"><i data-i="activity" class="icon-16"></i></div>
+            <div><div style="font-weight:600;font-size:13px">Rodaje progresivo 12 km</div><div class="caption">18:30 · 65 min · ~670 kcal</div></div>
+          </div>
+        </div>
+        <div class="ctx__sec">
+          <div class="overline" style="margin-bottom:10px">Tu perfil</div>
+          <div class="stack gap-8" style="font-size:13px">
+            <div class="row"><span class="secondary">Objetivo</span><b class="ml-auto" style="font-weight:600">Media maratón · 14 dic</b></div>
+            <div class="row"><span class="secondary">Peso</span><b class="ml-auto" style="font-weight:600">71,4 kg</b></div>
+            <div class="row"><span class="secondary">Entrenos/semana</span><b class="ml-auto" style="font-weight:600">4</b></div>
+          </div>
+        </div>
+        <div class="ctx__sec">
+          <div class="overline" style="margin-bottom:10px">Restricciones activas</div>
+          <div class="row gap-6" style="flex-wrap:wrap"><span class="badge badge--restriction"><i data-i="shield-check"></i>Intolerancia a la lactosa</span><span class="badge badge--restriction"><i data-i="shield-check"></i>Sin cerdo</span></div>
+        </div>
+        <div class="ctx__sec">
+          <div class="alert alert--info" style="padding:10px 12px"><i data-i="shield"></i><div>El asistente solo consulta <b style="display:inline">tus</b> datos para responder. Cualquier cambio en tu plan o registro requiere tu confirmación.</div></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+<script>const b=document.querySelector('.chat__body'); const u=b.querySelectorAll('.msg--user')[1]; b.scrollTop=0; b.scrollTop=u.getBoundingClientRect().top-b.getBoundingClientRect().top-20;</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro manual de comidas · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  .accesos { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .acceso { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--ns-border); border-radius:12px; background:#fff; font-weight:600; font-size:13px; }
+  .acceso .icon { width:18px; height:18px; color:var(--ns-ink-700); }
+  .acceso--ai .icon { color:var(--ns-ai-600); }
+  .tabs { display:flex; gap:4px; border-bottom:1px solid var(--ns-border); }
+  .tabs span { white-space:nowrap; padding:10px 12px; font-weight:500; color:var(--ns-text-secondary); border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tabs span.is-active { color:var(--ns-text); font-weight:600; border-color:var(--ns-green-700); }
+  .resultado { display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--ns-border); }
+  .resultado b { font-weight:600; }
+  .resultado mark { background:var(--ns-green-100); color:inherit; border-radius:3px; padding:0 1px; }
+  .resultado.is-anadido { background:var(--ns-green-50); border-radius:10px; padding:12px 10px; border-bottom-color:transparent; }
+  .linea { display:grid; grid-template-columns:1fr auto auto 72px 36px; gap:12px; align-items:center; padding:14px 0; border-top:1px solid var(--ns-border); }
+  .linea b { font-weight:600; }
+  .linea__nutri { white-space:nowrap; font-size:12px; color:var(--ns-text-secondary); margin-top:3px; font-variant-numeric:tabular-nums; }
+  .linea__kcal { text-align:right; font:700 16px var(--ns-font-display); font-variant-numeric:tabular-nums; }
+  .unidad { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 10px; border:1px solid var(--ns-border-input); border-radius:var(--ns-radius-md); background:#fff; font-size:13px; white-space:nowrap; }
+  .aviso-linea { grid-column:1 / -1; }
+  .totales { display:grid; grid-template-columns:auto repeat(3,1fr); gap:20px; align-items:center; padding:16px; border-radius:14px; background:var(--ns-surface-muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" data-active="comidas"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="breadcrumb">Comidas <i data-i="chevron-right" class="icon-14"></i><strong>Añadir comida</strong></div>
+      <div class="topbar__spacer"></div>
+      <div class="search"><i data-i="search"></i><span>Buscar alimentos, recetas…</span><span class="kbd">Ctrl K</span></div>
+      <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+    </header>
+
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <div class="page-head__title">Añadir comida</div>
+          <div class="page-head__sub">Busca alimentos, ajusta las cantidades y guarda. Los nutrientes se calculan con el catálogo.</div>
+        </div>
+      </div>
+
+      <div class="grid cols-12">
+        <!-- Buscador -->
+        <section class="card span-5">
+          <div class="row gap-12">
+            <div class="field" style="flex:1"><span class="label">Fecha</span><div class="input"><i data-i="calendar" class="icon-16 muted"></i>Hoy, 21/11/2026</div></div>
+            <div class="field" style="width:120px"><span class="label">Hora</span><div class="input"><i data-i="clock" class="icon-16 muted"></i>17:00</div></div>
+          </div>
+          <div class="field" style="margin-top:14px">
+            <span class="label">Tipo de comida</span>
+            <div class="input" style="justify-content:space-between"><span>Pre-entreno</span><i data-i="chevron-down" class="icon-16 muted"></i></div>
+          </div>
+          <div class="accesos" style="margin-top:16px">
+            <span class="acceso acceso--ai"><i data-i="camera"></i>Foto del plato</span>
+            <span class="acceso"><i data-i="barcode"></i>Código de barras</span>
+            <span class="acceso"><i data-i="copy"></i>Copiar anterior</span>
+          </div>
+          <div class="field" style="margin-top:16px">
+            <span class="sr-only">Buscar alimento</span>
+            <div class="input is-focus"><i data-i="search" class="icon-16 muted"></i>platno<span class="input__suffix"><i data-i="x" class="icon-16"></i></span></div>
+          </div>
+          <div class="tabs" style="margin-top:12px"><span class="is-active">Resultados</span><span>Recientes</span><span>Frecuentes</span><span>Mis alimentos</span></div>
+          <div class="caption" style="margin:10px 4px 2px">4 resultados · mostrando también coincidencias aproximadas</div>
+          <div class="resultado is-anadido">
+            <div style="flex:1"><b><mark>Plátan</mark>o</b> <span class="caption">· crudo</span><div class="caption">89 kcal · P 1,1 · HC 22,8 · G 0,3 por 100 g</div></div>
+            <span class="badge badge--neutral">BEDCA</span><span class="badge badge--success"><i data-i="check"></i>Añadido</span>
+          </div>
+          <div class="resultado">
+            <div style="flex:1"><b><mark>Plátan</mark>o macho</b> <span class="caption">· cocido</span><div class="caption">122 kcal · P 1,3 · HC 31,9 · G 0,4 por 100 g</div></div>
+            <span class="badge badge--neutral">BEDCA</span><button class="icon-btn icon-btn--bordered" style="width:32px;height:32px" aria-label="Añadir"><i data-i="plus" class="icon-16"></i></button>
+          </div>
+          <div class="resultado">
+            <div style="flex:1"><b>Batido de <mark>plátan</mark>o</b> <span class="caption">· Marca Ejemplo</span><div class="caption">72 kcal · P 3,2 · HC 11,8 · G 1,3 por 100 ml</div></div>
+            <span class="badge badge--neutral">Open Food Facts</span><button class="icon-btn icon-btn--bordered" style="width:32px;height:32px" aria-label="Añadir"><i data-i="plus" class="icon-16"></i></button>
+          </div>
+          <div class="resultado" style="border-bottom:0">
+            <div style="flex:1"><b><mark>Plat</mark>ija</b> <span class="caption">· a la plancha</span><div class="caption">107 kcal · P 21,4 · HC 0 · G 2,4 por 100 g</div></div>
+            <span class="badge badge--neutral">BEDCA</span><button class="icon-btn icon-btn--bordered" style="width:32px;height:32px" aria-label="Añadir"><i data-i="plus" class="icon-16"></i></button>
+          </div>
+          <a class="caption" style="display:inline-flex;gap:6px;align-items:center;margin-top:12px;color:var(--ns-green-700);font-weight:600;text-decoration:none" href="#"><i data-i="plus" class="icon-14"></i>¿No lo encuentras? Crear alimento propio</a>
+        </section>
+
+        <!-- Comida en construcción -->
+        <section class="card span-7">
+          <div class="card__header">
+            <div><div class="row gap-8"><span class="card__title">Pre-entreno · 17:00</span><span class="badge badge--activity"><i data-i="activity"></i>Rodaje a las 18:30</span></div><div class="card__subtitle">3 alimentos · los valores se guardan como instantánea</div></div>
+            <div class="card__actions"><button class="btn btn--ghost btn--sm"><i data-i="trash"></i>Vaciar</button></div>
+          </div>
+
+          <div class="linea" style="border-top:0;padding-top:0">
+            <div><b>Pan integral de molde</b> <span class="caption">· catálogo NutriSport</span><div class="linea__nutri">P 7,8 g · HC 24,6 g · G 2,0 g</div></div>
+            <span class="unidad">rebanada (30 g) <i data-i="chevron-down" class="icon-14"></i></span>
+            <div class="qty"><span class="qty__btn"><i data-i="minus"></i></span><span class="qty__val" style="min-width:44px">2</span><span class="qty__btn"><i data-i="plus"></i></span></div>
+            <div class="linea__kcal">148<span class="unit">kcal</span></div>
+            <button class="icon-btn" aria-label="Quitar"><i data-i="x" class="icon-16"></i></button>
+            <div class="aviso-linea alert alert--warning" style="padding:8px 12px"><i data-i="alert"></i><div>Los alérgenos de este alimento aún no se han revisado. Comprueba la etiqueta si tienes alguna alergia.</div></div>
+          </div>
+          <div class="linea">
+            <div><b>Plátano</b> <span class="caption">· crudo</span><div class="linea__nutri">P 1,3 g · HC 27,4 g · G 0,4 g</div></div>
+            <span class="unidad">unidad mediana (120 g) <i data-i="chevron-down" class="icon-14"></i></span>
+            <div class="qty" style="border-color:var(--ns-green-700);box-shadow:0 0 0 3px rgba(8,122,80,.16)"><span class="qty__btn"><i data-i="minus"></i></span><span class="qty__val" style="min-width:44px">1</span><span class="qty__btn"><i data-i="plus"></i></span></div>
+            <div class="linea__kcal">107<span class="unit">kcal</span></div>
+            <button class="icon-btn" aria-label="Quitar"><i data-i="x" class="icon-16"></i></button>
+          </div>
+          <div class="linea">
+            <div><b>Miel</b> <span class="caption">· BEDCA</span><div class="linea__nutri">P 0,1 g · HC 17,3 g · G 0 g</div></div>
+            <span class="unidad">cucharada (21 g) <i data-i="chevron-down" class="icon-14"></i></span>
+            <div class="qty"><span class="qty__btn"><i data-i="minus"></i></span><span class="qty__val" style="min-width:44px">1</span><span class="qty__btn"><i data-i="plus"></i></span></div>
+            <div class="linea__kcal">64<span class="unit">kcal</span></div>
+            <button class="icon-btn" aria-label="Quitar"><i data-i="x" class="icon-16"></i></button>
+          </div>
+
+          <div class="totales" style="margin-top:8px">
+            <div><div class="overline">Total</div><div class="metric-lg">319<span class="unit">kcal</span></div></div>
+            <div><div class="row" style="justify-content:space-between;font-size:13px"><span>Proteínas</span><b class="tnum">9,2 g</b></div><div class="progress progress--sm" style="margin-top:6px"><span class="bg-protein" style="width:24%"></span></div></div>
+            <div><div class="row" style="justify-content:space-between;font-size:13px"><span>Hidratos</span><b class="tnum">69,3 g</b></div><div class="progress progress--sm" style="margin-top:6px"><span class="bg-carbs" style="width:51%"></span></div></div>
+            <div><div class="row" style="justify-content:space-between;font-size:13px"><span>Grasas</span><b class="tnum">2,4 g</b></div><div class="progress progress--sm" style="margin-top:6px"><span class="bg-fat" style="width:9%"></span></div></div>
+          </div>
+          <div class="caption" style="margin-top:8px">Las barras indican qué parte de lo que te falta hoy cubre esta comida (proteínas 38 g · hidratos 135 g · grasas 26 g).</div>
+
+          <div class="field" style="margin-top:16px"><span class="label">Notas <span class="muted" style="font-weight:400">(opcional)</span></span><div class="input input--muted">Por ejemplo: "antes del rodaje"</div></div>
+
+          <hr class="divider">
+          <div class="row gap-12">
+            <div class="caption">Tras guardar te quedarán <b style="color:var(--ns-text)">619 kcal</b> hoy</div>
+            <button class="btn btn--secondary ml-auto">Cancelar</button>
+            <button class="btn btn--primary btn--lg"><i data-i="check"></i>Guardar comida · 319 kcal</button>
+          </div>
+        </section>
+      </div>
+      <div class="disclaimer" style="margin-top:20px"><i data-i="info"></i>Valores calculados con la base de datos nutricional (fuente visible en cada alimento). Estimaciones orientativas.</div>
+    </main>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

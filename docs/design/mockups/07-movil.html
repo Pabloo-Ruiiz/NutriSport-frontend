@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Móvil · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  body { background:#E9EDF2; }
+  .lienzo { display:flex; gap:40px; padding:40px 48px 48px; width:max-content; }
+  .pantalla-titulo { font:700 15px/22px var(--ns-font-display); margin:0 0 12px 6px; color:var(--ns-ink-700); }
+  .pantalla-titulo span { font:500 13px var(--ns-font-body); color:var(--ns-text-tertiary); margin-left:6px; }
+  .movil { width:390px; height:844px; border-radius:44px; border:10px solid var(--ns-ink-950); background:var(--ns-bg); overflow:hidden; position:relative; box-shadow:0 30px 60px -20px rgba(16,24,40,.35); display:flex; flex-direction:column; }
+  .estado { height:40px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 26px; font:600 14px var(--ns-font-body); color:var(--ns-text); background:var(--ns-surface); }
+  .estado i { font-style:normal; letter-spacing:2px; font-size:12px; }
+  .cab { height:56px; flex:none; display:flex; align-items:center; gap:10px; padding:0 16px; background:var(--ns-surface); border-bottom:1px solid var(--ns-border); }
+  .cab__titulo { font:700 17px/24px var(--ns-font-display); flex:1; }
+  .cuerpo { flex:1; overflow:hidden; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
+  .cuerpo > * { flex:none; }
+  .nav-inf { height:84px; flex:none; background:var(--ns-surface); border-top:1px solid var(--ns-border); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:8px 6px 22px; }
+  .nav-inf a { display:flex; flex-direction:column; align-items:center; gap:3px; font:500 12px/16px var(--ns-font-body); color:var(--ns-text-tertiary); text-decoration:none; }
+  .nav-inf a.is-active { color:var(--ns-green-700); font-weight:600; }
+  .nav-inf a .icon { width:22px; height:22px; }
+  .fab { width:56px; height:56px; margin-top:-26px; border-radius:999px; background:var(--ns-green-700); color:#fff; display:grid; place-items:center; box-shadow:var(--ns-shadow-md),0 0 0 5px var(--ns-surface); }
+  .fab .icon { width:24px; height:24px; }
+  .anillo { position:relative; width:132px; height:132px; flex:none; }
+  .anillo svg { width:132px; height:132px; transform:rotate(-90deg); }
+  .anillo__c { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .mini-macros { display:flex; gap:10px; overflow:hidden; }
+  .mini-macros .card { padding:12px; min-width:118px; }
+  .fila-comida { display:flex; gap:10px; align-items:center; padding:10px 0; border-top:1px solid var(--ns-border); }
+  .fila-comida:first-of-type { border-top:0; padding-top:0; }
+  .fila-comida b { display:block; font-weight:600; font-size:14px; }
+  .visor { position:relative; border-radius:16px; overflow:hidden; aspect-ratio:1/1; background:#1D2127; }
+  .visor img { width:100%; height:100%; object-fit:cover; display:block; }
+  .chips-scroll { display:flex; gap:8px; overflow:hidden; }
+  .pie-fijo { padding:12px 16px 26px; background:var(--ns-surface); border-top:1px solid var(--ns-border); flex:none; display:flex; flex-direction:column; gap:8px; }
+  .error-ilus { width:56px; height:56px; border-radius:999px; background:var(--ns-error-bg); color:var(--ns-error); display:grid; place-items:center; }
+  .error-ilus .icon { width:26px; height:26px; }
+  .tira { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .tira div { text-align:center; padding:6px 0 8px; border-radius:10px; position:relative; }
+  .tira small { display:block; font:500 12px/16px var(--ns-font-body); color:var(--ns-text-tertiary); }
+  .tira b { font:700 15px/20px var(--ns-font-display); }
+  .tira .is-hoy { background:var(--ns-ink-950); } .tira .is-hoy small { color:#94A3B8; } .tira .is-hoy b { color:#fff; }
+  .tira .ent::after { content:""; position:absolute; left:50%; bottom:2px; width:5px; height:5px; margin-left:-2.5px; border-radius:9px; background:var(--ns-data-activity); }
+  .tira .is-hoy.ent::after { background:#67E8F9; }
+  .plan-fila { display:flex; gap:12px; align-items:center; padding:9px 12px; background:#fff; border:1px solid var(--ns-border); border-radius:14px; }
+  .plan-fila__franja { width:72px; flex:none; font:600 12px/16px var(--ns-font-body); color:var(--ns-text-secondary); }
+  .plan-fila__franja span { display:block; font-weight:500; color:var(--ns-text-tertiary); }
+  .plan-fila b { display:block; font-weight:600; font-size:14px; line-height:19px; }
+</style>
+</head>
+<body>
+<div class="lienzo">
+
+  <!-- 1 · Dashboard -->
+  <section>
+    <h2 class="pantalla-titulo">1 · Inicio <span>barra inferior con cámara central</span></h2>
+    <div class="movil">
+      <div class="estado"><span>17:42</span><i>●●● ◔</i></div>
+      <div class="cab">
+        <img src="../assets/logo-mark.svg" width="28" height="28" alt="">
+        <div class="cab__titulo">Hoy · sáb 21</div>
+        <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+        <div class="avatar">ÁR</div>
+      </div>
+      <div class="cuerpo">
+        <div class="card" style="display:flex;gap:16px;align-items:center;padding:16px">
+          <div class="anillo">
+            <svg viewBox="0 0 132 132" aria-hidden="true">
+              <circle cx="66" cy="66" r="56" fill="none" stroke="#EAECF0" stroke-width="12"/>
+              <circle cx="66" cy="66" r="56" fill="none" stroke="#12B76A" stroke-width="12" stroke-linecap="round" stroke-dasharray="228.8 351.9"/>
+              <circle cx="66" cy="66" r="41" fill="none" stroke="#ECFEFF" stroke-width="5"/>
+              <circle cx="66" cy="66" r="41" fill="none" stroke="#0E7490" stroke-width="5" stroke-linecap="round" stroke-dasharray="64.4 257.6"/>
+            </svg>
+            <div class="anillo__c"><span class="caption">Quedan</span><span class="metric-lg">938</span><span class="caption">de 2.680 kcal</span></div>
+          </div>
+          <div class="stack gap-8" style="flex:1;font-size:13px">
+            <div class="row"><span class="legend-dot bg-kcal" style="margin-right:6px"></span>Consumido<b class="ml-auto tnum">1.742</b></div>
+            <div class="row"><span class="legend-dot bg-activity" style="margin-right:6px"></span>Entreno<b class="ml-auto tnum">+670</b></div>
+            <div class="row"><span class="legend-dot" style="background:#344054;margin-right:6px"></span>Objetivo<b class="ml-auto tnum">2.680</b></div>
+          </div>
+        </div>
+        <div class="mini-macros">
+          <div class="card"><div class="overline">Proteínas</div><div style="font:700 18px var(--ns-font-display)" class="tnum">112<span class="unit">/ 150 g</span></div><div class="progress progress--sm" style="margin-top:8px"><span class="bg-protein" style="width:75%"></span></div></div>
+          <div class="card"><div class="overline">Hidratos</div><div style="font:700 18px var(--ns-font-display)" class="tnum">205<span class="unit">/ 340 g</span></div><div class="progress progress--sm" style="margin-top:8px"><span class="bg-carbs" style="width:60%"></span></div></div>
+          <div class="card"><div class="overline">Grasas</div><div style="font:700 18px var(--ns-font-display)" class="tnum">54<span class="unit">/ 80 g</span></div><div class="progress progress--sm" style="margin-top:8px"><span class="bg-fat" style="width:68%"></span></div></div>
+        </div>
+        <div class="card" style="padding:16px">
+          <div class="row" style="margin-bottom:10px"><span class="card__title">Comidas de hoy</span><span class="caption ml-auto">3 de 5</span></div>
+          <div class="fila-comida"><div class="thumb thumb--oats" style="width:40px;height:40px"></div><div><b>Avena con frutos rojos</b><span class="caption">Desayuno · 08:10</span></div><span class="ml-auto tnum" style="font-weight:700">520</span></div>
+          <div class="fila-comida"><div class="thumb thumb--yogurt" style="width:40px;height:40px"></div><div><b>Yogur sin lactosa con nueces</b><span class="caption">Media mañana · 11:30</span></div><span class="ml-auto tnum" style="font-weight:700">410</span></div>
+          <div class="fila-comida"><div class="thumb thumb--bowl" style="width:40px;height:40px"></div><div><b>Bowl de pollo y quinoa</b><span class="caption">Comida · 14:05 · <span class="c-ai" style="font-weight:600">foto</span></span></div><span class="ml-auto tnum" style="font-weight:700">812</span></div>
+          <div class="fila-comida"><div class="thumb thumb--toast" style="width:40px;height:40px;opacity:.7"></div><div><b style="color:var(--ns-text-secondary)">Tostadas con plátano y miel</b><span class="caption">Pre-entreno · 17:00 · plan</span></div><button class="btn btn--secondary btn--sm ml-auto">Marcar</button></div>
+        </div>
+      </div>
+      <nav class="nav-inf" aria-label="Navegación principal">
+        <a class="is-active" href="#"><i data-i="home"></i>Inicio</a>
+        <a href="#"><i data-i="utensils"></i>Comidas</a>
+        <a href="#" aria-label="Registrar comida"><span class="fab"><i data-i="camera"></i></span></a>
+        <a href="#"><i data-i="calendar"></i>Plan</a>
+        <a href="#"><i data-i="sparkles"></i>Asistente</a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- 2 · Foto: paso 1 -->
+  <section>
+    <h2 class="pantalla-titulo">2 · Registrar con foto <span>paso 1: foto y detalles</span></h2>
+    <div class="movil">
+      <div class="estado"><span>20:58</span><i>●●● ◔</i></div>
+      <div class="cab">
+        <button class="icon-btn" aria-label="Volver"><i data-i="chevron-left"></i></button>
+        <div class="cab__titulo">Registrar con foto</div>
+        <span class="caption">Paso 1 de 3</span>
+      </div>
+      <div class="cuerpo">
+        <div class="visor">
+          <img src="assets/plato-salmon.svg" alt="Foto del plato recién hecha">
+          <button class="btn btn--secondary btn--sm" style="position:absolute;right:12px;bottom:12px"><i data-i="refresh"></i>Repetir foto</button>
+        </div>
+        <div class="field">
+          <span class="label">Tipo de comida</span>
+          <div class="chips-scroll"><span class="chip">Comida</span><span class="chip">Merienda</span><span class="chip is-selected"><i data-i="check"></i>Cena</span><span class="chip">Post-entreno</span></div>
+        </div>
+        <div class="field">
+          <span class="label">Describe tu plato <span class="muted" style="font-weight:400">(opcional)</span></span>
+          <div class="input textarea is-focus" style="min-height:64px">Salmón a la plancha con arroz, brócoli y medio aguacate. Sin salsa.</div>
+          <span class="caption">Mejora la precisión: indica aceite, salsas o rellenos.</span>
+        </div>
+        <div class="disclaimer"><i data-i="shield"></i>La foto se guarda sin ubicación y solo la ves tú.</div>
+      </div>
+      <div class="pie-fijo">
+        <button class="btn btn--ai btn--lg btn--block"><i data-i="sparkles"></i>Analizar foto</button>
+        <button class="btn btn--ghost btn--block">Registrar manualmente</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · Error del análisis -->
+  <section>
+    <h2 class="pantalla-titulo">3 · Análisis no disponible <span>estado de error</span></h2>
+    <div class="movil">
+      <div class="estado"><span>20:59</span><i>●●● ◔</i></div>
+      <div class="cab">
+        <button class="icon-btn" aria-label="Volver"><i data-i="chevron-left"></i></button>
+        <div class="cab__titulo">Registrar con foto</div>
+        <span class="caption">Paso 2 de 3</span>
+      </div>
+      <div class="cuerpo" style="align-items:center;text-align:center;padding-top:28px">
+        <div class="visor" style="width:180px;opacity:.55"><img src="assets/plato-salmon.svg" alt="Foto conservada"></div>
+        <div class="error-ilus" style="margin-top:8px"><i data-i="cloud-off"></i></div>
+        <div style="font:700 20px/28px var(--ns-font-display)">No hemos podido analizar la foto</div>
+        <p class="secondary" style="font-size:14px;line-height:21px;max-width:300px">El servicio de reconocimiento no responde en este momento. Tu foto se ha conservado: puedes reintentarlo o registrar la comida a mano.</p>
+        <div class="alert alert--info" style="text-align:left;width:100%"><i data-i="info"></i><div>Si la foto no muestra comida o está muy oscura, verás "No hemos detectado alimentos" con la opción de probar otra foto.</div></div>
+      </div>
+      <div class="pie-fijo">
+        <button class="btn btn--primary btn--lg btn--block">Continuar manualmente</button>
+        <button class="btn btn--secondary btn--block"><i data-i="refresh"></i>Reintentar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · Planificador por día -->
+  <section>
+    <h2 class="pantalla-titulo">4 · Planificador <span>vista por día</span></h2>
+    <div class="movil">
+      <div class="estado"><span>17:45</span><i>●●● ◔</i></div>
+      <div class="cab">
+        <div class="cab__titulo">Planificador</div>
+        <button class="icon-btn" aria-label="Lista de la compra"><i data-i="basket"></i></button>
+        <button class="icon-btn" aria-label="Más opciones"><i data-i="more"></i></button>
+      </div>
+      <div class="cuerpo">
+        <div class="tira" aria-label="Semana del 16 al 22 de noviembre">
+          <div class="ent"><small>L</small><b>16</b></div><div><small>M</small><b>17</b></div><div class="ent"><small>X</small><b>18</b></div><div class="ent"><small>J</small><b>19</b></div><div><small>V</small><b>20</b></div><div class="is-hoy ent"><small>S</small><b>21</b></div><div><small>D</small><b>22</b></div>
+        </div>
+        <div class="card" style="padding:14px;background:linear-gradient(180deg,var(--ns-data-activity-bg),#fff 75%);border-color:#A5F3FC">
+          <div class="row gap-8"><b style="font:700 16px var(--ns-font-display)">Sábado 21</b><span class="badge badge--activity"><i data-i="activity"></i>Día de entreno</span></div>
+          <div class="row gap-12" style="margin-top:8px;font-size:13px"><span><b class="tnum">2.812</b> / 2.680 kcal</span><span class="c-carbs" style="font-weight:600">HC 366 g</span><span class="muted">105 %</span></div>
+          <div class="progress progress--sm" style="margin-top:8px"><span class="bg-kcal" style="width:100%"></span></div>
+        </div>
+        <div class="plan-fila"><div class="plan-fila__franja">Desayuno<span>08:00</span></div><div style="flex:1"><b>Avena con frutos rojos y plátano</b><span class="caption">520 kcal · P 22 g</span></div><span class="slot__flag slot__flag--ok" style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--ns-success-bg);color:var(--ns-success)"><i data-i="check" class="icon-14"></i></span></div>
+        <div class="plan-fila"><div class="plan-fila__franja">Media mañana<span>11:30</span></div><div style="flex:1"><b>Yogur sin lactosa con nueces</b><span class="caption">410 kcal · P 18 g</span></div><span style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--ns-success-bg);color:var(--ns-success)"><i data-i="check" class="icon-14"></i></span></div>
+        <div class="plan-fila"><div class="plan-fila__franja">Comida<span>14:00</span></div><div style="flex:1"><b>Bowl de pollo, quinoa y verduras</b><span class="caption">812 kcal · P 72 g</span></div><span style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--ns-success-bg);color:var(--ns-success)"><i data-i="check" class="icon-14"></i></span></div>
+        <div class="plan-fila"><div class="plan-fila__franja">Merienda<span>17:00</span></div><div style="flex:1"><b>Tostadas con plátano y miel</b><span class="caption">380 kcal · P 11 g</span><div style="margin-top:4px"><span class="badge badge--activity">Pre-entreno</span></div></div><button class="btn btn--secondary btn--sm">Marcar</button></div>
+        <div class="plan-fila" style="border-color:var(--ns-green-700)"><div class="plan-fila__franja">Cena<span>21:00</span></div><div style="flex:1"><b>Salmón con patata asada</b><span class="caption">690 kcal · P 42 g</span></div><button class="icon-btn" style="width:36px;height:36px" aria-label="Sustituir"><i data-i="repeat" class="icon-16"></i></button></div>
+      </div>
+      <nav class="nav-inf" aria-label="Navegación principal">
+        <a href="#"><i data-i="home"></i>Inicio</a>
+        <a href="#"><i data-i="utensils"></i>Comidas</a>
+        <a href="#" aria-label="Registrar comida"><span class="fab"><i data-i="camera"></i></span></a>
+        <a class="is-active" href="#"><i data-i="calendar"></i>Plan</a>
+        <a href="#"><i data-i="sparkles"></i>Asistente</a>
+      </nav>
+    </div>
+  </section>
+
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

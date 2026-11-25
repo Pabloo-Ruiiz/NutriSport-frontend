@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  .date-strip { display:flex; gap:4px; padding:4px; background:#fff; border:1px solid var(--ns-border); border-radius:12px; }
+  .date-strip__day { width:44px; padding:6px 0; border-radius:8px; text-align:center; color:var(--ns-text-secondary); position:relative; }
+  .date-strip__day small { display:block; font:500 12px/14px var(--ns-font-body); color:var(--ns-text-tertiary); }
+  .date-strip__day b { font:700 15px/20px var(--ns-font-display); color:var(--ns-text); }
+  .date-strip__day::after { content:""; position:absolute; left:50%; bottom:3px; width:4px; height:4px; margin-left:-2px; border-radius:9px; background:var(--ns-green-500); }
+  .date-strip__day.is-empty::after { display:none; }
+  .date-strip__day.is-today { background:var(--ns-ink-950); }
+  .date-strip__day.is-today small { color:#94A3B8; } .date-strip__day.is-today b { color:#fff; }
+  .date-strip__day.is-today::after { background:var(--ns-green-400); }
+
+  .energy { display:flex; gap:24px; align-items:center; height:100%; }
+  .ring { position:relative; width:180px; height:180px; flex:none; }
+  .ring svg { width:180px; height:180px; transform:rotate(-90deg); }
+  .ring__center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .energy__stats { display:grid; grid-template-columns:1fr 1fr; gap:16px 20px; flex:1; }
+  .energy__stat .overline { display:flex; align-items:center; gap:6px; }
+  .energy__stat b { font:700 20px/28px var(--ns-font-display); font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+
+  .macro-card .card__header { margin-bottom:12px; }
+  .macro-icon { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; }
+  .macro-icon .icon { width:18px; height:18px; }
+
+  .timeline { display:flex; flex-direction:column; }
+  .meal { display:flex; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--ns-border); }
+  .meal:first-child { border-top:0; padding-top:0; }
+  .meal__slot { width:92px; flex:none; }
+  .meal__slot b { display:block; font-weight:600; font-size:13px; }
+  .meal__body { flex:1; min-width:0; }
+  .meal__name { font-weight:600; }
+  .meal__macros { display:flex; gap:6px; margin-top:6px; }
+  .meal__kcal { text-align:right; font:700 15px/20px var(--ns-font-display); font-variant-numeric:tabular-nums; }
+  .meal--planned .thumb { opacity:.75; }
+  .meal--planned .meal__name { color:var(--ns-text-secondary); }
+  .meal--empty .meal__placeholder { flex:1; height:48px; border:1.5px dashed var(--ns-border-strong); border-radius:12px; display:flex; align-items:center; gap:8px; padding:0 14px; color:var(--ns-text-tertiary); font-weight:500; }
+
+  .workout { display:flex; gap:14px; align-items:center; padding:14px; border-radius:12px; background:var(--ns-data-activity-bg); }
+  .workout__icon { width:44px; height:44px; border-radius:12px; display:grid; place-items:center; background:#fff; color:var(--ns-data-activity); box-shadow:var(--ns-shadow-xs); }
+  .kv { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; }
+  .kv b { display:block; font:700 16px/22px var(--ns-font-display); font-variant-numeric:tabular-nums; }
+
+  .ai-insight__icon { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:var(--ns-gradient-ai); color:#fff; flex:none; }
+  .ai-insight__icon .icon { width:18px; height:18px; }
+  .legend { display:flex; gap:16px; align-items:center; font-size:12px; color:var(--ns-text-secondary); }
+  .legend span { display:inline-flex; gap:6px; align-items:center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" data-active="dashboard"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__title">Inicio</div>
+      <div class="topbar__spacer"></div>
+      <div class="search"><i data-i="search"></i><span>Buscar alimentos, recetas…</span><span class="kbd">Ctrl K</span></div>
+      <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+      <button class="btn btn--primary"><i data-i="plus"></i>Registrar comida</button>
+    </header>
+
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <div class="page-head__title">Buenas tardes, Álex</div>
+          <div class="page-head__sub">Sábado, 21 de noviembre · Semana 12 de tu preparación para la media maratón</div>
+        </div>
+        <div class="page-head__actions">
+          <div class="date-strip" aria-label="Semana">
+            <div class="date-strip__day"><small>L</small><b>16</b></div>
+            <div class="date-strip__day"><small>M</small><b>17</b></div>
+            <div class="date-strip__day"><small>X</small><b>18</b></div>
+            <div class="date-strip__day"><small>J</small><b>19</b></div>
+            <div class="date-strip__day"><small>V</small><b>20</b></div>
+            <div class="date-strip__day is-today"><small>S</small><b>21</b></div>
+            <div class="date-strip__day is-empty"><small>D</small><b>22</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-12">
+        <!-- Energía -->
+        <section class="card span-5">
+          <div class="card__header">
+            <div><div class="card__title">Energía de hoy</div><div class="card__subtitle">Objetivo ajustado con tu entrenamiento</div></div>
+            <div class="card__actions"><span class="badge badge--success"><i data-i="check"></i>En objetivo</span></div>
+          </div>
+          <div class="energy">
+            <div class="ring">
+              <svg viewBox="0 0 180 180" aria-hidden="true">
+                <circle cx="90" cy="90" r="78" fill="none" stroke="#EAECF0" stroke-width="14"/>
+                <circle cx="90" cy="90" r="78" fill="none" stroke="#12B76A" stroke-width="14" stroke-linecap="round" stroke-dasharray="318.6 490.1"/>
+                <circle cx="90" cy="90" r="60" fill="none" stroke="#ECFEFF" stroke-width="6"/>
+                <circle cx="90" cy="90" r="60" fill="none" stroke="#0E7490" stroke-width="6" stroke-linecap="round" stroke-dasharray="86 377"/>
+              </svg>
+              <div class="ring__center">
+                <span class="overline">Restantes</span>
+                <span class="metric-xl">938</span>
+                <span class="caption">de 2.680 kcal</span>
+              </div>
+            </div>
+            <div class="energy__stats">
+              <div class="energy__stat"><div class="overline"><span class="legend-dot bg-kcal"></span>Consumido</div><b>1.742<span class="unit">kcal</span></b></div>
+              <div class="energy__stat"><div class="overline"><span class="legend-dot" style="background:#344054"></span>Objetivo</div><b>2.680<span class="unit">kcal</span></b></div>
+              <div class="energy__stat"><div class="overline"><span class="legend-dot bg-activity"></span>Entreno</div><b>+670<span class="unit">kcal</span></b></div>
+              <div class="energy__stat"><div class="overline"><span class="legend-dot" style="background:#D0D5DD"></span>Base</div><b>2.010<span class="unit">kcal</span></b></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Macros -->
+        <section class="span-7 grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="card macro-card">
+            <div class="card__header">
+              <div class="macro-icon" style="background:var(--ns-data-protein-bg);color:var(--ns-data-protein)"><i data-i="dumbbell"></i></div>
+              <div class="card__actions"><span class="caption">75 %</span></div>
+            </div>
+            <div class="overline">Proteínas</div>
+            <div class="metric-lg">112<span class="unit">/ 150 g</span></div>
+            <div class="progress" style="margin:12px 0 10px"><span class="bg-protein" style="width:75%"></span></div>
+            <div class="caption">Te faltan <b style="color:var(--ns-text)">38 g</b> · 1,6 g/kg</div><hr class="divider"><div class="overline" style="margin-bottom:6px">Principales fuentes</div><div class="caption secondary">Pollo 48 g · Yogur 18 g · Avena 14 g</div>
+          </div>
+          <div class="card macro-card">
+            <div class="card__header">
+              <div class="macro-icon" style="background:var(--ns-data-carbs-bg);color:var(--ns-data-carbs)"><i data-i="zap"></i></div>
+              <div class="card__actions"><span class="caption">60 %</span></div>
+            </div>
+            <div class="overline">Hidratos</div>
+            <div class="metric-lg">205<span class="unit">/ 340 g</span></div>
+            <div class="progress" style="margin:12px 0 10px"><span class="bg-carbs" style="width:60%"></span></div>
+            <div class="caption">Te faltan <b style="color:var(--ns-text)">135 g</b> · día de entreno</div><hr class="divider"><div class="overline" style="margin-bottom:6px">Principales fuentes</div><div class="caption secondary">Avena 62 g · Quinoa 58 g · Plátano 27 g</div>
+          </div>
+          <div class="card macro-card">
+            <div class="card__header">
+              <div class="macro-icon" style="background:var(--ns-data-fat-bg);color:var(--ns-data-fat)"><i data-i="droplet"></i></div>
+              <div class="card__actions"><span class="caption">68 %</span></div>
+            </div>
+            <div class="overline">Grasas</div>
+            <div class="metric-lg">54<span class="unit">/ 80 g</span></div>
+            <div class="progress" style="margin:12px 0 10px"><span class="bg-fat" style="width:68%"></span></div>
+            <div class="caption">Te faltan <b style="color:var(--ns-text)">26 g</b> · 27 % energía</div><hr class="divider"><div class="overline" style="margin-bottom:6px">Principales fuentes</div><div class="caption secondary">Nueces 13 g · AOVE 10 g · Aguacate 8 g</div>
+          </div>
+        </section>
+
+        <!-- Comidas de hoy -->
+        <section class="card span-8">
+          <div class="card__header">
+            <div><div class="card__title">Comidas de hoy</div><div class="card__subtitle">3 registradas · 2 pendientes de tu plan</div></div>
+            <div class="card__actions">
+              <button class="btn btn--ai btn--sm"><i data-i="camera"></i>Registrar con foto</button>
+              <button class="btn btn--secondary btn--sm"><i data-i="search"></i>Buscar alimento</button>
+            </div>
+          </div>
+          <div class="timeline">
+            <div class="meal">
+              <div class="meal__slot"><b>Desayuno</b><span class="caption">08:10</span></div>
+              <div class="thumb thumb--oats"></div>
+              <div class="meal__body">
+                <div class="row gap-8"><span class="meal__name">Avena con frutos rojos y plátano</span><span class="badge badge--ai"><i data-i="sparkles"></i>Foto</span></div>
+                <div class="meal__macros"><span class="badge badge--protein">P 22 g</span><span class="badge badge--carbs">HC 86 g</span><span class="badge badge--fat">G 11 g</span></div>
+              </div>
+              <div class="meal__kcal">520<span class="unit">kcal</span></div>
+            </div>
+            <div class="meal">
+              <div class="meal__slot"><b>Media mañana</b><span class="caption">11:30</span></div>
+              <div class="thumb thumb--yogurt"></div>
+              <div class="meal__body">
+                <div class="meal__name">Yogur sin lactosa con nueces y miel</div>
+                <div class="meal__macros"><span class="badge badge--protein">P 18 g</span><span class="badge badge--carbs">HC 22 g</span><span class="badge badge--fat">G 17 g</span></div>
+              </div>
+              <div class="meal__kcal">410<span class="unit">kcal</span></div>
+            </div>
+            <div class="meal">
+              <div class="meal__slot"><b>Comida</b><span class="caption">14:05</span></div>
+              <div class="thumb thumb--bowl"></div>
+              <div class="meal__body">
+                <div class="row gap-8"><span class="meal__name">Bowl de pollo, quinoa y verduras asadas</span><span class="badge badge--ai"><i data-i="sparkles"></i>Foto</span></div>
+                <div class="meal__macros"><span class="badge badge--protein">P 72 g</span><span class="badge badge--carbs">HC 97 g</span><span class="badge badge--fat">G 26 g</span></div>
+              </div>
+              <div class="meal__kcal">812<span class="unit">kcal</span></div>
+            </div>
+            <div class="meal meal--planned">
+              <div class="meal__slot"><b>Pre-entreno</b><span class="caption">17:00 · plan</span></div>
+              <div class="thumb thumb--toast"></div>
+              <div class="meal__body">
+                <div class="row gap-8"><span class="meal__name">Tostadas integrales con plátano y miel</span><span class="badge badge--neutral"><i data-i="calendar"></i>Planificada</span></div>
+                <div class="meal__macros"><span class="caption">380 kcal · P 11 g · HC 72 g · G 6 g</span></div>
+              </div>
+              <button class="btn btn--secondary btn--sm"><i data-i="check"></i>Marcar comida</button>
+            </div>
+            <div class="meal meal--empty">
+              <div class="meal__slot"><b>Cena</b><span class="caption">21:00</span></div>
+              <div class="meal__placeholder"><i data-i="plus" class="icon-16"></i>Añadir cena · sugerencia del plan: Salmón con patata asada (690 kcal)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Columna derecha -->
+        <div class="span-4 stack gap-20">
+          <section class="card">
+            <div class="card__header">
+              <div><div class="card__title">Entrenamiento de hoy</div><div class="card__subtitle">Planificado · 18:30</div></div>
+              <div class="card__actions"><button class="icon-btn" aria-label="Más"><i data-i="more"></i></button></div>
+            </div>
+            <div class="workout">
+              <div class="workout__icon"><i data-i="activity"></i></div>
+              <div>
+                <div style="font-weight:600">Rodaje progresivo 12 km</div>
+                <div class="caption">Carrera · intensidad media · RPE 6</div>
+              </div>
+            </div>
+            <div class="kv">
+              <div><span class="caption">Duración</span><b>65<span class="unit">min</span></b></div>
+              <div><span class="caption">Gasto est.</span><b>670<span class="unit">kcal</span></b></div>
+              <div><span class="caption">Carbos pre</span><b>60–80<span class="unit">g</span></b></div>
+            </div>
+          </section>
+
+          <section class="card card--ai">
+            <div class="row gap-12" style="align-items:flex-start">
+              <div class="ai-insight__icon"><i data-i="sparkles"></i></div>
+              <div>
+                <div class="row gap-8"><span class="card__title">Patrón detectado</span><span class="badge badge--ai">IA</span></div>
+                <p class="secondary" style="margin-top:6px;font-size:13px;line-height:19px">En tus días de series has tomado de media un <b style="color:var(--ns-text)">18 % menos de carbohidratos</b> de lo recomendado durante las últimas 3 semanas.</p>
+                <div class="row gap-8" style="margin-top:12px">
+                  <button class="btn btn--secondary btn--sm">Ver detalle</button>
+                  <button class="btn btn--ghost btn--sm c-ai"><i data-i="message"></i>Preguntar</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Gráfico semanal -->
+        <section class="card span-8">
+          <div class="card__header">
+            <div><div class="card__title">Energía esta semana</div><div class="card__subtitle">Consumido frente al objetivo diario · media 2.264 kcal</div></div>
+            <div class="card__actions">
+              <div class="legend"><span><span class="legend-dot bg-kcal"></span>Consumido</span><span><span style="width:14px;border-top:2px solid #344054"></span>Objetivo</span><span><span class="legend-dot bg-activity"></span>Día de entreno</span></div>
+            </div>
+          </div>
+          <svg viewBox="0 0 720 214" width="100%" role="img" aria-label="Gráfico de barras: energía consumida de lunes a sábado frente al objetivo diario">
+            <defs>
+              <pattern id="stripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#A6F4C5"/><rect width="3" height="6" fill="#6CE9A6"/></pattern>
+            </defs>
+            <g class="chart-axis" text-anchor="end">
+              <text x="38" y="184">0</text><text x="38" y="130.7">1.000</text><text x="38" y="77.3">2.000</text><text x="38" y="24">3.000</text>
+            </g>
+            <g>
+              <line class="chart-grid" x1="50" x2="704" y1="126.7" y2="126.7"/><line class="chart-grid" x1="50" x2="704" y1="73.3" y2="73.3"/><line class="chart-grid" x1="50" x2="704" y1="20" y2="20"/>
+              <line x1="50" x2="704" y1="180" y2="180" stroke="#D0D5DD"/>
+            </g>
+            <g fill="#0B9A5D">
+              <rect x="78" y="44.5" width="36" height="135.5" rx="6"/>
+              <rect x="171" y="56.8" width="36" height="123.2" rx="6"/>
+              <rect x="264" y="34.9" width="36" height="145.1" rx="6"/>
+              <rect x="357" y="63.7" width="36" height="116.3" rx="6"/>
+              <rect x="450" y="68.5" width="36" height="111.5" rx="6"/>
+              <rect x="543" y="87.1" width="36" height="92.9" rx="6" fill="url(#stripes)"/>
+              <rect x="636.75" y="57.3" width="34.5" height="122" rx="6" fill="none" stroke="#B4BCC8" stroke-width="1.5" stroke-dasharray="4 3"/>
+            </g>
+            <g stroke="#344054" stroke-width="2.5" stroke-linecap="round">
+              <line x1="72" x2="120" y1="41.3" y2="41.3"/><line x1="165" x2="213" y1="60" y2="60"/><line x1="258" x2="306" y1="30.7" y2="30.7"/>
+              <line x1="351" x2="399" y1="60" y2="60"/><line x1="444" x2="492" y1="52" y2="52"/><line x1="537" x2="585" y1="37.1" y2="37.1"/>
+              <line x1="630" x2="678" y1="57.3" y2="57.3" stroke-dasharray="4 4"/>
+            </g>
+            <g class="chart-axis" text-anchor="middle">
+              <text x="96" y="200">Lun</text><text x="189" y="200">Mar</text><text x="282" y="200">Mié</text><text x="375" y="200">Jue</text><text x="468" y="200">Vie</text>
+              <text x="561" y="200" style="fill:#101828;font-weight:700">Hoy</text><text x="654" y="200">Dom</text>
+            </g>
+            <g fill="#0E7490"><circle cx="96" cy="210" r="2.5"/><circle cx="282" cy="210" r="2.5"/><circle cx="375" cy="210" r="2.5"/><circle cx="561" cy="210" r="2.5"/></g>
+            <g>
+              <rect x="536" y="58" width="50" height="22" rx="6" fill="#0B1220"/>
+              <text x="561" y="73" text-anchor="middle" style="font:600 13px Inter,sans-serif;fill:#fff">1.742</text>
+            </g>
+          </svg>
+        </section>
+
+        <!-- Peso -->
+        <section class="card span-4">
+          <div class="card__header">
+            <div><div class="card__title">Peso</div><div class="card__subtitle">Media móvil 7 días</div></div>
+            <div class="card__actions"><button class="btn btn--secondary btn--sm"><i data-i="plus"></i>Pesaje</button></div>
+          </div>
+          <div class="row gap-8" style="align-items:baseline">
+            <span class="metric-xl">71,4</span><span class="unit">kg</span>
+            <span class="delta delta--up ml-auto"><i data-i="trending-down" class="icon-14"></i>−0,6 kg en 4 sem.</span>
+          </div>
+          <svg viewBox="0 0 300 100" width="100%" style="margin-top:8px" role="img" aria-label="Evolución del peso, tendencia descendente">
+            <defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#344054" stop-opacity=".14"/><stop offset="1" stop-color="#344054" stop-opacity="0"/></linearGradient></defs>
+            <line class="chart-grid" x1="0" x2="300" y1="20" y2="20"/><line class="chart-grid" x1="0" x2="300" y1="60" y2="60"/>
+            <g fill="#98A2B3"><circle cx="8" cy="22" r="2.5"/><circle cx="40" cy="30" r="2.5"/><circle cx="72" cy="24" r="2.5"/><circle cx="104" cy="38" r="2.5"/><circle cx="136" cy="34" r="2.5"/><circle cx="168" cy="48" r="2.5"/><circle cx="200" cy="44" r="2.5"/><circle cx="232" cy="58" r="2.5"/><circle cx="264" cy="52" r="2.5"/><circle cx="292" cy="62" r="2.5"/></g>
+            <path d="M8 25 C40 27 72 30 104 34 S168 42 200 47 S264 55 292 59 L292 100 L8 100 Z" fill="url(#wg)"/>
+            <path d="M8 25 C40 27 72 30 104 34 S168 42 200 47 S264 55 292 59" fill="none" stroke="#344054" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="292" cy="59" r="5" fill="#fff" stroke="#344054" stroke-width="2.5"/>
+          </svg>
+          <div class="row" style="justify-content:space-between;margin-top:4px"><span class="caption">26 oct</span><span class="caption">Objetivo 70,5 kg</span><span class="caption">21 nov</span></div>
+        </section>
+      </div>
+
+      <div class="disclaimer" style="margin-top:20px"><i data-i="info"></i>NutriSport AI ofrece estimaciones orientativas y no sustituye el consejo de un profesional sanitario o dietista-nutricionista.</div>
+    </main>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

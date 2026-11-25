@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registrar comida con foto · NutriSport AI (mockup)</title>
+<link rel="icon" href="../assets/logo-mark.svg">
+<link rel="stylesheet" href="assets/mockups.css">
+<style>
+  .stepper { display:flex; align-items:center; gap:12px; }
+  .step { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; color:var(--ns-text-tertiary); }
+  .step__n { width:26px; height:26px; border-radius:999px; display:grid; place-items:center; border:1.5px solid var(--ns-border-strong); font-size:12px; background:#fff; }
+  .step.is-done { color:var(--ns-text); } .step.is-done .step__n { background:var(--ns-green-700); border-color:var(--ns-green-700); color:#fff; }
+  .step.is-current { color:var(--ns-ai-600); } .step.is-current .step__n { border-color:var(--ns-ai-600); color:var(--ns-ai-600); box-shadow:0 0 0 4px var(--ns-ai-50); }
+  .step__line { width:40px; height:2px; background:var(--ns-border-strong); border-radius:2px; }
+  .step__line.is-done { background:var(--ns-green-700); }
+
+  .photo { position:relative; border-radius:14px; overflow:hidden; aspect-ratio:1/0.96; background:#1D2127; }
+  .photo img { width:100%; height:100%; display:block; object-fit:cover; }
+  .photo::before { content:""; position:absolute; inset:0; padding:2px; border-radius:14px; background:var(--ns-gradient-ai); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; z-index:3; pointer-events:none; }
+  .scan { position:absolute; left:0; right:0; top:28%; height:34%; background:linear-gradient(180deg,rgba(99,102,241,0) 0%,rgba(99,102,241,.22) 85%,rgba(122,90,248,.35) 100%); border-bottom:2px solid #A5B4FC; box-shadow:0 6px 24px rgba(122,90,248,.6); z-index:1; }
+  @media (prefers-reduced-motion:no-preference){ .scan { animation:scan 2.6s cubic-bezier(.45,0,.55,1) infinite alternate; } @keyframes scan { from{ top:6%; } to { top:60%; } } }
+  .bracket { position:absolute; width:34px; height:34px; border:3px solid #fff; z-index:2; opacity:.9; }
+  .bracket.tl { top:18px; left:18px; border-right:0; border-bottom:0; border-radius:10px 0 0 0; }
+  .bracket.tr { top:18px; right:18px; border-left:0; border-bottom:0; border-radius:0 10px 0 0; }
+  .bracket.bl { bottom:18px; left:18px; border-right:0; border-top:0; border-radius:0 0 0 10px; }
+  .bracket.br { bottom:18px; right:18px; border-left:0; border-top:0; border-radius:0 0 10px 0; }
+  .detect { position:absolute; z-index:2; display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px 0 6px; border-radius:999px; background:rgba(11,18,32,.82); color:#fff; font:600 12px/1 var(--ns-font-body); backdrop-filter:blur(4px); box-shadow:0 4px 10px rgba(0,0,0,.25); }
+  .detect i, .detect .icon { width:16px; height:16px; }
+  .detect__dot { width:16px; height:16px; border-radius:999px; background:var(--ns-gradient-ai); display:grid; place-items:center; }
+  .detect__dot .icon { width:10px; height:10px; stroke-width:3; color:#fff; }
+  .detect small { color:#A5B4FC; font-weight:600; font-size:12px; }
+  .detect--pending { background:rgba(255,255,255,.88); color:var(--ns-ai-600); }
+  .detect--pending .spin { width:14px; height:14px; border-radius:999px; border:2px solid var(--ns-ai-100); border-top-color:var(--ns-ai-600); }
+  .photo__status { position:absolute; z-index:2; left:16px; right:16px; bottom:16px; display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; background:rgba(255,255,255,.95); box-shadow:var(--ns-shadow-lg); }
+  .ai-progress { flex:1; height:6px; border-radius:999px; background:var(--ns-ai-50); overflow:hidden; }
+  .ai-progress span { display:block; height:100%; width:62%; border-radius:inherit; background:var(--ns-gradient-ai); }
+
+  .phases { display:flex; flex-direction:column; gap:14px; }
+  .phase { display:flex; align-items:center; gap:12px; }
+  .phase__icon { width:28px; height:28px; border-radius:999px; display:grid; place-items:center; flex:none; }
+  .phase__icon .icon { width:15px; height:15px; stroke-width:2.5; }
+  .phase--done .phase__icon { background:var(--ns-success-bg); color:var(--ns-success); }
+  .phase--active .phase__icon { background:var(--ns-ai-50); }
+  .phase--active .phase__icon span { width:16px; height:16px; border-radius:999px; border:2.5px solid var(--ns-ai-100); border-top-color:var(--ns-ai-600); }
+  .phase--todo .phase__icon { border:1.5px dashed var(--ns-border-strong); }
+  .phase__title { font-weight:600; }
+  .phase--todo .phase__title { color:var(--ns-text-tertiary); font-weight:500; }
+
+  .tip { display:flex; gap:12px; align-items:flex-start; }
+  .tip__icon { width:32px; height:32px; border-radius:10px; background:var(--ns-surface-muted); display:grid; place-items:center; color:var(--ns-ink-700); flex:none; }
+  .tip__icon .icon { width:16px; height:16px; }
+  .tip b { font-weight:600; font-size:13px; } .tip p { font-size:12px; line-height:17px; color:var(--ns-text-tertiary); }
+
+  .option { display:flex; gap:12px; align-items:center; padding:16px; }
+  .option__icon { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:var(--ns-surface-muted); color:var(--ns-ink-700); flex:none; }
+  .option b { font-weight:600; display:block; } .option span { font-size:12px; color:var(--ns-text-tertiary); }
+  .card--interactive:hover { border-color:var(--ns-border-strong); box-shadow:var(--ns-shadow-sm); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" data-active="comidas"></aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="breadcrumb">Comidas <i data-i="chevron-right" class="icon-14"></i><strong>Registrar con foto</strong></div>
+      <div class="topbar__spacer"></div>
+      <div class="search"><i data-i="search"></i><span>Buscar alimentos, recetas…</span><span class="kbd">Ctrl K</span></div>
+      <button class="icon-btn" aria-label="Notificaciones"><i data-i="bell"></i><span class="dot"></span></button>
+    </header>
+
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <div class="page-head__title">Registrar comida con foto</div>
+          <div class="page-head__sub">Haz una foto de tu plato y revisa la propuesta antes de guardarla.</div>
+        </div>
+        <div class="page-head__actions">
+          <div class="stepper" aria-label="Progreso">
+            <div class="step is-done"><span class="step__n"><i data-i="check" class="icon-14"></i></span>Foto</div>
+            <span class="step__line is-done"></span>
+            <div class="step is-current"><span class="step__n">2</span>Análisis</div>
+            <span class="step__line"></span>
+            <div class="step"><span class="step__n">3</span>Revisión</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-12">
+        <section class="card span-7">
+          <div class="card__header">
+            <div>
+              <div class="row gap-8"><span class="card__title">Analizando tu plato</span><span class="badge badge--ai"><i data-i="sparkles"></i>IA</span></div>
+              <div class="card__subtitle">IMG_2481.jpg · 2,4 MB · optimizada a 1024 px</div>
+            </div>
+            <div class="card__actions">
+              <button class="btn btn--ghost btn--sm"><i data-i="refresh"></i>Cambiar foto</button>
+            </div>
+          </div>
+          <div class="photo">
+            <img src="assets/plato-salmon.svg" alt="Foto del plato: salmón, arroz, brócoli y aguacate">
+            <div class="scan"></div>
+            <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+            <span class="detect" style="left:57%;top:24%"><span class="detect__dot"><i data-i="check"></i></span>Salmón <small>94 %</small></span>
+            <span class="detect" style="left:12%;top:36%"><span class="detect__dot"><i data-i="check"></i></span>Arroz blanco <small>88 %</small></span>
+            <span class="detect detect--pending" style="left:33%;top:64%"><span class="spin"></span>Detectando…</span>
+            <span class="detect detect--pending" style="left:64%;top:56%"><span class="spin"></span>Detectando…</span>
+            <div class="photo__status">
+              <div class="phase__icon" style="background:var(--ns-ai-50)"><span style="width:16px;height:16px;border-radius:999px;border:2.5px solid var(--ns-ai-100);border-top-color:var(--ns-ai-600)"></span></div>
+              <div style="min-width:180px"><div style="font-weight:600;font-size:13px">Detectando alimentos…</div><div class="caption">2 de ~4 identificados · 6 s</div></div>
+              <div class="ai-progress"><span></span></div>
+              <button class="btn btn--secondary btn--sm">Continuar manualmente</button>
+            </div>
+          </div>
+          <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
+            <div class="tip"><div class="tip__icon"><i data-i="clock"></i></div><div><b>~8 s de media</b><p>Tiempo habitual de análisis de una foto.</p></div></div>
+            <div class="tip"><div class="tip__icon"><i data-i="check"></i></div><div><b>86 % sin cambios</b><p>Alimentos que aceptaste tal cual en tus últimos análisis.</p></div></div>
+            <div class="tip"><div class="tip__icon"><i data-i="shield"></i></div><div><b>Foto privada</b><p>Solo tú puedes verla. Se elimina a los 90 días.</p></div></div>
+          </div>
+        </section>
+
+        <div class="span-5 stack gap-20">
+          <section class="card">
+            <div class="card__header"><div><div class="card__title">Detalles de la comida</div><div class="card__subtitle">Ayudan a la IA a ser más precisa</div></div></div>
+            <div class="stack gap-16">
+              <div class="field">
+                <span class="label">Tipo de comida</span>
+                <div class="input" style="justify-content:space-between"><span>Cena</span><i data-i="chevron-down" class="icon-16 muted"></i></div>
+              </div>
+              <div class="row gap-12">
+                <div class="field" style="flex:1"><span class="label">Fecha</span><div class="input"><i data-i="calendar" class="icon-16 muted"></i>21/11/2026</div></div>
+                <div class="field" style="width:130px"><span class="label">Hora</span><div class="input"><i data-i="clock" class="icon-16 muted"></i>21:05</div></div>
+              </div>
+              <div class="field">
+                <span class="label">Describe tu plato <span class="muted" style="font-weight:400">(opcional)</span></span>
+                <div class="input textarea" style="background:var(--ns-surface-muted);color:var(--ns-text-secondary)" aria-readonly="true">Salmón a la plancha con arroz, brócoli al vapor y medio aguacate. Sin salsa.</div>
+                <div class="row" style="justify-content:space-between"><span class="caption">Enviado con la foto. Indica aceite, salsas o rellenos ocultos.</span><a class="caption" style="color:var(--ns-green-700);font-weight:600;text-decoration:none" href="#">Editar y reanalizar</a></div>
+              </div>
+            </div>
+            <hr class="divider">
+            <div class="phases">
+              <div class="phase phase--done"><div class="phase__icon"><i data-i="check"></i></div><div><div class="phase__title">Imagen optimizada y sin metadatos</div><div class="caption">Ubicación y datos del dispositivo eliminados</div></div><span class="caption ml-auto">0,4 s</span></div>
+              <div class="phase phase--active"><div class="phase__icon"><span></span></div><div><div class="phase__title" style="color:var(--ns-ai-600)">Detectando alimentos y porciones</div><div class="caption">Modelo de visión · estimación orientativa</div></div></div>
+              <div class="phase phase--todo"><div class="phase__icon"></div><div><div class="phase__title">Calculando nutrientes con la base de datos</div><div class="caption">BEDCA · USDA · Open Food Facts</div></div></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__header"><div class="card__title">Consejos para una buena foto</div></div>
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px">
+              <div class="tip"><div class="tip__icon"><i data-i="sun"></i></div><div><b>Luz natural</b><p>Evita sombras fuertes y flash.</p></div></div>
+              <div class="tip"><div class="tip__icon"><i data-i="target"></i></div><div><b>Vista cenital</b><p>Fotografía desde arriba, a unos 40 cm.</p></div></div>
+              <div class="tip"><div class="tip__icon"><i data-i="image"></i></div><div><b>Plato completo</b><p>Que se vea entero y sin recortar.</p></div></div>
+              <div class="tip"><div class="tip__icon"><i data-i="utensils"></i></div><div><b>Un plato por foto</b><p>Analiza cada plato por separado.</p></div></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="span-12">
+          <div class="row" style="margin:4px 0 12px"><span class="overline">Otras formas de registrar</span></div>
+          <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+            <a class="card card--interactive option"><div class="option__icon"><i data-i="search"></i></div><div><b>Buscar alimento</b><span>+250.000 alimentos</span></div><i data-i="chevron-right" class="icon-16 muted ml-auto"></i></a>
+            <a class="card card--interactive option"><div class="option__icon"><i data-i="barcode"></i></div><div><b>Código de barras</b><span>Productos envasados</span></div><i data-i="chevron-right" class="icon-16 muted ml-auto"></i></a>
+            <a class="card card--interactive option"><div class="option__icon"><i data-i="copy"></i></div><div><b>Copiar comida anterior</b><span>Repite una comida reciente</span></div><i data-i="chevron-right" class="icon-16 muted ml-auto"></i></a>
+            <a class="card card--interactive option"><div class="option__icon"><i data-i="calendar"></i></div><div><b>Desde mi plan</b><span>Cena planificada</span></div><i data-i="chevron-right" class="icon-16 muted ml-auto"></i></a>
+          </div>
+        </section>
+      </div>
+
+      <div class="disclaimer" style="margin-top:20px"><i data-i="info"></i>El reconocimiento por foto es una estimación orientativa. Podrás corregir alimentos y cantidades antes de guardar.</div>
+    </main>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>
