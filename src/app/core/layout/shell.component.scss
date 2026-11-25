@@ -1,0 +1,154 @@
+// Shell de la aplicación (DESIGN.md §6.1 y §6.3). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  --ns-shell-sidebar: var(--ns-sidebar-width);
+  display: block;
+  min-height: 100dvh;
+  background: var(--ns-bg);
+}
+
+:host(.ns-shell--colapsada) {
+  --ns-shell-sidebar: var(--ns-sidebar-collapsed);
+}
+
+:host(.ns-shell--movil) {
+  --ns-shell-sidebar: 0px;
+}
+
+// Enlace "Saltar al contenido": oculto hasta que recibe el foco (DESIGN.md §10).
+.ns-shell__saltar {
+  position: fixed;
+  top: var(--ns-space-2);
+  left: var(--ns-space-2);
+  z-index: var(--ns-z-tooltip);
+  padding: var(--ns-space-2) var(--ns-space-4);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface);
+  color: var(--ns-text-link);
+  font-weight: 600;
+  box-shadow: var(--ns-shadow-lg);
+  transform: translateY(-200%);
+
+  &:focus-visible {
+    @include m.focus-ring;
+    transform: none;
+  }
+}
+
+// Zona de administración (DESIGN.md §7.17): franja de 3 px ai-600 arriba del todo.
+.ns-shell__franja-admin {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: calc(var(--ns-z-sidebar) + 1);
+  height: 3px;
+  background: var(--ns-ai-600);
+}
+
+.ns-shell__sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--ns-z-sidebar);
+}
+
+.ns-shell__principal {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+// Con sidebar, su padding de safe-area la ensancha: el contenido se desplaza lo mismo.
+:host(:not(.ns-shell--movil)) .ns-shell__principal {
+  margin-left: calc(var(--ns-shell-sidebar) + env(safe-area-inset-left));
+}
+
+// La franja admin no tapa la topbar.
+:host(.ns-shell--admin) .ns-shell__principal {
+  padding-top: 3px;
+}
+
+:host(.ns-shell--admin) ns-topbar {
+  top: 3px;
+}
+
+.ns-shell__contenido {
+  flex: 1;
+  width: 100%;
+  max-width: var(--ns-content-max);
+  margin: 0 auto;
+  padding: var(--ns-space-8);
+  padding-right: max(var(--ns-space-8), env(safe-area-inset-right));
+
+  &:focus {
+    outline: none;
+  }
+
+  @include bp.down(lg) {
+    padding: var(--ns-space-6);
+    padding-right: max(var(--ns-space-6), env(safe-area-inset-right));
+  }
+}
+
+// Móvil: hueco para la barra inferior (64 px + safe-area) y márgenes laterales del notch.
+:host(.ns-shell--movil) .ns-shell__contenido {
+  padding: var(--ns-space-4) max(var(--ns-space-4), env(safe-area-inset-right))
+    calc(64px + var(--ns-space-6) + env(safe-area-inset-bottom)) max(var(--ns-space-4), env(safe-area-inset-left));
+}
+
+:host(.ns-shell--movil.ns-shell--admin) .ns-shell__contenido {
+  padding-bottom: calc(var(--ns-space-6) + env(safe-area-inset-bottom));
+}
+
+// Pie del drawer móvil: usuario y Cerrar sesión.
+.ns-shell__drawer-pie {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  min-width: 0;
+}
+
+.ns-shell__drawer-usuario {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ns-shell__drawer-nombre {
+  @include m.truncate;
+  font-weight: 600;
+}
+
+.ns-shell__drawer-email {
+  @include m.truncate;
+  color: var(--ns-ink-400);
+  font-size: 0.75rem;
+}
+
+.ns-shell__cerrar-sesion {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  min-height: 44px;
+  padding: 0 var(--ns-space-3);
+  border: 1px solid var(--ns-ink-800);
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-inverse);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-ink-800);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring($sobre-oscuro: true);
+  }
+}

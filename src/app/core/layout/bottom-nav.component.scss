@@ -1,0 +1,108 @@
+// Barra inferior móvil (DESIGN.md §6.4). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--ns-z-sidebar);
+  display: block;
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border-top: 1px solid var(--ns-border);
+  background: var(--ns-surface);
+}
+
+.ns-bottom-nav__lista {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: stretch;
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-bottom-nav__enlace {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 100%;
+  color: var(--ns-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    @include m.focus-ring;
+    outline-offset: -4px;
+    border-radius: var(--ns-radius-md);
+  }
+
+  // Activo: color, negrita y barra superior de 3 px.
+  &.ns-bottom-nav__enlace--activo {
+    color: var(--ns-action-primary);
+    font-weight: 700;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 32px;
+      height: 3px;
+      border-radius: 0 0 var(--ns-radius-xs) var(--ns-radius-xs);
+      background: currentColor;
+      transform: translateX(-50%);
+    }
+  }
+}
+
+.ns-bottom-nav__central {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+// Círculo de 56 px que sobresale de la barra.
+.ns-bottom-nav__registrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-top: -16px;
+  border: 0;
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-action-primary);
+  color: var(--ns-text-inverse);
+  // Anillo del color de la barra para separarlo de ella, sin restar tamaño al círculo.
+  box-shadow:
+    0 0 0 4px var(--ns-surface),
+    var(--ns-shadow-lg);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    background: var(--ns-action-primary-hover);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+@include m.reduced-motion {
+  .ns-bottom-nav__registrar {
+    transition: none;
+  }
+}

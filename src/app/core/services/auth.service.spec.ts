@@ -6,6 +6,7 @@ import { Router, provideRouter } from '@angular/router';
 
 import type { CuentaResponse, LoginRequest, TokenResponse } from '../models';
 import { AuthService } from './auth.service';
+import { PerfilService } from './perfil.service';
 
 const CUENTA: CuentaResponse = {
   id: '0193a3f2-7c1e-7a4b-9f00-1a2b3c4d5e6f',
@@ -209,6 +210,13 @@ describe('AuthService', () => {
       servicio.cerrarSesionLocal();
       expect(servicio.tokenActual()).toBeNull();
       http.expectNone('/api/v1/auth/logout');
+    });
+
+    it('al cerrar la sesión olvida lo que se sabía del perfil', () => {
+      const perfil = TestBed.inject(PerfilService);
+      perfil.marcarCreado();
+      servicio.cerrarSesionLocal();
+      expect(perfil.perfilExiste()).toBeNull();
     });
   });
 

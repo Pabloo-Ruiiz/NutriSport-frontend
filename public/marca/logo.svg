@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 40" width="236" height="40" role="img" aria-label="NutriSport AI">
+  <defs>
+    <linearGradient id="nsLeafL" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0B9A5D"/>
+      <stop offset="1" stop-color="#32D583"/>
+    </linearGradient>
+    <linearGradient id="nsAi" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#7A5AF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="10" fill="#0B1220"/>
+  <path d="M9 31C9 18.5 17.5 9 31 9C31 22.5 22 31 9 31Z" fill="url(#nsLeafL)"/>
+  <polyline points="8,22.5 14.5,22.5 17.5,16.5 21.5,27 24.5,20.5 28,20.5" fill="none" stroke="#0B1220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="31" cy="20.5" r="2.6" fill="#7A5AF8"/>
+  <text x="52" y="28" font-family="Manrope, 'Segoe UI', sans-serif" font-weight="800" font-size="22" letter-spacing="-0.44" fill="#101828">NutriSport</text>
+  <rect x="180" y="9" width="34" height="22" rx="11" fill="url(#nsAi)"/>
+  <text x="197" y="25" text-anchor="middle" font-family="Inter, 'Segoe UI', sans-serif" font-weight="700" font-size="12" fill="#FFFFFF">AI</text>
+</svg>

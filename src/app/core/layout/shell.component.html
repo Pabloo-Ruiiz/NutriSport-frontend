@@ -1,0 +1,53 @@
+<a class="ns-shell__saltar" href="#contenido" (click)="saltarAlContenido($event, main)">Saltar al contenido</a>
+
+@if (esModoAdmin()) {
+  <div class="ns-shell__franja-admin" aria-hidden="true"></div>
+}
+
+@if (!layout.esMovil()) {
+  <ns-sidebar class="ns-shell__sidebar" [grupos]="grupos()" [colapsada]="layout.esTablet()" [inicio]="inicio()" />
+}
+
+<div class="ns-shell__principal">
+  <ns-topbar
+    [titulo]="titulo()"
+    [admin]="esModoAdmin()"
+    [mostrarRegistrar]="!esModoAdmin()"
+    [movil]="layout.esMovil()"
+    (abrirMenu)="drawerAbierto.set(true)"
+  />
+  <main #main class="ns-shell__contenido" id="contenido" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>
+
+@if (layout.esMovil()) {
+  @if (!esModoAdmin()) {
+    <ns-bottom-nav />
+  }
+
+  <ns-drawer
+    [(abierto)]="drawerAbierto"
+    titulo="Más"
+    [ancho]="300"
+    lado="izquierda"
+    variante="oscuro"
+    etiquetaCerrar="Cerrar menú"
+  >
+    <nav aria-label="Más secciones">
+      <ns-nav-lista [grupos]="gruposDrawer()" prefijo="ns-drawer" />
+    </nav>
+    <div nsDrawerAcciones class="ns-shell__drawer-pie">
+      @if (cuenta(); as cuenta) {
+        <span class="ns-shell__drawer-usuario">
+          <span class="ns-shell__drawer-nombre">{{ cuenta.nombre }}</span>
+          <span class="ns-shell__drawer-email">{{ cuenta.email }}</span>
+        </span>
+      }
+      <button type="button" class="ns-shell__cerrar-sesion" (click)="cerrarSesion()">
+        <svg lucideIcon="log-out" [size]="20" aria-hidden="true"></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </ns-drawer>
+}

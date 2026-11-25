@@ -37,6 +37,9 @@ import { idUnico } from '../form/control-campo';
  *   </ns-drawer>
  *
  * En pantallas más estrechas que `ancho`, ocupa el ancho completo.
+ *
+ * `lado="izquierda"` y `variante="oscuro"` dan el drawer de navegación móvil (DESIGN.md §6.4):
+ * entra por la izquierda con el estilo de la sidebar (ink-950).
  */
 @Component({
   selector: 'ns-drawer',
@@ -45,6 +48,8 @@ import { idUnico } from '../form/control-campo';
     <ng-template #plantilla>
       <div
         class="ns-drawer"
+        [class.ns-drawer--izquierda]="lado() === 'izquierda'"
+        [class.ns-drawer--oscuro]="variante() === 'oscuro'"
         role="dialog"
         aria-modal="true"
         [attr.aria-labelledby]="idTitulo"
@@ -71,6 +76,10 @@ export class NsDrawerComponent {
   /** Ancho en px (número) o cualquier medida CSS. 560 px por defecto. */
   readonly ancho = input<number | string>(560);
   readonly etiquetaCerrar = input('Cerrar panel');
+  /** Borde de la pantalla desde el que entra. */
+  readonly lado = input<'derecha' | 'izquierda'>('derecha');
+  /** `oscuro`: fondo ink-950, como la sidebar. */
+  readonly variante = input<'claro' | 'oscuro'>('claro');
 
   protected readonly idTitulo = idUnico('ns-drawer-titulo');
 
@@ -110,7 +119,10 @@ export class NsDrawerComponent {
       hasBackdrop: true,
       backdropClass: 'cdk-overlay-dark-backdrop',
       panelClass: 'ns-drawer-pane',
-      positionStrategy: createGlobalPositionStrategy(this.injector).right('0').top('0'),
+      positionStrategy:
+        this.lado() === 'izquierda'
+          ? createGlobalPositionStrategy(this.injector).left('0').top('0')
+          : createGlobalPositionStrategy(this.injector).right('0').top('0'),
       scrollStrategy: createBlockScrollStrategy(this.injector),
       height: '100%',
       maxWidth: '100vw',
