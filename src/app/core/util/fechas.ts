@@ -26,11 +26,7 @@ function componentes(fecha: string): { anio: number; mes: number; dia: number } 
 
   // Comprueba que el día existe (rechaza, por ejemplo, 2026-02-30).
   const prueba = new Date(Date.UTC(anio, mes - 1, dia));
-  if (
-    prueba.getUTCFullYear() !== anio ||
-    prueba.getUTCMonth() !== mes - 1 ||
-    prueba.getUTCDate() !== dia
-  ) {
+  if (prueba.getUTCFullYear() !== anio || prueba.getUTCMonth() !== mes - 1 || prueba.getUTCDate() !== dia) {
     throw new Error(`La fecha no existe: "${fecha}"`);
   }
   return { anio, mes, dia };

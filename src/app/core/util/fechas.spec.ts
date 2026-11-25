@@ -141,11 +141,7 @@ describe('fechas', () => {
 
   describe('rangoDias', () => {
     it('incluye las dos fechas extremas', () => {
-      expect(rangoDias('2026-11-23', '2026-11-25')).toEqual([
-        '2026-11-23',
-        '2026-11-24',
-        '2026-11-25',
-      ]);
+      expect(rangoDias('2026-11-23', '2026-11-25')).toEqual(['2026-11-23', '2026-11-24', '2026-11-25']);
     });
 
     it('devuelve un solo día o ninguno', () => {
@@ -154,21 +150,11 @@ describe('fechas', () => {
     });
 
     it('cruza el fin de febrero de un año bisiesto', () => {
-      expect(rangoDias('2028-02-27', '2028-03-01')).toEqual([
-        '2028-02-27',
-        '2028-02-28',
-        '2028-02-29',
-        '2028-03-01',
-      ]);
+      expect(rangoDias('2028-02-27', '2028-03-01')).toEqual(['2028-02-27', '2028-02-28', '2028-02-29', '2028-03-01']);
     });
 
     it('cruza el cambio de hora sin huecos ni duplicados', () => {
-      expect(rangoDias('2026-10-24', '2026-10-27')).toEqual([
-        '2026-10-24',
-        '2026-10-25',
-        '2026-10-26',
-        '2026-10-27',
-      ]);
+      expect(rangoDias('2026-10-24', '2026-10-27')).toEqual(['2026-10-24', '2026-10-25', '2026-10-26', '2026-10-27']);
     });
   });
 

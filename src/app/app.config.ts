@@ -14,11 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     // Los interceptores (token y errores) se añaden en el paso 7.
     provideHttpClient(withInterceptors([])),
-    provideRouter(
-      routes,
-      withComponentInputBinding(),
-      withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
-    ),
+    provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     { provide: LOCALE_ID, useValue: 'es-ES' },
   ],
 };
