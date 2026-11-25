@@ -25,6 +25,7 @@ const CUENTA = {
 class AuthServiceFalso {
   readonly cuenta = signal<CuentaResponse | null>(CUENTA);
   readonly esAdmin = signal(false);
+  readonly emailVerificado = signal(true);
   logout = vi.fn(async () => true);
 }
 

@@ -71,12 +71,27 @@ export const routes: Routes = [
             loadComponent: () =>
               import('@features/auth/registro/revisa-tu-email.component').then((m) => m.RevisaTuEmailComponent),
           },
-          { path: 'recuperar-password', title: 'Recuperar contraseña', ...pendiente(10) },
+          {
+            path: 'recuperar-password',
+            title: 'Recuperar contraseña',
+            loadComponent: () =>
+              import('@features/auth/recuperar/recuperar-password.component').then((m) => m.RecuperarPasswordComponent),
+          },
         ],
       },
       // Enlaces de los correos (§2.2): válidos con o sin sesión.
-      { path: 'verificar-email', title: 'Verificar email', ...pendiente(10) },
-      { path: 'restablecer-password', title: 'Nueva contraseña', ...pendiente(10) },
+      {
+        path: 'verificar-email',
+        title: 'Verificar email',
+        loadComponent: () =>
+          import('@features/auth/verificar-email/verificar-email.component').then((m) => m.VerificarEmailComponent),
+      },
+      {
+        path: 'restablecer-password',
+        title: 'Nueva contraseña',
+        loadComponent: () =>
+          import('@features/auth/recuperar/restablecer-password.component').then((m) => m.RestablecerPasswordComponent),
+      },
     ],
   },
 

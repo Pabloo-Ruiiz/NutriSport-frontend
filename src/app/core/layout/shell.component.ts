@@ -4,6 +4,7 @@ import { LucideDynamicIcon } from '@lucide/angular';
 
 import { NsDrawerComponent } from '@shared/ui/overlay/drawer.component';
 import { AuthService } from '../services/auth.service';
+import { AvisoCuentaComponent } from './aviso-cuenta.component';
 import { BottomNavComponent } from './bottom-nav.component';
 import { LayoutService } from './layout.service';
 import { NavListaComponent } from './nav-lista.component';
@@ -38,6 +39,7 @@ export type ModoShell = 'deportista' | 'admin';
     TopbarComponent,
     BottomNavComponent,
     NavListaComponent,
+    AvisoCuentaComponent,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
