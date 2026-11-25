@@ -74,6 +74,47 @@
   }
 }
 
+// Entra por la izquierda (drawer de navegación móvil).
+.ns-drawer--izquierda {
+  padding-right: 0;
+  padding-left: env(safe-area-inset-left);
+  animation-name: ns-drawer-entrada-izquierda;
+}
+
+// Estilo de la sidebar (DESIGN.md §5.7 y §6.4).
+.ns-drawer--oscuro {
+  background: var(--ns-surface-inverse);
+  color: var(--ns-text-inverse);
+
+  .ns-drawer__cabecera,
+  .ns-drawer__pie {
+    border-color: var(--ns-ink-800);
+  }
+
+  .ns-drawer__cuerpo {
+    padding: var(--ns-space-3);
+  }
+
+  .ns-drawer__cerrar {
+    color: var(--ns-ink-400);
+
+    &:hover {
+      background: var(--ns-ink-800);
+      color: var(--ns-text-inverse);
+    }
+
+    &:focus-visible {
+      @include m.focus-ring($sobre-oscuro: true);
+    }
+  }
+}
+
+@keyframes ns-drawer-entrada-izquierda {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
 @keyframes ns-drawer-entrada {
   from {
     transform: translateX(100%);

@@ -1,0 +1,157 @@
+// Barra superior (DESIGN.md §5.8). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  position: sticky;
+  top: 0;
+  z-index: var(--ns-z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-4);
+  height: var(--ns-topbar-height);
+  padding: 0 var(--ns-space-8);
+  border-bottom: 1px solid var(--ns-border);
+  background: var(--ns-surface);
+}
+
+:host(.ns-topbar--movil) {
+  gap: var(--ns-space-3);
+  height: calc(56px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) max(var(--ns-space-4), env(safe-area-inset-right)) 0
+    max(var(--ns-space-4), env(safe-area-inset-left));
+}
+
+.ns-topbar__titulo {
+  @include m.truncate;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--ns-font-display);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+:host(.ns-topbar--movil) .ns-topbar__titulo {
+  font-size: 1.125rem;
+}
+
+.ns-topbar__admin {
+  flex-shrink: 0;
+}
+
+.ns-topbar__hueco {
+  flex: 1;
+}
+
+.ns-topbar__avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-green-700);
+  color: var(--ns-text-inverse);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.ns-topbar__usuario,
+.ns-topbar__avatar-boton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ns-space-1);
+  min-width: 44px;
+  height: 44px;
+  padding: 0 var(--ns-space-1);
+  border: 0;
+  border-radius: var(--ns-radius-full);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-surface-muted);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-topbar__usuario {
+  padding: 0 var(--ns-space-2) 0 var(--ns-space-1);
+}
+
+// Menú del usuario (CDK Menu, en el overlay).
+.ns-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  margin-top: var(--ns-space-2);
+  padding: var(--ns-space-1);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-lg);
+}
+
+.ns-menu__cabecera {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ns-space-2) var(--ns-space-3) var(--ns-space-3);
+  border-bottom: 1px solid var(--ns-border);
+  margin-bottom: var(--ns-space-1);
+}
+
+.ns-menu__nombre {
+  font-weight: 600;
+}
+
+.ns-menu__email {
+  @include m.truncate;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.ns-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  min-height: 40px;
+  padding: 0 var(--ns-space-3);
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+
+  svg {
+    color: var(--ns-text-secondary);
+  }
+
+  &:hover,
+  &:focus {
+    background: var(--ns-surface-muted);
+    outline: none;
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+    outline-offset: -2px;
+  }
+}
+
+.ns-menu__separador {
+  height: 1px;
+  margin: var(--ns-space-1) 0;
+  border: 0;
+  background: var(--ns-border);
+}

@@ -6,6 +6,7 @@ import { Observable, catchError, finalize, firstValueFrom, map, of, shareReplay,
 import { environment } from '@env/environment';
 import type { CuentaResponse, LoginRequest, MensajeResponse, RegistroRequest, TokenResponse } from '../models';
 import { estadoHttp } from '../util/api-error';
+import { PerfilService } from './perfil.service';
 
 /**
  * Sesión del usuario (NutriSport_API.md §2).
@@ -22,6 +23,7 @@ import { estadoHttp } from '../util/api-error';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly perfil = inject(PerfilService);
   private readonly url = `${environment.apiUrl}/auth`;
 
   private readonly token = signal<string | null>(null);
@@ -203,6 +205,8 @@ export class AuthService {
     this.token.set(null);
     this.expiraEn.set(null);
     this.cuentaActual.set(null);
+    // Lo que se sabía del perfil es del usuario que se va.
+    this.perfil.limpiar();
   }
 }
 

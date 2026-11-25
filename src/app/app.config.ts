@@ -8,11 +8,12 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { TitleStrategy, provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { provideLucideIcons } from '@lucide/angular';
 
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
+import { NutriSportTitleStrategy } from '@core/layout/titulo.strategy';
 import { AuthService } from '@core/services/auth.service';
 import { ICONOS_APP } from '@shared/design/iconos';
 import { routes } from './app.routes';
@@ -26,6 +27,8 @@ export const appConfig: ApplicationConfig = {
     // authInterceptor: token y refresh ante 401. errorInterceptor: HttpErrorResponse → ApiError.
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
+    // Título de la pestaña: "<title de la ruta> · NutriSport".
+    { provide: TitleStrategy, useClass: NutriSportTitleStrategy },
     { provide: LOCALE_ID, useValue: 'es-ES' },
     // Iconos de Lucide disponibles por nombre en <svg lucideIcon="…"> (shared/design/iconos.ts).
     provideLucideIcons(...ICONOS_APP),

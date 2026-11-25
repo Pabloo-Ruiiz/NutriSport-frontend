@@ -13,7 +13,7 @@ Esta guía es la hermana de `Guia_Github_Backend_NutriSport.md` y sigue su mismo
 - una **pull request** (título y descripción, con `Closes #N` para cerrar su issue),
 - los **prompts** para Copilot (modo *Agent*), en orden, y la **comprobación**.
 
-Todo lo que hace peticiones está construido sobre la API **real** del backend ya terminado. La referencia es **`docs/NutriSport_API.md`** (tipos, endpoints, errores, flujos y validaciones), generada a partir del OpenAPI del backend (**`docs/NutriSport-API.json`**). Si los dos no coinciden, **manda el JSON**, salvo las discrepancias comprobadas que lista el §11 de la referencia. Los prompts los leen con `#file:docs/NutriSport_API.md` y `#file:docs/NutriSport-API.json`.
+Todo lo que hace peticiones está construido sobre la API **real** del backend ya terminado. La referencia es **`docs/NutriSport_API.md`** (tipos, endpoints, errores, flujos y validaciones), generada a partir del OpenAPI del backend (**`docs/NutriSport-API.json`**). Si los dos no coinciden, **manda el JSON**, salvo las discrepancias comprobadas que lista el §11 de la referencia. Para no gastar tokens, los prompts **no** cargan esos documentos enteros: citan sin `#file:` el fichero del módulo que toca en **`docs/api/`** (de 4 a 13 KB cada uno, frente a los ~120 KB de la referencia completa; índice en `docs/api/README.md`) y la sección de `DESIGN.md` que hace falta. El JSON solo se consulta para comprobar un nombre concreto.
 
 Diferencias con el frontend de MotorLab, que vienen del backend de NutriSport:
 
@@ -32,6 +32,7 @@ Diferencias con el frontend de MotorLab, que vienen del backend de NutriSport:
 |---|---|---|
 | `NutriSport_API.md` | ya está en este repositorio | `docs/` |
 | `NutriSport-API.json` | OpenAPI descargado del backend (ya está) | `docs/` |
+| `api/` (la referencia partida por módulos: `auth.md`, `comidas.md`…, y `README.md`) | ya está en este repositorio | `docs/api/` |
 | `DESIGN.md` | `NutriSport-backend/docs/` | `docs/` |
 | `PROJECT_PROPOSAL.md` | `NutriSport-backend/docs/` | `docs/` |
 | `design/assets/` (logotipos SVG) y `design/mockups/` (HTML + `png/`) | `NutriSport-backend/docs/design/` | `docs/design/` |
@@ -106,18 +107,19 @@ Comprueba que responde: <http://localhost:8080/swagger-ui/index.html>. Los corre
 ## Cómo usar los prompts
 
 1. Abre VS Code en la raíz del repositorio del frontend y el chat de Copilot en modo **Agent** (selector junto al campo de texto; en modo *Ask* solo muestra código). Cuando termine, revisa los ficheros cambiados (`Ctrl+Shift+G`) y pulsa **Keep**.
-2. Empieza **cada conversación nueva** con el **Prompt 0**. En el paso 1 lo guardas en `.github/copilot-instructions.md`, para que Copilot lo aplique siempre.
+2. El **Prompt 0** se guarda en el paso 1 en `.github/copilot-instructions.md` y Copilot lo aplica solo a todas las conversaciones. No lo pegues además (se cargaría dos veces); pégalo solo si ves que no lo tiene en cuenta.
 3. Ejecuta los prompts **en orden y de uno en uno**. Se numeran por paso: el *Prompt 15.2* es el segundo prompt del paso 15.
 4. Cuando un prompt cite una maqueta (`docs/design/mockups/png/…`), adjunta la imagen al chat.
 5. **Revisa el código** antes de aceptarlo: tiene que cumplir las reglas del Prompt 0. Entenderlo es parte de la defensa.
-6. Después de cada prompt, compila: `npm run build`. Si falla, usa el **Prompt de corrección**. Al final de cada paso, `npm test`.
+6. **Ahorra tokens:** no añadas `#file:` a los documentos grandes (`NutriSport_API.md`, `NutriSport-API.json`, `DESIGN.md`, `PROJECT_PROPOSAL.md`). Los prompts ya citan el fichero de `docs/api/` y la sección que hacen falta; el asistente los abre solo si los necesita. Las maquetas PNG sí se adjuntan. Empieza una conversación nueva en cada paso.
+7. Después de cada prompt, compila: `npm run build`. Si falla, usa el **Prompt de corrección**. Al final de cada paso, `npm test`.
 
 ### Prompt 0 · Contexto del frontend (empieza cada conversación con él)
 
 ```text
 Estoy desarrollando el frontend de NutriSport AI: una SPA en Angular para que deportistas planifiquen, registren y analicen su alimentación (perfil y objetivos, registro de comidas manual y por foto con IA, entrenamientos, dashboard diario y peso y, en la Ampliación, productos de Open Food Facts, recetas, planificador de menús, lista de la compra, estadísticas y un asistente con IA). También tiene una zona de administración (usuarios y catálogo).
 
-El frontend tiene su propio repositorio, separado del backend Spring Boot; el proyecto Angular está en la raíz del repositorio. Consume la API REST descrita en #file:docs/NutriSport_API.md (convenciones, sesión, errores, tipos, endpoints, flujos y validaciones), generada a partir del OpenAPI del backend #file:docs/NutriSport-API.json. Si los dos no coinciden, manda el JSON, salvo las discrepancias del §11 de NutriSport_API.md. La identidad visual y las pantallas están en #file:docs/DESIGN.md.
+El frontend tiene su propio repositorio, separado del backend Spring Boot; el proyecto Angular está en la raíz del repositorio. Consume la API REST descrita en docs/NutriSport_API.md (convenciones, sesión, errores, tipos, endpoints, flujos y validaciones), generada a partir del OpenAPI del backend docs/NutriSport-API.json. Si los dos no coinciden, manda el JSON, salvo las discrepancias del §11 de NutriSport_API.md. La identidad visual y las pantallas están en docs/DESIGN.md. Son documentos grandes: no los cargues enteros; busca y lee solo la sección que necesites (por su número, p. ej. §6 Comidas, o con una búsqueda de texto). El JSON solo se consulta para comprobar un nombre o un tipo concreto. Para cada módulo hay un fichero pequeño en docs/api/ (auth, perfil, alimentos, comidas, analisis, actividad, seguimiento, recetas, menus, compra, asistente, admin, más general, sesion-errores, tipos-comunes y rutas-etiquetas; índice en docs/api/README.md): lee ese fichero en lugar del documento completo.
 
 Stack: Angular 22 con componentes standalone, TypeScript en modo estricto, SCSS, signals (signal, computed, effect, input, output, model), el control flow nuevo (@if, @for, @switch), formularios reactivos tipados, HttpClient con interceptores funcionales, rutas con carga perezosa (loadComponent y loadChildren), Angular CDK (dialog, overlay, a11y, drag-drop), @lucide/angular para los iconos (provideLucideIcons y <svg lucideIcon="…">) y ngx-echarts para los gráficos. Sin NgModules, sin Angular Material y sin librerías de estado: el estado compartido va en servicios con signals. Los tests usan Vitest (el runner que trae el proyecto).
 
@@ -133,7 +135,7 @@ Reglas que debes cumplir SIEMPRE:
 7. Diseño: solo los tokens --ns-* y los componentes de shared/ui; nunca colores HEX sueltos en los componentes. Responsive desde 360 px (DESIGN.md §6.3), barra inferior en móvil y sidebar en escritorio. Accesibilidad WCAG 2.2 AA: etiqueta en todos los campos, foco visible, contraste, objetivos táctiles de 44 px, nada por debajo de 12 px, aria-live para los resultados asíncronos.
 8. Formato es-ES: decimales con coma, miles con punto, fechas "sáb. 21 nov", unidades con espacio ("112 g"). En pantalla los carbohidratos se llaman "Hidratos".
 9. Los valores nutricionales los calcula SIEMPRE el backend: el frontend no recalcula kcal ni macros, salvo vistas previas marcadas como estimación. Los resultados de IA se presentan como estimaciones orientativas (ns-disclaimer) y los datos de Open Food Facts, TheMealDB y USDA llevan su atribución.
-10. Antes de generar nada, lee la sección de NutriSport_API.md y de DESIGN.md que cite el prompt y el código existente que vayas a usar. Si algo no está claro, pregúntame en lugar de inventarlo. No inventes endpoints, campos ni versiones de dependencias.
+10. Antes de generar nada, lee SOLO el fichero de docs/api/ y la sección de docs/DESIGN.md que cite el prompt (no los documentos enteros) y el código existente que vayas a usar. Si algo no está claro, pregúntame en lugar de inventarlo. No inventes endpoints, campos ni versiones de dependencias.
 11. Nunca subas contraseñas, tokens ni ficheros .env al repositorio.
 
 Cuando termines, dime qué archivos has creado o modificado.
@@ -153,7 +155,7 @@ Explícame la causa en dos líneas y corrige solo los archivos afectados, respet
 
 ```text
 NutriSport-frontend/
-├── docs/                         ← NutriSport_API.md, NutriSport-API.json, DESIGN.md, PROJECT_PROPOSAL.md, design/, esta guía
+├── docs/                         ← NutriSport_API.md, api/ (la API por módulos), NutriSport-API.json, DESIGN.md, PROJECT_PROPOSAL.md, design/, esta guía
 ├── proxy.conf.json               ← /api → http://localhost:8080 (desarrollo)
 ├── nginx/default.conf            ← producción: sirve la SPA y hace de proxy de /api (paso 24)
 ├── Dockerfile
@@ -353,7 +355,8 @@ La carpeta debe quedar así:
 
 ```text
 docs/
-├── NutriSport_API.md                     ← referencia de la API para el frontend
+├── NutriSport_API.md                     ← referencia completa de la API para el frontend
+├── api/                                  ← la misma referencia partida por módulos (la que leen los prompts)
 ├── NutriSport-API.json                   ← OpenAPI del backend
 ├── DESIGN.md                             ← identidad visual, componentes y pantallas
 ├── PROJECT_PROPOSAL.md                   ← producto, requisitos e historias de usuario
@@ -636,7 +639,7 @@ npm i @angular/cdk @lucide/angular @fontsource-variable/manrope @fontsource-vari
 #### Prompt 3.1 · Tokens y estilos globales
 
 ```text
-Lee #file:docs/DESIGN.md §2 (paleta), §3 (tipografía), §6.5–6.9 (espaciado, rejilla, radios, sombras, capas) y §9.1–9.4 (tokens, breakpoints, organización y convenciones). Crea los estilos globales EXACTAMENTE con esa organización:
+Lee solo docs/DESIGN.md §2 (paleta), §3 (tipografía), §6.5–6.9 (espaciado, rejilla, radios, sombras, capas) y §9.1–9.4 (tokens, breakpoints, organización y convenciones). Crea los estilos globales EXACTAMENTE con esa organización:
 - src/styles/tokens/_primitives.scss y _semantic.scss: copia los tokens de §9.1 (prefijo --ns-) sin inventar valores.
 - src/styles/abstracts/_breakpoints.scss: el mapa $ns-breakpoints y los mixins up() y down() de §9.2. _mixins.scss: focus-ring, truncate, sr-only y reduced-motion.
 - src/styles/base/_fonts.scss: importa @fontsource-variable/manrope y @fontsource-variable/inter y define --ns-font-display y --ns-font-body con esas familias ("Manrope Variable", "Inter Variable") y el fallback de §3.1. _reset.scss: reset moderno mínimo (box-sizing, márgenes, imágenes responsive, prefers-reduced-motion). _typography.scss: clases .ns-text-display, -h1, -h2, -h3, -card-title, -h4, -metric-xl, -metric-lg, -body-lg, -body, -body-strong, -body-sm, -caption, -overline, -label con la escala de §3.2; html con font-size 100 %, body con la tipografía `body` (14/20) y color --ns-text sobre --ns-bg; números tabulares en .ns-tnum.
@@ -764,7 +767,7 @@ git checkout -b feature/04-modelos-api
 #### Prompt 4.1 · Modelos de la API
 
 ```text
-Lee #file:docs/NutriSport_API.md §5 (tipos) y §11 (discrepancias) y comprueba los nombres en #file:docs/NutriSport-API.json. Crea en src/app/core/models los tipos repartidos por módulo, copiándolos tal cual (mismos nombres de interfaces y propiedades, mismos | null y ?):
+Lee solo docs/api/tipos-comunes.md, la sección §5 (tipos) de cada fichero de módulo de docs/api/ (índice en docs/api/README.md) y el §11 (discrepancias) de docs/api/general.md; si dudas de un nombre, búscalo en docs/NutriSport-API.json (sin leerlo entero). Crea en src/app/core/models los tipos repartidos por módulo, copiándolos tal cual (mismos nombres de interfaces y propiedades, mismos | null y ?):
 - comun.ts: los enumerados que se usan en varios módulos (TipoComida, Alergeno, Preparacion, UnidadBase, FuenteAlimento…), Pagina<T>, ProblemDetail, ErrorCampo, Nutrientes, NutricionRacion, Porcentajes, FuenteResponse, ObjetivoDiarioResponse.
 - auth.ts (auth y cuenta), perfil.ts, alimentos.ts (catálogo, categorías y productos de Open Food Facts), comidas.ts, analisis.ts, actividad.ts, seguimiento.ts, recetas.ts, menus.ts, compra.ts, asistente.ts (incluida MensajeAsistente del §11) y admin.ts.
 - index.ts que lo reexporte todo.
@@ -774,7 +777,7 @@ No añadas propiedades, no las renombres y no conviertas fechas a Date. Si un ti
 #### Prompt 4.2 · Etiquetas y pipes
 
 ```text
-1. Crea src/app/core/models/etiquetas.ts con un Record<Enum, string> por cada enumerado de la tabla de #file:docs/NutriSport_API.md §10 (ETIQUETAS_TIPO_COMIDA, ETIQUETAS_OBJETIVO, ETIQUETAS_ALERGENO…), ORDEN_TIPOS_COMIDA (el orden del día) e ICONOS_TIPO_COMIDA (nombres de Lucide de DESIGN.md §4: DESAYUNO coffee, MEDIA_MANANA apple, COMIDA utensils, MERIENDA apple, CENA moon, PRE_ENTRENO zap, POST_ENTRENO dumbbell, OTRO utensils).
+1. Crea src/app/core/models/etiquetas.ts con un Record<Enum, string> por cada enumerado de la tabla del §10 de docs/api/rutas-etiquetas.md (ETIQUETAS_TIPO_COMIDA, ETIQUETAS_OBJETIVO, ETIQUETAS_ALERGENO…), ORDEN_TIPOS_COMIDA (el orden del día) e ICONOS_TIPO_COMIDA (nombres de Lucide de DESIGN.md §4: DESAYUNO coffee, MEDIA_MANANA apple, COMIDA utensils, MERIENDA apple, CENA moon, PRE_ENTRENO zap, POST_ENTRENO dumbbell, OTRO utensils).
 2. Crea en src/app/shared/pipes (standalone, pure) con Intl.NumberFormat('es-ES') y Intl.DateTimeFormat('es-ES'):
    - KcalPipe (kcal): entero con separador de miles y " kcal" → "2.450 kcal"; null → "—".
    - GramosPipe (gramos): por defecto sin decimales; parámetro opcional de decimales → "112 g", "1,5 g".
@@ -898,7 +901,7 @@ git checkout -b feature/05-componentes-base
 #### Prompt 5.1 · Botón, campos y selectores
 
 ```text
-Lee #file:docs/DESIGN.md §5.1–5.5, §9.4, §9.5 y el ejemplo de ns-button de §9.6. Crea en src/app/shared/ui (standalone, OnPush, input()/output(), estilos en .scss con solo tokens --ns-*):
+Lee solo docs/DESIGN.md §5.1–5.5, §9.4, §9.5 y el ejemplo de ns-button de §9.6. Crea en src/app/shared/ui (standalone, OnPush, input()/output(), estilos en .scss con solo tokens --ns-*):
 - button/NsButtonComponent con selector 'button[nsButton], a[nsButton]': variant 'primary'|'ai'|'secondary'|'ghost'|'danger' (por defecto primary), size 'sm'|'md'|'lg', icon (nombre de Lucide), iconPosition, loading (muestra ns-spinner y aria-busy, y deshabilita), fullWidth. Altura mínima 44 px en móvil. Usa el ejemplo de §9.6 como base (con el sufijo Component del Prompt 0).
 - form/NsFormFieldComponent (ns-form-field): label, hint, obligatorio (asterisco con texto accesible), sufijo (unidad, p. ej. "kg") y proyección del control; muestra el error del control proyectado. form/NsInputDirective (input[nsInput], textarea[nsInput]): aplica la clase y los estados (error cuando el control es inválido y está tocado).
 - form/NsSelectComponent (select nativo con estilo y ControlValueAccessor), NsCheckboxComponent, NsSwitchComponent (role="switch"), NsSegmentedComponent (radiogroup con flechas del teclado) y NsChipGroupComponent (selección simple o múltiple): todos implementan ControlValueAccessor para usarse con formControlName.
@@ -908,7 +911,7 @@ Lee #file:docs/DESIGN.md §5.1–5.5, §9.4, §9.5 y el ejemplo de ns-button de 
 #### Prompt 5.2 · Tarjetas, badges, alertas y estados
 
 ```text
-Lee #file:docs/DESIGN.md §5.5, §5.10, §5.11 y §5.15. Crea en src/app/shared/ui:
+Lee solo docs/DESIGN.md §5.5, §5.10, §5.11 y §5.15. Crea en src/app/shared/ui:
 - card/NsCardComponent (ns-card): variant 'default'|'metric'|'ai'|'interactive' (la ai con el borde/acento índigo de §2.3), padding 'sm'|'md'|'lg', y ranuras de cabecera (título, acciones) y contenido.
 - feedback/NsBadgeComponent: variant 'neutral'|'success'|'warning'|'error'|'info'|'ai'|'activity'|'kcal'|'protein'|'carbs'|'fat', icono opcional.
 - feedback/NsAlertComponent: type 'info'|'success'|'warning'|'error'|'ai', título, texto proyectado, dismissible (output cerrar); role="alert" solo para error.
@@ -1037,7 +1040,7 @@ git checkout -b feature/06-componentes-feedback
 #### Prompt 6.1 · Superposiciones y avisos
 
 ```text
-Lee #file:docs/DESIGN.md §5.6, §5.11, §5.15 y §10 (accesibilidad y movimiento). Con @angular/cdk/dialog y @angular/cdk/overlay crea en src/app/shared/ui:
+Lee solo docs/DESIGN.md §5.6, §5.11, §5.15 y §10 (accesibilidad y movimiento). Con @angular/cdk/dialog y @angular/cdk/overlay crea en src/app/shared/ui:
 - overlay/NsDialogService.open<T, R>(componente, { data, size: 'sm'|'md'|'lg', titulo }) que envuelve CDK Dialog: en móvil (LayoutService.esMovil) se abre como bottom sheet a ancho completo con safe-area; en escritorio, centrado con el ancho del tamaño. DialogShellComponent da la cabecera (título h4 y botón cerrar con aria-label) y el pie de acciones.
 - overlay/NsConfirmService.confirmar({ titulo, mensaje, textoConfirmar, peligro, pedirPassword }): Promise<boolean | string> con ConfirmDialogComponent. Con pedirPassword muestra un campo de contraseña y devuelve su valor (se usará para eliminar la cuenta).
 - overlay/NsDrawerComponent: panel lateral (derecha, ancho configurable, 560 px por defecto) con CDK Overlay, foco atrapado y cierre con Escape.
@@ -1049,7 +1052,7 @@ Añade ToastContainerComponent a app.component.html y estos componentes a /dev/c
 #### Prompt 6.2 · Datos y navegación
 
 ```text
-Lee #file:docs/DESIGN.md §5.12–5.14, §7.4 y §9.5. Crea en src/app/shared/ui:
+Lee solo docs/DESIGN.md §5.12–5.14, §7.4 y §9.5. Crea en src/app/shared/ui:
 - data/NsRingComponent (ns-ring): SVG con value, max, size (px), grosor, color ('kcal'|'protein'|'carbs'|'fat'|'activity'), etiqueta central (ranura), segundo anillo interior opcional (valueInterior/maxInterior, para el gasto del entreno del dashboard); si value > max muestra el exceso con --ns-warning. role="progressbar" con aria-valuenow/aria-valuemax/aria-label.
 - data/NsProgressBarComponent: value, max, color, showLabel, alto; mismo patrón de accesibilidad.
 - data/NsMetricComponent: label, value, unit, delta (número con signo), trend 'up'|'down'|'flat' y si el aumento es bueno o malo.
@@ -1176,7 +1179,7 @@ git checkout -b feature/07-sesion-interceptores
 #### Prompt 7.1 · ApiError y utilidades de formularios
 
 ```text
-Lee #file:docs/NutriSport_API.md §3 (errores) y §2.3 (límites). Crea:
+Lee solo docs/api/sesion-errores.md y docs/api/auth.md §3 (errores) y §2.3 (límites). Crea:
 1. src/app/core/util/api-error.ts: class ApiError extends Error con status, codigo, titulo, detalle (detail), errores (ErrorCampo[]), retryAfterSegundos (number | null) y url. Función aApiError(e: unknown): ApiError que convierte un HttpErrorResponse:
    - con cuerpo Problem Details (tiene codigo) → sus campos; Retry-After de las cabeceras;
    - status 0 → codigo 'SIN_CONEXION', detalle "No hay conexión con el servidor. Comprueba tu conexión e inténtalo de nuevo.";
@@ -1189,7 +1192,7 @@ Lee #file:docs/NutriSport_API.md §3 (errores) y §2.3 (límites). Crea:
 #### Prompt 7.2 · AuthService y restauración de la sesión
 
 ```text
-Lee #file:docs/NutriSport_API.md §2 completo, los endpoints de Auth y Cuenta del §6 y los tipos TokenResponse y CuentaResponse. Crea src/app/core/services/auth.service.ts (providedIn root):
+Lee solo docs/api/sesion-errores.md y docs/api/auth.md §2 completo, los endpoints de Auth y Cuenta del §6 y los tipos TokenResponse y CuentaResponse. Crea src/app/core/services/auth.service.ts (providedIn root):
 - Estado privado con signals: token (string | null), expiraEn y cuenta (CuentaResponse | null). Signals públicos de solo lectura: cuenta, autenticado, esAdmin (roles incluye ADMIN), emailVerificado y consentimientoVigente. El token NUNCA se guarda en localStorage ni sessionStorage.
 - tokenActual(): string | null (lo usa el interceptor).
 - login(req: LoginRequest) (envía SIEMPRE mantenerSesion), registrar(req), verificarEmail(token), reenviarVerificacion(email), recuperarPassword(email), restablecerPassword(token, nuevaPassword): Observables con los endpoints exactos de /auth.
@@ -1333,7 +1336,7 @@ git checkout -b feature/08-layout-rutas
 #### Prompt 8.1 · Guards
 
 ```text
-Lee #file:docs/NutriSport_API.md §4 (requisitos de la cuenta). Crea en src/app/core:
+Lee solo docs/api/general.md §4 (requisitos de la cuenta). Crea en src/app/core:
 - services/perfil.service.ts con existe(): Promise<boolean> que hace GET /perfil y cachea el resultado en un signal (404 → false; otro error → se propaga); marcarCreado() y limpiar() (se llama al cerrar sesión). El resto de métodos llega en el paso 11.
 - guards (CanActivateFn funcionales):
   * autenticadoGuard: si !AuthService.autenticado() → UrlTree a /login con queryParams volver = state.url.
@@ -1346,7 +1349,7 @@ Pruebas de cada guard con TestBed y AuthService/PerfilService simulados.
 #### Prompt 8.2 · Layouts
 
 ```text
-Lee #file:docs/DESIGN.md §5.7, §5.8, §6.1–6.4, §6.9, §7.1 (estructura del split) y §7.17 (identificación de la zona de administración); mira #file:docs/design/mockups/png/01-dashboard.png y 07-movil.png. Crea en src/app/core/layout:
+Lee solo docs/DESIGN.md §5.7, §5.8, §6.1–6.4, §6.9, §7.1 (estructura del split) y §7.17 (identificación de la zona de administración); mira #file:docs/design/mockups/png/01-dashboard.png y 07-movil.png. Crea en src/app/core/layout:
 - navegacion.ts: grupos y elementos de la sidebar de §6.2 con ruta e icono Lucide. Para el MVP: Principal (Inicio /inicio, Comidas /comidas), Rendimiento (Actividad /actividad), Cuenta (Mi perfil /perfil, Configuración /configuracion) y Administración solo ADMIN (Usuarios /admin/usuarios, Catálogo /admin/catalogo). Deja comentados los de la Ampliación (Planificador, Lista de la compra, Recetas, Estadísticas, Asistente IA) para activarlos en sus pasos.
 - AuthLayoutComponent: split 50/50 con el panel de marca ink-950 (logo de docs/design/assets copiado a public/, eslogan "Tu nutrición deportiva, impulsada por inteligencia artificial" y tres beneficios) y router-outlet a la derecha; < 1024 px el panel se reduce a una cabecera de 120 px.
 - ShellComponent (DESIGN.md §9.6 «Layout responsive del shell»): sidebar de 248 px (colapsada a 72 px en tablet) con el logo, los grupos y el usuario abajo; topbar de 64 px sticky con el título de la página, el botón "Registrar comida" (primario) y el menú del usuario (Mi perfil, Configuración, Cerrar sesión); en móvil, NsBottomNav con Inicio · Comidas · [Registrar] · Actividad · Perfil, el botón central de 56 px abre un bottom sheet con "Foto del plato", "Buscar alimento" (y en la Ampliación "Escanear código" y "Desde mi plan"); "Más" abre el drawer de 300 px con el resto. Enlace "Saltar al contenido" (#contenido), safe-area y la marca de enlace activo (routerLinkActive) con color y borde, no solo color.
@@ -1488,7 +1491,7 @@ git checkout -b feature/09-login-registro
 #### Prompt 9.1 · Validadores y componentes de contraseña
 
 ```text
-Lee #file:docs/NutriSport_API.md §8 (validaciones de RegistroRequest) y #file:docs/DESIGN.md §7.2. Crea:
+Lee solo docs/api/auth.md y docs/api/sesion-errores.md §8 (validaciones de RegistroRequest) y docs/DESIGN.md §7.2. Crea:
 - core/util/validadores.ts: contrasenaSegura() (10–72 caracteres, al menos una letra y un número; error { contrasenaSegura: { motivo } }), coincideCon(otroControl) para confirmar contraseña y noSoloEspacios(). Añade sus mensajes en castellano a ErrorCampoDirective.
 - features/auth/componentes/CampoPasswordComponent: input de contraseña con botón mostrar/ocultar (icono eye/eye-off, aria-pressed, aria-label) e implementado como ControlValueAccessor.
 - features/auth/componentes/PasswordStrengthComponent (ns-password-strength): 4 segmentos según longitud, variedad de caracteres y que no sea una secuencia obvia; texto "Débil / Aceptable / Buena / Fuerte" (no solo color). Aclara en un texto pequeño que el servidor también rechaza contraseñas comunes.
@@ -1498,7 +1501,7 @@ Pruebas de los validadores.
 #### Prompt 9.2 · Login y registro
 
 ```text
-Lee #file:docs/NutriSport_API.md §2 (sesión, mensajes genéricos y límites) y §3, y #file:docs/DESIGN.md §7.1 y §7.2. Crea las pantallas dentro de AuthLayoutComponent:
+Lee solo docs/api/auth.md y docs/api/sesion-errores.md §2 (sesión, mensajes genéricos y límites) y §3, y docs/DESIGN.md §7.1 y §7.2. Crea las pantallas dentro de AuthLayoutComponent:
 - LoginComponent (/login): título "Bienvenido de nuevo", email, contraseña (CampoPasswordComponent), checkbox "Mantener la sesión iniciada" con su explicación (si no se marca, la sesión termina al cerrar el navegador), botón primario lg a ancho completo con loading, enlaces "¿Olvidaste tu contraseña?" y "Crear cuenta". Al enviar: AuthService.login con mantenerSesion siempre presente. 401 → ns-alert con el detail del servidor; 429 → ns-alert de advertencia con ApiError.mensajeEspera() y botón desactivado hasta que pase el tiempo; 400 → errores en los campos. Si va bien: navega a queryParam volver (solo si es una ruta interna que empieza por "/") o a /inicio.
 - RegistroComponent (/registro): nombre, email, contraseña con PasswordStrengthComponent, confirmar contraseña, y tres checkboxes separados: "Declaro ser mayor de 18 años", "Acepto los términos de uso" y "Consiento el tratamiento de mis datos de salud" con un enlace "Qué datos tratamos y por qué" que abre un diálogo con el texto (datos de perfil, comidas, fotos y entrenamientos; qué se envía al proveedor de IA: fotos sin metadatos y datos nutricionales, nunca nombre ni email; se puede revocar en Configuración). Envía RegistroRequest con los tres booleanos siempre (sin confirmarPassword). 202 → navega a /registro/revisa-tu-email con el email en el estado de navegación. 400 → aplicarErroresServidor. 429 → mensaje de espera.
 - RevisaTuEmailComponent: estado vacío con icono mail-check, "Revisa tu email" y el texto genérico ("Si los datos son correctos, te hemos enviado un enlace para verificar tu cuenta. Caduca en 24 horas."), botón "Reenviar" (POST /auth/reenviar-verificacion) que muestra un toast y respeta el 429, y enlace "Ir a iniciar sesión".
@@ -1624,7 +1627,7 @@ git checkout -b feature/10-verificacion-recuperacion
 #### Prompt 10.1 · Enlaces con token
 
 ```text
-Lee #file:docs/NutriSport_API.md §2.2 (enlaces de los correos) y #file:docs/DESIGN.md §7.18. Crea:
+Lee solo docs/api/sesion-errores.md y docs/api/auth.md §2.2 (enlaces de los correos) y docs/DESIGN.md §7.18. Crea:
 - core/util/token-fragmento.ts: leerTokenDelFragmento(route: ActivatedRoute): string | null lee "token=…" de route.snapshot.fragment (decodeURIComponent) y llama a history.replaceState para quitar el fragmento de la URL. Pruebas.
 - core/services/cuenta.service.ts con obtener(): Observable<CuentaResponse> (GET /cuenta) que además llama a AuthService.actualizarCuenta. El resto de métodos llega en el paso 13.
 - VerificarEmailComponent (/verificar-email, sin guard): al iniciar lee el token y llama a AuthService.verificarEmail; estados con signals: 'comprobando' (spinner), 'ok' (icono circle-check, "Email verificado", botón "Ir a mi panel" si hay sesión o "Iniciar sesión" si no; si hay sesión, refresca la cuenta con CuentaService.obtener()), 'error' (TOKEN_NO_VALIDO → "El enlace ha caducado o ya se ha usado" con un formulario de email para reenviar; EMAIL_EN_USO → "Ese email ya está en uso por otra cuenta"), 'sin-token' (enlace incompleto).
@@ -1752,7 +1755,7 @@ git checkout -b feature/11-onboarding-perfil
 #### Prompt 11.1 · Servicios
 
 ```text
-Lee en #file:docs/NutriSport_API.md §6 los endpoints de Perfil, Actividad (tipos) y Catálogo (categorías y búsqueda), y los tipos PerfilRequest/Response, PreferenciaDto, ObjetivosResponse y TipoActividadResponse. Crea o completa en src/app/core/services:
+Lee solo en docs/api/perfil.md, docs/api/actividad.md y docs/api/alimentos.md §6 los endpoints de Perfil, Actividad (tipos) y Catálogo (categorías y búsqueda), y los tipos PerfilRequest/Response, PreferenciaDto, ObjetivosResponse y TipoActividadResponse. Crea o completa en src/app/core/services:
 - PerfilService: obtener(), guardar(req: PerfilRequest) (marca creado), preferencias(), guardarPreferencias(lista: PreferenciaDto[]) (envía { preferencias }), objetivos(), fijarObjetivosManuales(req), volverAlCalculo() (DELETE /perfil/objetivos/manuales).
 - TiposActividadService.listar(): Observable<TipoActividadResponse[]> con shareReplay (catálogo estático).
 - CategoriasService.listar(tipo: TipoCategoria) con caché por tipo.
@@ -1762,7 +1765,7 @@ Lee en #file:docs/NutriSport_API.md §6 los endpoints de Perfil, Actividad (tipo
 #### Prompt 11.2 · Asistente de 4 pasos
 
 ```text
-Lee #file:docs/DESIGN.md §7.3 y #file:docs/NutriSport_API.md §8 (validaciones de PerfilRequest, PreferenciaDto y ObjetivosManualesRequest). Crea en features/onboarding:
+Lee solo docs/DESIGN.md §7.3 y docs/api/perfil.md, docs/api/actividad.md y docs/api/alimentos.md §8 (validaciones de PerfilRequest, PreferenciaDto y ObjetivosManualesRequest). Crea en features/onboarding:
 - perfil-form.ts: crearFormularioPerfil() con FormGroup tipados para cada paso y aPerfilRequest(valor) / aPreferencias(valor) que construyen EXACTAMENTE los DTO (sin campos extra; números como number; fechaCompeticion solo si el objetivo es COMPETICION). Pruebas de la conversión.
 - OnboardingComponent (/bienvenida, pantalla completa con logo, ns-stepper y tarjeta central de 640 px, pie con "Atrás" / "Continuar" fijo abajo en móvil):
   1. Sobre ti (PasoSobreTiComponent): fecha de nacimiento (mayor de 18 años), sexo (ns-segmented), altura (120–230 cm), peso (30–250 kg) y % de grasa opcional (3–60).
@@ -1884,7 +1887,7 @@ git checkout -b feature/12-mi-perfil
 #### Prompt 12.1 · Servicio de seguimiento y diálogo de peso
 
 ```text
-Lee en #file:docs/NutriSport_API.md §6 los endpoints de Seguimiento (peso) y #file:docs/DESIGN.md §7.18 («Registrar pesaje»). Crea:
+Lee solo en docs/api/seguimiento.md §6 los endpoints de Seguimiento (peso) y docs/DESIGN.md §7.18 («Registrar pesaje»). Crea:
 - core/services/seguimiento.service.ts: registrarPeso(req: PesoRequest), eliminarPeso(id), seriePeso(desde, hasta) (máx. 366 días). El resumen, los insights y las estadísticas llegarán en sus pasos.
 - features/perfil/componentes/RegistrarPesoDialogComponent (NsDialogService, tamaño sm): fecha (hoy por defecto, no futura) y peso en kg con un decimal (30–250). Al guardar: toast "Peso guardado" y devuelve el PesoResponse.
 ```
@@ -1892,7 +1895,7 @@ Lee en #file:docs/NutriSport_API.md §6 los endpoints de Seguimiento (peso) y #f
 #### Prompt 12.2 · Pantalla Mi perfil
 
 ```text
-Lee #file:docs/DESIGN.md §7.5. Crea features/perfil/PerfilComponent (/perfil):
+Lee solo docs/DESIGN.md §7.5. Crea features/perfil/PerfilComponent (/perfil):
 - Cabecera con avatar (iniciales del nombre de la cuenta), nombre, deporte principal (nombre del tipo de actividad) y objetivo (etiqueta).
 - ns-tabs: Datos físicos · Deporte · Objetivo y macros · Alimentación. Reutiliza los componentes de los pasos del onboarding (ajústalos para que funcionen con un FormGroup recibido por input()). Cada pestaña tiene su botón "Guardar": las tres primeras hacen PUT /perfil con el perfil completo (aPerfilRequest) y la de alimentación PUT /perfil/preferencias junto con comidasPorDia y tiempoMaxCocinaMin (que van en el perfil). Tras guardar, recarga los objetivos y muestra un ns-alert info "Tus objetivos se han recalculado" si no son manuales. Avisa al salir con cambios sin guardar (CanDeactivate).
 - TarjetaObjetivosComponent (lateral en escritorio, debajo en móvil): ns-ring pequeño de kcal, macros, badge "Manuales" si objetivosManuales, switch "Fijar objetivos manualmente" (abre ObjetivosManualesDialogComponent) y "Volver al cálculo automático" (DELETE /perfil/objetivos/manuales con confirmación), y el botón "Registrar peso".
@@ -2006,13 +2009,13 @@ git checkout -b feature/13-configuracion-cuenta
 #### Prompt 13.1 · Servicio de cuenta
 
 ```text
-Lee en #file:docs/NutriSport_API.md §6 los endpoints de Cuenta y §4. Completa core/services/cuenta.service.ts: obtener(), actualizar(req: ActualizarCuentaRequest) (solo los campos cambiados), cambiarPassword(req), cambiarEmail(req), darConsentimiento(), revocarConsentimiento(), eliminar(req: EliminarCuentaRequest) (envía siempre inmediata). Cada operación que cambie la cuenta actualiza AuthService (vuelve a pedir GET /cuenta después del consentimiento). Pruebas con HttpTestingController (eliminar envía el cuerpo en un DELETE con { body }).
+Lee solo en docs/api/auth.md y docs/api/general.md §6 los endpoints de Cuenta y §4. Completa core/services/cuenta.service.ts: obtener(), actualizar(req: ActualizarCuentaRequest) (solo los campos cambiados), cambiarPassword(req), cambiarEmail(req), darConsentimiento(), revocarConsentimiento(), eliminar(req: EliminarCuentaRequest) (envía siempre inmediata). Cada operación que cambie la cuenta actualiza AuthService (vuelve a pedir GET /cuenta después del consentimiento). Pruebas con HttpTestingController (eliminar envía el cuerpo en un DELETE con { body }).
 ```
 
 #### Prompt 13.2 · Pantalla de configuración
 
 ```text
-Lee #file:docs/DESIGN.md §7.16. Crea features/configuracion con rutas hijas (/configuracion/cuenta por defecto, /seguridad, /privacidad, /uso-ia) y una navegación secundaria lateral (en móvil, lista que abre cada sección):
+Lee solo docs/DESIGN.md §7.16. Crea features/configuracion con rutas hijas (/configuracion/cuenta por defecto, /seguridad, /privacidad, /uso-ia) y una navegación secundaria lateral (en móvil, lista que abre cada sección):
 - CuentaDatosComponent: nombre, unidades (solo "Métrico", deshabilitado con una nota) y switch "Recibir patrones detectados (insights)" (insightsActivos) → PATCH /cuenta.
 - SeguridadComponent: cambiar contraseña (actual, nueva con medidor, confirmar) → PUT /cuenta/password → AuthService.cerrarSesionLocal(), toast y /login; cambiar email (nuevo email y contraseña) → mensaje genérico de la respuesta en un ns-alert; "Cerrar sesión en todos los dispositivos" con NsConfirmService → AuthService.logoutTodas(). Un error de contraseña incorrecta llega como VALIDACION en el campo passwordActual o password: aplícalo al control.
 - PrivacidadComponent: estado del consentimiento de datos de salud (vigente o revocado), explicación de qué datos se tratan y qué se envía al proveedor de IA; "Revocar consentimiento" con NsConfirmService (peligro) que explica que se bloquean perfil, comidas, análisis, entrenamientos y seguimiento sin borrar datos; "Volver a dar el consentimiento" si está revocado. Zona de peligro (borde --ns-error-border): "Eliminar mi cuenta" con NsConfirmService pedirPassword y una casilla "Borrar todo inmediatamente (si no, se borra a los 30 días)" → DELETE /cuenta → cerrarSesionLocal, toast y /login. Deja un hueco "Exportar mis datos" que se activará en el paso 36.
@@ -2135,7 +2138,7 @@ git checkout -b feature/14-catalogo-alimentos
 #### Prompt 14.1 · Servicio y componentes de catálogo
 
 ```text
-Lee en #file:docs/NutriSport_API.md §6 los endpoints de Catálogo, §7.2 y los tipos AlimentoResumenResponse, AlimentoResponse, AlimentoRequest y PorcionCasera; y #file:docs/DESIGN.md §5.4, §5.16 y §7.6. Crea:
+Lee solo en docs/api/alimentos.md y docs/api/comidas.md §6 los endpoints de Catálogo, §7.2 y los tipos AlimentoResumenResponse, AlimentoResponse, AlimentoRequest y PorcionCasera; y docs/DESIGN.md §5.4, §5.16 y §7.6. Crea:
 - AlimentosService completo: buscar (ya existe), detalle(id) con caché en memoria, recientes(), frecuentes(), crear(req), editar(id, req), eliminar(id).
 - shared/ui/form/NsComboboxComponent<T> (patrón ARIA combobox con listbox): input() buscar: (texto) => Observable<T[]>, plantilla de opción (ng-template), debounce 250 ms, distinctUntilChanged, switchMap (cancela la anterior), mínimo de caracteres, estados cargando / sin resultados / error, flechas, Enter y Escape; output() seleccionado.
 - shared/ui/data/NsNutritionFactsComponent (tabla "por 100 g/ml" con kcal, proteínas, hidratos, de los cuales azúcares, grasas, de las cuales saturadas, fibra y sal; las nulas como "—"), NsSourceBadgeComponent (fuente: BEDCA, USDA, Open Food Facts, NutriSport, Propio) y NsAllergenListComponent (contiene, trazas y "Alérgenos sin revisar" si alergenosRevisados = false).
@@ -2262,7 +2265,7 @@ git checkout -b feature/15-registro-comidas
 #### Prompt 15.1 · Servicio y store
 
 ```text
-Lee en #file:docs/NutriSport_API.md §6 los endpoints de Comidas, §7.2 y §8 (RegistroComidaRequest y AlimentoRegistradoRequest). Crea:
+Lee solo en docs/api/comidas.md y docs/api/alimentos.md §6 los endpoints de Comidas, §7.2 y §8 (RegistroComidaRequest y AlimentoRegistradoRequest). Crea:
 - core/services/comidas.service.ts: registrar(req), detalle(id), editar(id, req), eliminar(id), duplicar(id, req), historial(desde, hasta, tipo?) (máx. 92 días), dia(fecha).
 - features/comidas/registro/comida-editor.store.ts (servicio con signals, provisto en el componente): fecha (hoy), hora (ahora, "HH:mm"), tipoComida (sugerido por la hora: antes de 11 DESAYUNO, 11–13 MEDIA_MANANA, 13–16 COMIDA, 16–19 MERIENDA, después CENA), notas y lineas[] con { alimento: AlimentoResponse, cantidad, unidad }. Acciones: anadir(alimento) (si ya está, suma 100 g), quitar(i), cambiarCantidad, cambiarUnidad, cargarDesde(RegistroComidaResponse), vaciar(). computed: estimacion (suma con kcal100 y la cantidad en gramos según la unidad: g, kg, ml, l o los gramos de la porción), marcada como estimación hasta que responda el servidor; aRequest(): RegistroComidaRequest (solo alimentoId, cantidad, unidad; hasta 40 líneas).
 Pruebas del store: estimación con porciones, sugerencia de tipo por hora y request sin propiedades extra.
@@ -2271,7 +2274,7 @@ Pruebas del store: estimación con porciones, sugerencia de tipo por hora y requ
 #### Prompt 15.2 · Pantalla de registro
 
 ```text
-Lee #file:docs/DESIGN.md §7.6. Crea features/comidas/registro/RegistroComidaComponent (/comidas/nueva y /comidas/:id/editar; lee queryParams tipoComida y fecha para venir desde el dashboard):
+Lee solo docs/DESIGN.md §7.6. Crea features/comidas/registro/RegistroComidaComponent (/comidas/nueva y /comidas/:id/editar; lee queryParams tipoComida y fecha para venir desde el dashboard):
 - Izquierda (5 col): fecha (máximo mañana), hora, tipo de comida (ns-select con los 8 tipos), accesos "Foto del plato" (variante ai, va a /comidas/foto con el tipo) y "Copiar comida anterior" (CopiarComidaDialogComponent: comidas de los últimos 7 días con historial() → al elegir, carga sus alimentos en el store); y BuscadorAlimentosComponent en modo lista. Al elegir un alimento, pide su detalle (para las porciones) y lo añade.
 - Derecha (7 col): "Tu comida" con LineaAlimentoComponent por alimento (nombre, ns-quantity-input, selector de unidad con g/ml y las porciones del alimento, kcal estimadas y quitar) y TotalesComidaComponent (kcal y mini barras de macros, con el texto "Estimación" hasta guardar), notas (máx. 500) y botón "Guardar comida".
 - Al guardar: POST (o PUT en edición). Si la respuesta trae avisos, muéstralos en un diálogo o ns-alert antes de salir. Toast "Comida guardada · {totales.kcal} kcal" con acción "Deshacer" (DELETE /comidas/{id}) y navega a /inicio (o a donde indique volver). 400 → errores en la línea correspondiente (alimentos[i].cantidad).
@@ -2387,7 +2390,7 @@ git checkout -b feature/16-historial-comidas
 #### Prompt 16.1 · Tarjeta de comida y detalle
 
 ```text
-Lee #file:docs/DESIGN.md §5.5 (tarjeta meal) y §7.9. Crea en features/comidas/componentes:
+Lee solo docs/DESIGN.md §5.5 (tarjeta meal) y §7.9. Crea en features/comidas/componentes:
 - MealCardComponent (input comida: RegistroComidaResponse): icono del tipo de comida, tipo y hora, nombres de los alimentos (resumidos: "Avena, leche y plátano"), kcal y P/HC/G, badge "Foto" si origen = FOTO (y "Plan", "Receta", "Copia" para los demás), menú contextual (Ver, Editar, Duplicar, Eliminar) con outputs.
 - DetalleComidaComponent (NsDialogService): alimentos con cantidad, unidad, gramos y nutrientes, totales, notas, avisos y, en las de foto, "Estimación IA" con la confianza de cada alimento.
 - DuplicarComidaDialogComponent: fecha (hoy por defecto, máximo mañana) y tipo de comida opcional → POST /comidas/{id}/duplicar.
@@ -2511,7 +2514,7 @@ git checkout -b feature/17-actividad
 #### Prompt 17.1 · Servicio y formulario
 
 ```text
-Lee en #file:docs/NutriSport_API.md §6 los endpoints de Actividad y §8 (EntrenamientoRequest). Crea:
+Lee solo en docs/api/actividad.md §6 los endpoints de Actividad y §8 (EntrenamientoRequest). Crea:
 - core/services/entrenamientos.service.ts: listar(desde, hasta, estado?) (máx. 92 días), crear(req), editar(id, req) (PUT sustituye todo), eliminar(id), marcarEstado(e: EntrenamientoResponse, estado) que reenvía el entrenamiento completo con el estado nuevo (construye el EntrenamientoRequest a partir de la respuesta).
 - features/actividad/EntrenamientoFormComponent (NsDialogService md, bottom sheet en móvil): tipo de actividad (NsCombobox o select agrupado por categoría de GET /entrenamientos/tipos, valor = codigo), estado (ns-segmented Planificado / Realizado; Realizado deshabilitado si la fecha es futura), fecha y hora (datetime-local convertido a ISO con la zona local, p. ej. "2026-11-25T18:30:00+01:00"), duración (1–600 min), intensidad (ns-segmented Baja / Media / Alta), RPE 1–10 (input range con su valor visible) solo si es Realizado, distancia en km opcional y notas (máx. 500). Pruebas de la conversión a EntrenamientoRequest (zona horaria incluida).
 ```
@@ -2519,7 +2522,7 @@ Lee en #file:docs/NutriSport_API.md §6 los endpoints de Actividad y §8 (Entren
 #### Prompt 17.2 · Pantalla de actividad
 
 ```text
-Lee #file:docs/DESIGN.md §7.13. Crea features/actividad/ActividadComponent (/actividad):
+Lee solo docs/DESIGN.md §7.13. Crea features/actividad/ActividadComponent (/actividad):
 - Navegación por semanas (lunes a domingo; ‹ 23–29 nov ›).
 - KpisSemanaComponent: sesiones realizadas, minutos, kcal estimadas y carga (suma de duración × RPE) con ns-metric (carrusel horizontal en móvil).
 - CargaSemanaComponent: barras por día (CSS, sin ECharts) con el color por intensidad y patrón o texto para no depender solo del color.
@@ -2643,7 +2646,7 @@ npm i echarts ngx-echarts
 #### Prompt 18.1 · Gráficos
 
 ```text
-Lee #file:docs/DESIGN.md §5.12 y el tema ECharts de §9.6. Crea:
+Lee solo docs/DESIGN.md §5.12 y el tema ECharts de §9.6. Crea:
 - shared/design/echarts-theme.ts con nutrisportTheme a partir de TOKENS (copia el de §9.6) y regístralo: provideEchartsCore({ echarts: () => import('echarts') }) en app.config.ts y echarts.registerTheme('nutrisport', …) al cargar.
 - shared/ui/data/NsChartComponent (ns-chart): inputs options (EChartsOption), ariaLabel (obligatorio), altura y loading (skeleton); usa la directiva de ngx-echarts con theme 'nutrisport', role="img" y aria-label, y una ranura para una tabla alternativa con la clase ns-sr-only. Ningún texto por debajo de 12 px.
 ```
@@ -2651,7 +2654,7 @@ Lee #file:docs/DESIGN.md §5.12 y el tema ECharts de §9.6. Crea:
 #### Prompt 18.2 · Dashboard
 
 ```text
-Lee #file:docs/DESIGN.md §7.4 y mira #file:docs/design/mockups/png/01-dashboard.png y 07-movil.png; lee en #file:docs/NutriSport_API.md el tipo ResumenDiarioResponse y los endpoints de Seguimiento. Completa SeguimientoService con resumen(fecha?) y crea features/dashboard/DashboardComponent (/inicio):
+Lee solo docs/DESIGN.md §7.4 y mira #file:docs/design/mockups/png/01-dashboard.png y 07-movil.png; lee solo en docs/api/seguimiento.md el tipo ResumenDiarioResponse y los endpoints de Seguimiento. Completa SeguimientoService con resumen(fecha?) y crea features/dashboard/DashboardComponent (/inicio):
 - Cabecera: "Buenos días, {nombre}" según la hora, fecha larga y ns-date-strip (máximo mañana).
 - TarjetaEnergiaComponent: ns-ring de 180 px con las kcal restantes en el centro (o "+X kcal" si excesoKcal > 0, sin tono de culpa) y anillo interior del gasto del entreno (kcalEntreno); desglose consumido / objetivo / entreno / base (objetivo − kcalEntreno).
 - 3 × TarjetaMacroComponent (proteína, hidratos, grasa): barra de progreso con sus colores, gramos consumidos de objetivo y restantes, y las 2 comidas que más aportan del día.
@@ -2775,7 +2778,7 @@ git checkout -b feature/19-foto-subida
 #### Prompt 19.1 · Imagen y servicio
 
 ```text
-Lee #file:docs/NutriSport_API.md §7.1 (flujo de la foto) y los endpoints de Análisis del §6. Crea:
+Lee solo docs/api/analisis.md §7.1 (flujo de la foto) y los endpoints de Análisis del §6. Crea:
 - core/util/imagen.ts: comprimirAJpeg(archivo: File, { ladoMax = 2048, calidad = 0.85 }): Promise<Blob> con createImageBitmap (respetando la orientación EXIF: imageOrientation 'from-image') y un canvas (OffscreenCanvas si existe); rechaza si no es una imagen. validarArchivo(archivo) comprueba tipo image/* y tamaño ≤ 10 MB antes de procesar. Pruebas con un canvas simulado.
 - core/services/analisis.service.ts: subir(foto: Blob, tipoComida, descripcion?) → POST /analisis/imagenes con FormData (campo "imagen", nombre "foto.jpg") y tipoComida y descripcion como HttpParams (no en el FormData); consultar(id); seguir(id): Observable<AnalisisResponse> con timer(0, 1500) + switchMap + takeWhile(estado PENDIENTE o PROCESANDO, inclusive) + timeout(60000); urlImagen(id); confirmar(id, req); descartar(id).
 Pruebas: subir pone los parámetros en la query; seguir() emite hasta COMPLETADO y se detiene.
@@ -2784,7 +2787,7 @@ Pruebas: subir pone los parámetros en la query; seguir() emite hasta COMPLETADO
 #### Prompt 19.2 · Pantalla de la foto
 
 ```text
-Lee #file:docs/DESIGN.md §7.7 y mira #file:docs/design/mockups/png/02-registro-foto.png y 07-movil.png. Crea:
+Lee solo docs/DESIGN.md §7.7 y mira #file:docs/design/mockups/png/02-registro-foto.png y 07-movil.png. Crea:
 - shared/ui/form/NsDropzoneComponent: zona de arrastrar y soltar con borde discontinuo, icono camera en círculo ai-50, "Arrastra una foto o haz clic" y "JPEG o PNG hasta 10 MB"; botones "Hacer foto" (input file accept="image/*" capture="environment") y "Subir archivo"; output() archivo. Accesible con teclado.
 - features/analisis/FotoComidaComponent (/comidas/foto; queryParam tipoComida opcional) con ns-stepper "Foto → Análisis → Revisión":
   1. Foto: NsDropzone o la previsualización (URL.createObjectURL, revocada al destruir) con "Cambiar foto"; panel lateral con tipo de comida (sugerido por la hora), hora y "Describe tu plato (opcional, mejora la precisión)" (máx. 500); consejos para una buena foto; botón "Analizar" (variante ai). Si !AuthService.emailVerificado(): ns-alert explicando que hace falta verificar el email, botón "Reenviar correo" y el análisis desactivado; el enlace "Registrar manualmente" siempre visible.
@@ -2904,7 +2907,7 @@ git checkout -b feature/20-foto-revision
 #### Prompt 20.1 · Store de la revisión
 
 ```text
-Lee #file:docs/NutriSport_API.md §7.1 y los tipos AnalisisResponse, CandidatoAnalisis, CoincidenciaCatalogo y ConfirmarAnalisisRequest. Crea features/analisis/revision-analisis.store.ts (provisto en el componente) con signals:
+Lee solo docs/api/analisis.md §7.1 y los tipos AnalisisResponse, CandidatoAnalisis, CoincidenciaCatalogo y ConfirmarAnalisisRequest. Crea features/analisis/revision-analisis.store.ts (provisto en el componente) con signals:
 - lineas[]: { indiceCandidato: number | null, nombreDetectado, alimentoId, nombreAlimento, gramos, confianza, nivelConfianza, preparacion, por100 (Nutrientes de la coincidencia elegida, que vienen en coincidencias[].estimados para los gramos estimados: guárdalos normalizados a 100 g) }, iniciadas desde los candidatos con su primera coincidencia (un candidato sin coincidencias queda "Sin emparejar" y hay que elegir alimento).
 - fecha, hora y tipoComida (del análisis).
 - acciones: cambiarGramos, cambiarAlimento(i, alimento: AlimentoResponse o CoincidenciaCatalogo), quitar(i), anadirManual(alimento, gramos) (indiceCandidato null).
@@ -2916,7 +2919,7 @@ Pruebas: request con un candidato quitado, uno cambiado y uno añadido a mano.
 #### Prompt 20.2 · Pantalla de resultado
 
 ```text
-Lee #file:docs/DESIGN.md §7.8 y mira #file:docs/design/mockups/png/03-resultado-analisis.png. Crea features/analisis/ResultadoAnalisisComponent (/comidas/foto/:id):
+Lee solo docs/DESIGN.md §7.8 y mira #file:docs/design/mockups/png/03-resultado-analisis.png. Crea features/analisis/ResultadoAnalisisComponent (/comidas/foto/:id):
 - Carga el análisis (si está PENDIENTE o PROCESANDO, sigue el polling) y la URL prefirmada de la foto (si da 404, un hueco con "La foto ya no está disponible").
 - Izquierda (5 col): FotoMarcadoresComponent (la foto con etiquetas numeradas 1, 2, 3… sobre la foto; como el backend no da coordenadas, colócalas en una columna sobre el borde izquierdo de la imagen, enlazadas con la fila de la lista) y la tarjeta de totales (kcal grandes, anillo de reparto de macros, badge "Estimación IA" y la fuente "Valores: catálogo NutriSport").
 - Derecha (7 col): CandidatoItemComponent por línea: número, nombre del alimento emparejado y, en caption, lo detectado ("Detectado: arroz blanco · cocido"), NsConfidenceBadge (alta ≥ 0,8, media ≥ 0,5, baja < 0,5, con texto; las de confianza baja resaltan la fila), ns-quantity-input en gramos, macros de la línea, botón "Cambiar alimento" (CambiarAlimentoComponent: las coincidencias del candidato con su similitud y un BuscadorAlimentosComponent para elegir otro) y "Quitar". Debajo: "Añadir alimento no detectado" y el ns-alert ai "Revisa las cantidades: las estimaciones a partir de una foto pueden variar".
@@ -3036,7 +3039,7 @@ git checkout -b feature/21-admin-usuarios
 #### Prompt 21.1 · Tabla reutilizable y servicio
 
 ```text
-Lee #file:docs/DESIGN.md §5.9 y §7.17 y en #file:docs/NutriSport_API.md §6 los endpoints de Admin (usuarios). Crea:
+Lee solo docs/DESIGN.md §5.9 y §7.17 y en docs/api/admin.md §6 los endpoints de Admin (usuarios). Crea:
 - shared/ui/data/NsTableComponent<T>: input columns ({ clave, titulo, ordenable?, ancho?, alinear? }), data, sort (model "campo,asc|desc"), stackOnMobile; las celdas usan ng-template por columna (directiva nsCelda="clave"); cabeceras con aria-sort; estado vacío y de carga (skeleton de filas); en móvil, cada fila se apila como tarjeta con "Título: valor".
 - core/services/admin/admin-usuarios.service.ts: buscar({ q?, estado?, page, size (máx. 100), sort? }), detalle(id), actualizar(id, req: ActualizarUsuarioAdminRequest).
 ```
@@ -3157,7 +3160,7 @@ git checkout -b feature/22-admin-catalogo
 #### Prompt 22.1 · Servicio y alimentos
 
 ```text
-Lee en #file:docs/NutriSport_API.md §6 los endpoints de Admin (alimentos, categorías e importación) y §7.7, y #file:docs/DESIGN.md §7.17. Crea:
+Lee solo en docs/api/admin.md §6 los endpoints de Admin (alimentos, categorías e importación) y §7.7, y docs/DESIGN.md §7.17. Crea:
 - core/services/admin/admin-catalogo.service.ts: alimentos(filtros { q?, fuente?, revisados?, visibilidad?, activo?, page, size }), crearAlimento(req, fuente, referenciaExterna?) (fuente y referenciaExterna van en la query), editarAlimento(id, req), eliminarAlimento(id), revisarAlergenos(id, req), importar(archivo: File, fuente, referencia?) (multipart "archivo"), categorias(tipo), crearCategoria, editarCategoria, eliminarCategoria.
 - features/admin/catalogo/CatalogoAdminComponent (/admin/catalogo) con ns-tabs Alimentos · Categorías y rutas hijas.
 - AlimentosAdminComponent: NsTable (nombre, marca, categoría, fuente, visibilidad, alérgenos revisados, activo) con filtros (texto, fuente, revisados, visibilidad, activo) en la URL y paginación del servidor; botón "Pendientes de revisar" (revisados=false). "Nuevo alimento" y "Editar" abren AlimentoFormComponent en el drawer de 560 px con un input modo 'admin' que añade los campos fuente y referencia externa solo al crear. Desactivar/eliminar con confirmación.
@@ -3280,7 +3283,7 @@ git checkout -b feature/23-accesibilidad-responsive
 #### Prompt 23.1 · Auditoría guiada
 
 ```text
-Lee #file:docs/DESIGN.md §10 y §7 (Responsive de cada pantalla). Revisa los componentes de features/ y shared/ui/ y dame una lista priorizada de problemas de accesibilidad y responsive con el archivo y la corrección: imágenes sin alt, iconos sin aria-hidden o aria-label, campos sin etiqueta, errores no enlazados con aria-describedby, contraste de textos sobre fondos de color, objetivos táctiles < 44 px en móvil, textos < 12 px (también en ECharts), información solo por color, resultados asíncronos sin aria-live, foco que se pierde al cerrar diálogos o al navegar, títulos de página, orden de encabezados y animaciones sin prefers-reduced-motion. No cambies nada todavía.
+Lee solo docs/DESIGN.md §10 y §7 (Responsive de cada pantalla). Revisa los componentes de features/ y shared/ui/ y dame una lista priorizada de problemas de accesibilidad y responsive con el archivo y la corrección: imágenes sin alt, iconos sin aria-hidden o aria-label, campos sin etiqueta, errores no enlazados con aria-describedby, contraste de textos sobre fondos de color, objetivos táctiles < 44 px en móvil, textos < 12 px (también en ECharts), información solo por color, resultados asíncronos sin aria-live, foco que se pierde al cerrar diálogos o al navegar, títulos de página, orden de encabezados y animaciones sin prefers-reduced-motion. No cambies nada todavía.
 ```
 
 #### Prompt 23.2 · Correcciones
@@ -3529,7 +3532,7 @@ git checkout -b feature/25-cierre-mvp
 #### Prompt 25.1 · Plan de pruebas manuales
 
 ```text
-Lee #file:docs/PROJECT_PROPOSAL.md §10 (historias de usuario del MVP) y §11.2 (criterio de salida) y las rutas de #file:docs/NutriSport_API.md §9. Crea docs/pruebas_manuales_frontend.md con una tabla por bloque (Autenticación, Onboarding y perfil, Configuración, Comidas, Foto, Actividad, Dashboard, Administración, Accesibilidad): id (PM-01…), historia de usuario, pasos, resultado esperado, resultado (OK/KO) y observaciones. Incluye los casos de error: credenciales incorrectas, límite de intentos, enlace caducado, email sin verificar en la foto, consentimiento revocado, sin perfil, 503 de la IA (detén el backend un momento o usa un modo de error si existe) y sesión caducada (espera 15 minutos o borra el token en memoria recargando sin cookie).
+Lee solo docs/PROJECT_PROPOSAL.md §10 (historias de usuario del MVP) y §11.2 (criterio de salida) y las rutas de docs/api/rutas-etiquetas.md §9. Crea docs/pruebas_manuales_frontend.md con una tabla por bloque (Autenticación, Onboarding y perfil, Configuración, Comidas, Foto, Actividad, Dashboard, Administración, Accesibilidad): id (PM-01…), historia de usuario, pasos, resultado esperado, resultado (OK/KO) y observaciones. Incluye los casos de error: credenciales incorrectas, límite de intentos, enlace caducado, email sin verificar en la foto, consentimiento revocado, sin perfil, 503 de la IA (detén el backend un momento o usa un modo de error si existe) y sesión caducada (espera 15 minutos o borra el token en memoria recargando sin cookie).
 ```
 
 #### Prompt 25.2 · Pruebas de los flujos y README
@@ -3659,7 +3662,7 @@ git checkout -b feature/26-productos-off
 #### Prompt 26.1 · Servicio y componentes
 
 ```text
-Lee #file:docs/NutriSport_API.md §6 (Productos), §3.2 y §7.3, y #file:docs/DESIGN.md §5.16 y §7.19 (mira #file:docs/design/mockups/png/09-buscador-productos.png). Crea:
+Lee solo docs/api/productos.md y docs/api/sesion-errores.md §6 (Productos), §3.2 y §7.3, y docs/DESIGN.md §5.16 y §7.19 (mira #file:docs/design/mockups/png/09-buscador-productos.png). Crea:
 - core/services/productos.service.ts: buscar(q, page = 0): Observable<{ productos: ProductoResumenResponse[], proveedorDisponible: boolean }> (lee la cabecera X-Proveedor-No-Disponible con observe: 'response'); porCodigo(codigo) (8–14 dígitos; valida antes de llamar).
 - shared/ui/data/NsAttributionComponent (ns-attribution): recibe FuenteResponse y muestra "Datos de {proveedor} ({licencia})" con enlace a url (target _blank, rel noopener) y el texto de atribucion.
 - features/productos/BuscadorProductosComponent (/productos): campo de búsqueda; bloque "En tu catálogo" con AlimentosService.buscar (al escribir, debounce); botón "Buscar en productos comerciales" que llama a ProductosService.buscar SOLO al pulsarlo (y "Más resultados" para la página siguiente, hasta la 49); ProductoItemComponent con imagen 48 px (o icono), nombre, marca, kcal/100 g, source-badge y aviso "Información nutricional incompleta"; estados sin resultados y proveedor no disponible (ns-alert info).
@@ -3790,7 +3793,7 @@ npm i @zxing/browser
 #### Prompt 27.1 · Escáner
 
 ```text
-Lee #file:docs/DESIGN.md §7.20 (mira #file:docs/design/mockups/png/10-escaner.png) y #file:docs/NutriSport_API.md §7.3. Crea:
+Lee solo docs/DESIGN.md §7.20 (mira #file:docs/design/mockups/png/10-escaner.png) y docs/api/productos.md §7.3. Crea:
 - shared/ui/form/NsBarcodeScannerComponent: getUserMedia({ video: { facingMode: 'environment' } }) en un <video> con un marco guía; si 'BarcodeDetector' in window y admite ean_13, ean_8, upc_a y upc_e, detecta cada 300 ms; si no, usa BrowserMultiFormatReader de @zxing/browser (importado de forma diferida con import()). Emite output() detectado(codigo) una vez (y vibra si está disponible); outputs error('permiso-denegado' | 'sin-camara' | 'no-soportado'). Para la cámara en ngOnDestroy (stop de todas las pistas). Botón para encender la linterna si la pista lo admite.
 - features/productos/CodigoManualComponent: campo numérico de 8–14 dígitos con su validación.
 - features/productos/EscanerComponent (/escaner): escáner + "Introducir código" siempre visible; al detectar: estado "Buscando producto…" → ProductosService.porCodigo → FichaProductoComponent compacta con AnadirAComidaComponent ("Añadir a {comida}"). Estados: 404 "No encontramos este producto" (Escanear otro, Buscar por nombre → /productos, Crear alimento); nutrición incompleta; 503 o proveedor no disponible; permiso denegado → muestra solo la introducción manual con la explicación. Resultado con aria-live.
@@ -3910,7 +3913,7 @@ git checkout -b feature/28-catalogo-recetas
 #### Prompt 28.1 · Servicio y tarjetas
 
 ```text
-Lee #file:docs/NutriSport_API.md §6 (Recetas), §3.2 y §7.4 y los tipos BusquedaRecetasResponse, RecetaResumenResponse, RecetaResponse y NutricionRecetaResponse; lee #file:docs/DESIGN.md §5.16 y §7.21 (mira #file:docs/design/mockups/png/11-recetas.png). Crea:
+Lee solo docs/api/recetas.md y docs/api/sesion-errores.md §6 (Recetas), §3.2 y §7.4 y los tipos BusquedaRecetasResponse, RecetaResumenResponse, RecetaResponse y NutricionRecetaResponse; lee solo docs/DESIGN.md §5.16 y §7.21 (mira #file:docs/design/mockups/png/11-recetas.png). Crea:
 - core/services/recetas.service.ts: buscar(filtros { q?, ingrediente?, categoria?, area?, origen?: 'todas'|'propia'|'themealdb', franja?, maxKcal?, minProteina?, page, size }) que solo envía los parámetros con valor; categorias() con caché; detalle(id, raciones?); nutricion(id, raciones?); relacionadas(id); favoritas(); marcarFavorita(id) y quitarFavorita(id); importarTheMealDb(idMeal); abrir(resumen): Observable<string> que devuelve el id (si no tiene, importa con referenciaExterna).
 - shared/ui/data/NsCalcStatusComponent: estado COMPLETO / APROXIMADO / INCOMPLETO / pendiente con icono y texto (y completitud si llega).
 - shared/ui/data/NsRecipeCardComponent: imagen 16:9 con loading="lazy" y alt, nombre, categoría y cocina, kcal y proteína por ración (con "≈" si APROXIMADO; "Cálculo pendiente" si no hay nutrición), NsCalcStatus, badges "Compatible" o "No compatible con tus restricciones" (shield-check), origen (source-badge "TheMealDB" o "NutriSport") y botón de favorita (aria-pressed) con output.
@@ -4034,7 +4037,7 @@ git checkout -b feature/29-detalle-receta
 #### Prompt 29.1 · Detalle de la receta
 
 ```text
-Lee #file:docs/DESIGN.md §7.11 y §7.22 (mira #file:docs/design/mockups/png/12-receta-detalle.png) y en #file:docs/NutriSport_API.md los tipos RecetaResponse, IngredienteRecetaResponse, NutricionRecetaResponse y §7.4. Crea features/recetas/detalle/DetalleRecetaComponent (/recetas/:id; queryParam raciones):
+Lee solo docs/DESIGN.md §7.11 y §7.22 (mira #file:docs/design/mockups/png/12-receta-detalle.png) y en docs/api/recetas.md los tipos RecetaResponse, IngredienteRecetaResponse, NutricionRecetaResponse y §7.4. Crea features/recetas/detalle/DetalleRecetaComponent (/recetas/:id; queryParam raciones):
 - Cabecera: imagen 16:9 (radio xl), nombre, categoría y cocina, NsSourceBadge, aviso "Receta original en inglés" si idioma = 'en', tiempo y dificultad, etiquetas, botón de favorita, "Registrar como comida" (primary) y "Añadir al plan" (secondary, se conecta en el paso 31: de momento navega a /planificador?receta=id).
 - IngredientesRecetaComponent: selector de raciones (ns-quantity-input 1–20, con la marca "supuestas" si racionesSupuestas) que recarga GET /recetas/{id}?raciones=; tabla con nombre (traducido si está emparejado; original en caption), medida original, gramos calculados y estado de la conversión (exacta, estimada, despreciable, sin datos), y checkbox para ir tachando.
 - NutricionRecetaComponent: kcal, proteínas, hidratos y grasas por ración con "≈" si APROXIMADO, NsCalcStatus con la completitud ("97 % de la masa"), alérgenos derivados (o "Alérgenos sin verificar" si alergenosVerificados = false), badge de compatibilidad y ns-disclaimer context 'receta' ("Valores estimados a partir de los ingredientes, no medidos"). Enlace "Ver cómo se calcula" → DesgloseNutricionComponent (diálogo con GET /recetas/{id}/nutricion: cada ingrediente con sus gramos, la conversión y la fuente de sus nutrientes).
@@ -4162,7 +4165,7 @@ git checkout -b feature/30-planificador-vista
 #### Prompt 30.1 · Servicio y store
 
 ```text
-Lee #file:docs/NutriSport_API.md §6 (Menús) y §7.5, y los tipos MenuResumenResponse, MenuResponse, DiaMenuResponse y ComidaPlanificadaResponse. Crea:
+Lee solo docs/api/menus.md §6 (Menús) y §7.5, y los tipos MenuResumenResponse, MenuResponse, DiaMenuResponse y ComidaPlanificadaResponse. Crea:
 - core/services/menus.service.ts con TODOS los endpoints de /menus (listar({ favorito?, desde?, page, size }), generar, detalle, actualizar (PATCH), eliminar, duplicar, recetasDisponibles(fecha, tipoComida, q?), alternativas(id, comidaId), anadirComida, cambiarComida (PUT), quitarComida, regenerar, registrarComida(id, comidaId, hora?), sugerenciaIa, aplicarSugerencia). Los de edición se usarán en el paso 31.
 - features/planificador/planificador.store.ts (signals, provisto en el componente): menús disponibles, menú seleccionado (MenuResponse), semana visible (lunes), cargando y error; reemplazarMenu(menu) para aplicar las respuestas del servidor sin recalcular nada en el cliente.
 Pruebas del servicio y de la selección del menú de una semana.
@@ -4171,7 +4174,7 @@ Pruebas del servicio y de la selección del menú de una semana.
 #### Prompt 30.2 · Planificador
 
 ```text
-Lee #file:docs/DESIGN.md §7.10 (mira #file:docs/design/mockups/png/04-planificador.png). Crea features/planificador/PlanificadorComponent (/planificador):
+Lee solo docs/DESIGN.md §7.10 (mira #file:docs/design/mockups/png/04-planificador.png). Crea features/planificador/PlanificadorComponent (/planificador):
 - Cabecera: navegación de semana (‹ 23–29 nov 2026 ›), selector de menú (menús que se solapan con la semana; GET /menus?desde=), acciones "Generar menú" (primary; si hay menú, "Regenerar" llega en el paso 31), "Lista de la compra" (secondary, se conecta en el paso 32) y menú de acciones (Guardar como favorito, Renombrar, Archivar, Duplicar en otra semana, Eliminar con confirmación).
 - ResumenSemanaComponent: media de kcal (resumen.mediaKcal), % de ajuste (resumen.ajustePorcentaje), proteína media y días de entreno; la explicación del menú (explicacion) en una tarjeta plegable con ns-disclaimer context 'menu' (es un algoritmo de reglas: sin tratamiento IA salvo la explicación).
 - WeekPlannerComponent (≥ 768 px): rejilla de 7 columnas × franjas (Desayuno, Comida, Merienda, Cena y Pre/Post-entreno solo si hay comidas de ese tipo). Cabecera de cada día: día y fecha, kcal planificadas / objetivo con porcentajeObjetivo, hidratos del día e icono activity con tinte si diaEntreno. MealSlotComponent: nombre de la receta (13 px), kcal y proteína (12 px), badges "Bloqueada" y "Consumida"; las acciones se añaden en el paso 31. En md, scroll horizontal con 3,5 días visibles.
@@ -4295,7 +4298,7 @@ git checkout -b feature/31-planificador-edicion
 #### Prompt 31.1 · Añadir, sustituir, mover y bloquear
 
 ```text
-Lee #file:docs/DESIGN.md §7.10 y §7.23 (mira #file:docs/design/mockups/png/13-planificador-recetas.png) y #file:docs/NutriSport_API.md §7.5 y las reglas de los endpoints de Menús. Todas las operaciones sustituyen el menú del store con la respuesta (PlanificadorStore.reemplazarMenu); no recalcules nada en el cliente.
+Lee solo docs/DESIGN.md §7.10 y §7.23 (mira #file:docs/design/mockups/png/13-planificador-recetas.png) y docs/api/menus.md §7.5 y las reglas de los endpoints de Menús. Todas las operaciones sustituyen el menú del store con la respuesta (PlanificadorStore.reemplazarMenu); no recalcules nada en el cliente.
 - AnadirRecetaDrawerComponent (drawer de 420 px, desde una franja vacía o desde "Sustituir"): cabecera con la franja y el hueco del día ("Cena · sáb 21 · faltan ≈ 560 kcal", a partir del objetivo y lo planificado del DiaMenuResponse), buscador (q, debounce), lista de GET /menus/recetas-disponibles?fecha=&tipoComida=&q= con kcal y proteína para las raciones propuestas, diferenciaKcalPct, NsSourceBadge y NsCalcStatus; selector de raciones (> 0 y ≤ 10) y "Añadir" → POST /menus/{id}/comidas (o PUT con recetaId y raciones si es una sustitución).
 - AlternativasPanelComponent (CDK Overlay anclado a la comida sin tapar la columna del día; bottom sheet en móvil): GET alternativas (hasta 3) con el delta de kcal y proteína frente a la actual → PUT con recetaId y raciones; "Ver más recetas" abre el drawer.
 - MealSlotComponent: menú de acciones (al hover y con teclado): Sustituir, Bloquear/Desbloquear (PUT { bloqueada }), Quitar (DELETE), Ver receta (/recetas/{id}), Registrar como consumida, Añadir ingredientes a la lista (paso 32). Una comida consumida solo permite Ver receta.
@@ -4425,7 +4428,7 @@ git checkout -b feature/32-lista-compra
 #### Prompt 32.1 · Servicio y listas
 
 ```text
-Lee #file:docs/NutriSport_API.md §6 (Compra) y #file:docs/DESIGN.md §7.12. Crea:
+Lee solo docs/api/compra.md §6 (Compra) y docs/DESIGN.md §7.12. Crea:
 - core/services/listas-compra.service.ts: listar(page, size), detalle(id), generarDesdeMenu(menuId, { desde?, hasta? }), actualizar(id, req) (PATCH), eliminar(id), anadirProducto(id, req), anadirDesdeReceta(id, req), actualizarProducto(id, productoId, req), quitarProducto(id, productoId). Todas las que modifican devuelven la lista completa.
 - features/compra/ListasCompraComponent (/compra): tarjetas con nombre, rango de fechas, ns-progress-bar "12 / 34 comprados", estado (badge Completada) y acciones (abrir, renombrar, eliminar).
 - GenerarListaDialogComponent (desde el botón "Lista de la compra" del planificador): todo el menú o un rango dentro de él → POST /listas-compra/desde-menu/{menuId} → abre la lista.
@@ -4557,7 +4560,7 @@ git checkout -b feature/33-admin-recetas
 #### Prompt 33.1 · Recetas
 
 ```text
-Lee #file:docs/NutriSport_API.md §6 (Admin: recetas y mapeos) y los tipos RecetaAdminRequest, IngredienteRecetaAdminRequest, PublicarRecetaRequest y MapeoIngredienteResponse. Crea:
+Lee solo docs/api/admin.md §6 (Admin: recetas y mapeos) y los tipos RecetaAdminRequest, IngredienteRecetaAdminRequest, PublicarRecetaRequest y MapeoIngredienteResponse. Crea:
 - core/services/admin/admin-recetas.service.ts: crear(req), editar(id, req), eliminar(id), publicacion(id, req) (PATCH), mapeos({ revisado?, page, size }), emparejar(id, alimentoId | null).
 - features/admin/catalogo/RecetasAdminComponent (pestaña "Recetas" de /admin/catalogo). Limitación de la API (Annex B): no hay un listado de administración de recetas ni el campo publicada en las respuestas; GET /recetas devuelve las públicas publicadas, las propias y las de TheMealDB (importadas o no) que coinciden con la búsqueda, pero no las propias públicas sin publicar. Por eso: búsqueda con RecetasService.buscar (origen todas) en una NsTable con nombre, origen, estado nutricional y acciones Editar (solo PROPIA), "Publicar o despublicar" (diálogo con la elección explícita) y Eliminar (solo PROPIA, confirmación; 409 RECETA_PLANIFICADA → "Está en algún menú: despublícala"); y una lista "Creadas en esta sesión" (signal) con las recetas que acaba de crear o editar el administrador, para poder publicarlas justo después. Al crear una receta, abre directamente el diálogo de publicación.
 - RecetaAdminFormComponent (drawer de 560 px): nombre, descripción, categoría de receta, raciones 1–20, tiempo, dificultad, franjas aptas (chips), etiquetas (hasta 10), pasos (FormArray de textos, hasta 30, reordenables) e ingredientes (FormArray de 1 a 40: alimento del catálogo con NsCombobox de alimentos públicos, y gramos o una medida de texto). Envía exactamente RecetaAdminRequest.
@@ -4686,13 +4689,13 @@ git checkout -b feature/34-estadisticas-insights
 #### Prompt 34.1 · Servicios y opciones de los gráficos
 
 ```text
-Lee #file:docs/NutriSport_API.md §6 (Seguimiento y relacion-nutricion) y los tipos EstadisticasResponse, PuntoSerieResponse, ComparativaResponse, InsightResponse y RelacionNutricionResponse. Completa SeguimientoService (estadisticas(desde, hasta, agrupacion), comparativa(periodo), insights()) y EntrenamientosService.relacionNutricion(desde, hasta). Crea features/estadisticas/opciones-graficos.ts con funciones puras que convierten las respuestas en EChartsOption (energía consumida frente al objetivo con línea discontinua gris de la media anterior opcional; macros apiladas por periodo; anillo de repartoMacrosPct; línea de peso con media móvil; heatmap de calendario de adherencia: día en objetivo / fuera / sin registro; barras horizontales de kcalPorTipoComida con etiquetas de TipoComida) usando los colores de TOKENS, y una función que genere la tabla alternativa de cada gráfico. Pruebas de las funciones.
+Lee solo docs/api/seguimiento.md y docs/api/actividad.md §6 (Seguimiento y relacion-nutricion) y los tipos EstadisticasResponse, PuntoSerieResponse, ComparativaResponse, InsightResponse y RelacionNutricionResponse. Completa SeguimientoService (estadisticas(desde, hasta, agrupacion), comparativa(periodo), insights()) y EntrenamientosService.relacionNutricion(desde, hasta). Crea features/estadisticas/opciones-graficos.ts con funciones puras que convierten las respuestas en EChartsOption (energía consumida frente al objetivo con línea discontinua gris de la media anterior opcional; macros apiladas por periodo; anillo de repartoMacrosPct; línea de peso con media móvil; heatmap de calendario de adherencia: día en objetivo / fuera / sin registro; barras horizontales de kcalPorTipoComida con etiquetas de TipoComida) usando los colores de TOKENS, y una función que genere la tabla alternativa de cada gráfico. Pruebas de las funciones.
 ```
 
 #### Prompt 34.2 · Pantalla de estadísticas e insights
 
 ```text
-Lee #file:docs/DESIGN.md §7.14 (mira #file:docs/design/mockups/png/05-estadisticas.png). Crea features/estadisticas/EstadisticasComponent (/estadisticas):
+Lee solo docs/DESIGN.md §7.14 (mira #file:docs/design/mockups/png/05-estadisticas.png). Crea features/estadisticas/EstadisticasComponent (/estadisticas):
 - FiltrosPeriodoComponent: ns-segmented 7 días · 4 semanas · 3 meses · Personalizado (rango ≤ 366 días), agrupación Día / Semana / Mes y el interruptor "Comparar con el periodo anterior" (usa /seguimiento/comparativa con SEMANA o MES, o una segunda petición de estadísticas del rango anterior para el personalizado). Todo en queryParams.
 - KpisPeriodoComponent: media kcal, proteína media, adherencia (% de días en objetivo) y variación de peso, con ns-metric y delta.
 - Gráficos con NsChartComponent (y @defer on viewport): energía frente al objetivo, macros apiladas + reparto medio (anillo), peso, mapa de adherencia (scroll horizontal en móvil), reparto por comidas.
@@ -4817,7 +4820,7 @@ git checkout -b feature/35-asistente-ia
 #### Prompt 35.1 · Servicio y store
 
 ```text
-Lee #file:docs/NutriSport_API.md §6 (Asistente) y §11.1 (MensajeAsistente). Crea:
+Lee solo docs/api/asistente.md y docs/api/general.md §6 (Asistente) y §11.1 (MensajeAsistente). Crea:
 - core/services/asistente.service.ts: conversaciones({ archivada?, page, size ≤ 50 }), crear(), detalle(id), actualizar(id, req) (PATCH), eliminar(id), enviar(id, contenido): Observable<MensajeAsistente>, valorar(mensajeId, valor: 1 | -1), sugerencias().
 - features/asistente/asistente.store.ts (signals): conversación activa, mensajes, enviando y error. enviar(texto): si no hay conversación, la crea primero; añade al momento el mensaje del usuario como "pendiente" (id temporal), llama a enviar y añade la respuesta; si falla, marca el mensaje con el error y permite "Reintentar" (el backend guarda el mensaje aunque la IA falle con 503: al reintentar, recarga la conversación). Tras el primer mensaje, recarga la lista (el backend pone el título).
 Pruebas del store: mensaje optimista, respuesta y error 503.
@@ -4826,7 +4829,7 @@ Pruebas del store: mensaje optimista, respuesta y error 503.
 #### Prompt 35.2 · Pantalla del asistente
 
 ```text
-Lee #file:docs/DESIGN.md §7.15 y §10 (aria-live) y mira #file:docs/design/mockups/png/06-asistente-ia.png. Crea features/asistente/AsistenteComponent (/asistente y /asistente/:id):
+Lee solo docs/DESIGN.md §7.15 y §10 (aria-live) y mira #file:docs/design/mockups/png/06-asistente-ia.png. Crea features/asistente/AsistenteComponent (/asistente y /asistente/:id):
 - ListaConversacionesComponent (280 px; drawer en md y xs): buscador (en el cliente sobre titulo y vistaPrevia), "Nueva conversación", pestañas Activas · Archivadas, cada una con título, vista previa y fecha; menú Renombrar (diálogo), Archivar/Desarchivar y Eliminar (confirmación).
 - ChatComponent: cabecera (avatar con el degradado IA, "Asistente NutriSport", estado), mensajes con NsChatMessageComponent (usuario a la derecha en ink-950 con texto blanco; asistente a la izquierda en surface con borde y radio 2xl; texto con saltos de línea y listas simples SIN innerHTML de HTML del modelo; chips "Datos consultados: …" con herramientasUsadas traducidas a texto legible; botones Copiar, 👍 y 👎 con aria-pressed), indicador "Escribiendo…" mientras enviando, región aria-live="polite" que anuncia la respuesta completa y scroll al último mensaje.
 - NsChatComposerComponent: chips de GET /asistente/sugerencias en una conversación vacía, textarea que crece (máx. 2000 caracteres con contador), Enter envía y Mayús+Enter salta de línea, botón enviar con aria-label; fijo abajo con safe-area en móvil; ns-disclaimer context 'asistente' debajo.
@@ -4949,7 +4952,7 @@ git checkout -b feature/36-exportacion-cierre
 #### Prompt 36.1 · Exportación
 
 ```text
-Lee #file:docs/NutriSport_API.md §7.6. Crea core/util/descarga.ts con nombreDeContentDisposition(cabecera) y descargarBlob(blob, nombre) (enlace temporal con URL.createObjectURL, click y revokeObjectURL), con pruebas. Añade CuentaService.exportar(): Observable<{ blob: Blob, nombre: string }> (responseType 'blob', observe 'response'; si falta la cabecera, "nutrisport-datos.json"). En PrivacidadComponent activa "Exportar mis datos": explica qué incluye (cuenta y consentimientos, perfil, preferencias, objetivos, comidas, entrenamientos, pesos, menús, listas, favoritas, conversaciones, análisis sin imágenes e insights; nunca la contraseña ni los tokens), botón con loading y, sin email verificado, el aviso con "Reenviar". Funciona aunque el consentimiento esté revocado.
+Lee solo docs/api/auth.md §7.6. Crea core/util/descarga.ts con nombreDeContentDisposition(cabecera) y descargarBlob(blob, nombre) (enlace temporal con URL.createObjectURL, click y revokeObjectURL), con pruebas. Añade CuentaService.exportar(): Observable<{ blob: Blob, nombre: string }> (responseType 'blob', observe 'response'; si falta la cabecera, "nutrisport-datos.json"). En PrivacidadComponent activa "Exportar mis datos": explica qué incluye (cuenta y consentimientos, perfil, preferencias, objetivos, comidas, entrenamientos, pesos, menús, listas, favoritas, conversaciones, análisis sin imágenes e insights; nunca la contraseña ni los tokens), botón con loading y, sin email verificado, el aviso con "Reenviar". Funciona aunque el consentimiento esté revocado.
 Nota: un error con responseType 'blob' llega como Blob: adapta aApiError para leer el JSON del Blob en ese caso.
 ```
 

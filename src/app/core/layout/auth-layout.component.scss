@@ -1,0 +1,122 @@
+// Layout de las pantallas públicas (DESIGN.md §7.1). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100dvh;
+  background: var(--ns-surface);
+
+  @include bp.down(lg) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+}
+
+.ns-auth__marca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-12);
+  padding: var(--ns-space-12) var(--ns-space-16);
+  padding-left: max(var(--ns-space-16), env(safe-area-inset-left));
+  background: var(--ns-surface-inverse);
+  color: var(--ns-text-inverse);
+
+  // < 1024 px: cabecera de 120 px solo con el logotipo.
+  @include bp.down(lg) {
+    justify-content: center;
+    height: calc(120px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) var(--ns-space-6) 0;
+    padding-left: max(var(--ns-space-6), env(safe-area-inset-left));
+  }
+}
+
+.ns-auth__mensaje {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ns-space-10);
+  max-width: 520px;
+
+  @include bp.down(lg) {
+    display: none;
+  }
+}
+
+// Eslogan en `display` blanco (DESIGN.md §1.6 y §3.2).
+.ns-auth__eslogan {
+  margin: 0;
+  font-family: var(--ns-font-display);
+  font-size: 2.5rem;
+  line-height: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+
+  @include bp.down(xl) {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+}
+
+.ns-auth__beneficios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-auth__beneficio {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-4);
+}
+
+.ns-auth__beneficio-icono {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ns-ink-800);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-ink-900);
+  color: var(--ns-green-400);
+}
+
+.ns-auth__beneficio-titulo {
+  display: block;
+  font-weight: 600;
+}
+
+.ns-auth__beneficio-texto {
+  display: block;
+  color: var(--ns-ink-400);
+}
+
+.ns-auth__contenido {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ns-space-12) var(--ns-space-8);
+  padding-bottom: max(var(--ns-space-12), env(safe-area-inset-bottom));
+
+  @include bp.down(lg) {
+    align-items: flex-start;
+    padding: var(--ns-space-8) var(--ns-space-6);
+    padding-bottom: max(var(--ns-space-8), env(safe-area-inset-bottom));
+  }
+}
+
+.ns-auth__formulario {
+  width: 100%;
+  max-width: 400px;
+
+  @include bp.down(lg) {
+    max-width: none;
+  }
+}

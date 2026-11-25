@@ -9,6 +9,7 @@ import {
   LucideChevronDown,
   LucideChevronLeft,
   LucideChevronRight,
+  LucideChevronsUpDown,
   LucideCircleCheck,
   LucideCloudOff,
   LucideCircleExclamationPoint,
@@ -19,6 +20,7 @@ import {
   LucideEyeOff,
   LucideHouse,
   LucideInfo,
+  LucideLibrary,
   LucideLock,
   LucideLogOut,
   LucideMailCheck,
@@ -38,6 +40,7 @@ import {
   LucideTrash,
   LucideTriangleExclamationPoint,
   LucideUser,
+  LucideUsers,
   LucideUtensils,
   LucideX,
   LucideZap,
@@ -96,6 +99,10 @@ export const ICONOS_APP = [
   LucideEyeOff,
   LucideLock,
   LucideStar,
+  // Navegación (core/layout/navegacion.ts)
+  LucideUsers,
+  LucideLibrary,
+  LucideChevronsUpDown,
 ];
 
 /** Nombres de los iconos registrados (para la página de muestra /dev/estilos). */

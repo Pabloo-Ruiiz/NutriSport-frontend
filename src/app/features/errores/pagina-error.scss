@@ -1,0 +1,19 @@
+// Páginas de error a pantalla completa (404 y sin permiso). Solo tokens --ns-*.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: max(var(--ns-space-6), env(safe-area-inset-top)) var(--ns-space-6)
+    max(var(--ns-space-6), env(safe-area-inset-bottom));
+  background: var(--ns-bg);
+}
+
+.ns-error__logo {
+  align-self: flex-start;
+}
+
+.ns-error__contenido {
+  display: grid;
+  flex: 1;
+  place-items: center;
+}
