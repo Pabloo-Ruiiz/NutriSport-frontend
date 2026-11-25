@@ -1,0 +1,37 @@
+// Tokens primitivos: la paleta (DESIGN.md §9.1 y §2).
+// Los componentes NO los usan directamente: usan los semánticos de _semantic.scss.
+:root {
+  /* Verde Vital */
+  --ns-green-50: #ecfdf3;
+  --ns-green-100: #d1fadf;
+  --ns-green-200: #a6f4c5;
+  --ns-green-300: #6ce9a6;
+  --ns-green-400: #32d583;
+  --ns-green-500: #12b76a;
+  --ns-green-600: #0b9a5d;
+  --ns-green-700: #087a50;
+  --ns-green-800: #066b46;
+  --ns-green-900: #054f31;
+  /* Tinta */
+  --ns-ink-950: #0b1220;
+  --ns-ink-900: #101828;
+  --ns-ink-800: #1a2436;
+  --ns-ink-700: #344054;
+  --ns-ink-400: #94a3b8;
+  /* Índigo IA */
+  --ns-ai-50: #eef0ff;
+  --ns-ai-100: #e0e3ff;
+  --ns-ai-500: #6366f1;
+  --ns-ai-600: #4f46e5;
+  --ns-ai-700: #4338ca;
+  --ns-ai-violet: #7a5af8;
+  /* Neutros */
+  --ns-gray-0: #ffffff;
+  --ns-gray-25: #f7f9fb;
+  --ns-gray-50: #f2f4f7;
+  --ns-gray-100: #eaecf0;
+  --ns-gray-200: #d0d5dd;
+  --ns-gray-500: #5d6b82;
+  --ns-gray-550: #7d8798;
+  --ns-gray-600: #475467;
+}

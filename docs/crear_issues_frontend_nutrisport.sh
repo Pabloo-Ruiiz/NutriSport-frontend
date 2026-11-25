@@ -85,7 +85,7 @@ crear 'P03' '[Frontend] Sistema de diseño: tokens CSS, fuentes autoalojadas, ic
 Trasladar a SCSS la identidad visual de `DESIGN.md` (§2, §3, §6 y §9): *tokens* primitivos y semánticos, Manrope e Inter autoalojadas, escala tipográfica, *breakpoints*, utilidades mínimas y los mismos valores en TypeScript para los gráficos.
 
 ## Tareas
-- [ ] Instalar `@fontsource-variable/manrope`, `@fontsource-variable/inter`, `lucide-angular` y `@angular/cdk`
+- [ ] Instalar `@fontsource-variable/manrope`, `@fontsource-variable/inter`, `@lucide/angular` y `@angular/cdk`
 - [ ] Crear `src/styles` con `tokens/`, `abstracts/`, `base/`, `utilities/` y `vendors/` según `DESIGN.md` §9.1–9.4
 - [ ] Crear `shared/design/tokens.ts` con los valores que necesitan ECharts y la lógica
 - [ ] Crear el `LayoutService` con signals (`esMovil`, `esTablet`) a partir de `BreakpointObserver`

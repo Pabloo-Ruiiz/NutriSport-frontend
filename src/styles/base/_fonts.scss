@@ -1,0 +1,9 @@
+// Fuentes autoalojadas con Fontsource (DESIGN.md §3.1): sin Google Fonts en producción.
+// Son fuentes variables: Manrope cubre los pesos 200–800 e Inter, 100–900.
+@use '@fontsource-variable/manrope';
+@use '@fontsource-variable/inter';
+
+:root {
+  --ns-font-display: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ns-font-body: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}

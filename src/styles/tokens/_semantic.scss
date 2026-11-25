@@ -1,0 +1,102 @@
+// Tokens semánticos: el significado (DESIGN.md §9.1, §6.5–6.9).
+// Son los ÚNICOS que usan los componentes.
+// Las familias tipográficas (--ns-font-display y --ns-font-body) están en base/_fonts.scss,
+// junto a las fuentes autoalojadas que las definen.
+:root {
+  /* Superficies */
+  --ns-bg: var(--ns-gray-25);
+  --ns-surface: var(--ns-gray-0);
+  --ns-surface-muted: var(--ns-gray-50);
+  --ns-surface-sunken: var(--ns-gray-100);
+  --ns-surface-inverse: var(--ns-ink-950);
+  /* Texto */
+  --ns-text: var(--ns-ink-900);
+  --ns-text-secondary: var(--ns-gray-600);
+  --ns-text-tertiary: var(--ns-gray-500);
+  --ns-text-inverse: var(--ns-gray-0);
+  --ns-text-link: var(--ns-green-700);
+  /* Bordes */
+  --ns-border: var(--ns-gray-100);
+  --ns-border-strong: var(--ns-gray-200);
+  --ns-border-input: var(--ns-gray-550);
+  /* Acciones */
+  --ns-action-primary: var(--ns-green-700);
+  --ns-action-primary-hover: var(--ns-green-800);
+  --ns-action-primary-active: var(--ns-green-900);
+  --ns-action-ai: var(--ns-ai-600);
+  --ns-action-ai-hover: var(--ns-ai-700);
+  --ns-gradient-ai: linear-gradient(135deg, var(--ns-ai-600) 0%, var(--ns-ai-violet) 100%);
+  --ns-focus-ring: var(--ns-green-700);
+  /* Estados */
+  --ns-success: #067647;
+  --ns-success-bg: #ecfdf3;
+  --ns-success-border: #abefc6;
+  --ns-warning: #b54708;
+  --ns-warning-bg: #fffaeb;
+  --ns-warning-border: #fedf89;
+  --ns-error: #b42318;
+  --ns-error-bg: #fef3f2;
+  --ns-error-border: #fecdca;
+  --ns-info: #175cd3;
+  --ns-info-bg: #eff8ff;
+  --ns-info-border: #b2ddff;
+  /* Datos */
+  --ns-data-kcal: var(--ns-green-600);
+  --ns-data-kcal-bg: #ecfdf3;
+  --ns-data-protein: #2f6feb;
+  --ns-data-protein-bg: #eff4ff;
+  --ns-data-carbs: #c47f00;
+  --ns-data-carbs-bg: #fff7e6;
+  --ns-data-fat: #d9467a;
+  --ns-data-fat-bg: #fdf0f5;
+  --ns-data-activity: #0e7490;
+  --ns-data-activity-bg: #ecfeff;
+  --ns-data-kcal-text: #067647;
+  --ns-data-protein-text: #1d4fbf;
+  --ns-data-carbs-text: #8a5a00;
+  --ns-data-fat-text: #a8285a;
+  --ns-data-weight: var(--ns-ink-700);
+  /* Espaciado (§6.5), radios (§6.7), sombras (§6.8) y capas (§6.9) */
+  --ns-space-0: 0;
+  --ns-space-1: 4px;
+  --ns-space-2: 8px;
+  --ns-space-3: 12px;
+  --ns-space-4: 16px;
+  --ns-space-5: 20px;
+  --ns-space-6: 24px;
+  --ns-space-8: 32px;
+  --ns-space-10: 40px;
+  --ns-space-12: 48px;
+  --ns-space-16: 64px;
+  --ns-radius-xs: 4px;
+  --ns-radius-sm: 6px;
+  --ns-radius-md: 8px;
+  --ns-radius-lg: 12px;
+  --ns-radius-xl: 16px;
+  --ns-radius-2xl: 20px;
+  --ns-radius-full: 9999px;
+  --ns-shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --ns-shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --ns-shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
+  --ns-shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --ns-shadow-xl: 0 20px 24px -4px rgba(16, 24, 40, 0.1), 0 8px 8px -4px rgba(16, 24, 40, 0.04);
+  --ns-shadow-focus: 0 0 0 3px rgba(8, 122, 80, 0.16);
+  --ns-z-base: 0;
+  --ns-z-sticky: 10;
+  --ns-z-sidebar: 20;
+  --ns-z-dropdown: 30;
+  --ns-z-overlay: 40;
+  --ns-z-modal: 50;
+  --ns-z-toast: 60;
+  --ns-z-tooltip: 70;
+  /* Layout */
+  --ns-sidebar-width: 248px;
+  --ns-sidebar-collapsed: 72px;
+  --ns-topbar-height: 64px;
+  --ns-content-max: 1440px;
+  /* Movimiento */
+  --ns-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ns-duration-fast: 120ms;
+  --ns-duration-base: 200ms;
+  --ns-duration-slow: 320ms;
+}

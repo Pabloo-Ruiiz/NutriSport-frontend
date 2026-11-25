@@ -1,0 +1,63 @@
+// Utilidades de layout (DESIGN.md §9.4, §6.3 y §6.6).
+@use '../abstracts/breakpoints' as bp;
+@use '../abstracts/mixins';
+
+// Apila los hijos en vertical. El espacio se cambia con --ns-stack-gap.
+.ns-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-stack-gap, var(--ns-space-4));
+}
+
+// Agrupa los hijos en línea, con salto si no caben. El espacio se cambia con --ns-cluster-gap.
+.ns-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-cluster-gap, var(--ns-space-2));
+}
+
+// Rejilla: 4 columnas (gutter 16) en móvil, 8 (gutter 20) desde md y 12 (gutter 24) desde lg.
+.ns-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ns-space-4);
+
+  @include bp.up(md) {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: var(--ns-space-5);
+  }
+
+  @include bp.up(lg) {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--ns-space-6);
+  }
+}
+
+.ns-sr-only {
+  @include mixins.sr-only;
+}
+
+// Enlace "Saltar al contenido" (DESIGN.md §10): fuera de la vista hasta que recibe el foco.
+.ns-skip-link {
+  position: absolute;
+  top: var(--ns-space-2);
+  left: var(--ns-space-2);
+  z-index: var(--ns-z-tooltip);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--ns-space-2) var(--ns-space-4);
+  border-radius: var(--ns-radius-md);
+  background-color: var(--ns-surface);
+  color: var(--ns-text-link);
+  font-weight: 600;
+  box-shadow: var(--ns-shadow-lg);
+  transform: translateY(calc(-100% - var(--ns-space-4)));
+
+  &:focus,
+  &:focus-visible {
+    transform: none;
+    @include mixins.focus-ring;
+  }
+}

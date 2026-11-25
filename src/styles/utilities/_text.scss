@@ -1,0 +1,52 @@
+// Colores de texto semánticos (DESIGN.md §2.4–2.6).
+.ns-text-primary {
+  color: var(--ns-text);
+}
+.ns-text-secondary {
+  color: var(--ns-text-secondary);
+}
+.ns-text-tertiary {
+  color: var(--ns-text-tertiary);
+}
+.ns-text-inverse {
+  color: var(--ns-text-inverse);
+}
+.ns-text-link {
+  color: var(--ns-text-link);
+}
+
+.ns-text-success {
+  color: var(--ns-success);
+}
+.ns-text-warning {
+  color: var(--ns-warning);
+}
+.ns-text-error {
+  color: var(--ns-error);
+}
+.ns-text-info {
+  color: var(--ns-info);
+}
+.ns-text-ai {
+  color: var(--ns-action-ai);
+}
+
+// Datos como texto: variantes -text, que cumplen 4,5:1 sobre su tinte.
+.ns-text-kcal {
+  color: var(--ns-data-kcal-text);
+}
+.ns-text-protein {
+  color: var(--ns-data-protein-text);
+}
+.ns-text-carbs {
+  color: var(--ns-data-carbs-text);
+}
+.ns-text-fat {
+  color: var(--ns-data-fat-text);
+}
+.ns-text-activity {
+  color: var(--ns-data-activity);
+}
+.ns-text-weight {
+  color: var(--ns-data-weight);
+}

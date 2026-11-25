@@ -1,0 +1,96 @@
+import {
+  LucideActivity,
+  LucideApple,
+  LucideBot,
+  LucideCalendar,
+  LucideCamera,
+  LucideChartColumn,
+  LucideCheck,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideCircleCheck,
+  LucideCircleExclamationPoint,
+  LucideCoffee,
+  LucideCopy,
+  LucideDumbbell,
+  LucideEye,
+  LucideEyeOff,
+  LucideHouse,
+  LucideInfo,
+  LucideLock,
+  LucideLogOut,
+  LucideMailCheck,
+  LucideMenu,
+  LucideMoon,
+  LucidePencil,
+  LucidePlus,
+  LucideScale,
+  LucideScanBarcode,
+  LucideSearch,
+  LucideSettings,
+  LucideShieldCheck,
+  LucideShoppingBasket,
+  LucideSparkles,
+  LucideStar,
+  LucideTrash,
+  LucideTriangleExclamationPoint,
+  LucideUser,
+  LucideUtensils,
+  LucideX,
+  LucideZap,
+} from '@lucide/angular';
+
+/**
+ * Iconos de Lucide que usa la aplicación (DESIGN.md §4). Se registran una vez en app.config.ts con
+ * provideLucideIcons y se pintan por nombre: <svg lucideIcon="coffee" aria-hidden="true"></svg>.
+ * Solo se incluyen en el bundle los iconos de esta lista. Para usar uno nuevo, añádelo aquí.
+ *
+ * En @lucide/angular, trash-2, triangle-alert y circle-alert se llaman trash, triangle-exclamation-point
+ * y circle-exclamation-point; los nombres antiguos siguen funcionando como alias.
+ */
+export const ICONOS_APP = [
+  // Dominio (DESIGN.md §4)
+  LucideCoffee,
+  LucideUtensils,
+  LucideMoon,
+  LucideApple,
+  LucideZap,
+  LucideDumbbell,
+  LucideCamera,
+  LucideSparkles,
+  LucideScanBarcode,
+  LucideShoppingBasket,
+  LucideScale,
+  LucideActivity,
+  LucideShieldCheck,
+  LucideMailCheck,
+  // Interfaz
+  LucidePlus,
+  LucideX,
+  LucideCheck,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideMenu,
+  LucideLogOut,
+  LucideUser,
+  LucideSettings,
+  LucideHouse,
+  LucideChartColumn,
+  LucideBot,
+  LucideCalendar,
+  LucideTrash,
+  LucidePencil,
+  LucideCopy,
+  LucideSearch,
+  LucideInfo,
+  LucideTriangleExclamationPoint,
+  LucideCircleExclamationPoint,
+  LucideCircleCheck,
+  LucideEye,
+  LucideEyeOff,
+  LucideLock,
+  LucideStar,
+];
+
+/** Nombres de los iconos registrados (para la página de muestra /dev/estilos). */
+export const NOMBRES_ICONOS: string[] = ICONOS_APP.map((icono) => icono.icon.name);

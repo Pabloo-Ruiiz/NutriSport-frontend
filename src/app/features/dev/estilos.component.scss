@@ -1,0 +1,135 @@
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.estilos {
+  --ns-stack-gap: var(--ns-space-10);
+  max-width: var(--ns-content-max);
+  margin-inline: auto;
+  padding: var(--ns-space-4);
+
+  @include bp.up(md) {
+    padding: var(--ns-space-6);
+  }
+
+  @include bp.up(lg) {
+    padding: var(--ns-space-8);
+  }
+
+  section {
+    --ns-stack-gap: var(--ns-space-4);
+  }
+
+  &__cabecera {
+    --ns-stack-gap: var(--ns-space-2);
+  }
+
+  &__muestras,
+  &__estados,
+  &__cajas {
+    display: grid;
+    gap: var(--ns-space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  &__muestras {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  &__muestra {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ns-space-1);
+    padding: var(--ns-space-3);
+    border: 1px solid var(--ns-border);
+    border-radius: var(--ns-radius-xl);
+    background: var(--ns-surface);
+  }
+
+  &__color {
+    height: 64px;
+    margin-bottom: var(--ns-space-2);
+    border: 1px solid var(--ns-border);
+    border-radius: var(--ns-radius-lg);
+  }
+
+  &__estados {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  &__estado {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ns-space-1);
+    padding: var(--ns-space-3) var(--ns-space-4);
+    border: 1px solid;
+    border-radius: var(--ns-radius-lg);
+  }
+
+  &__escala {
+    display: flex;
+    flex-direction: column;
+    background: var(--ns-surface);
+    border: 1px solid var(--ns-border);
+    border-radius: var(--ns-radius-xl);
+  }
+
+  &__fila {
+    display: grid;
+    gap: var(--ns-space-2);
+    padding: var(--ns-space-4);
+    border-bottom: 1px solid var(--ns-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    @include bp.up(md) {
+      grid-template-columns: 220px 1fr;
+      align-items: center;
+      gap: var(--ns-space-6);
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+
+  &__especificacion {
+    --ns-stack-gap: var(--ns-space-1);
+  }
+
+  &__cajas {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  &__caja-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ns-space-1);
+  }
+
+  &__caja {
+    width: 96px;
+    height: 96px;
+    margin-bottom: var(--ns-space-2);
+    background: var(--ns-surface);
+
+    &--radio {
+      background: var(--ns-green-100);
+      border: 1px solid var(--ns-green-500);
+    }
+
+    &--sombra {
+      border-radius: var(--ns-radius-xl);
+    }
+  }
+  &__icono {
+    align-items: center;
+    color: var(--ns-text);
+  }
+}

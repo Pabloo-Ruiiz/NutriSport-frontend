@@ -1,0 +1,25 @@
+// Breakpoints (DESIGN.md §9.2 y §6.3). No genera CSS: solo el mapa y los mixins.
+// Uso en un componente: @use 'abstracts/breakpoints' as bp; @include bp.up(md) { … }
+@use 'sass:map';
+
+$ns-breakpoints: (
+  sm: 480px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  2xl: 1536px,
+);
+
+// Desde el breakpoint indicado en adelante (min-width).
+@mixin up($bp) {
+  @media (min-width: map.get($ns-breakpoints, $bp)) {
+    @content;
+  }
+}
+
+// Por debajo del breakpoint indicado (max-width, sin solaparse con up()).
+@mixin down($bp) {
+  @media (max-width: calc(map.get($ns-breakpoints, $bp) - 0.02px)) {
+    @content;
+  }
+}

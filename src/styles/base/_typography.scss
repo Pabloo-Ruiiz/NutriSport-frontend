@@ -1,0 +1,152 @@
+// Escala tipográfica (DESIGN.md §3.2). Tamaños en rem sobre base 16 px (§9.4).
+@use 'sass:list';
+@use 'sass:math';
+
+@function rem($px) {
+  @return math.div($px, 16) * 1rem;
+}
+
+// nombre: (familia, tamaño px, interlineado px, peso, tracking)
+$ns-escala: (
+  display: (
+    display,
+    36,
+    44,
+    800,
+    -0.02em,
+  ),
+  h1: (
+    display,
+    28,
+    36,
+    700,
+    -0.02em,
+  ),
+  h2: (
+    display,
+    22,
+    30,
+    700,
+    -0.01em,
+  ),
+  h3: (
+    display,
+    18,
+    26,
+    700,
+    -0.01em,
+  ),
+  card-title: (
+    display,
+    16,
+    24,
+    700,
+    -0.01em,
+  ),
+  h4: (
+    body,
+    16,
+    24,
+    600,
+    0,
+  ),
+  metric-xl: (
+    display,
+    32,
+    40,
+    800,
+    -0.02em,
+  ),
+  metric-lg: (
+    display,
+    24,
+    32,
+    700,
+    -0.01em,
+  ),
+  body-lg: (
+    body,
+    16,
+    24,
+    400,
+    0,
+  ),
+  body: (
+    body,
+    14,
+    20,
+    400,
+    0,
+  ),
+  body-strong: (
+    body,
+    14,
+    20,
+    600,
+    0,
+  ),
+  body-sm: (
+    body,
+    13,
+    18,
+    400,
+    0,
+  ),
+  caption: (
+    body,
+    12,
+    16,
+    500,
+    0,
+  ),
+  overline: (
+    body,
+    12,
+    16,
+    600,
+    0.06em,
+  ),
+  label: (
+    body,
+    13,
+    18,
+    500,
+    0,
+  ),
+);
+
+html {
+  font-size: 100%;
+}
+
+// Texto por defecto de la interfaz: `body` (14/20).
+body {
+  font-family: var(--ns-font-body);
+  font-size: rem(14);
+  line-height: rem(20);
+  font-weight: 400;
+  color: var(--ns-text);
+  background-color: var(--ns-bg);
+}
+
+@each $nombre, $estilo in $ns-escala {
+  .ns-text-#{$nombre} {
+    font-family: var(--ns-font-#{list.nth($estilo, 1)});
+    font-size: rem(list.nth($estilo, 2));
+    line-height: rem(list.nth($estilo, 3));
+    font-weight: list.nth($estilo, 4);
+    letter-spacing: list.nth($estilo, 5);
+  }
+}
+
+.ns-text-overline {
+  text-transform: uppercase;
+}
+
+// Cifras alineadas en tablas, contadores y métricas.
+.ns-tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings:
+    'tnum' 1,
+    'cv11' 1;
+}

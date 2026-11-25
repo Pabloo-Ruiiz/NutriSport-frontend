@@ -1,0 +1,12 @@
+// Estilos globales de NutriSport AI (DESIGN.md §9.3).
+// Orden: tokens → abstracts → base → utilities → vendors.
+@use 'tokens/primitives';
+@use 'tokens/semantic';
+@use 'abstracts/breakpoints';
+@use 'abstracts/mixins';
+@use 'base/fonts';
+@use 'base/reset';
+@use 'base/typography';
+@use 'utilities/layout';
+@use 'utilities/text';
+@use 'vendors/cdk-overlay';
