@@ -99,3 +99,28 @@
   color: var(--ns-text-secondary);
   text-align: center;
 }
+
+// Acciones bajo un estado (ns-empty-state): verificar email, revisa tu email, enlace caducado.
+.ns-auth-estado__acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ns-space-4);
+  width: 100%;
+  max-width: 400px;
+
+  > .ns-auth-form__enlace {
+    align-self: center;
+  }
+}
+
+// Estado "comprobando": spinner y texto centrados.
+.ns-auth-estado__cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ns-space-4);
+  padding: var(--ns-space-12) 0;
+  color: var(--ns-text-secondary);
+  text-align: center;
+}

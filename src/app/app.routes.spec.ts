@@ -16,6 +16,7 @@ import { routes } from './app.routes';
 class AuthServiceFalso {
   readonly autenticado = signal(false);
   readonly esAdmin = signal(false);
+  readonly emailVerificado = signal(true);
   readonly consentimientoVigente = signal(true);
   readonly cuenta = signal<CuentaResponse | null>(null);
   logout = vi.fn(async () => true);
@@ -90,7 +91,8 @@ describe('rutas', () => {
     auth.entrar('DEPORTISTA');
     await harness.navigateByUrl('/restablecer-password');
     expect(url()).toBe('/restablecer-password');
-    expect(texto()).toContain('paso 10');
+    // Sin token en el fragmento: enlace incompleto.
+    expect(texto()).toContain('El enlace está incompleto');
   });
 
   it('con sesión y sin perfil, la zona del deportista lleva a /bienvenida', async () => {
