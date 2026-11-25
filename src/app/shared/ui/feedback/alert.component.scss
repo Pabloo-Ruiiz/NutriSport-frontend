@@ -1,0 +1,119 @@
+// Banner de aviso (DESIGN.md §5.11). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  // Cada tipo fija estas tres variables.
+  --ns-alert-texto: var(--ns-info);
+  --ns-alert-fondo: var(--ns-info-bg);
+  --ns-alert-borde: var(--ns-info-border);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+  width: 100%;
+  padding: var(--ns-space-3) var(--ns-space-4);
+  border: 1px solid var(--ns-alert-borde);
+  border-left: 3px solid var(--ns-alert-texto);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-alert-fondo);
+  color: var(--ns-text);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+}
+
+:host(.ns-alert--success) {
+  --ns-alert-texto: var(--ns-success);
+  --ns-alert-fondo: var(--ns-success-bg);
+  --ns-alert-borde: var(--ns-success-border);
+}
+
+:host(.ns-alert--warning) {
+  --ns-alert-texto: var(--ns-warning);
+  --ns-alert-fondo: var(--ns-warning-bg);
+  --ns-alert-borde: var(--ns-warning-border);
+}
+
+:host(.ns-alert--error) {
+  --ns-alert-texto: var(--ns-error);
+  --ns-alert-fondo: var(--ns-error-bg);
+  --ns-alert-borde: var(--ns-error-border);
+}
+
+:host(.ns-alert--ai) {
+  --ns-alert-texto: var(--ns-action-ai);
+  --ns-alert-fondo: var(--ns-ai-50);
+  --ns-alert-borde: var(--ns-ai-100);
+}
+
+.ns-alert__icono {
+  flex-shrink: 0;
+  color: var(--ns-alert-texto);
+}
+
+.ns-alert__contenido {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ns-alert__titulo {
+  color: var(--ns-alert-texto);
+  font-weight: 600;
+}
+
+.ns-alert__texto {
+  color: var(--ns-text-secondary);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.ns-alert__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-2);
+  margin-top: var(--ns-space-2);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.ns-alert__cerrar {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px -8px -4px 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    background: var(--ns-alert-borde);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  // Área táctil de 44 px en móvil.
+  @include bp.down(md) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+    }
+  }
+}

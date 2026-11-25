@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 import { NOMBRES_ICONOS } from '@shared/design/iconos';
@@ -33,7 +34,7 @@ interface EstiloTexto {
  */
 @Component({
   selector: 'app-estilos',
-  imports: [LucideDynamicIcon],
+  imports: [LucideDynamicIcon, RouterLink],
   templateUrl: './estilos.component.html',
   styleUrl: './estilos.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

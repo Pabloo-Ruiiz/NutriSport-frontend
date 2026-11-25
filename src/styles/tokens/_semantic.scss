@@ -25,6 +25,9 @@
   --ns-action-primary-active: var(--ns-green-900);
   --ns-action-ai: var(--ns-ai-600);
   --ns-action-ai-hover: var(--ns-ai-700);
+  /* Peligro (§5.1: botón danger, hover #912018) */
+  --ns-action-danger: var(--ns-error);
+  --ns-action-danger-hover: #912018;
   --ns-gradient-ai: linear-gradient(135deg, var(--ns-ai-600) 0%, var(--ns-ai-violet) 100%);
   --ns-focus-ring: var(--ns-green-700);
   /* Estados */

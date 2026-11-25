@@ -1,0 +1,138 @@
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.catalogo {
+  --ns-stack-gap: var(--ns-space-12);
+  max-width: var(--ns-content-max);
+  margin-inline: auto;
+  padding: var(--ns-space-4);
+
+  @include bp.up(md) {
+    padding: var(--ns-space-6);
+  }
+
+  @include bp.up(lg) {
+    padding: var(--ns-space-8);
+  }
+
+  section {
+    --ns-stack-gap: var(--ns-space-4);
+    scroll-margin-top: var(--ns-space-6);
+  }
+
+  h3 {
+    margin-top: var(--ns-space-4);
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+  }
+
+  &__cabecera {
+    --ns-stack-gap: var(--ns-space-2);
+  }
+
+  &__indice {
+    --ns-cluster-gap: var(--ns-space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  // Tabla de botones: variante × estado. En móvil cada fila se apila.
+  &__tabla {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ns-space-3);
+    overflow-x: auto;
+  }
+
+  &__fila {
+    display: grid;
+    grid-template-columns: 96px repeat(4, minmax(150px, 1fr));
+    align-items: center;
+    gap: var(--ns-space-3);
+
+    &--titulo {
+      color: var(--ns-text-tertiary);
+      font: 600 0.75rem/1rem var(--ns-font-body);
+      text-transform: uppercase;
+    }
+  }
+
+  &__estrecho {
+    max-width: 360px;
+  }
+
+  &__formulario {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ns-space-5);
+    max-width: 880px;
+
+    @include bp.up(md) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    h3 {
+      margin-top: var(--ns-space-3);
+    }
+  }
+
+  &__ancho {
+    grid-column: 1 / -1;
+  }
+
+  &__grupo {
+    --ns-stack-gap: var(--ns-space-3);
+  }
+
+  &__acciones {
+    justify-content: flex-end;
+  }
+
+  &__valor {
+    max-height: 200px;
+    overflow: auto;
+    padding: var(--ns-space-3);
+    border-radius: var(--ns-radius-md);
+    background: var(--ns-surface-muted);
+    color: var(--ns-text-secondary);
+  }
+
+  &__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--ns-space-4);
+  }
+
+  &__spinners {
+    --ns-cluster-gap: var(--ns-space-6);
+    color: var(--ns-text-secondary);
+  }
+
+  &__esqueleto {
+    --ns-stack-gap: var(--ns-space-2);
+    padding: var(--ns-space-4);
+    border: 1px dashed var(--ns-border-strong);
+    border-radius: var(--ns-radius-lg);
+  }
+
+  &__comida {
+    display: flex;
+    align-items: center;
+    gap: var(--ns-space-3);
+  }
+
+  &__comida-texto {
+    --ns-stack-gap: var(--ns-space-2);
+    flex: 1;
+  }
+
+  &__codigo {
+    text-align: center;
+  }
+}

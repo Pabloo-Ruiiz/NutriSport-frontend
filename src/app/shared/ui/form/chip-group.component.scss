@@ -1,0 +1,60 @@
+// Chips seleccionables (DESIGN.md §5.4: 32 px, radio full). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+}
+
+.ns-chip-group__lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-2);
+}
+
+.ns-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  height: 32px;
+  padding: 0 var(--ns-space-3);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface);
+  color: var(--ns-text-secondary);
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+  cursor: pointer;
+  transition:
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    border-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover:not(:disabled):not(.ns-chip--marcado) {
+    border-color: var(--ns-border-input);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  // Área táctil de 44 px en móvil sin cambiar el tamaño visible.
+  @include bp.down(md) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -6px 0;
+    }
+  }
+}
+
+.ns-chip--marcado {
+  border-color: var(--ns-green-700);
+  background: var(--ns-green-50);
+  color: var(--ns-green-800);
+}

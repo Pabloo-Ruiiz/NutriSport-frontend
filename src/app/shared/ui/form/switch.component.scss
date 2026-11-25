@@ -1,0 +1,80 @@
+// Interruptor (DESIGN.md §5.4: 36 × 20). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+
+  @include bp.down(md) {
+    min-height: 44px;
+  }
+}
+
+.ns-switch__pista {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ns-radius-full);
+  // Apagado: gris de borde de input (3:1 sobre blanco), no solo un tono claro.
+  background: var(--ns-border-input);
+  cursor: pointer;
+  transition: background-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &[aria-checked='true'] {
+    background: var(--ns-action-primary);
+  }
+
+  &:hover:not(:disabled)[aria-checked='true'] {
+    background: var(--ns-action-primary-hover);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.ns-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-sm);
+  transition: transform var(--ns-duration-base) var(--ns-ease-out);
+}
+
+.ns-switch__pista[aria-checked='true'] .ns-switch__thumb {
+  transform: translateX(16px);
+}
+
+.ns-switch__texto {
+  color: var(--ns-text);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+  cursor: pointer;
+}
+
+:host(.ns-switch--deshabilitado) {
+  opacity: 0.5;
+
+  .ns-switch__texto {
+    cursor: not-allowed;
+  }
+}
+
+@include m.reduced-motion {
+  .ns-switch__thumb,
+  .ns-switch__pista {
+    transition: none;
+  }
+}

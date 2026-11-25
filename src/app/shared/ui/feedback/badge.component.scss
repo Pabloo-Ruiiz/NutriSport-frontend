@@ -1,0 +1,68 @@
+// Badge (DESIGN.md §5.10). Solo tokens --ns-*.
+
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--ns-space-1);
+  height: 22px;
+  padding: 0 var(--ns-space-2);
+  border-radius: var(--ns-radius-full);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  white-space: nowrap;
+}
+
+:host(.ns-badge--neutral) {
+  background: var(--ns-surface-muted);
+  color: var(--ns-text-secondary);
+}
+
+:host(.ns-badge--success) {
+  background: var(--ns-success-bg);
+  color: var(--ns-success);
+}
+
+:host(.ns-badge--warning) {
+  background: var(--ns-warning-bg);
+  color: var(--ns-warning);
+}
+
+:host(.ns-badge--error) {
+  background: var(--ns-error-bg);
+  color: var(--ns-error);
+}
+
+:host(.ns-badge--info) {
+  background: var(--ns-info-bg);
+  color: var(--ns-info);
+}
+
+:host(.ns-badge--ai) {
+  background: var(--ns-ai-50);
+  color: var(--ns-action-ai);
+}
+
+:host(.ns-badge--activity) {
+  background: var(--ns-data-activity-bg);
+  color: var(--ns-data-activity);
+}
+
+:host(.ns-badge--kcal) {
+  background: var(--ns-data-kcal-bg);
+  color: var(--ns-data-kcal-text);
+}
+
+:host(.ns-badge--protein) {
+  background: var(--ns-data-protein-bg);
+  color: var(--ns-data-protein-text);
+}
+
+:host(.ns-badge--carbs) {
+  background: var(--ns-data-carbs-bg);
+  color: var(--ns-data-carbs-text);
+}
+
+:host(.ns-badge--fat) {
+  background: var(--ns-data-fat-bg);
+  color: var(--ns-data-fat-text);
+}

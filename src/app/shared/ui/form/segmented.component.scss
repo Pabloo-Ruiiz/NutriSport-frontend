@@ -1,0 +1,63 @@
+// Control segmentado (DESIGN.md §5.4). La opción activa se distingue por fondo, borde, peso y
+// sombra: no solo por el color. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.ns-segmented__grupo {
+  display: inline-flex;
+  flex: 1;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface-muted);
+}
+
+.ns-segmented__opcion {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ns-space-1);
+  height: 32px;
+  padding: 0 var(--ns-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--ns-radius-sm);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover:not(:disabled):not(.ns-segmented__opcion--activa) {
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @include bp.down(md) {
+    height: 40px;
+  }
+}
+
+.ns-segmented__opcion--activa {
+  border-color: var(--ns-border-input);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  font-weight: 600;
+  box-shadow: var(--ns-shadow-xs);
+}

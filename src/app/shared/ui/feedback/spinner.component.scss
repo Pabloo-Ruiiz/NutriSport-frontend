@@ -1,0 +1,42 @@
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.ns-spinner__svg {
+  display: block;
+  animation: ns-spinner-giro 0.8s linear infinite;
+}
+
+.ns-spinner__pista,
+.ns-spinner__arco {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+}
+
+.ns-spinner__pista {
+  opacity: 0.25;
+}
+
+// Arco de un cuarto de circunferencia (2πr ≈ 56,5).
+.ns-spinner__arco {
+  stroke-dasharray: 14 57;
+  stroke-linecap: round;
+}
+
+// Con movimiento reducido el giro sigue (indica que algo está en curso), pero más lento.
+@include m.reduced-motion {
+  .ns-spinner__svg {
+    animation-duration: 2.4s;
+  }
+}
+
+@keyframes ns-spinner-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -14,6 +14,11 @@ const rutasDesarrollo: Routes = environment.production
         title: 'Guía de estilos · NutriSport AI',
         loadComponent: () => import('@features/dev/estilos.component').then((m) => m.EstilosComponent),
       },
+      {
+        path: 'dev/componentes',
+        title: 'Componentes · NutriSport AI',
+        loadComponent: () => import('@features/dev/componentes.component').then((m) => m.ComponentesComponent),
+      },
     ];
 
 export const routes: Routes = [...rutasDesarrollo];

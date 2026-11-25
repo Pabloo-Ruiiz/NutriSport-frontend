@@ -1,0 +1,37 @@
+// Selector nativo con estilo (DESIGN.md §5.4: igual que input + chevron-down).
+@use 'campo';
+
+:host {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.ns-select__nativo {
+  @include campo.caja;
+  appearance: none;
+  padding-right: calc(var(--ns-space-3) + 18px + var(--ns-space-2));
+  cursor: pointer;
+}
+
+// Con la opción vacía seleccionada el texto se ve como un placeholder.
+.ns-select__nativo--vacio {
+  color: var(--ns-text-tertiary);
+}
+
+.ns-select__nativo option {
+  color: var(--ns-text);
+}
+
+.ns-select__nativo--error {
+  @include campo.caja-error;
+}
+
+.ns-select__chevron {
+  position: absolute;
+  top: 50%;
+  right: var(--ns-space-3);
+  color: var(--ns-text-tertiary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
