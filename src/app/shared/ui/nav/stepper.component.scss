@@ -1,0 +1,150 @@
+// Stepper (DESIGN.md §5.14). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+}
+
+.ns-stepper__lista {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include bp.down(md) {
+    display: none;
+  }
+}
+
+.ns-stepper__paso {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--ns-space-2);
+  min-width: 0;
+
+  &:last-child {
+    flex: 0 0 auto;
+  }
+}
+
+.ns-stepper__marca {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--ns-space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ns-text-secondary);
+  font: 500 0.875rem/1.25rem var(--ns-font-body);
+}
+
+.ns-stepper__marca--boton {
+  min-height: 44px;
+  border-radius: var(--ns-radius-md);
+  color: var(--ns-text);
+  cursor: pointer;
+
+  &:hover .ns-stepper__etiqueta {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  // El check va en el mismo círculo que el número de los demás pasos.
+  svg {
+    box-sizing: content-box;
+    flex-shrink: 0;
+    padding: 6px;
+    border-radius: var(--ns-radius-full);
+    background: var(--ns-action-primary);
+    color: var(--ns-text-inverse);
+  }
+}
+
+.ns-stepper__numero {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-full);
+  color: var(--ns-text-secondary);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ns-stepper__paso--actual {
+  .ns-stepper__marca {
+    color: var(--ns-text);
+    font-weight: 600;
+  }
+
+  .ns-stepper__numero {
+    border-color: var(--ns-action-primary);
+    color: var(--ns-action-primary);
+  }
+}
+
+.ns-stepper__linea {
+  flex: 1;
+  min-width: var(--ns-space-4);
+  height: 2px;
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-border-strong);
+}
+
+.ns-stepper__paso--completado .ns-stepper__linea {
+  background: var(--ns-action-primary);
+}
+
+/* Móvil: "Paso 2 de 4" con barra */
+.ns-stepper__movil {
+  display: none;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+
+  @include bp.down(md) {
+    display: flex;
+  }
+}
+
+.ns-stepper__resumen {
+  color: var(--ns-text-secondary);
+  font: 500 0.875rem/1.25rem var(--ns-font-body);
+}
+
+.ns-stepper__contador {
+  color: var(--ns-text);
+  font-weight: 600;
+}
+
+.ns-stepper__barra {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface-sunken);
+}
+
+.ns-stepper__barra-relleno {
+  display: block;
+  height: 100%;
+  background: var(--ns-action-primary);
+  transform-origin: left center;
+  transition: transform var(--ns-duration-slow) var(--ns-ease-out);
+}
+
+@include m.reduced-motion {
+  .ns-stepper__barra-relleno {
+    transition: none;
+  }
+}

@@ -1,0 +1,50 @@
+// Métrica (DESIGN.md §5.5, variante metric). Solo tokens --ns-*.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+  min-width: 0;
+}
+
+.ns-metric__label {
+  color: var(--ns-text-tertiary);
+}
+
+.ns-metric__valor {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ns-space-1);
+  color: var(--ns-text);
+}
+
+.ns-metric__unidad {
+  color: var(--ns-text-secondary);
+  font: 500 0.875rem/1.25rem var(--ns-font-body);
+}
+
+.ns-metric__delta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ns-space-1);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.ns-metric__delta--buena {
+  color: var(--ns-success);
+}
+
+.ns-metric__delta--mala {
+  color: var(--ns-error);
+}
+
+.ns-metric__delta--neutra {
+  color: var(--ns-text-secondary);
+}
+
+.ns-metric__contexto {
+  color: var(--ns-text-tertiary);
+  font-weight: 500;
+}

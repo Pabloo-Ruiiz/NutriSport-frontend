@@ -1,0 +1,77 @@
+// Cantidad con − y + (DESIGN.md §5.2). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+@use 'campo';
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  max-width: 100%;
+}
+
+.ns-quantity__boton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  cursor: pointer;
+  transition: background-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover:not(:disabled) {
+    background: var(--ns-surface-muted);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ns-quantity__caja {
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.ns-quantity__input {
+  @include campo.caja;
+  width: 7ch;
+  min-width: 100%;
+  height: 44px;
+  padding-inline: var(--ns-space-2);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+// Con unidad, el número se desplaza para dejarle sitio a la derecha.
+.ns-quantity__caja:has(.ns-quantity__unidad) .ns-quantity__input {
+  padding-right: calc(var(--ns-space-2) + 3ch);
+}
+
+.ns-quantity__caja--error .ns-quantity__input {
+  @include campo.caja-error;
+}
+
+.ns-quantity__unidad {
+  position: absolute;
+  top: 0;
+  right: var(--ns-space-2);
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  color: var(--ns-text-tertiary);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+  pointer-events: none;
+}

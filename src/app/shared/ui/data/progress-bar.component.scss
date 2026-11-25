@@ -1,0 +1,51 @@
+// Barra de progreso (DESIGN.md §5.14). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+  min-width: 0;
+}
+
+.ns-progress__etiqueta {
+  color: var(--ns-text-secondary);
+  font: 500 0.75rem/1rem var(--ns-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.ns-progress__valor {
+  color: var(--ns-text);
+  font-weight: 600;
+}
+
+.ns-progress__pista {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface-sunken);
+}
+
+// Se anima transform, no width (§10).
+.ns-progress__relleno {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  transition: transform var(--ns-duration-slow) var(--ns-ease-out);
+}
+
+:host(.ns-progress--exceso) .ns-progress__relleno {
+  background: repeating-linear-gradient(45deg, var(--ns-warning) 0 4px, var(--ns-warning-border) 4px 6px);
+}
+
+:host(.ns-progress--exceso) .ns-progress__valor {
+  color: var(--ns-warning);
+}
+
+@include m.reduced-motion {
+  .ns-progress__relleno {
+    transition: none;
+  }
+}

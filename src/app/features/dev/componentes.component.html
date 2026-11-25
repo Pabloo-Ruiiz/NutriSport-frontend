@@ -133,6 +133,17 @@
         <ns-chip-group formControlName="comidaBloqueada" [opciones]="comidas" />
       </ns-form-field>
 
+      <h3 class="ns-text-h4 catalogo__ancho">Cantidad (coma decimal, ↑ / ↓)</h3>
+      <ns-form-field label="Cantidad" hint="De 5 en 5 g, entre 0 y 2.000." obligatorio>
+        <ns-quantity-input formControlName="gramos" [min]="0" [max]="2000" [step]="5" unit="g" />
+      </ns-form-field>
+      <ns-form-field label="Raciones" hint="De media en media, entre 0,5 y 4.">
+        <ns-quantity-input formControlName="raciones" [min]="0.5" [max]="4" [step]="0.5" [decimales]="1" unit="rac." />
+      </ns-form-field>
+      <ns-form-field label="Raciones (deshabilitado)">
+        <ns-quantity-input formControlName="racionesBloqueadas" [step]="0.5" [decimales]="1" unit="rac." />
+      </ns-form-field>
+
       <div class="ns-cluster catalogo__ancho catalogo__acciones">
         <button nsButton type="button" variant="secondary" (click)="simularErrorServidor()">
           Repetir error del servidor
@@ -313,5 +324,212 @@
         <ns-empty-state icon="search" titulo="Sin resultados" [nivelTitulo]="3" />
       </ns-card>
     </div>
+  </section>
+
+  <!-- Diálogos y drawer -->
+  <section class="ns-stack" id="dialogos" aria-labelledby="titulo-dialogos">
+    <h2 class="ns-text-h2" id="titulo-dialogos">Diálogos y drawer</h2>
+    <p class="ns-text-body ns-text-secondary">
+      Foco atrapado, <kbd>Esc</kbd> cierra y el foco vuelve al botón. Por debajo de 768 px los diálogos se abren como
+      bottom sheet.
+    </p>
+    <h3 class="ns-text-h4">NsDialogService</h3>
+    <div class="ns-cluster">
+      @for (tamano of tamanosDialogo; track tamano) {
+        <button nsButton type="button" variant="secondary" (click)="abrirDialogo(tamano)">Tamaño {{ tamano }}</button>
+      }
+      <button nsButton type="button" variant="secondary" (click)="abrirDialogo('md', 30)">Con scroll</button>
+    </div>
+    <h3 class="ns-text-h4">NsConfirmService</h3>
+    <div class="ns-cluster">
+      <button nsButton type="button" variant="secondary" (click)="confirmarSimple()">Confirmar</button>
+      <button nsButton type="button" variant="danger" icon="trash" (click)="confirmarPeligro()">Eliminar comida</button>
+      <button nsButton type="button" variant="danger" (click)="confirmarPassword()">
+        Eliminar cuenta (contraseña)
+      </button>
+    </div>
+    <h3 class="ns-text-h4">NsDrawerComponent</h3>
+    <div class="ns-cluster">
+      <button nsButton type="button" variant="secondary" (click)="drawerAbierto.set(true)">Abrir drawer</button>
+    </div>
+    <p class="ns-text-body-sm ns-text-secondary" aria-live="polite">{{ resultado() }}</p>
+
+    <ns-drawer [(abierto)]="drawerAbierto" titulo="Filtros">
+      <div class="ns-stack">
+        <p class="ns-text-body ns-text-secondary">
+          Panel lateral de 560 px. En pantallas estrechas ocupa todo el ancho.
+        </p>
+        <ns-form-field label="Buscar">
+          <input nsInput placeholder="Pollo, arroz…" />
+        </ns-form-field>
+        <ns-chip-group [opciones]="comidas" multiple etiqueta="Tipo de comida" />
+      </div>
+      <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">
+        Cancelar
+      </button>
+      <button nsDrawerAcciones nsButton type="button" (click)="drawerAbierto.set(false)">Aplicar filtros</button>
+    </ns-drawer>
+  </section>
+
+  <!-- Toasts -->
+  <section class="ns-stack" id="toasts" aria-labelledby="titulo-toasts">
+    <h2 class="ns-text-h2" id="titulo-toasts">Toasts</h2>
+    <p class="ns-text-body ns-text-secondary">
+      Se cierran a los 5 s (los errores, a mano) y la cuenta atrás se pausa con el ratón o el foco encima. Máximo 3
+      visibles.
+    </p>
+    <div class="ns-cluster">
+      <button nsButton type="button" variant="secondary" (click)="toastExito()">Éxito con «Deshacer»</button>
+      <button nsButton type="button" variant="secondary" (click)="toastError()">Error</button>
+      <button nsButton type="button" variant="secondary" (click)="toastInfo()">Información</button>
+      <button nsButton type="button" variant="secondary" (click)="toastAviso()">Advertencia (8 s)</button>
+      <button nsButton type="button" variant="secondary" (click)="variosToasts()">5 seguidos</button>
+      <button nsButton type="button" variant="ghost" (click)="toasts.cerrarTodos()">Cerrar todos</button>
+    </div>
+    @if (toasts.enEspera()) {
+      <p class="ns-text-body-sm ns-text-secondary">En espera: {{ toasts.enEspera() }}</p>
+    }
+  </section>
+
+  <!-- Aviso orientativo -->
+  <section class="ns-stack" id="disclaimer" aria-labelledby="titulo-disclaimer">
+    <h2 class="ns-text-h2" id="titulo-disclaimer">Aviso orientativo</h2>
+    <div class="catalogo__rejilla">
+      @for (contexto of contextosDisclaimer; track contexto) {
+        <ns-card padding="sm">
+          <code>{{ contexto }}</code>
+          <ns-disclaimer [context]="contexto" />
+        </ns-card>
+      }
+    </div>
+  </section>
+
+  <!-- Datos y progreso -->
+  <section class="ns-stack" id="datos" aria-labelledby="titulo-datos">
+    <h2 class="ns-text-h2" id="titulo-datos">Datos y progreso</h2>
+
+    <h3 class="ns-text-h4">Anillo (tarjeta héroe del dashboard)</h3>
+    <div class="catalogo__rejilla">
+      <ns-card>
+        <div class="catalogo__anillo">
+          <ns-ring
+            [value]="consumidas()"
+            [max]="1800"
+            color="kcal"
+            unidad="kcal"
+            etiqueta="Energía consumida hoy"
+            [size]="180"
+            [valueInterior]="320"
+            [maxInterior]="600"
+            etiquetaInterior="Gasto del entrenamiento"
+          >
+            <span class="ns-text-metric-xl ns-tnum">{{ 1800 - consumidas() > 0 ? 1800 - consumidas() : 0 }}</span>
+            <span class="ns-text-caption ns-text-secondary">kcal restantes</span>
+          </ns-ring>
+          <div class="ns-cluster">
+            <button nsButton type="button" variant="secondary" size="sm" (click)="consumidas.set(consumidas() + 400)">
+              +400 kcal
+            </button>
+            <button nsButton type="button" variant="ghost" size="sm" (click)="consumidas.set(560)">Reiniciar</button>
+          </div>
+        </div>
+      </ns-card>
+      <ns-card>
+        <div class="ns-cluster catalogo__anillos">
+          <ns-ring [value]="42" [max]="160" color="protein" etiqueta="Proteínas" [size]="64">
+            <span class="ns-text-caption">26 %</span>
+          </ns-ring>
+          <ns-ring [value]="180" [max]="260" color="carbs" etiqueta="Hidratos" [size]="120">
+            <span class="ns-text-metric-lg ns-tnum">180</span>
+            <span class="ns-text-caption ns-text-secondary">de 260 g</span>
+          </ns-ring>
+          <ns-ring [value]="92" [max]="70" color="fat" unidad="g" etiqueta="Grasas" [size]="120">
+            <span class="ns-text-metric-lg ns-tnum">92</span>
+          </ns-ring>
+        </div>
+      </ns-card>
+    </div>
+
+    <h3 class="ns-text-h4">Barras de progreso</h3>
+    <ns-card class="catalogo__estrecho">
+      <div class="ns-stack">
+        <ns-progress-bar [value]="112" [max]="160" color="protein" unidad="g" etiqueta="Proteínas" showLabel />
+        <ns-progress-bar [value]="180" [max]="260" color="carbs" unidad="g" etiqueta="Hidratos" showLabel />
+        <ns-progress-bar [value]="78" [max]="70" color="fat" unidad="g" etiqueta="Grasas (con exceso)" showLabel />
+        <ns-progress-bar [value]="45" [max]="60" color="activity" unidad="min" etiqueta="Actividad" [alto]="12" />
+        <ns-progress-bar [value]="3" [max]="5" color="success" etiqueta="Comidas registradas" [alto]="4" />
+      </div>
+    </ns-card>
+
+    <h3 class="ns-text-h4">Métricas</h3>
+    <div class="catalogo__rejilla">
+      <ns-card variant="metric">
+        <ns-metric label="Proteínas" [value]="112" unit="g" [delta]="8" contextoDelta="frente a ayer" />
+      </ns-card>
+      <ns-card variant="metric">
+        <ns-metric
+          label="Peso"
+          [value]="72.4"
+          unit="kg"
+          [decimales]="1"
+          [delta]="-0.6"
+          [aumentoBueno]="false"
+          contextoDelta="esta semana"
+        />
+      </ns-card>
+      <ns-card variant="metric">
+        <ns-metric label="Energía media" [value]="2450" unit="kcal" [delta]="4" unidadDelta="%" />
+      </ns-card>
+      <ns-card variant="metric">
+        <ns-metric label="Entrenos" [value]="3" [delta]="0" contextoDelta="igual que la semana pasada" />
+      </ns-card>
+    </div>
+  </section>
+
+  <!-- Navegación -->
+  <section class="ns-stack" id="navegacion" aria-labelledby="titulo-navegacion">
+    <h2 class="ns-text-h2" id="titulo-navegacion">Navegación</h2>
+
+    <h3 class="ns-text-h4">Pestañas (← → Inicio Fin)</h3>
+    <ns-tabs [pestanas]="pestanas" [(seleccionada)]="pestana" etiqueta="Detalle de la receta">
+      <div nsTabPanel="ingredientes"><p class="ns-text-body">200 g de pollo, 80 g de arroz, 1 cebolla…</p></div>
+      <div nsTabPanel="pasos"><p class="ns-text-body">1. Corta el pollo en dados. 2. Dóralo a fuego medio…</p></div>
+      <div nsTabPanel="nutricion"><p class="ns-text-body">≈ 520 kcal por ración.</p></div>
+    </ns-tabs>
+
+    <h3 class="ns-text-h4">Stepper (en móvil: «Paso 2 de 4»)</h3>
+    <ns-stepper [pasos]="pasosPerfil" [actual]="pasoActual()" (pasoPulsado)="pasoActual.set($event)" />
+    <div class="ns-cluster">
+      <button
+        nsButton
+        type="button"
+        variant="secondary"
+        size="sm"
+        [disabled]="pasoActual() === 0"
+        (click)="pasoActual.set(pasoActual() - 1)"
+      >
+        Paso anterior
+      </button>
+      <button
+        nsButton
+        type="button"
+        size="sm"
+        [disabled]="pasoActual() === pasosPerfil.length - 1"
+        (click)="pasoActual.set(pasoActual() + 1)"
+      >
+        Paso siguiente
+      </button>
+    </div>
+
+    <h3 class="ns-text-h4">Tira de fechas (sin días futuros)</h3>
+    <ns-card class="catalogo__tira">
+      <ns-date-strip [(selected)]="fecha" [markedDates]="diasConDatos" [max]="hoy" />
+      <p class="ns-text-body-sm ns-text-secondary">Seleccionada: {{ fecha() }}</p>
+    </ns-card>
+
+    <h3 class="ns-text-h4">Paginador</h3>
+    <ns-card class="catalogo__tira">
+      <ns-paginator [(page)]="pagina" [totalPages]="7" />
+    </ns-card>
   </section>
 </main>

@@ -6,6 +6,7 @@ export * from './error-campo.directive';
 export * from './form-field.component';
 export * from './input.directive';
 export * from './mensajes-error';
+export * from './quantity-input.component';
 export * from './segmented.component';
 export * from './select.component';
 export * from './switch.component';
