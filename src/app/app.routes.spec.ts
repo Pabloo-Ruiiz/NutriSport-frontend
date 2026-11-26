@@ -76,7 +76,7 @@ describe('rutas', () => {
     await harness.navigateByUrl('/');
     expect(url()).toBe('/inicio');
     expect(tituloPestana()).toBe('Inicio · NutriSport');
-    expect(texto()).toContain('Pantalla en construcción (paso 18)');
+    expect((harness.fixture.nativeElement as HTMLElement).querySelector('app-dashboard')).not.toBeNull();
   });
 
   it('con sesión, /login lleva a /inicio (o a /admin/usuarios si solo es ADMIN)', async () => {

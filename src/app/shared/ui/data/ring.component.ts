@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, numberAttribute } from '@angular/core';
+import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, numberAttribute } from '@angular/core';
 
 import { formatearNumero } from '@shared/pipes/formato';
 import { idUnico } from '../form/control-campo';
@@ -108,7 +108,7 @@ import { NsColorDato, colorCss, proporcion } from './colores';
 
     <div class="ns-ring__centro">
       <ng-content />
-      @if (exceso() > 0) {
+      @if (exceso() > 0 && mostrarExceso()) {
         <span class="ns-ring__texto-exceso">+{{ excesoTexto() }}</span>
       }
     </div>
@@ -139,6 +139,8 @@ export class NsRingComponent {
   readonly maxInterior = input<number | undefined, unknown>(undefined, { transform: opcionalNumero });
   readonly colorInterior = input<NsColorDato>('activity');
   readonly etiquetaInterior = input('Progreso secundario');
+  /** Texto "+120 kcal" bajo el contenido con exceso. false si el contenido ya lo cuenta. */
+  readonly mostrarExceso = input(true, { transform: booleanAttribute });
 
   protected readonly idPatron = idUnico('ns-ring-patron');
 

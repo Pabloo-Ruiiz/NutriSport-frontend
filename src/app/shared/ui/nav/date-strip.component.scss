@@ -1,4 +1,5 @@
 // Tira de fechas (DESIGN.md §5.13). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
 @use 'abstracts/mixins' as m;
 
 :host {
@@ -11,9 +12,16 @@
 .ns-date-strip__dias {
   display: grid;
   flex: 1;
-  grid-template-columns: repeat(7, minmax(40px, 1fr));
-  gap: var(--ns-space-1);
+  // minmax(0, 1fr): los días se estrechan para que la tira quepa con las dos flechas de 44 px
+  // desde 360 px (con 40 px de mínimo necesitaba ~400 px y el domingo quedaba bajo la flecha).
+  // Cada día sigue midiendo 64 px de alto y más de 24 px de ancho (WCAG 2.5.8).
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
   min-width: 0;
+
+  @include bp.up(sm) {
+    gap: var(--ns-space-1);
+  }
 }
 
 .ns-date-strip__flecha,

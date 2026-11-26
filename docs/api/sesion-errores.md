@@ -112,7 +112,8 @@ export interface ProblemDetail {
 | 403 | `SIN_PERMISO` | Rol insuficiente (rutas `/admin`) o `Origin` no permitido en el refresh | Página "No tienes permiso" |
 | 403 | `EMAIL_NO_VERIFICADO` | IA (foto, asistente, sugerencia IA) o exportación sin el email verificado | Aviso con "Reenviar verificación" |
 | 403 | `CONSENTIMIENTO_REVOCADO` | Perfil, comidas, análisis, entrenamientos o seguimiento tras revocar el consentimiento de salud | Banner global → Configuración › Privacidad "Volver a dar el consentimiento" |
-| 404 | `NO_ENCONTRADO` | No existe, es de otro usuario o la ruta no existe. `GET /perfil` responde 404 si aún no hay perfil | Estado vacío o redirección (el 404 de `/perfil` lleva al onboarding) |
+| 404 | `NO_ENCONTRADO` | No existe, es de otro usuario o la ruta no existe | Estado vacío |
+| 404 | `PERFIL_NO_ENCONTRADO` | `GET /perfil` cuando el usuario aún no tiene perfil deportivo | Llevar al onboarding (`/bienvenida`). Decide por el 404, no por el texto |
 | 409 | `CONFLICTO` | Estado incompatible (categoría con elementos, nombre duplicado…) | `detail` en un toast |
 | 409 | `EMAIL_EN_USO` | Al confirmar un cambio de email que otra cuenta ya usa | Mensaje en la pantalla de verificación |
 | 409 | `CODIGO_BARRAS_EN_USO` | El código de barras ya lo tiene un alimento privado | Toast |

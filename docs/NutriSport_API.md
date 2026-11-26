@@ -173,7 +173,8 @@ export interface ProblemDetail {
 | 403 | `SIN_PERMISO` | Rol insuficiente (rutas `/admin`) o `Origin` no permitido en el refresh | Página "No tienes permiso" |
 | 403 | `EMAIL_NO_VERIFICADO` | IA (foto, asistente, sugerencia IA) o exportación sin el email verificado | Aviso con "Reenviar verificación" |
 | 403 | `CONSENTIMIENTO_REVOCADO` | Perfil, comidas, análisis, entrenamientos o seguimiento tras revocar el consentimiento de salud | Banner global → Configuración › Privacidad "Volver a dar el consentimiento" |
-| 404 | `NO_ENCONTRADO` | No existe, es de otro usuario o la ruta no existe. `GET /perfil` responde 404 si aún no hay perfil | Estado vacío o redirección (el 404 de `/perfil` lleva al onboarding) |
+| 404 | `NO_ENCONTRADO` | No existe, es de otro usuario o la ruta no existe | Estado vacío |
+| 404 | `PERFIL_NO_ENCONTRADO` | `GET /perfil` cuando el usuario aún no tiene perfil deportivo | Llevar al onboarding (`/bienvenida`). Decide por el 404, no por el texto |
 | 409 | `CONFLICTO` | Estado incompatible (categoría con elementos, nombre duplicado…) | `detail` en un toast |
 | 409 | `EMAIL_EN_USO` | Al confirmar un cambio de email que otra cuenta ya usa | Mensaje en la pantalla de verificación |
 | 409 | `CODIGO_BARRAS_EN_USO` | El código de barras ya lo tiene un alimento privado | Toast |
@@ -736,7 +737,7 @@ export interface ResumenDiarioResponse {
   kcalEntreno: number;
   consumido: Nutrientes;
   restante: Nutrientes;
-  excesoKcal: number;
+  excesoKcal: number | null;
   porcentajes: Porcentajes;
   comidas: RegistroComidaResponse[];
   entrenamientos: EntrenamientoResponse[];
@@ -1826,7 +1827,7 @@ Comprobadas en el código del backend:
 
 1. **`MensajeResponse` duplicado.** El backend tiene dos clases con ese nombre y springdoc las fusiona en el esquema `{ mensaje }`. Es correcto para las respuestas 202 de `/auth/*` y `PUT /cuenta/email`, pero `POST /asistente/conversaciones/{id}/mensajes` y `ConversacionResponse.mensajes` devuelven **`MensajeAsistente`** `{ id, rol, contenido, herramientasUsadas, valoracion, creadoEn }` (§5).
 2. **Booleanos obligatorios.** El JSON no marca como `required` `mantenerSesion`, `mayorDeEdad`, `aceptaTerminos`, `consentimientoSalud` ni `inmediata`, pero son primitivos en Java y el backend responde 400 si faltan (comprobado con `curl`).
-3. **`GET /perfil` sin perfil** responde 404 con `codigo = NO_ENCONTRADO` (la descripción dice `PERFIL_NO_ENCONTRADO`).
+3. **`GET /perfil` sin perfil** responde 404 con `codigo = PERFIL_NO_ENCONTRADO` (comprobado contra el backend). El OpenAPI no lista los códigos de cada endpoint: el frontend debe tratar cualquier 404 de `/perfil` como "sin perfil".
 4. **Contraseña actual incorrecta** (`PUT /cuenta/password`, `PUT /cuenta/email`, `DELETE /cuenta`) responde 400 `VALIDACION` con el error en el campo de la contraseña (la descripción habla de `PASSWORD_INCORRECTA`, que es el texto, no el código).
 5. **Paginación:** los parámetros `page`, `size` y `sort` aparecen en endpoints que limitan el tamaño (50 o 100) aunque el JSON no lo diga; la búsqueda de alimentos ignora `sort` (ordena por parecido).
 6. **`GET /productos`** tiene su propio `page` (0–49) y devuelve una **lista** (`ProductoResumenResponse[]`), no una página.

@@ -3,20 +3,30 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
 import { environment } from '@env/environment';
-import type { PesoRequest, PesoResponse, SeriePesoResponse } from '../models';
+import type { PesoRequest, PesoResponse, ResumenDiarioResponse, SeriePesoResponse } from '../models';
 import { diasEntre } from '../util/fechas';
 
 /** Días que puede abarcar GET /seguimiento/peso (desde y hasta incluidos). */
 export const MAX_DIAS_SERIE_PESO = 366;
 
 /**
- * Seguimiento (NutriSport_API.md §6 Seguimiento). Por ahora solo el peso; el resumen diario, los
- * insights y las estadísticas llegan en sus pasos.
+ * Seguimiento (NutriSport_API.md §6 Seguimiento): resumen diario y peso. Los insights y las
+ * estadísticas llegan en sus pasos.
  */
 @Injectable({ providedIn: 'root' })
 export class SeguimientoService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/seguimiento`;
+
+  /**
+   * GET /seguimiento/resumen: objetivo del día (base del perfil más el gasto de los entrenamientos
+   * que cuentan), consumido, restante, exceso, porcentajes, comidas y entrenamientos. Sin fecha, el
+   * de hoy. 422 PERFIL_REQUERIDO si no hay perfil.
+   */
+  resumen(fecha?: string | null): Observable<ResumenDiarioResponse> {
+    const params = fecha ? new HttpParams().set('fecha', fecha) : undefined;
+    return this.http.get<ResumenDiarioResponse>(`${this.url}/resumen`, { params });
+  }
 
   /**
    * POST /seguimiento/peso (201). Si ya hay un pesaje ese día, lo sustituye. Si es el más reciente,

@@ -17,6 +17,8 @@ export const TOKENS = {
 
   /* Neutros y texto (§2.2 y §2.5) */
   ink950: '#0B1220', // --ns-ink-950
+  ink700: '#344054', // --ns-ink-700 (línea objetivo de los gráficos)
+  white: '#FFFFFF', // --ns-gray-0 (texto del tooltip)
   border: '#EAECF0', // --ns-border (gray-100)
   textSecondary: '#475467', // --ns-text-secondary (gray-600)
   textTertiary: '#5D6B82', // --ns-text-tertiary (gray-500)
@@ -26,6 +28,9 @@ export const TOKENS = {
   warning: '#B54708', // --ns-warning
   error: '#B42318', // --ns-error
   info: '#175CD3', // --ns-info
+
+  /* Radios (§6.7) */
+  radiusMd: 8, // --ns-radius-md
 
   /* Tipografía (§3.1, base/_fonts.scss) */
   fontBody: "'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",

@@ -15,7 +15,7 @@ export interface ResumenDiarioResponse {
   kcalEntreno: number;
   consumido: Nutrientes;
   restante: Nutrientes;
-  excesoKcal: number;
+  excesoKcal: number | null; // null si no se supera el objetivo
   porcentajes: Porcentajes;
   comidas: RegistroComidaResponse[];
   entrenamientos: EntrenamientoResponse[];

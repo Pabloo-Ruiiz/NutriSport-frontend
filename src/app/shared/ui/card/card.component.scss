@@ -27,13 +27,16 @@
 /* Cabecera */
 .ns-card__cabecera {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--ns-space-2);
 }
 
+// Base de 10rem: en una tarjeta estrecha (p. ej. la de Peso en 4 columnas a 1024 px), las acciones
+// bajan a otra línea en lugar de aplastar el título letra a letra.
 .ns-card__titulos {
   display: flex;
-  flex: 1;
+  flex: 1 1 10rem;
   flex-direction: column;
   gap: 2px;
   min-width: 0;

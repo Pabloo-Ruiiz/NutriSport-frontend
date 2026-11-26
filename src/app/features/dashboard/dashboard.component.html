@@ -1,0 +1,78 @@
+<header class="ns-dash__cabecera">
+  <div class="ns-dash__saludo">
+    <h2 class="ns-text-h2 ns-dash__titulo">{{ saludo() }}</h2>
+    <p class="ns-dash__fecha">{{ fechaLarga() }}</p>
+  </div>
+  <ns-date-strip
+    class="ns-dash__dias"
+    [selected]="dia()"
+    (selectedChange)="cambiarDia($event)"
+    [markedDates]="diasConComidas()"
+    [max]="maxFecha"
+  />
+</header>
+
+@switch (estado()) {
+  @case ('cargando') {
+    <div class="ns-dash__rejilla" aria-busy="true" aria-label="Cargando tu resumen del día">
+      <ns-skeleton class="ns-dash__energia" shape="rect" height="280px" />
+      <div class="ns-dash__macros">
+        @for (i of [1, 2, 3]; track i) {
+          <ns-skeleton shape="rect" height="280px" />
+        }
+      </div>
+      <ns-skeleton class="ns-dash__comidas" shape="rect" height="360px" />
+      <ns-skeleton class="ns-dash__entreno" shape="rect" height="240px" />
+    </div>
+  }
+  @case ('error') {
+    <ns-alert type="error" titulo="No hemos podido cargar tu resumen del día">
+      {{ error() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+  @case ('listo') {
+    @if (resumen(); as r) {
+      <div class="ns-dash__rejilla">
+        <app-tarjeta-energia
+          class="ns-dash__energia"
+          [resumen]="r"
+          [titulo]="esHoy() ? 'Energía de hoy' : 'Energía del día'"
+        />
+
+        <section class="ns-dash__macros" aria-label="Macronutrientes">
+          @for (m of macros; track m) {
+            <app-tarjeta-macro [macro]="m" [resumen]="r" />
+          }
+        </section>
+
+        <app-comidas-hoy
+          class="ns-dash__comidas"
+          [comidas]="r.comidas"
+          [fecha]="dia()"
+          [esHoy]="esHoy()"
+          [volver]="volver()"
+          (ver)="verComida($event)"
+          (editar)="editarComida($event)"
+          (duplicar)="duplicarComida($event)"
+          (eliminar)="eliminarComida($event)"
+        />
+
+        <app-entrenamiento-hoy
+          class="ns-dash__entreno"
+          [entrenamientos]="r.entrenamientos"
+          [esHoy]="esHoy()"
+          [marcando]="marcando()"
+          (realizar)="marcarRealizado($event)"
+          (registrar)="registrarEntrenamiento()"
+        />
+
+        <app-grafico-semana class="ns-dash__grafico" [dias]="semana()" [hoy]="hoy" />
+
+        <app-tarjeta-peso class="ns-dash__peso" (registrado)="recargar()" />
+      </div>
+    }
+  }
+}
