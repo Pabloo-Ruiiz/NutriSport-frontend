@@ -57,8 +57,8 @@ const FECHA = /^\d{4}-\d{2}-\d{2}$/;
             [max]="fechaMaxima"
             [ngModel]="fecha()"
             (ngModelChange)="cambiarFecha($event)"
-            [attr.aria-invalid]="errorFecha() ? true : null"
-            aria-describedby="ns-duplicar-error-fecha"
+            [invalido]="!!errorFecha()"
+            descritoPor="ns-duplicar-error-fecha"
           />
         </ns-form-field>
         <p class="ns-duplicar__error" id="ns-duplicar-error-fecha" [hidden]="!errorFecha()">{{ errorFecha() }}</p>

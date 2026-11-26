@@ -36,6 +36,7 @@ import { franjasDelDia } from '../dashboard';
 
       @if (comidas().length === 0) {
         <ns-empty-state
+          [nivelTitulo]="4"
           icon="utensils"
           [titulo]="esHoy() ? 'Aún no has registrado comidas hoy' : 'No hay comidas este día'"
           [nivelTitulo]="4"

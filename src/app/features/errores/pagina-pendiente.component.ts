@@ -13,7 +13,7 @@ import { NsEmptyStateComponent } from '@shared/ui/feedback/empty-state.component
 @Component({
   selector: 'app-pagina-pendiente',
   imports: [NsEmptyStateComponent],
-  template: ` <ns-empty-state icon="info" [titulo]="titulo" [descripcion]="descripcion()" [nivelTitulo]="1" /> `,
+  template: ` <ns-empty-state icon="info" [titulo]="titulo" [descripcion]="descripcion()" [nivelTitulo]="2" /> `,
   styles: `
     :host {
       display: grid;

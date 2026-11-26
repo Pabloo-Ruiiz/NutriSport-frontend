@@ -1,5 +1,17 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -69,7 +81,20 @@ export class CategoriasAdminComponent {
   /** detail del último 409 al eliminar. */
   protected readonly errorEliminar = signal<string | null>(null);
   private readonly recargas = new Subject<void>();
+  private tipoCargado: TipoCategoria | null = null;
+  /** Tras eliminar, el nodo (y su botón) ya no existe: el foco va al árbol. */
+  private enfocarArbolTrasCarga = false;
+  private readonly arbolRef = viewChild<ElementRef<HTMLElement>>('listaArbol');
+  private readonly botonNueva = viewChild('botonNueva', { read: ElementRef<HTMLElement> });
+  private readonly injector = inject(Injector);
   protected readonly arbol = computed(() => arbolCategorias(this.categorias()));
+  /** Texto de la región role="status" tras cargar (también al cambiar de tipo o tras un cambio). */
+  protected readonly anuncio = computed(() => {
+    if (this.cargando() || this.error()) return '';
+    const n = this.categorias().length;
+    const de = this.esAlimento() ? 'de alimentos' : 'de recetas';
+    return n === 1 ? `1 categoría ${de}.` : `${n} categorías ${de}.`;
+  });
 
   // ---- Drawer
   protected readonly drawerAbierto = signal(false);
@@ -87,9 +112,12 @@ export class CategoriasAdminComponent {
   constructor() {
     combineLatest([toObservable(this.tipoActual), this.recargas.pipe(startWith(undefined))])
       .pipe(
-        tap(() => {
+        tap(([tipo]) => {
           this.cargando.set(true);
           this.error.set(null);
+          // Otro tipo: no se deja a la vista el árbol del anterior mientras carga.
+          if (tipo !== this.tipoCargado) this.categorias.set([]);
+          this.tipoCargado = tipo;
         }),
         switchMap(([tipo]) =>
           this.catalogo.categorias(tipo).pipe(
@@ -104,6 +132,12 @@ export class CategoriasAdminComponent {
       .subscribe((lista) => {
         this.categorias.set(lista);
         this.cargando.set(false);
+        if (this.enfocarArbolTrasCarga) {
+          this.enfocarArbolTrasCarga = false;
+          afterNextRender(() => (this.arbolRef()?.nativeElement ?? this.botonNueva()?.nativeElement)?.focus(), {
+            injector: this.injector,
+          });
+        }
       });
 
     effect(() => this.tipoControl.setValue(this.tipoActual(), { emitEvent: false }));
@@ -154,6 +188,7 @@ export class CategoriasAdminComponent {
     try {
       await firstValueFrom(this.catalogo.eliminarCategoria(categoria.id, categoria.tipo));
       this.toasts.exito('Categoría eliminada', categoria.nombre);
+      this.enfocarArbolTrasCarga = true;
       this.recargas.next();
     } catch (e) {
       const error = aApiError(e);

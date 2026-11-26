@@ -33,6 +33,11 @@
   place-items: center;
   width: 40px;
   height: 40px;
+
+  @include bp.down(md) {
+    width: 44px;
+    height: 44px;
+  }
   border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius-md);
   background: var(--ns-surface);

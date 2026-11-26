@@ -2,6 +2,7 @@
 // Escritorio (lg): 12 columnas → energía 5 + macros 7; comidas 8 + entreno 4; gráfico 8 + peso 4.
 // md: 2 columnas. xs: una columna en el orden de §7.4, con los macros en carrusel.
 @use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
 
 :host {
   display: flex;
@@ -46,6 +47,10 @@
 }
 
 .ns-dash__macros {
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ns-space-4);

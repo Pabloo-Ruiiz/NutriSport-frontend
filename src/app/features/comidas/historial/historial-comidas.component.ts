@@ -66,6 +66,19 @@ export class HistorialComidasComponent {
     () =>
       `Del ${formatearFecha(this.store.desdeCargado(), 'diaMes')} al ${formatearFecha(this.store.filtros().hasta, 'diaMes')}`,
   );
+  /**
+   * Texto de la región role="status": al terminar de cargar (o al cambiar los filtros) dice cuántas
+   * comidas se ven, para que un lector de pantalla sepa que la lista ha cambiado.
+   */
+  protected readonly anuncio = computed(() => {
+    if (this.store.estado() !== 'listo') return '';
+    const dias = this.store.diasVisibles();
+    const comidas = dias.reduce((n, d) => n + d.comidas.length, 0);
+    if (!comidas) return 'No hay comidas en estas fechas con estos filtros.';
+    const textoComidas = comidas === 1 ? '1 comida' : `${comidas} comidas`;
+    const textoDias = dias.length === 1 ? '1 día' : `${dias.length} días`;
+    return `${textoComidas} en ${textoDias}. ${this.periodo()}.`;
+  });
   protected readonly numeroFiltros = computed(() => {
     const f = this.store.filtros();
     return (f.tipo ? 1 : 0) + (f.origenes.length ? 1 : 0);

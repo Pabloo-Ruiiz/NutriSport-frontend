@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, Subscription, catchError, forkJoin, of } from 'rxjs';
+import { Observable, Subscription, catchError, finalize, forkJoin, of, shareReplay, tap } from 'rxjs';
 
+import { LayoutService } from '@core/layout/layout.service';
 import { AuthService } from '@core/services/auth.service';
 import type { EntrenamientoResponse, RegistroComidaResponse, ResumenDiarioResponse } from '@core/models';
 import { ComidasService } from '@core/services/comidas.service';
@@ -80,6 +81,8 @@ export class DashboardComponent {
   private readonly toasts = inject(NsToastService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  /** En móvil las macros son un carrusel: se hace enfocable para desplazarlo con el teclado. */
+  protected readonly layout = inject(LayoutService);
 
   protected readonly hoy = hoyLocal();
   protected readonly maxFecha = sumarDias(this.hoy, 1);
@@ -102,6 +105,16 @@ export class DashboardComponent {
     const larga = formatearFecha(this.dia(), 'larga');
     return larga.charAt(0).toUpperCase() + larga.slice(1);
   });
+  /**
+   * Texto de la región role="status": al cargar otro día desde la tira de fechas, el contenido
+   * cambia sin navegar; así un lector de pantalla sabe qué día se ve.
+   */
+  protected readonly anuncio = computed(() => {
+    if (this.estado() !== 'listo') return '';
+    const comidas = this.resumen()?.comidas.length ?? 0;
+    const textoComidas = comidas === 0 ? 'sin comidas registradas' : comidas === 1 ? '1 comida' : `${comidas} comidas`;
+    return `Resumen del ${formatearFecha(this.dia(), 'larga')}: ${textoComidas}.`;
+  });
   /** A dónde vuelve el registro de comidas. */
   protected readonly volver = computed(() => (this.esHoy() ? '/inicio' : `/inicio?fecha=${this.dia()}`));
 
@@ -111,6 +124,11 @@ export class DashboardComponent {
   protected readonly marcando = signal<string | null>(null);
 
   private readonly cache = new Map<string, ResumenDiarioResponse | null>();
+  /**
+   * Peticiones en curso por día, compartidas: si el día ya se está pidiendo (p. ej. como parte de la
+   * semana y luego se elige en la tira de fechas), se reutiliza la misma en vez de repetirla.
+   */
+  private readonly enVuelo = new Map<string, Observable<ResumenDiarioResponse>>();
   private readonly version = signal(0);
   private peticion?: Subscription;
   private peticionSemana?: Subscription;
@@ -143,7 +161,7 @@ export class DashboardComponent {
     });
   }
 
-  /** Carga el resumen del día (de la caché si lo hay) y, después, lo que falte de la semana. */
+  /** Carga el resumen del día (de la caché si lo hay) y, a la vez, lo que falte de la semana. */
   protected cargar(dia = this.dia(), silencioso = false): void {
     this.peticion?.unsubscribe();
     this.error.set(null);
@@ -155,12 +173,12 @@ export class DashboardComponent {
       return;
     }
     if (!silencioso) this.estado.set('cargando');
-    this.peticion = this.seguimiento.resumen(dia).subscribe({
+    // Primero el día que se ve; enseguida, sin esperar a su respuesta, el resto de la semana (en
+    // paralelo). cargarSemana reutiliza la petición del día, que ya está en enVuelo.
+    this.peticion = this.resumenDe(dia).subscribe({
       next: (r) => {
-        this.guardar(dia, r);
         this.resumen.set(r);
         this.estado.set('listo');
-        this.cargarSemana(dia);
       },
       error: (e: unknown) => {
         const error = aApiError(e);
@@ -169,11 +187,13 @@ export class DashboardComponent {
         this.estado.set('error');
       },
     });
+    this.cargarSemana(dia);
   }
 
   /** Tras un cambio: vacía la caché y recarga el día y su semana sin skeleton. */
   protected recargar(): void {
     this.cache.clear();
+    this.enVuelo.clear();
     this.version.update((v) => v + 1);
     this.cargar(this.dia(), true);
   }
@@ -182,14 +202,38 @@ export class DashboardComponent {
     const lunes = lunesDeLaSemana(dia);
     const faltan = rangoDias(lunes, sumarDias(lunes, 6)).filter((d) => !this.cache.has(d));
     if (!faltan.length) return;
+    // Dejar de escuchar la semana anterior no cancela sus peticiones (están compartidas en
+    // enVuelo): las que ya iban siguen y se guardan en la caché.
     this.peticionSemana?.unsubscribe();
     const peticiones: Observable<ResumenDiarioResponse | null>[] = faltan.map((d) =>
-      this.seguimiento.resumen(d).pipe(catchError(() => of(null))),
+      this.resumenDe(d).pipe(catchError(() => of(null))),
     );
     this.peticionSemana = forkJoin(peticiones).subscribe((resumenes) => {
-      faltan.forEach((d, i) => this.cache.set(d, resumenes[i]));
+      // Un día que falló se marca como sin datos para el gráfico (null), salvo que ya esté.
+      faltan.forEach((d, i) => {
+        if (!this.cache.has(d)) this.cache.set(d, resumenes[i]);
+      });
       this.version.update((v) => v + 1);
     });
+  }
+
+  /**
+   * GET /seguimiento/resumen de un día, una sola vez aunque lo pidan el día y la semana a la vez.
+   * Al llegar se guarda en la caché; si falla, no se guarda (se puede reintentar).
+   */
+  private resumenDe(dia: string): Observable<ResumenDiarioResponse> {
+    const enCache = this.cache.get(dia);
+    if (enCache) return of(enCache);
+    let peticion = this.enVuelo.get(dia);
+    if (!peticion) {
+      peticion = this.seguimiento.resumen(dia).pipe(
+        tap((r) => this.guardar(dia, r)),
+        finalize(() => this.enVuelo.delete(dia)),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+      this.enVuelo.set(dia, peticion);
+    }
+    return peticion;
   }
 
   private guardar(dia: string, r: ResumenDiarioResponse): void {

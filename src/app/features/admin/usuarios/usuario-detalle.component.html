@@ -97,13 +97,16 @@
   </section>
 
   <form class="ns-detalle__bloque" [formGroup]="formRoles" (ngSubmit)="guardarRoles()">
-    <fieldset class="ns-detalle__roles">
+    <fieldset
+      class="ns-detalle__roles"
+      [attr.aria-describedby]="formRoles.hasError('sinRoles') ? 'ns-detalle-error-roles' : null"
+    >
       <legend class="ns-detalle__subtitulo">Roles</legend>
       <ns-checkbox formControlName="deportista">Deportista</ns-checkbox>
       <ns-checkbox formControlName="admin">Administrador</ns-checkbox>
     </fieldset>
     @if (formRoles.hasError('sinRoles')) {
-      <p class="ns-detalle__error" role="alert">Marca al menos un rol.</p>
+      <p class="ns-detalle__error" id="ns-detalle-error-roles" role="alert">Marca al menos un rol.</p>
     }
     @if (esUnoMismo() && u.roles.includes('ADMIN')) {
       <p class="ns-detalle__ayuda">No puedes quitarte a ti mismo el rol de administrador.</p>

@@ -184,6 +184,11 @@ import { badgeOrigen, etiquetaTipo, horaCorta, iconoTipo, resumirAlimentos } fro
       width: 40px;
       height: 40px;
       margin: -8px -8px 0 0;
+      @media (max-width: 767.98px) {
+        width: 44px;
+        height: 44px;
+        margin: -10px -10px 0 0;
+      }
       border: 0;
       border-radius: var(--ns-radius-md);
       background: transparent;

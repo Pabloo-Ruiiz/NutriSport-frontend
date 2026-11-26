@@ -14,6 +14,14 @@
   background: var(--ns-surface);
 }
 
+.ns-table__marco:focus-visible {
+  @include m.focus-ring;
+}
+
+.ns-table__marco--actualizando .ns-table__tabla {
+  opacity: 0.6;
+}
+
 .ns-table__tabla {
   width: 100%;
   border-collapse: collapse;
@@ -81,11 +89,6 @@
 
 .ns-table__fila--pulsable {
   cursor: pointer;
-
-  &:focus-visible {
-    @include m.focus-ring;
-    outline-offset: -2px;
-  }
 }
 
 .ns-table__celda--start {

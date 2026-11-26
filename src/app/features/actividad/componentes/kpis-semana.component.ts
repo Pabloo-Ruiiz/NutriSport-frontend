@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+
+import { LayoutService } from '@core/layout/layout.service';
 
 import { NS_CARD } from '@shared/ui/card/card.component';
 import { NsMetricComponent } from '@shared/ui/data/metric.component';
@@ -12,7 +14,7 @@ import type { KpisSemana } from '../actividad';
   selector: 'app-kpis-semana',
   imports: [NS_CARD, NsMetricComponent],
   template: `
-    <ul class="ns-kpis" role="list">
+    <ul class="ns-kpis" role="list" aria-label="Resumen de la semana" [attr.tabindex]="layout.esMovil() ? 0 : null">
       <li>
         <ns-card variant="metric" padding="sm"><ns-metric label="Sesiones" [value]="kpis().sesiones" /></ns-card>
       </li>
@@ -38,6 +40,10 @@ import type { KpisSemana } from '../actividad';
     @use 'abstracts/breakpoints' as bp;
 
     .ns-kpis {
+      &:focus-visible {
+        outline: 2px solid var(--ns-focus-ring);
+        outline-offset: 2px;
+      }
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: var(--ns-space-3);
@@ -70,4 +76,6 @@ import type { KpisSemana } from '../actividad';
 })
 export class KpisSemanaComponent {
   readonly kpis = input.required<KpisSemana>();
+  /** En móvil es un carrusel: se hace enfocable para desplazarlo con el teclado. */
+  protected readonly layout = inject(LayoutService);
 }

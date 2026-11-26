@@ -47,8 +47,8 @@
               [max]="fechaMaxima"
               [ngModel]="editor.fecha()"
               (ngModelChange)="cambiarFecha($event)"
-              [attr.aria-invalid]="errorFecha() ? true : null"
-              aria-describedby="ns-registro-error-fecha"
+              [invalido]="!!errorFecha()"
+              descritoPor="ns-registro-error-fecha"
             />
           </ns-form-field>
           <ns-form-field label="Hora">

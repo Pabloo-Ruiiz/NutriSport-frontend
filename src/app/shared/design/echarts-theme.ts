@@ -110,10 +110,11 @@ export function areaDegradado(colorHex: string) {
 
 /**
  * Carga ECharts bajo demanda (provideEchartsCore) y registra el tema la primera vez. Así ECharts
- * solo entra en el bundle de las pantallas con gráficos.
+ * solo entra en el bundle de las pantallas con gráficos, y solo con los módulos que se usan
+ * (echarts-modulos.ts, sobre echarts/core).
  */
 export function cargarEcharts() {
-  return import('echarts').then((echarts) => {
+  return import('./echarts-modulos').then(({ echarts }) => {
     echarts.registerTheme(TEMA_ECHARTS, nutrisportTheme);
     return echarts;
   });

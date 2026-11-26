@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { catchError, firstValueFrom, forkJoin, map, of } from 'rxjs';
 
@@ -102,6 +112,8 @@ export class MisAlimentosComponent {
   protected readonly cargandoDetalle = signal<string | null>(null);
   protected readonly formulario = viewChild(AlimentoFormComponent);
   protected readonly eliminando = signal<string | null>(null);
+  private readonly buscador = viewChild<ElementRef<HTMLInputElement>>('buscador');
+  private readonly injector = inject(Injector);
 
   constructor() {
     this.cargarUsados();
@@ -168,6 +180,8 @@ export class MisAlimentosComponent {
       await firstValueFrom(this.alimentos.eliminar(alimento.id));
       this.eliminados.update((ids) => new Set([...ids, alimento.id]));
       this.toasts.exito('Alimento eliminado', alimento.nombre);
+      // Su fila (y el botón que tenía el foco) desaparece: el foco va al buscador.
+      afterNextRender(() => this.buscador()?.nativeElement.focus(), { injector: this.injector });
     } catch (e) {
       this.toasts.error('No hemos podido eliminar el alimento', aApiError(e).detalle);
     } finally {

@@ -3,13 +3,19 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
   booleanAttribute,
   computed,
   contentChildren,
+  inject,
   input,
   model,
   numberAttribute,
   output,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -107,6 +113,11 @@ export class NsTableComponent<T> {
   /** En móvil, filas como tarjetas apiladas (DESIGN.md §5.9). */
   readonly stackOnMobile = input(true, { transform: booleanAttribute });
   readonly cargando = input(false, { transform: booleanAttribute });
+  /**
+   * Recarga con datos ya pintados: las filas se quedan (con aria-busy y atenuadas) en vez de pasar
+   * a skeleton, así no se destruye el botón que tenía el foco.
+   */
+  readonly actualizando = input(false, { transform: booleanAttribute });
   /** Filas skeleton mientras carga. */
   readonly filasCarga = input(5, { transform: numberAttribute });
   /** Nombre accesible de la tabla. */
@@ -116,7 +127,11 @@ export class NsTableComponent<T> {
   readonly iconoVacio = input('search');
   /** Identidad de cada fila para el `track`; por defecto `fila.id` si existe, o la propia fila. */
   readonly claveFila = input<(fila: T) => unknown>((fila) => (fila as { id?: unknown })?.id ?? fila);
-  /** Filas pulsables (clic, Intro o Espacio) → `filaPulsada`. Cada fila entra en el orden de tabulación. */
+  /**
+   * Clic en cualquier punto de la fila → `filaPulsada`. Es solo un atajo de ratón: la fila no entra en
+   * el orden de tabulación ni se anuncia como pulsable, así que pon también un botón o enlace en una
+   * celda (p. ej. el nombre) que haga lo mismo; es el camino del teclado y del lector de pantalla.
+   */
   readonly filasPulsables = input(false, { transform: booleanAttribute });
   readonly filaPulsada = output<T>();
 
@@ -129,6 +144,32 @@ export class NsTableComponent<T> {
   readonly etiquetaSeleccion = input<(fila: T) => string>();
 
   private readonly celdas = contentChildren(NsCeldaDirective);
+  private readonly marco = viewChild.required<ElementRef<HTMLElement>>('marco');
+  /** true si la tabla es más ancha que su marco (hay scroll horizontal). */
+  protected readonly desborda = signal(false);
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const marco = this.marco().nativeElement;
+      const medir = () => this.desborda.set(marco.scrollWidth > marco.clientWidth + 1);
+      medir();
+      if (typeof ResizeObserver === 'undefined') return;
+      const observador = new ResizeObserver(medir);
+      observador.observe(marco);
+      const tabla = marco.firstElementChild;
+      if (tabla) observador.observe(tabla);
+      destroyRef.onDestroy(() => observador.disconnect());
+    });
+  }
+
+  /**
+   * Mueve el foco a la tabla. Para cuando la fila que tenía el foco desaparece (p. ej. tras
+   * eliminarla), así el foco no se pierde en el <body>.
+   */
+  enfocar(): void {
+    this.marco().nativeElement.focus({ preventScroll: false });
+  }
 
   protected readonly plantillas = computed(() => {
     const mapa = new Map<string, TemplateRef<NsCeldaContexto<T>>>();
@@ -245,10 +286,6 @@ export class NsTableComponent<T> {
     if (origen?.closest('.ns-table__celda-seleccion')) return;
     const interactivo = origen?.closest('button, a, input, select, textarea, label, [role="button"]');
     if (interactivo && interactivo !== evento.currentTarget) return;
-    if (evento.type === 'keydown') {
-      if (origen !== evento.currentTarget) return;
-      evento.preventDefault();
-    }
     this.filaPulsada.emit(fila);
   }
 

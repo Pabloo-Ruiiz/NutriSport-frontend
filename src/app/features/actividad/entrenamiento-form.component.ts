@@ -98,7 +98,13 @@ export function abrirEntrenamientoForm(dialogos: NsDialogService, data: Entrenam
 
         <div class="ns-ef__fila">
           <ns-form-field label="Fecha y hora" obligatorio>
-            <input nsInput type="datetime-local" formControlName="fechaHora" />
+            <input
+              nsInput
+              type="datetime-local"
+              formControlName="fechaHora"
+              [invalido]="form.hasError('realizadoFuturo')"
+              [descritoPor]="form.hasError('realizadoFuturo') ? idErrorFuturo : null"
+            />
           </ns-form-field>
           <ns-form-field
             label="Estado"
@@ -108,7 +114,9 @@ export function abrirEntrenamientoForm(dialogos: NsDialogService, data: Entrenam
           </ns-form-field>
         </div>
         @if (form.hasError('realizadoFuturo')) {
-          <p class="ns-ef__error" role="alert">Un entrenamiento futuro no puede estar realizado.</p>
+          <p class="ns-ef__error" role="alert" [id]="idErrorFuturo">
+            Un entrenamiento futuro no puede estar realizado.
+          </p>
         }
 
         <div class="ns-ef__fila">
@@ -269,6 +277,8 @@ export class EntrenamientoFormComponent {
 
   protected readonly futura = computed(() => esFutura(this.valor().fechaHora));
   protected readonly realizado = computed(() => this.valor().estado === 'REALIZADO');
+  /** Id del error de grupo "futuro y realizado", enlazado con la fecha. */
+  protected readonly idErrorFuturo = idUnico('ns-ef-error-futuro');
   protected readonly rpe = computed(() => this.valor().rpe);
   protected readonly notas = computed(() => this.valor().notas);
 

@@ -48,7 +48,7 @@ import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@an
       border-radius: var(--ns-radius-full);
       background: var(--ns-gradient-ai);
       color: var(--ns-text-inverse);
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 700;
     }
   `,

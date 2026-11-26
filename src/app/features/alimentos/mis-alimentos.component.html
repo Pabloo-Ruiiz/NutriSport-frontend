@@ -14,6 +14,7 @@
   <div class="ns-mis__caja">
     <svg class="ns-mis__lupa" lucideIcon="search" [size]="18" aria-hidden="true"></svg>
     <input
+      #buscador
       class="ns-mis__input"
       type="search"
       autocomplete="off"
@@ -44,6 +45,7 @@
       }
       @case ('vacia') {
         <ns-empty-state
+          [nivelTitulo]="3"
           icon="search"
           [titulo]="'No tienes alimentos propios que coincidan con «' + busqueda.consulta() + '»'"
           descripcion="Puede que esté en el catálogo general, o puedes crearlo tú."
@@ -112,6 +114,7 @@
     </ul>
   } @else if (!buscando() && !cargandoUsados() && !errorUsados()) {
     <ns-empty-state
+      [nivelTitulo]="3"
       icon="apple"
       titulo="Aún no has usado alimentos propios"
       descripcion="Búscalos por su nombre o crea uno nuevo con sus valores nutricionales."

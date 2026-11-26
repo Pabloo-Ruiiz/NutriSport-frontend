@@ -34,14 +34,17 @@
     [data]="filas()"
     [sort]="orden()"
     (sortChange)="ordenar($event)"
-    [cargando]="cargando()"
+    [cargando]="cargando() && !pagina()"
+    [actualizando]="cargando() && !!pagina()"
     [filasCarga]="filtro().size > 10 ? 10 : filtro().size"
     [textoVacio]="hayFiltros() ? 'Ningún usuario coincide con la búsqueda' : 'Aún no hay usuarios'"
     [descripcionVacio]="hayFiltros() ? 'Prueba con otro nombre o email, o cambia el estado.' : undefined"
     (filaPulsada)="abrir($event)"
   >
     <ng-template nsCelda="nombre" [nsCeldaDe]="filas()" let-u>
-      <span class="ns-usuarios__nombre">{{ u.nombre }}</span>
+      <button type="button" class="ns-usuarios__nombre" aria-haspopup="dialog" (click)="abrir(u)">
+        {{ u.nombre }}<span class="ns-sr-only">: ver detalle</span>
+      </button>
     </ng-template>
     <ng-template nsCelda="email" [nsCeldaDe]="filas()" let-u>
       <span class="ns-usuarios__email">{{ u.email }}</span>

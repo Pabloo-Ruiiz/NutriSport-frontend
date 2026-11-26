@@ -49,7 +49,12 @@
             <p class="ns-buscador__aviso">Escribe al menos {{ minCaracteres }} letras para buscar en el catálogo.</p>
           }
           @case ('cargando') {
-            <p class="ns-buscador__aviso" role="status">Buscando…</p>
+            <div aria-busy="true" aria-label="Buscando">
+              <p class="ns-sr-only" role="status">Buscando…</p>
+              @for (i of [1, 2, 3]; track i) {
+                <ns-skeleton shape="rect" height="52px" />
+              }
+            </div>
           }
           @case ('vacia') {
             <p class="ns-buscador__aviso" role="status">
