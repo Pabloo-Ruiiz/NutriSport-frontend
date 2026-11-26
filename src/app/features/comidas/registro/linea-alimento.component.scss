@@ -1,4 +1,5 @@
 // Línea de la comida en construcción. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
 @use 'abstracts/mixins' as m;
 
 :host {
@@ -45,6 +46,7 @@
 }
 
 .ns-linea__quitar {
+  position: relative;
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
@@ -62,6 +64,15 @@
   &:hover {
     background: var(--ns-error-bg);
     color: var(--ns-error);
+  }
+
+  // Área táctil de 44 px en móvil sin cambiar el tamaño visible.
+  @include bp.down(md) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+    }
   }
 
   &:focus-visible {

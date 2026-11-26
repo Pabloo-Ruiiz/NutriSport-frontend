@@ -53,6 +53,15 @@ h6 {
   overflow-wrap: break-word;
 }
 
+// Encabezados que reciben el foco por programa (tras navegar, o al mostrar un resultado): no son
+// controles, así que no llevan anillo de foco.
+h1[tabindex='-1'],
+h2[tabindex='-1'],
+h3[tabindex='-1'],
+[role='heading'][tabindex='-1'] {
+  outline: none;
+}
+
 // Si el usuario pide reducir el movimiento, las animaciones y transiciones son instantáneas.
 @media (prefers-reduced-motion: reduce) {
   html {

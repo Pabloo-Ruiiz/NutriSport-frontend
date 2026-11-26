@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
@@ -126,6 +135,8 @@ export class VerificarEmailComponent {
   private readonly auth = inject(AuthService);
   private readonly cuentas = inject(CuentaService);
   private readonly token = leerTokenDelFragmento(inject(ActivatedRoute));
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   readonly estado = signal<EstadoVerificacion>(this.token ? 'comprobando' : 'sin-token');
   readonly error = signal<ErrorVerificacion | null>(null);
@@ -147,6 +158,7 @@ export class VerificarEmailComponent {
     try {
       await firstValueFrom(this.auth.verificarEmail(this.token));
       this.estado.set('ok');
+      this.enfocarResultado();
       // Con sesión: emailVerificado (o el email nuevo) cambia en la cuenta en memoria.
       if (this.auth.autenticado()) {
         this.cuentas.obtener().subscribe({ error: () => undefined });
@@ -162,6 +174,23 @@ export class VerificarEmailComponent {
       );
       this.detalleError.set(error.detalle);
       this.estado.set('error');
+      this.enfocarResultado();
     }
+  }
+
+  /**
+   * "Comprobando el enlace…" se sustituye por el resultado sin navegar: el foco va a su título
+   * para que el lector de pantalla lo lea (DESIGN.md §10).
+   */
+  private enfocarResultado(): void {
+    afterNextRender(
+      () => {
+        const titulo = this.host.nativeElement.querySelector<HTMLElement>('h1, [role="heading"]');
+        if (!titulo) return;
+        titulo.setAttribute('tabindex', '-1');
+        titulo.focus();
+      },
+      { injector: this.injector },
+    );
   }
 }

@@ -50,8 +50,8 @@ export function errorRango(desde: string, hasta: string, maximo: string): string
           [max]="hasta()"
           [ngModel]="desde()"
           (ngModelChange)="cambiarFechas($event, hasta())"
-          [attr.aria-invalid]="error() ? true : null"
-          [attr.aria-describedby]="idError"
+          [invalido]="!!error()"
+          [descritoPor]="idError"
         />
       </ns-form-field>
       <ns-form-field label="Hasta">
@@ -62,8 +62,8 @@ export function errorRango(desde: string, hasta: string, maximo: string): string
           [max]="maximo"
           [ngModel]="hasta()"
           (ngModelChange)="cambiarFechas(desde(), $event)"
-          [attr.aria-invalid]="error() ? true : null"
-          [attr.aria-describedby]="idError"
+          [invalido]="!!error()"
+          [descritoPor]="idError"
         />
       </ns-form-field>
       <ns-form-field label="Tipo de comida">

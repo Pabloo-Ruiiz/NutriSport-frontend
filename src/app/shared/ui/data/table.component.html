@@ -25,9 +25,22 @@
   </ns-table-seleccion>
 }
 
-<div class="ns-table__marco">
+<!-- Si desborda en horizontal, el marco es una región enfocable para desplazarlo con el teclado. -->
+<div
+  #marco
+  class="ns-table__marco"
+  [class.ns-table__marco--actualizando]="actualizando()"
+  [attr.role]="desborda() ? 'region' : null"
+  [attr.aria-label]="desborda() ? (etiqueta() || 'Tabla') + ', desplazable en horizontal' : null"
+  [attr.tabindex]="desborda() ? 0 : -1"
+>
   <!-- role explícitos: en móvil las filas pasan a display:block y algunos navegadores pierden la semántica de tabla -->
-  <table class="ns-table__tabla" role="table" [attr.aria-label]="etiqueta()" [attr.aria-busy]="cargando() || null">
+  <table
+    class="ns-table__tabla"
+    role="table"
+    [attr.aria-label]="etiqueta()"
+    [attr.aria-busy]="cargando() || actualizando() || null"
+  >
     <thead class="ns-table__cabecera" role="rowgroup">
       <tr role="row">
         @if (seleccionable()) {
@@ -105,10 +118,7 @@
             role="row"
             [class.ns-table__fila--pulsable]="filasPulsables()"
             [class.ns-table__fila--marcada]="seleccionable() && estaMarcada(fila)"
-            [attr.tabindex]="filasPulsables() ? 0 : null"
             (click)="pulsar(fila, $event)"
-            (keydown.enter)="pulsar(fila, $event)"
-            (keydown.space)="pulsar(fila, $event)"
           >
             @if (seleccionable()) {
               <td class="ns-table__td ns-table__celda-seleccion" role="cell">

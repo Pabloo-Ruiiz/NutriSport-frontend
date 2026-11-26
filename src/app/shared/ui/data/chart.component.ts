@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Signal,
+  booleanAttribute,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import type { EChartsOption } from 'echarts';
 import { NgxEchartsDirective } from 'ngx-echarts';
 
@@ -82,9 +92,34 @@ export class NsChartComponent {
     const a = this.altura();
     return typeof a === 'number' ? `${a}px` : a;
   });
-  /** Las del usuario con aria de ECharts activado y el texto a 12 px como mínimo. */
+  /**
+   * Si el usuario pide reducir el movimiento (DESIGN.md §10). ECharts anima por JavaScript, así que
+   * la regla global de CSS no le afecta: hay que apagarlo en las opciones.
+   */
+  private readonly reducirMovimiento = reducirMovimiento();
+
+  /**
+   * Las del usuario con aria de ECharts activado, el texto a 12 px como mínimo y, con
+   * prefers-reduced-motion, sin animaciones.
+   */
   protected readonly opciones = computed<EChartsOption>(() => {
     const opciones = conTextoMinimo(this.options());
-    return { ...opciones, aria: { enabled: true, ...(opciones.aria as object | undefined) } };
+    return {
+      ...opciones,
+      aria: { enabled: true, ...(opciones.aria as object | undefined) },
+      ...(this.reducirMovimiento() ? { animation: false } : {}),
+    };
   });
+}
+
+/** prefers-reduced-motion: reduce como signal (sigue el ajuste del sistema si cambia). */
+function reducirMovimiento(): Signal<boolean> {
+  const consulta = typeof window !== 'undefined' ? window.matchMedia?.('(prefers-reduced-motion: reduce)') : undefined;
+  const valor = signal(consulta?.matches ?? false);
+  if (consulta) {
+    const alCambiar = (evento: MediaQueryListEvent) => valor.set(evento.matches);
+    consulta.addEventListener?.('change', alCambiar);
+    inject(DestroyRef).onDestroy(() => consulta.removeEventListener?.('change', alCambiar));
+  }
+  return valor.asReadonly();
 }

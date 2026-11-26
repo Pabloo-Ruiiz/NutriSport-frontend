@@ -12,6 +12,9 @@
   />
 </header>
 
+<!-- Siempre en el DOM: una región role="status" solo se anuncia si ya existía antes del cambio. -->
+<p class="ns-sr-only" role="status">{{ anuncio() }}</p>
+
 @switch (estado()) {
   @case ('cargando') {
     <div class="ns-dash__rejilla" aria-busy="true" aria-label="Cargando tu resumen del día">
@@ -42,7 +45,7 @@
           [titulo]="esHoy() ? 'Energía de hoy' : 'Energía del día'"
         />
 
-        <section class="ns-dash__macros" aria-label="Macronutrientes">
+        <section class="ns-dash__macros" aria-label="Macronutrientes" [attr.tabindex]="layout.esMovil() ? 0 : null">
           @for (m of macros; track m) {
             <app-tarjeta-macro [macro]="m" [resumen]="r" />
           }
@@ -69,9 +72,22 @@
           (registrar)="registrarEntrenamiento()"
         />
 
-        <app-grafico-semana class="ns-dash__grafico" [dias]="semana()" [hoy]="hoy" />
+        <!--
+          Debajo del pliegue: su código (y la petición de la serie de peso) espera a que se vean.
+          prefetch on idle descarga el chunk en cuanto el navegador está libre, así no hay espera
+          al llegar; el placeholder tiene el alto de la tarjeta para que no salte el diseño.
+        -->
+        @defer (on viewport; prefetch on idle) {
+          <app-grafico-semana class="ns-dash__grafico" [dias]="semana()" [hoy]="hoy" />
+        } @placeholder {
+          <ns-skeleton class="ns-dash__grafico" shape="rect" height="348px" />
+        }
 
-        <app-tarjeta-peso class="ns-dash__peso" (registrado)="recargar()" />
+        @defer (on viewport; prefetch on idle) {
+          <app-tarjeta-peso class="ns-dash__peso" (registrado)="recargar()" />
+        } @placeholder {
+          <ns-skeleton class="ns-dash__peso" shape="rect" height="320px" />
+        }
       </div>
     }
   }

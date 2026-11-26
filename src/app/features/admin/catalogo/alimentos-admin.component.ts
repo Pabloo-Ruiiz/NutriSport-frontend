@@ -1,6 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  Injector,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -105,6 +107,7 @@ export class AlimentosAdminComponent {
   private readonly confirmacion = inject(NsConfirmService);
   private readonly dialogos = inject(NsDialogService);
   private readonly toasts = inject(NsToastService);
+  private readonly injector = inject(Injector);
 
   // ---- Query params
   readonly q = input<string>();
@@ -195,6 +198,9 @@ export class AlimentosAdminComponent {
   /** null = crear; un alimento = editar. */
   protected readonly editando = signal<AlimentoResponse | null>(null);
   protected readonly formulario = viewChild(AlimentoFormComponent);
+  private readonly tabla = viewChild(NsTableComponent);
+  /** Tras la próxima carga, el foco va a la tabla (la fila que lo tenía ya no existe o está deshabilitada). */
+  private enfocarTablaTrasCarga = false;
   protected readonly eliminando = signal<string | null>(null);
 
   constructor() {
@@ -217,6 +223,10 @@ export class AlimentosAdminComponent {
       .subscribe((pagina) => {
         this.pagina.set(pagina);
         this.cargando.set(false);
+        if (this.enfocarTablaTrasCarga) {
+          this.enfocarTablaTrasCarga = false;
+          afterNextRender(() => this.tabla()?.enfocar(), { injector: this.injector });
+        }
       });
 
     this.escritura
@@ -325,7 +335,7 @@ export class AlimentosAdminComponent {
         if (!revisado) return;
         this.toasts.exito('Alérgenos revisados', revisado.nombre);
         // En la cola de pendientes, el revisado sale de la lista.
-        if (this.soloPendientes()) this.recargas.next();
+        if (this.soloPendientes()) this.recargarYEnfocar();
         else this.reemplazar(revisado);
       });
   }
@@ -343,12 +353,17 @@ export class AlimentosAdminComponent {
     try {
       await firstValueFrom(this.catalogo.eliminarAlimento(alimento.id));
       this.toasts.exito('Alimento eliminado o desactivado', alimento.nombre);
-      this.recargas.next();
+      this.recargarYEnfocar();
     } catch (e) {
       this.toasts.error('No se ha podido eliminar el alimento', aApiError(e).detalle);
     } finally {
       this.eliminando.set(null);
     }
+  }
+
+  private recargarYEnfocar(): void {
+    this.enfocarTablaTrasCarga = true;
+    this.recargas.next();
   }
 
   private reemplazar(alimento: AlimentoResponse): void {

@@ -205,6 +205,18 @@ describe('UsuariosAdminComponent', () => {
     expect(raiz().querySelectorAll('tbody tr').length).toBe(1);
   });
 
+  it('el nombre es un botón que abre el detalle (camino del teclado), sin abrirlo dos veces', async () => {
+    await abrir('/admin/usuarios');
+    expect(raiz().querySelector('tbody tr')!.hasAttribute('tabindex')).toBe(false);
+    const nombre = raiz().querySelector<HTMLButtonElement>('tbody tr .ns-usuarios__nombre')!;
+    expect(nombre.textContent).toContain('ver detalle');
+    nombre.click();
+    await esperar();
+    http.expectOne(`${URL_USUARIOS}/u1`).flush(usuario('u1'));
+    await esperar();
+    expect(document.querySelector('.ns-drawer')?.textContent).toContain('u1@correo.com');
+  });
+
   it('al pulsar una fila abre el detalle; bloquear confirma, hace PATCH y actualiza la fila', async () => {
     await abrir('/admin/usuarios');
     raiz().querySelector<HTMLElement>('tbody tr')!.click();

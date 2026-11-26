@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting, type TestRequest } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { Router, provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { provideLucideIcons } from '@lucide/angular';
 import { NGX_ECHARTS_CONFIG } from 'ngx-echarts';
@@ -197,14 +197,29 @@ describe('DashboardComponent', () => {
   afterAll(() => (global.ResizeObserver = original));
 
   beforeEach(() => {
+    // jsdom no tiene IntersectionObserver (@defer on viewport): todo se da por visible.
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(private readonly alCambiar: (entradas: { isIntersecting: boolean; target: Element }[]) => void) {}
+        observe(target: Element): void {
+          this.alCambiar([{ isIntersecting: true, target }]);
+        }
+        unobserve(): void {}
+        disconnect(): void {}
+      },
+    );
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideRouter([
-          { path: 'inicio', component: DashboardComponent },
-          { path: 'bienvenida', children: [] },
-        ]),
+        provideRouter(
+          [
+            { path: 'inicio', component: DashboardComponent },
+            { path: 'bienvenida', children: [] },
+          ],
+          withComponentInputBinding(),
+        ),
         provideLucideIcons(...ICONOS_APP),
         { provide: NGX_ECHARTS_CONFIG, useValue: { echarts: () => Promise.resolve({ init: () => grafico }) } },
         { provide: LayoutService, useValue: { esMovil: signal(false) } },
@@ -221,16 +236,18 @@ describe('DashboardComponent', () => {
   const resumenes = (): TestRequest[] => http.match((r) => r.url === `${API}/seguimiento/resumen`);
   const peso = () => http.match((r) => r.url === `${API}/seguimiento/peso`);
 
-  /** Navega a /inicio, responde el resumen del día y el de la semana, y la serie de peso. */
+  /**
+   * Navega a /inicio, responde el resumen del día y el de la semana, y la serie de peso. El día y la
+   * semana salen a la vez (en paralelo), primero el día, y cada fecha una sola vez.
+   */
   async function abrir(r = resumen()): Promise<{ harness: RouterTestingHarness; el: HTMLElement }> {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/inicio');
-    const [delDia] = resumenes();
+    const [delDia, ...semana] = resumenes();
     expect(delDia.request.params.get('fecha')).toBe(HOY);
+    expect(semana.map((q) => q.request.params.get('fecha')).sort()).toEqual(SEMANA.filter((d) => d !== HOY));
     delDia.flush(r);
     await harness.fixture.whenStable();
-    const semana = resumenes();
-    expect(semana.map((q) => q.request.params.get('fecha')).sort()).toEqual(SEMANA.filter((d) => d !== HOY));
     semana.forEach((q) =>
       q.flush(resumen({ entrenamientos: q.request.params.get('fecha') === SEMANA[0] ? [entrenamiento()] : [] })),
     );
@@ -290,6 +307,24 @@ describe('DashboardComponent', () => {
     else expect(reqs[0].request.params.get('fecha')).toBe(ayer);
     reqs.forEach((q) => q.flush(resumen({}, q.request.params.get('fecha')!)));
     expect(TestBed.inject(Router).url).toBe(`/inicio?fecha=${ayer}`);
+  });
+
+  it('cambiar a otro día de la semana mientras esta aún se carga reutiliza su petición (sin duplicados)', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/inicio');
+    const [delDia, ...semana] = resumenes();
+    delDia.flush(resumen());
+    await harness.fixture.whenStable();
+
+    const otro = semana[0].request.params.get('fecha')!;
+    await harness.navigateByUrl(`/inicio?fecha=${otro}`);
+    await harness.fixture.whenStable();
+    // Ni el día elegido ni el resto de la semana se vuelven a pedir: siguen las mismas peticiones.
+    expect(resumenes()).toEqual([]);
+    semana.forEach((q) => q.flush(resumen({}, q.request.params.get('fecha')!)));
+    await harness.fixture.whenStable();
+    expect(harness.routeNativeElement!.textContent).toContain('Energía del día');
+    peso().forEach((q) => q.flush({ puntos: [], variacion: null }));
   });
 
   it('un 422 PERFIL_REQUERIDO lleva a /bienvenida', async () => {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 
@@ -59,7 +59,7 @@ import { type LineaComida, MAX_CANTIDAD, gramosDe, unidadesDe } from './comida-e
         }
       </div>
       @if (error(); as mensaje) {
-        <p class="ns-linea__error" role="alert">
+        <p class="ns-linea__error" role="alert" [id]="idError">
           <svg lucideIcon="circle-exclamation-point" [size]="14" aria-hidden="true"></svg>
           {{ mensaje }}
         </p>
@@ -78,6 +78,18 @@ export class LineaAlimentoComponent {
   readonly quitar = output<void>();
 
   protected readonly idNombre = idUnico('ns-linea');
+  protected readonly idError = idUnico('ns-linea-error');
+  private readonly campoCantidad = viewChild(NsQuantityInputComponent);
+
+  constructor() {
+    // El error se enlaza con la cantidad (aria-describedby), no solo se anuncia con role="alert".
+    effect(() => {
+      const campo = this.campoCantidad();
+      if (!campo) return;
+      if (this.error()) campo.anadirDescripcion(this.idError);
+      else campo.quitarDescripcion(this.idError);
+    });
+  }
   protected readonly maxCantidad = MAX_CANTIDAD;
 
   protected readonly unidades = computed<NsOpcion<string>[]>(() =>

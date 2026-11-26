@@ -93,6 +93,28 @@ describe('NsChartComponent', () => {
     expect(el().querySelector('[echarts]')).toBeNull();
     expect(el().querySelector('[role="img"]')!.getAttribute('aria-busy')).toBe('true');
   });
+
+  it('anima por defecto y, con prefers-reduced-motion, pasa animation: false', async () => {
+    const opciones = () => grafico.setOption.mock.calls.at(-1)![0] as EChartsOption;
+    expect(opciones().animation).toBeUndefined();
+
+    // jsdom no tiene matchMedia.
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+    );
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: NGX_ECHARTS_CONFIG, useValue: { echarts: () => Promise.resolve({ init }) } }],
+    });
+    fixture = TestBed.createComponent(Anfitrion);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise((r) => setTimeout(r));
+    expect(opciones().animation).toBe(false);
+    vi.unstubAllGlobals();
+  });
 });
 
 describe('Tema y texto mínimo', () => {

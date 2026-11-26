@@ -285,6 +285,8 @@ describe('AlimentosAdminComponent', () => {
     await esperar();
     expect(raiz().querySelector('tbody tr')!.textContent).toContain('Desactivado');
     expect(boton('Eliminar', raiz())!.disabled).toBe(true);
+    // El botón quedó deshabilitado: el foco pasa a la tabla, no se pierde en el <body>.
+    expect(document.activeElement?.classList).toContain('ns-table__marco');
   });
 });
 
