@@ -1,0 +1,251 @@
+<p class="ns-sr-only" aria-live="polite" aria-atomic="true">{{ anuncio() }}</p>
+
+@if (revocado()) {
+  <ns-consentimiento-revocado />
+} @else {
+  <header class="ns-foto__cabecera">
+    <p class="ns-foto__intro">Haz una foto de tu plato y revisa la propuesta antes de guardarla.</p>
+    <ns-stepper
+      class="ns-foto__stepper"
+      [pasos]="pasos"
+      [actual]="indicePaso()"
+      etiqueta="Pasos del registro con foto"
+    />
+  </header>
+
+  @switch (paso()) {
+    @case ('foto') {
+      @if (!auth.emailVerificado()) {
+        <ns-alert class="ns-foto__aviso" type="warning" titulo="Verifica tu email para analizar fotos">
+          El análisis de fotos con IA solo está disponible con el email verificado. Mientras tanto, puedes registrar la
+          comida manualmente.
+          @if (espera.mensaje(); as mensaje) {
+            <span class="ns-foto__espera">{{ mensaje }}</span>
+          }
+          <button
+            nsAlertAcciones
+            nsButton
+            type="button"
+            variant="secondary"
+            size="sm"
+            icon="mail-check"
+            [loading]="reenviando()"
+            [disabled]="espera.activa()"
+            (click)="reenviarCorreo()"
+          >
+            Reenviar correo
+          </button>
+        </ns-alert>
+      }
+      @if (avisoLimite(); as aviso) {
+        <ns-alert class="ns-foto__aviso" type="warning" titulo="Límite diario alcanzado">{{ aviso }}</ns-alert>
+      }
+
+      <div class="ns-foto">
+        <section class="ns-foto__panel ns-foto__principal" aria-labelledby="ns-foto-titulo">
+          <div class="ns-foto__titulo-fila">
+            <h2 class="ns-text-card-title ns-foto__titulo" id="ns-foto-titulo">Foto del plato</h2>
+            @if (foto()) {
+              <button nsButton type="button" variant="ghost" size="sm" icon="refresh-cw" (click)="cambiarFoto()">
+                Cambiar foto
+              </button>
+            }
+          </div>
+
+          @if (previsualizacion(); as src) {
+            <figure class="ns-foto__previa">
+              <img class="ns-foto__imagen" [src]="src" alt="Previsualización de la foto del plato" />
+              <figcaption class="ns-foto__info">{{ infoFoto() }}</figcaption>
+            </figure>
+          } @else {
+            <ns-dropzone (archivo)="elegirFoto($event)" />
+          }
+
+          @if (errorFoto(); as error) {
+            <ns-alert type="error">{{ error }}</ns-alert>
+          }
+
+          <ns-disclaimer context="analisis" />
+        </section>
+
+        <div class="ns-foto__lateral">
+          <section class="ns-foto__panel" aria-labelledby="ns-foto-detalles">
+            <div>
+              <h2 class="ns-text-card-title ns-foto__titulo" id="ns-foto-detalles">Detalles de la comida</h2>
+              <p class="ns-foto__subtitulo">Ayudan a la IA a ser más precisa</p>
+            </div>
+
+            <ns-form-field label="Tipo de comida" obligatorio>
+              <ns-select [opciones]="tipos" [ngModel]="datosTipo()" (ngModelChange)="cambiarTipo($event)" />
+            </ns-form-field>
+            <div class="ns-foto__fila">
+              <ns-form-field label="Fecha" obligatorio>
+                <input
+                  nsInput
+                  type="date"
+                  [max]="fechaMaxima"
+                  [ngModel]="datosFecha()"
+                  (ngModelChange)="datosFecha.set($event)"
+                />
+              </ns-form-field>
+              <ns-form-field label="Hora">
+                <input nsInput type="time" [ngModel]="datosHora()" (ngModelChange)="cambiarHora($event)" />
+              </ns-form-field>
+            </div>
+            <ns-form-field
+              label="Describe tu plato (opcional, mejora la precisión)"
+              [hint]="'Indica aceite, salsas o rellenos ocultos. ' + descripcion().length + '/' + maxDescripcion"
+            >
+              <textarea
+                nsInput
+                rows="3"
+                [attr.maxlength]="maxDescripcion"
+                placeholder="Salmón a la plancha con arroz y brócoli al vapor"
+                [ngModel]="descripcion()"
+                (ngModelChange)="descripcion.set($event)"
+              ></textarea>
+            </ns-form-field>
+
+            <button
+              nsButton
+              type="button"
+              variant="ai"
+              size="lg"
+              icon="sparkles"
+              fullWidth
+              [disabled]="!puedeAnalizar()"
+              aria-describedby="ns-foto-limite"
+              (click)="analizar()"
+            >
+              Analizar foto
+            </button>
+            <p class="ns-foto__limite" id="ns-foto-limite">
+              <svg lucideIcon="sparkles" [size]="14" aria-hidden="true"></svg>
+              Puedes analizar hasta {{ limiteDiario }} fotos al día.
+            </p>
+            <a
+              class="ns-foto__manual"
+              nsButton
+              variant="ghost"
+              fullWidth
+              routerLink="/comidas/nueva"
+              [queryParams]="rutaManual()"
+              >Registrar manualmente</a
+            >
+          </section>
+
+          <section class="ns-foto__panel" aria-labelledby="ns-foto-consejos">
+            <h2 class="ns-text-card-title ns-foto__titulo" id="ns-foto-consejos">Consejos para una buena foto</h2>
+            <ul class="ns-foto__consejos">
+              @for (consejo of consejos; track consejo.titulo) {
+                <li class="ns-foto__consejo">
+                  <span class="ns-foto__consejo-icono" aria-hidden="true">
+                    <svg [lucideIcon]="consejo.icono" [size]="18"></svg>
+                  </span>
+                  <span>
+                    <span class="ns-foto__consejo-titulo">{{ consejo.titulo }}</span>
+                    <span class="ns-foto__consejo-texto">{{ consejo.texto }}</span>
+                  </span>
+                </li>
+              }
+            </ul>
+          </section>
+        </div>
+      </div>
+    }
+
+    @case ('analisis') {
+      <div class="ns-foto" aria-busy="true">
+        <section class="ns-foto__panel ns-foto__principal" aria-labelledby="ns-analisis-titulo">
+          <div>
+            <h2 class="ns-text-card-title ns-foto__titulo" id="ns-analisis-titulo">
+              Analizando tu plato
+              <ns-badge variant="ai" icon="sparkles">IA</ns-badge>
+            </h2>
+            <p class="ns-foto__subtitulo">{{ infoFoto() }}</p>
+          </div>
+          <app-progreso-analisis [src]="previsualizacion() ?? ''" [momento]="momento()" [detectados]="detectados()">
+            <a nsButton variant="secondary" size="sm" routerLink="/comidas/nueva" [queryParams]="rutaManual()"
+              >Continuar manualmente</a
+            >
+          </app-progreso-analisis>
+          <ns-disclaimer context="analisis" />
+        </section>
+
+        <div class="ns-foto__lateral">
+          <section class="ns-foto__panel" aria-labelledby="ns-analisis-detalles">
+            <h2 class="ns-text-card-title ns-foto__titulo" id="ns-analisis-detalles">Detalles de la comida</h2>
+            <dl class="ns-foto__resumen">
+              <div>
+                <dt>Tipo de comida</dt>
+                <dd>{{ etiquetaTipo() }}</dd>
+              </div>
+              <div>
+                <dt>Fecha</dt>
+                <dd>{{ datosFecha() }}</dd>
+              </div>
+              <div>
+                <dt>Hora</dt>
+                <dd>{{ datosHora() || '—' }}</dd>
+              </div>
+              <div class="ns-foto__resumen-ancho">
+                <dt>Descripción</dt>
+                <dd>{{ descripcion().trim() || 'Sin descripción' }}</dd>
+              </div>
+            </dl>
+            <div class="ns-foto__reanalizar">
+              <button
+                nsButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                icon="pencil"
+                aria-describedby="ns-foto-reanalizar-nota"
+                (click)="editarYReanalizar()"
+              >
+                Editar y reanalizar
+              </button>
+              <p class="ns-foto__nota" id="ns-foto-reanalizar-nota">
+                Este análisis se abandona y volver a analizar usará otro de los {{ limiteDiario }} de hoy.
+              </p>
+            </div>
+            <app-fases-analisis [momento]="momento()" />
+          </section>
+        </div>
+      </div>
+    }
+
+    @case ('error') {
+      @if (fallo(); as fallo) {
+        <section class="ns-foto__panel ns-foto__error" aria-labelledby="ns-error-titulo">
+          @if (previsualizacion(); as src) {
+            <img class="ns-foto__miniatura" [src]="src" alt="Foto del plato conservada" />
+          }
+          <span class="ns-foto__error-icono" aria-hidden="true">
+            <svg lucideIcon="cloud-off" [size]="24"></svg>
+          </span>
+          <h2 class="ns-text-h3 ns-foto__error-titulo" id="ns-error-titulo">{{ fallo.titulo }}</h2>
+          <p class="ns-foto__error-texto">{{ fallo.mensaje }}</p>
+          @if (fallo.tipo !== 'fallido') {
+            <ns-alert type="info">
+              Tu foto se ha conservado. Si no muestra comida o está muy oscura, verás "No hemos detectado alimentos" con
+              la opción de probar otra foto.
+            </ns-alert>
+          }
+
+          <div class="ns-foto__error-acciones">
+            <a nsButton size="lg" routerLink="/comidas/nueva" [queryParams]="rutaManual()">Continuar manualmente</a>
+            @if (fallo.tipo === 'timeout') {
+              <button nsButton type="button" variant="ai" size="lg" icon="sparkles" (click)="seguirEsperando()">
+                Seguir esperando
+              </button>
+            }
+            <button nsButton type="button" variant="secondary" size="lg" icon="refresh-cw" (click)="reintentar()">
+              Reintentar
+            </button>
+          </div>
+        </section>
+      }
+    }
+  }
+}

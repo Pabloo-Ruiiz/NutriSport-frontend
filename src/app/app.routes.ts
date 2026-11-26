@@ -135,7 +135,12 @@ export const routes: Routes = [
               import('@features/comidas/registro/registro-comida.component').then((m) => m.RegistroComidaComponent),
             canDeactivate: [cambiosSinGuardarGuard],
           },
-          { path: 'comidas/foto', title: 'Registrar con foto', ...pendiente(19) },
+          {
+            path: 'comidas/foto',
+            title: 'Registrar con foto',
+            loadComponent: () =>
+              import('@features/analisis/foto/foto-comida.component').then((m) => m.FotoComidaComponent),
+          },
           { path: 'comidas/foto/:id', title: 'Resultado del análisis', ...pendiente(20) },
           {
             path: 'comidas/:id/editar',
