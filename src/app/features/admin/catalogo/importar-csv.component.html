@@ -20,12 +20,11 @@
         />
       }
     </section>
-
   } @else {
     <form class="ns-importar" [id]="idFormulario" [formGroup]="form" (ngSubmit)="importar()" novalidate>
       <p class="ns-importar__ayuda">
-        CSV en UTF-8 con cabecera, hasta {{ maxFilas }} filas y 10 MB. Se dan de alta o se actualizan por nombre,
-        marca y preparación.
+        CSV en UTF-8 con cabecera, hasta {{ maxFilas }} filas y 10 MB. Se dan de alta o se actualizan por nombre, marca
+        y preparación.
       </p>
 
       <div class="ns-importar__fichero">
@@ -83,7 +82,6 @@
         <ns-alert type="error" titulo="No se ha podido importar el fichero">{{ mensaje }}</ns-alert>
       }
     </form>
-
   }
 
   @if (resultado()) {

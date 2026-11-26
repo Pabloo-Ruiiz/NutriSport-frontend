@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { catchError, distinctUntilChanged, firstValueFrom, of, startWith, switchMap } from 'rxjs';
@@ -33,7 +43,14 @@ export const MAX_ORDEN_CATEGORIA = 999;
  */
 @Component({
   selector: 'app-categoria-form',
-  imports: [ReactiveFormsModule, NsAlertComponent, NsFormFieldComponent, NsInputDirective, NsSegmentedComponent, NsSelectComponent],
+  imports: [
+    ReactiveFormsModule,
+    NsAlertComponent,
+    NsFormFieldComponent,
+    NsInputDirective,
+    NsSegmentedComponent,
+    NsSelectComponent,
+  ],
   template: `
     <form class="ns-cf" [id]="idFormulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
       @if (error(); as mensaje) {
@@ -42,14 +59,21 @@ export const MAX_ORDEN_CATEGORIA = 999;
       <ns-form-field label="Nombre" obligatorio>
         <input nsInput type="text" formControlName="nombre" [maxlength]="maxNombre" autocomplete="off" />
       </ns-form-field>
-      <ns-form-field label="Tipo" obligatorio [hint]="categoria() ? 'Solo se puede cambiar si no tiene alimentos, recetas ni subcategorías.' : undefined">
+      <ns-form-field
+        label="Tipo"
+        obligatorio
+        [hint]="categoria() ? 'Solo se puede cambiar si no tiene alimentos, recetas ni subcategorías.' : undefined"
+      >
         <ns-segmented formControlName="tipo" [opciones]="tipos" />
       </ns-form-field>
       <ns-form-field label="Categoría padre" hint="Del mismo tipo. Sin padre, es una categoría principal.">
         <ns-select formControlName="padreId" [opciones]="padres()" />
       </ns-form-field>
       @if (esAlimento()) {
-        <ns-form-field label="Sección de la compra" hint="Opcional: agrupa la lista de la compra (p. ej. «Fruta y verdura»).">
+        <ns-form-field
+          label="Sección de la compra"
+          hint="Opcional: agrupa la lista de la compra (p. ej. «Fruta y verdura»)."
+        >
           <input nsInput type="text" formControlName="seccionCompra" [maxlength]="maxSeccion" autocomplete="off" />
         </ns-form-field>
       }

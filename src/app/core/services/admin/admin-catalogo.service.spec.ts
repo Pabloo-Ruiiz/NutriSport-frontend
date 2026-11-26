@@ -37,7 +37,15 @@ afterEach(() => http.verify());
 describe('AdminCatalogoService', () => {
   it('alimentos envía solo los filtros indicados (también los booleanos false) y limita size a 100', () => {
     servicio
-      .alimentos({ q: ' leche ', fuente: 'BEDCA', revisados: false, visibilidad: null, activo: true, page: 1, size: 300 })
+      .alimentos({
+        q: ' leche ',
+        fuente: 'BEDCA',
+        revisados: false,
+        visibilidad: null,
+        activo: true,
+        page: 1,
+        size: 300,
+      })
       .subscribe();
     const req = http.expectOne((r) => r.url === `${URL}/alimentos`);
     const p = req.request.params;
@@ -76,11 +84,19 @@ describe('AdminCatalogoService', () => {
     expect(http.expectOne(`${URL}/alimentos/a1`).request.method).toBe('DELETE');
 
     servicio
-      .revisarAlergenos('a1', { alergenosContiene: ['LACTEOS'], alergenosTrazas: ['LACTEOS', 'SOJA'], contieneLactosa: true })
+      .revisarAlergenos('a1', {
+        alergenosContiene: ['LACTEOS'],
+        alergenosTrazas: ['LACTEOS', 'SOJA'],
+        contieneLactosa: true,
+      })
       .subscribe();
     const revision = http.expectOne(`${URL}/alimentos/a1/alergenos`);
     expect(revision.request.method).toBe('PUT');
-    expect(revision.request.body).toEqual({ alergenosContiene: ['LACTEOS'], alergenosTrazas: ['SOJA'], contieneLactosa: true });
+    expect(revision.request.body).toEqual({
+      alergenosContiene: ['LACTEOS'],
+      alergenosTrazas: ['SOJA'],
+      contieneLactosa: true,
+    });
   });
 
   it('importar manda multipart con el campo "archivo" y la fuente en la query', () => {

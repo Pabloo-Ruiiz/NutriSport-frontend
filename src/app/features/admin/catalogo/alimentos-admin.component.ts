@@ -1,9 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, linkedSignal, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { Subject, catchError, combineLatest, debounceTime, firstValueFrom, map, of, startWith, switchMap, tap } from 'rxjs';
+import {
+  Subject,
+  catchError,
+  combineLatest,
+  debounceTime,
+  firstValueFrom,
+  map,
+  of,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 import type { AlimentoResponse, FuenteAlimento, Pagina, ResultadoImportacion, Visibilidad } from '@core/models';
 import { ETIQUETAS_FUENTE_ALIMENTO } from '@core/models/etiquetas';
@@ -212,7 +233,12 @@ export class AlimentosAdminComponent {
     effect(() => {
       const f = this.filtro();
       this.filtros.setValue(
-        { fuente: f.fuente ?? null, revisados: f.revisados ?? null, visibilidad: f.visibilidad ?? null, activo: f.activo ?? null },
+        {
+          fuente: f.fuente ?? null,
+          revisados: f.revisados ?? null,
+          visibilidad: f.visibilidad ?? null,
+          activo: f.activo ?? null,
+        },
         { emitEvent: false },
       );
     });
@@ -287,11 +313,14 @@ export class AlimentosAdminComponent {
 
   protected revisar(alimento: AlimentoResponse): void {
     this.dialogos
-      .open<RevisionAlergenosDialogComponent, AlimentoResponse, RevisionAlergenosData>(RevisionAlergenosDialogComponent, {
-        titulo: 'Revisar alérgenos',
-        size: 'md',
-        data: { alimento },
-      })
+      .open<RevisionAlergenosDialogComponent, AlimentoResponse, RevisionAlergenosData>(
+        RevisionAlergenosDialogComponent,
+        {
+          titulo: 'Revisar alérgenos',
+          size: 'md',
+          data: { alimento },
+        },
+      )
       .closed.subscribe((revisado) => {
         if (!revisado) return;
         this.toasts.exito('Alérgenos revisados', revisado.nombre);

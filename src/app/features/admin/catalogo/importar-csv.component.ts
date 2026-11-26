@@ -5,7 +5,11 @@ import { firstValueFrom } from 'rxjs';
 
 import type { FuenteAlimento, ResultadoImportacion } from '@core/models';
 import { ETIQUETAS_FUENTE_ALIMENTO } from '@core/models/etiquetas';
-import { AdminCatalogoService, FUENTES_CATALOGO, MAX_FILAS_IMPORTACION } from '@core/services/admin/admin-catalogo.service';
+import {
+  AdminCatalogoService,
+  FUENTES_CATALOGO,
+  MAX_FILAS_IMPORTACION,
+} from '@core/services/admin/admin-catalogo.service';
 import { aApiError } from '@core/util/api-error';
 import { formatearNumero } from '@shared/pipes/formato';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
@@ -80,7 +84,9 @@ export class ImportarCsvComponent {
   protected readonly leyendo = signal(false);
   protected readonly tamano = computed(() => {
     const bytes = this.archivo()?.size ?? 0;
-    return bytes < 1024 * 1024 ? `${formatearNumero(bytes / 1024, 0)} kB` : `${formatearNumero(bytes / 1024 / 1024, 1)} MB`;
+    return bytes < 1024 * 1024
+      ? `${formatearNumero(bytes / 1024, 0)} kB`
+      : `${formatearNumero(bytes / 1024 / 1024, 1)} MB`;
   });
   protected readonly columnasVista = computed<NsColumna[]>(() =>
     (this.vistaPrevia()?.cabecera ?? []).map((titulo, i) => ({ clave: `c${i}`, titulo: titulo || `Columna ${i + 1}` })),

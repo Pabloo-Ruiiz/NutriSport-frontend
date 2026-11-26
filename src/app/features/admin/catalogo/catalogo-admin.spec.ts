@@ -125,7 +125,10 @@ const boton = (texto: string, en: ParentNode = document.body) =>
   [...en.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.trim().startsWith(texto));
 const listado = (): TestRequest => http.expectOne((r) => r.url === URL_ALIMENTOS && r.method === 'GET');
 
-async function abrir(ruta: string, filas = [alimento('a1'), alimento('a2', { alergenosRevisados: true, visibilidad: 'PRIVADO' })]) {
+async function abrir(
+  ruta: string,
+  filas = [alimento('a1'), alimento('a2', { alergenosRevisados: true, visibilidad: 'PRIVADO' })],
+) {
   await harness.navigateByUrl(ruta);
   const req = listado();
   req.flush(pagina(filas));
@@ -159,16 +162,18 @@ describe('CatalogoAdminComponent', () => {
 
 describe('AlimentosAdminComponent', () => {
   it('pide la página con los filtros de la URL y pinta la tabla', async () => {
-    const req = await abrir('/admin/catalogo/alimentos?q=avena&fuente=BEDCA&revisados=false&visibilidad=PRIVADO&activo=true&page=1');
+    const req = await abrir(
+      '/admin/catalogo/alimentos?q=avena&fuente=BEDCA&revisados=false&visibilidad=PRIVADO&activo=true&page=1',
+    );
     const p = req.request.params;
-    expect([p.get('q'), p.get('fuente'), p.get('revisados'), p.get('visibilidad'), p.get('activo'), p.get('page')]).toEqual([
-      'avena',
-      'BEDCA',
-      'false',
-      'PRIVADO',
-      'true',
-      '1',
-    ]);
+    expect([
+      p.get('q'),
+      p.get('fuente'),
+      p.get('revisados'),
+      p.get('visibilidad'),
+      p.get('activo'),
+      p.get('page'),
+    ]).toEqual(['avena', 'BEDCA', 'false', 'PRIVADO', 'true', '1']);
     const filas = raiz().querySelectorAll('tbody tr');
     expect(filas.length).toBe(2);
     expect(filas[0].textContent).toContain('Cereales');
@@ -204,8 +209,16 @@ describe('AlimentosAdminComponent', () => {
     expect(drawer().querySelector('legend')?.textContent).toBe('Origen');
 
     // Rellena el formulario (el drawer vive en el overlay, fuera del fixture) y crea con la fuente elegida.
-    const formulario = getDebugNode(document.querySelector('app-alimento-form')!)!.componentInstance as AlimentoFormComponent;
-    formulario['form'].patchValue({ nombre: 'Avena', categoriaId: 'c1', kcal100: 370, proteinas100: 13, carbohidratos100: 60, grasas100: 7 });
+    const formulario = getDebugNode(document.querySelector('app-alimento-form')!)!
+      .componentInstance as AlimentoFormComponent;
+    formulario['form'].patchValue({
+      nombre: 'Avena',
+      categoriaId: 'c1',
+      kcal100: 370,
+      proteinas100: 13,
+      carbohidratos100: 60,
+      grasas100: 7,
+    });
     formulario['origen'].patchValue({ fuente: 'USDA', referenciaExterna: '171287' });
     boton('Crear alimento', drawer())!.click();
     await esperar();
@@ -243,7 +256,11 @@ describe('AlimentosAdminComponent', () => {
     boton('Marcar como revisado', dialogo)!.click();
     await esperar();
     const put = http.expectOne(`${URL_ALIMENTOS}/a1/alergenos`);
-    expect(put.request.body).toEqual({ alergenosContiene: ['GLUTEN'], alergenosTrazas: ['SOJA'], contieneLactosa: true });
+    expect(put.request.body).toEqual({
+      alergenosContiene: ['GLUTEN'],
+      alergenosTrazas: ['SOJA'],
+      contieneLactosa: true,
+    });
     put.flush(alimento('a1', { alergenosRevisados: true, alergenosTrazas: ['SOJA'], contieneLactosa: true }));
     await esperar();
     expect(document.querySelector('app-revision-alergenos-dialog')).toBeNull();
@@ -255,7 +272,9 @@ describe('AlimentosAdminComponent', () => {
     confirmar.mockResolvedValue(false);
     boton('Eliminar', raiz())!.click();
     await esperar();
-    expect(confirmar).toHaveBeenCalledWith(expect.objectContaining({ peligro: true, mensaje: expect.stringContaining('se desactiva') }));
+    expect(confirmar).toHaveBeenCalledWith(
+      expect.objectContaining({ peligro: true, mensaje: expect.stringContaining('se desactiva') }),
+    );
 
     confirmar.mockResolvedValue(true);
     boton('Eliminar', raiz())!.click();
@@ -325,7 +344,10 @@ describe('ImportarCsvComponent', () => {
     await esperar();
     http
       .expectOne((r) => r.url === `${URL_ALIMENTOS}/importar`)
-      .flush({ codigo: 'VALIDACION', status: 400, detail: 'Falta la columna kcal100.' }, { status: 400, statusText: 'Bad' });
+      .flush(
+        { codigo: 'VALIDACION', status: 400, detail: 'Falta la columna kcal100.' },
+        { status: 400, statusText: 'Bad' },
+      );
     await esperar();
     expect(dialogo.querySelector('ns-alert')?.textContent).toContain('Falta la columna kcal100.');
     expect(boton('Importar', dialogo)).toBeTruthy();

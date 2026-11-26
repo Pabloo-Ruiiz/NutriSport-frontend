@@ -15,7 +15,14 @@
 
 <div class="ns-alim__filtros" role="search" [formGroup]="filtros">
   <ns-form-field class="ns-alim__buscar" label="Buscar por nombre o marca">
-    <input nsInput type="search" autocomplete="off" placeholder="Avena, Hacendado…" [value]="texto()" (input)="alEscribir($event)" />
+    <input
+      nsInput
+      type="search"
+      autocomplete="off"
+      placeholder="Avena, Hacendado…"
+      [value]="texto()"
+      (input)="alEscribir($event)"
+    />
   </ns-form-field>
   <ns-form-field label="Fuente">
     <ns-select formControlName="fuente" [opciones]="opcionesFuente" />
@@ -34,7 +41,9 @@
 @if (error(); as mensaje) {
   <ns-alert type="error" titulo="No hemos podido cargar el catálogo">
     {{ mensaje }}
-    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">Reintentar</button>
+    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+      Reintentar
+    </button>
   </ns-alert>
 } @else {
   <ns-table
@@ -46,7 +55,11 @@
     [cargando]="cargando()"
     [filasCarga]="filtro().size > 10 ? 10 : filtro().size"
     [textoVacio]="
-      soloPendientes() && !filtro().q ? 'No hay alimentos pendientes de revisar' : hayFiltros() ? 'Ningún alimento coincide con los filtros' : 'El catálogo está vacío'
+      soloPendientes() && !filtro().q
+        ? 'No hay alimentos pendientes de revisar'
+        : hayFiltros()
+          ? 'Ningún alimento coincide con los filtros'
+          : 'El catálogo está vacío'
     "
     [descripcionVacio]="hayFiltros() && !soloPendientes() ? 'Prueba con otro texto o quita algún filtro.' : undefined"
   >
@@ -57,7 +70,10 @@
       <ns-source-badge [fuente]="a.fuente" />
     </ng-template>
     <ng-template nsCelda="visibilidad" [nsCeldaDe]="filas()" let-a>
-      <ns-badge [variant]="a.visibilidad === 'PRIVADO' ? 'warning' : 'neutral'" [icon]="a.visibilidad === 'PRIVADO' ? 'lock' : undefined">
+      <ns-badge
+        [variant]="a.visibilidad === 'PRIVADO' ? 'warning' : 'neutral'"
+        [icon]="a.visibilidad === 'PRIVADO' ? 'lock' : undefined"
+      >
         {{ a.visibilidad | etiqueta: 'visibilidad' }}
       </ns-badge>
     </ng-template>
@@ -98,7 +114,9 @@
     </ng-template>
 
     @if (hayFiltros()) {
-      <button nsTablaVacia nsButton type="button" variant="secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+      <button nsTablaVacia nsButton type="button" variant="secondary" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
     }
   </ns-table>
 
@@ -129,7 +147,9 @@
   @if (drawerAbierto()) {
     <app-alimento-form modo="admin" [alimento]="editando()" (guardado)="alGuardar($event)" />
   }
-  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">Cancelar</button>
+  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">
+    Cancelar
+  </button>
   <button
     nsDrawerAcciones
     nsButton

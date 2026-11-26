@@ -42,7 +42,9 @@ describe('arbolCategorias y conDescendientes', () => {
     expect(arbol[0].hijos[0].categoria.id).toBe('Cítricos');
     expect(arbol[0].hijos[0].hijos[0]).toMatchObject({ nivel: 2, categoria: { id: 'Naranjas' } });
     // Un padre que no existe → raíz; un ciclo no cuelga.
-    expect(arbolCategorias([cat('a', { padreId: 'x' }), cat('b', { padreId: 'c' }), cat('c', { padreId: 'b' })]).length).toBe(1);
+    expect(
+      arbolCategorias([cat('a', { padreId: 'x' }), cat('b', { padreId: 'c' }), cat('c', { padreId: 'b' })]).length,
+    ).toBe(1);
   });
 
   it('conDescendientes incluye la propia y todas sus hijas', () => {
@@ -72,7 +74,9 @@ describe('CategoriasAdminComponent', () => {
   const boton = (texto: string, en: ParentNode = document.body) =>
     [...en.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.trim().startsWith(texto));
   const fila = (nombre: string) =>
-    [...raiz().querySelectorAll<HTMLElement>('.ns-cat__fila')].find((f) => f.querySelector('.ns-cat__nombre')?.textContent === nombre)!;
+    [...raiz().querySelectorAll<HTMLElement>('.ns-cat__fila')].find(
+      (f) => f.querySelector('.ns-cat__nombre')?.textContent === nombre,
+    )!;
   const listar = (tipo: 'ALIMENTO' | 'RECETA', lista: CategoriaResponse[]) =>
     http.expectOne(`/api/v1/categorias?tipo=${tipo}`).flush(lista);
 
@@ -81,7 +85,10 @@ describe('CategoriasAdminComponent', () => {
       providers: [
         provideHttpClient(withInterceptors([errorInterceptor])),
         provideHttpClientTesting(),
-        provideRouter([{ path: 'admin/catalogo/categorias', component: CategoriasAdminComponent }], withComponentInputBinding()),
+        provideRouter(
+          [{ path: 'admin/catalogo/categorias', component: CategoriasAdminComponent }],
+          withComponentInputBinding(),
+        ),
         provideLucideIcons(...ICONOS_APP),
         { provide: LayoutService, useValue: { esMovil: signal(false) } },
         { provide: InteractivityChecker, useClass: InteractivityCheckerJsdom },
@@ -124,12 +131,19 @@ describe('CategoriasAdminComponent', () => {
     const select = drawer.querySelector<HTMLSelectElement>('ns-select select')!;
     expect(select.selectedOptions[0].textContent?.trim()).toBe('Frutas › Cítricos');
 
-    const formulario = getDebugNode(drawer.querySelector('app-categoria-form')!)!.componentInstance as CategoriaFormComponent;
+    const formulario = getDebugNode(drawer.querySelector('app-categoria-form')!)!
+      .componentInstance as CategoriaFormComponent;
     formulario['form'].patchValue({ nombre: 'Limones', seccionCompra: ' Fruta ', orden: 3 });
     boton('Crear categoría', drawer)!.click();
     await esperar();
     const crear = http.expectOne('/api/v1/admin/categorias');
-    expect(crear.request.body).toEqual({ nombre: 'Limones', tipo: 'ALIMENTO', orden: 3, padreId: 'Cítricos', seccionCompra: 'Fruta' });
+    expect(crear.request.body).toEqual({
+      nombre: 'Limones',
+      tipo: 'ALIMENTO',
+      orden: 3,
+      padreId: 'Cítricos',
+      seccionCompra: 'Fruta',
+    });
     crear.flush(cat('Limones', { padreId: 'Cítricos', orden: 3 }));
     await esperar();
     // La caché se invalidó: vuelve a pedir la lista.
@@ -142,10 +156,13 @@ describe('CategoriasAdminComponent', () => {
     boton('Editar', fila('Frutas'))!.click();
     await esperar();
     const drawer = document.querySelector('.ns-drawer') as HTMLElement;
-    const opciones = [...drawer.querySelectorAll<HTMLOptionElement>('ns-select option')].map((o) => o.textContent?.trim());
+    const opciones = [...drawer.querySelectorAll<HTMLOptionElement>('ns-select option')].map((o) =>
+      o.textContent?.trim(),
+    );
     expect(opciones).toEqual(['Ninguna (categoría principal)', 'Lácteos']);
 
-    const formulario = getDebugNode(drawer.querySelector('app-categoria-form')!)!.componentInstance as CategoriaFormComponent;
+    const formulario = getDebugNode(drawer.querySelector('app-categoria-form')!)!
+      .componentInstance as CategoriaFormComponent;
     formulario['form'].patchValue({ orden: 1000 });
     boton('Guardar cambios', drawer)!.click();
     await esperar();
@@ -160,7 +177,9 @@ describe('CategoriasAdminComponent', () => {
       { status: 409, statusText: 'Conflict' },
     );
     await esperar();
-    expect(drawer.querySelector('ns-alert')?.textContent).toContain('Ya existe una categoría de alimentos con ese nombre.');
+    expect(drawer.querySelector('ns-alert')?.textContent).toContain(
+      'Ya existe una categoría de alimentos con ese nombre.',
+    );
   });
 
   it('eliminar pide confirmación y un 409 se muestra en un aviso', async () => {
@@ -170,7 +189,10 @@ describe('CategoriasAdminComponent', () => {
     expect(confirmar).toHaveBeenCalledWith(expect.objectContaining({ peligro: true }));
     http
       .expectOne(`/api/v1/admin/categorias/${encodeURIComponent('Lácteos')}`)
-      .flush({ codigo: 'CONFLICTO', status: 409, detail: 'Tiene 12 alimentos.' }, { status: 409, statusText: 'Conflict' });
+      .flush(
+        { codigo: 'CONFLICTO', status: 409, detail: 'Tiene 12 alimentos.' },
+        { status: 409, statusText: 'Conflict' },
+      );
     await esperar();
     const aviso = raiz().querySelector('ns-alert')!;
     expect(aviso.textContent).toContain('No se puede eliminar «Lácteos»: Tiene 12 alimentos.');

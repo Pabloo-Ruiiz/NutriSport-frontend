@@ -12,7 +12,13 @@
           <ns-select formControlName="fuente" [opciones]="fuentes" />
         </ns-form-field>
         <ns-form-field label="Referencia externa" hint="Opcional: código BEDCA, FDC ID de USDA, código de barras…">
-          <input nsInput type="text" formControlName="referenciaExterna" [maxlength]="maxReferencia" autocomplete="off" />
+          <input
+            nsInput
+            type="text"
+            formControlName="referenciaExterna"
+            [maxlength]="maxReferencia"
+            autocomplete="off"
+          />
         </ns-form-field>
       </div>
     </fieldset>

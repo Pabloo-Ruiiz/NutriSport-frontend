@@ -80,7 +80,11 @@ export class AdminCatalogoService {
    * POST /admin/alimentos?fuente=…&referenciaExterna=… (201): alimento público, validado y con los
    * alérgenos sin revisar.
    */
-  crearAlimento(req: AlimentoRequest, fuente: FuenteAlimento, referenciaExterna?: string | null): Observable<AlimentoResponse> {
+  crearAlimento(
+    req: AlimentoRequest,
+    fuente: FuenteAlimento,
+    referenciaExterna?: string | null,
+  ): Observable<AlimentoResponse> {
     let params = new HttpParams().set('fuente', fuente);
     const referencia = referenciaExterna?.trim();
     if (referencia) params = params.set('referenciaExterna', referencia);
@@ -139,10 +143,12 @@ export class AdminCatalogoService {
 
   /** PUT /admin/categorias/{id}. 409 si el nombre ya existe o si se cambia el tipo de una con elementos. */
   editarCategoria(id: string, req: CategoriaRequest): Observable<CategoriaResponse> {
-    return this.http
-      .put<CategoriaResponse>(`${this.url}/categorias/${encodeURIComponent(id)}`, cuerpoCategoria(req))
-      // Puede haber cambiado de tipo: se invalidan los dos.
-      .pipe(tap(() => this.categoriasService.invalidar()));
+    return (
+      this.http
+        .put<CategoriaResponse>(`${this.url}/categorias/${encodeURIComponent(id)}`, cuerpoCategoria(req))
+        // Puede haber cambiado de tipo: se invalidan los dos.
+        .pipe(tap(() => this.categoriasService.invalidar()))
+    );
   }
 
   /** DELETE /admin/categorias/{id} (204). 409 si tiene alimentos o subcategorías. */

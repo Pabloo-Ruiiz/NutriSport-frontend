@@ -12,7 +12,9 @@
 @if (error(); as mensaje) {
   <ns-alert type="error" titulo="No hemos podido cargar las categorías">
     {{ mensaje }}
-    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">Reintentar</button>
+    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+      Reintentar
+    </button>
   </ns-alert>
 } @else if (cargando()) {
   <div class="ns-cat__carga" aria-busy="true" aria-label="Cargando categorías">
@@ -47,7 +49,9 @@
             <ns-badge variant="info" icon="shopping-basket">{{ nodo.categoria.seccionCompra }}</ns-badge>
           }
           @if (nodo.hijos.length) {
-            <span class="ns-cat__hijos">{{ nodo.hijos.length === 1 ? '1 subcategoría' : nodo.hijos.length + ' subcategorías' }}</span>
+            <span class="ns-cat__hijos">{{
+              nodo.hijos.length === 1 ? '1 subcategoría' : nodo.hijos.length + ' subcategorías'
+            }}</span>
           }
         </span>
       </div>
@@ -90,7 +94,9 @@
       (guardado)="alGuardar($event)"
     />
   }
-  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">Cancelar</button>
+  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">
+    Cancelar
+  </button>
   <button
     nsDrawerAcciones
     nsButton

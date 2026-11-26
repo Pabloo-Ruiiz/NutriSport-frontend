@@ -76,10 +76,24 @@ const ALERGENOS = Object.keys(ETIQUETAS_ALERGENO) as Alergeno[];
         }
       </form>
 
-      <button nsDialogAcciones nsButton type="button" variant="secondary" [disabled]="guardando()" (click)="ref.close()">
+      <button
+        nsDialogAcciones
+        nsButton
+        type="button"
+        variant="secondary"
+        [disabled]="guardando()"
+        (click)="ref.close()"
+      >
         Cancelar
       </button>
-      <button nsDialogAcciones nsButton type="submit" form="ns-revision-alergenos" icon="shield-check" [loading]="guardando()">
+      <button
+        nsDialogAcciones
+        nsButton
+        type="submit"
+        form="ns-revision-alergenos"
+        icon="shield-check"
+        [loading]="guardando()"
+      >
         Marcar como revisado
       </button>
     </ns-dialog-shell>
