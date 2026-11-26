@@ -1,0 +1,145 @@
+// Registro de comidas (DESIGN.md §7.6, 5 + 7 columnas). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+}
+
+.ns-registro__cargando,
+.ns-registro {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: start;
+  gap: var(--ns-space-6);
+
+  @include bp.down(lg) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ns-registro--movil {
+  // Hueco para el resumen fijo inferior.
+  padding-bottom: 96px;
+}
+
+.ns-registro__buscar,
+.ns-registro__comida {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+  padding: var(--ns-space-6);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+
+  @include bp.down(md) {
+    padding: var(--ns-space-4);
+  }
+}
+
+.ns-registro__comida {
+  position: sticky;
+  top: calc(var(--ns-topbar-height) + var(--ns-space-6));
+
+  @include bp.down(lg) {
+    position: static;
+  }
+}
+
+.ns-registro__titulo {
+  margin: 0;
+}
+
+.ns-registro__datos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ns-space-3);
+
+  > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.ns-registro__error-fecha {
+  margin: calc(-1 * var(--ns-space-2)) 0 0;
+  color: var(--ns-error);
+  font: 500 0.75rem/1rem var(--ns-font-body);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.ns-registro__accesos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-2);
+}
+
+.ns-registro__avisos {
+  margin-bottom: var(--ns-space-6);
+}
+
+.ns-registro__lista-avisos {
+  margin: var(--ns-space-1) 0 0;
+  padding-left: var(--ns-space-5);
+}
+
+// Móvil: resumen fijo sobre la barra inferior del shell (64 px + safe-area).
+.ns-registro__resumen {
+  position: fixed;
+  right: 0;
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  left: 0;
+  z-index: var(--ns-z-sticky);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-2);
+  padding: var(--ns-space-2) var(--ns-space-4);
+  border-top: 1px solid var(--ns-border);
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-md);
+}
+
+.ns-registro__resumen-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--ns-error);
+  font-size: 0.8125rem;
+}
+
+.ns-registro__ver {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--ns-space-1) var(--ns-space-2);
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--ns-text-secondary);
+    font-weight: 400;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-registro__ver-accion {
+  color: var(--ns-text-link);
+  font-size: 0.8125rem;
+  text-decoration: underline;
+}

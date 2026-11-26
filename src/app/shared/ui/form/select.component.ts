@@ -27,6 +27,7 @@ import { NsComparador, NsControlValor, NsOpcion } from './control-valor';
       [disabled]="deshabilitado()"
       [attr.aria-invalid]="conError() || null"
       [attr.aria-describedby]="describedBy()"
+      [attr.aria-label]="idEtiqueta() ? null : etiqueta() || null"
       (change)="alCambiar($event)"
       (blur)="tocar()"
     >
@@ -50,6 +51,8 @@ export class NsSelectComponent<T = unknown> extends NsControlValor<T> implements
   readonly opciones = input<readonly NsOpcion<T>[]>([]);
   /** Texto de la opción vacía. Elegirla deja el valor a null. */
   readonly placeholder = input<string>();
+  /** Nombre accesible si no está dentro de ns-form-field. */
+  readonly etiqueta = input<string>();
   readonly compararCon = input<NsComparador<T>>(Object.is);
   /** Id del <select>; si no se indica, se genera uno. */
   readonly id = input<string>();

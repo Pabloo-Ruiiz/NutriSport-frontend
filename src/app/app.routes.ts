@@ -117,10 +117,22 @@ export const routes: Routes = [
         children: [
           { path: 'inicio', title: 'Inicio', ...pendiente(18) },
           { path: 'comidas', title: 'Comidas', ...pendiente(16) },
-          { path: 'comidas/nueva', title: 'Registrar comida', ...pendiente(15) },
+          {
+            path: 'comidas/nueva',
+            title: 'Registrar comida',
+            loadComponent: () =>
+              import('@features/comidas/registro/registro-comida.component').then((m) => m.RegistroComidaComponent),
+            canDeactivate: [cambiosSinGuardarGuard],
+          },
           { path: 'comidas/foto', title: 'Registrar con foto', ...pendiente(19) },
           { path: 'comidas/foto/:id', title: 'Resultado del análisis', ...pendiente(20) },
-          { path: 'comidas/:id/editar', title: 'Editar comida', ...pendiente(15) },
+          {
+            path: 'comidas/:id/editar',
+            title: 'Editar comida',
+            loadComponent: () =>
+              import('@features/comidas/registro/registro-comida.component').then((m) => m.RegistroComidaComponent),
+            canDeactivate: [cambiosSinGuardarGuard],
+          },
           {
             path: 'mis-alimentos',
             title: 'Mis alimentos',
