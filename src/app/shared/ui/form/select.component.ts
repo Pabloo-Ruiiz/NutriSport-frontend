@@ -14,6 +14,7 @@ import { NsComparador, NsControlValor, NsOpcion } from './control-valor';
  *   </ns-form-field>
  *
  * Los valores pueden ser de cualquier tipo (no solo texto): cada <option> guarda su índice.
+ * Las opciones seguidas con el mismo `grupo` van en un <optgroup> con ese nombre.
  */
 @Component({
   selector: 'ns-select',
@@ -34,10 +35,22 @@ import { NsComparador, NsControlValor, NsOpcion } from './control-valor';
       @if (placeholder() || indice() === -1) {
         <option value="" [selected]="indice() === -1">{{ placeholder() }}</option>
       }
-      @for (opcion of opciones(); track $index) {
-        <option [value]="$index" [disabled]="opcion.deshabilitada" [selected]="$index === indice()">
-          {{ opcion.etiqueta }}
-        </option>
+      @for (seccion of secciones(); track $index) {
+        @if (seccion.grupo) {
+          <optgroup [label]="seccion.grupo">
+            @for (o of seccion.opciones; track o.indice) {
+              <option [value]="o.indice" [disabled]="o.opcion.deshabilitada" [selected]="o.indice === indice()">
+                {{ o.opcion.etiqueta }}
+              </option>
+            }
+          </optgroup>
+        } @else {
+          @for (o of seccion.opciones; track o.indice) {
+            <option [value]="o.indice" [disabled]="o.opcion.deshabilitada" [selected]="o.indice === indice()">
+              {{ o.opcion.etiqueta }}
+            </option>
+          }
+        }
       }
     </select>
     <svg class="ns-select__chevron" lucideIcon="chevron-down" [size]="18" aria-hidden="true"></svg>
@@ -61,9 +74,21 @@ export class NsSelectComponent<T = unknown> extends NsControlValor<T> implements
   private readonly idGenerado = idUnico('ns-select');
   readonly idControl = computed(() => this.id() || this.idGenerado);
 
+  /** Tramos de opciones seguidas del mismo grupo (o sin grupo), con su índice original. */
+  protected readonly secciones = computed(() => {
+    const secciones: { grupo: string | undefined; opciones: { opcion: NsOpcion<T>; indice: number }[] }[] = [];
+    this.opciones().forEach((opcion, indice) => {
+      const ultima = secciones.at(-1);
+      if (ultima && ultima.grupo === opcion.grupo) ultima.opciones.push({ opcion, indice });
+      else secciones.push({ grupo: opcion.grupo, opciones: [{ opcion, indice }] });
+    });
+    return secciones;
+  });
+
+  /** Opción elegida; con valor null, la opción de valor null si la hay ("Todos"), o ninguna. */
   protected readonly indice = computed(() => {
     const valor = this.valor();
-    if (valor === null) return -1;
+    if (valor === null) return this.opciones().findIndex((opcion) => opcion.valor === null);
     const comparar = this.compararCon();
     return this.opciones().findIndex((opcion) => comparar(opcion.valor, valor));
   });

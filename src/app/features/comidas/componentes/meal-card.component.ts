@@ -90,6 +90,8 @@ import { badgeOrigen, etiquetaTipo, horaCorta, iconoTipo, resumirAlimentos } fro
     </ng-template>
   `,
   styles: `
+    @use 'components/menu';
+
     :host {
       display: block;
     }
@@ -198,54 +200,7 @@ import { badgeOrigen, etiquetaTipo, horaCorta, iconoTipo, resumirAlimentos } fro
       }
     }
 
-    // Menú contextual (CDK Menu, en el overlay; mismo estilo que el del usuario en la topbar).
-    .ns-menu {
-      display: flex;
-      flex-direction: column;
-      min-width: 200px;
-      margin-top: var(--ns-space-1);
-      padding: var(--ns-space-1);
-      border: 1px solid var(--ns-border);
-      border-radius: var(--ns-radius-lg);
-      background: var(--ns-surface);
-      box-shadow: var(--ns-shadow-lg);
-    }
-    .ns-menu__item {
-      display: flex;
-      align-items: center;
-      gap: var(--ns-space-3);
-      min-height: 40px;
-      padding: 0 var(--ns-space-3);
-      border: 0;
-      border-radius: var(--ns-radius-md);
-      background: transparent;
-      color: var(--ns-text);
-      font: inherit;
-      text-align: left;
-      cursor: pointer;
-      svg {
-        color: var(--ns-text-secondary);
-      }
-      &:hover,
-      &:focus {
-        background: var(--ns-surface-muted);
-        outline: none;
-      }
-      &:focus-visible {
-        outline: 2px solid var(--ns-focus-ring);
-        outline-offset: -2px;
-      }
-    }
-    .ns-menu__item--peligro,
-    .ns-menu__item--peligro svg {
-      color: var(--ns-error);
-    }
-    .ns-menu__separador {
-      width: 100%;
-      margin: var(--ns-space-1) 0;
-      border: 0;
-      border-top: 1px solid var(--ns-border);
-    }
+    @include menu.contextual;
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

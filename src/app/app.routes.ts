@@ -146,7 +146,11 @@ export const routes: Routes = [
             loadComponent: () =>
               import('@features/alimentos/mis-alimentos.component').then((m) => m.MisAlimentosComponent),
           },
-          { path: 'actividad', title: 'Actividad', ...pendiente(17) },
+          {
+            path: 'actividad',
+            title: 'Actividad',
+            loadComponent: () => import('@features/actividad/actividad.component').then((m) => m.ActividadComponent),
+          },
           {
             path: 'perfil',
             title: 'Mi perfil',

@@ -7,6 +7,17 @@
   z-index: var(--ns-z-modal);
 }
 
+// Diálogos de NsDialogService: el alto máximo del panel (calc(100dvh - 48px), o 90dvh en el
+// bottom sheet) tiene que llegar hasta ns-dialog-shell para que su cuerpo haga scroll. El CDK lo
+// pasa a .cdk-dialog-container, pero el host del componente abierto (p. ej. <app-entrenamiento-form>,
+// que envuelve a <ns-dialog-shell>) es inline y corta la cadena: aquí se continúa.
+.ns-dialog-pane > .cdk-dialog-container > * {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: inherit;
+}
+
 // Fondo oscuro de diálogos y drawer (DESIGN.md §6.4) en la capa overlay (§6.9).
 .cdk-overlay-dark-backdrop {
   z-index: var(--ns-z-overlay);

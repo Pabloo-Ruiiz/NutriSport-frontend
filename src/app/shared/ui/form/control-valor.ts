@@ -10,6 +10,8 @@ export interface NsOpcion<T> {
   /** Nombre de un icono de Lucide (shared/design/iconos.ts). */
   icono?: string;
   deshabilitada?: boolean;
+  /** Grupo de la opción: ns-select agrupa las seguidas del mismo grupo en un <optgroup>. */
+  grupo?: string;
 }
 
 /** Comparación de valores de opciones. Por defecto, identidad (Object.is). */
