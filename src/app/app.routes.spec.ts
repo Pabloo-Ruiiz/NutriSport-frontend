@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
@@ -42,6 +44,8 @@ beforeEach(async () => {
   TestBed.configureTestingModule({
     providers: [
       provideRouter(routes, withComponentInputBinding()),
+      provideHttpClient(),
+      provideHttpClientTesting(),
       { provide: TitleStrategy, useClass: NutriSportTitleStrategy },
       provideLucideIcons(...ICONOS_APP),
       { provide: AuthService, useValue: auth },
@@ -120,7 +124,9 @@ describe('rutas', () => {
     await harness.navigateByUrl('/comidas/foto/abc');
     expect(texto()).toContain('paso 20');
     await harness.navigateByUrl('/comidas/abc/editar');
-    expect(texto()).toContain('paso 15');
+    // El registro en modo edición pide la comida.
+    TestBed.inject(HttpTestingController).expectOne('/api/v1/comidas/abc');
+    expect(harness.fixture.nativeElement.querySelector('app-registro-comida')).not.toBeNull();
     expect(tituloPestana()).toBe('Editar comida · NutriSport');
   });
 

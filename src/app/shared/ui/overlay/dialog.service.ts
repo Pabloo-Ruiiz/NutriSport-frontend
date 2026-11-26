@@ -24,6 +24,11 @@ export interface NsDialogConfig<D = unknown> {
    * atributo cdkFocusInitial.
    */
   autoFocus?: 'first-tabbable' | 'dialog' | string;
+  /**
+   * Inyector del componente abierto. Por defecto, el raíz; pásalo para que el diálogo use servicios
+   * provistos en un componente (p. ej. un store con `providers: [...]`).
+   */
+  injector?: Injector;
 }
 
 /** Contexto que el servicio pasa a ns-dialog-shell. */
@@ -84,6 +89,7 @@ export class NsDialogService {
             positionStrategy: posicion.centerVertically(),
           }),
       providers: [{ provide: NS_DIALOG_CONTEXTO, useValue: contexto }],
+      ...(config.injector ? { injector: config.injector } : {}),
     });
   }
 }

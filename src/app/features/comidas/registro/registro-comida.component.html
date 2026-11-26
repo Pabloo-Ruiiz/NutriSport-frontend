@@ -1,0 +1,130 @@
+<p class="ns-sr-only" aria-live="polite">{{ anuncio() }}</p>
+
+@switch (estado()) {
+  @case ('cargando') {
+    <div class="ns-registro__cargando" aria-busy="true" aria-label="Cargando la comida">
+      <ns-skeleton shape="rect" [height]="320" />
+      <ns-skeleton shape="rect" [height]="320" />
+    </div>
+  }
+  @case ('error') {
+    <ns-alert type="error" titulo="No hemos podido cargar la comida">
+      {{ errorCarga() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar(id()!)">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+  @case ('revocado') {
+    <ns-consentimiento-revocado />
+  }
+  @case ('listo') {
+    @if (guardadaConAvisos(); as comida) {
+      <section class="ns-registro__avisos" aria-labelledby="ns-avisos-titulo">
+        <ns-alert type="warning" titulo="Comida guardada, con avisos">
+          <ul class="ns-registro__lista-avisos">
+            @for (aviso of comida.avisos; track aviso) {
+              <li>{{ aviso }}</li>
+            }
+          </ul>
+          <button nsAlertAcciones nsButton type="button" (click)="continuar()">Continuar</button>
+        </ns-alert>
+        <h2 class="ns-sr-only" id="ns-avisos-titulo">Avisos de la comida</h2>
+      </section>
+    }
+
+    <div class="ns-registro" [class.ns-registro--movil]="layout.esMovil()">
+      <section class="ns-registro__buscar" aria-labelledby="ns-registro-datos">
+        <h2 class="ns-text-h4 ns-registro__titulo" id="ns-registro-datos">
+          {{ editando() ? 'Editar comida' : 'Registrar comida' }}
+        </h2>
+
+        <div class="ns-registro__datos">
+          <ns-form-field label="Fecha" obligatorio>
+            <input
+              nsInput
+              type="date"
+              [max]="fechaMaxima"
+              [ngModel]="editor.fecha()"
+              (ngModelChange)="cambiarFecha($event)"
+              [attr.aria-invalid]="errorFecha() ? true : null"
+              aria-describedby="ns-registro-error-fecha"
+            />
+          </ns-form-field>
+          <ns-form-field label="Hora">
+            <input nsInput type="time" [ngModel]="editor.hora()" (ngModelChange)="editor.cambiarHora($event)" />
+          </ns-form-field>
+          <ns-form-field label="Tipo de comida" obligatorio>
+            <ns-select
+              [opciones]="tipos"
+              [ngModel]="editor.tipoComida()"
+              (ngModelChange)="editor.cambiarTipo($event)"
+            />
+          </ns-form-field>
+        </div>
+        <p class="ns-registro__error-fecha" id="ns-registro-error-fecha" [hidden]="!errorFecha()">{{ errorFecha() }}</p>
+
+        <div class="ns-registro__accesos">
+          <a nsButton variant="ai" icon="camera" routerLink="/comidas/foto" [queryParams]="rutaFoto()"
+            >Foto del plato</a
+          >
+          <button nsButton type="button" variant="secondary" icon="copy" (click)="copiarComidaAnterior()">
+            Copiar comida anterior
+          </button>
+        </div>
+
+        <app-buscador-alimentos modo="lista" etiqueta="Buscar alimento" (elegido)="anadir($event)" />
+      </section>
+
+      @if (!layout.esMovil()) {
+        <section class="ns-registro__comida" aria-labelledby="ns-registro-comida">
+          <h2 class="ns-text-h4 ns-registro__titulo" id="ns-registro-comida">Tu comida</h2>
+          @if (error(); as error) {
+            <ns-alert type="error">{{ error }}</ns-alert>
+          }
+          <app-comida-en-construccion [nivelTitulo]="2" />
+          <button
+            nsButton
+            type="button"
+            size="lg"
+            fullWidth
+            [loading]="enviando()"
+            [disabled]="!!guardadaConAvisos()"
+            (click)="guardar()"
+          >
+            Guardar comida
+          </button>
+        </section>
+      }
+    </div>
+
+    @if (layout.esMovil()) {
+      <div class="ns-registro__resumen">
+        @if (error(); as error) {
+          <p class="ns-registro__resumen-error" role="alert">{{ error }}</p>
+        }
+        <button
+          type="button"
+          class="ns-registro__ver"
+          aria-haspopup="dialog"
+          [disabled]="editor.vacia()"
+          (click)="verComida()"
+        >
+          <span class="ns-tnum">{{ editor.vacia() ? 'Busca un alimento para empezar' : resumenMovil() }}</span>
+          @if (!editor.vacia()) {
+            <span class="ns-registro__ver-accion">Ver comida</span>
+          }
+        </button>
+        <button
+          nsButton
+          type="button"
+          [loading]="enviando()"
+          [disabled]="editor.vacia() || !!guardadaConAvisos()"
+          (click)="guardar()"
+        >
+          Guardar
+        </button>
+      </div>
+    }
+  }
+}
