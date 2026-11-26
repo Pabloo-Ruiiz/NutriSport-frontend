@@ -22,6 +22,7 @@ const MENSAJES: Record<string, (detalle: unknown) => string> = {
   coincideCon: () => 'Las contraseñas no coinciden.',
   noSoloEspacios: () => 'Escribe algo más que espacios.',
   fechaNoValida: () => 'Escribe una fecha válida.',
+  fechaFutura: () => 'La fecha no puede ser posterior a hoy.',
   edadMinima: (e) => `Debes tener al menos ${(e as Detalle)['minima']} años.`,
   // Texto que devuelve el backend (p. ej. "Ya existe una cuenta con este correo").
   servidor: (texto) => textoServidor(texto),

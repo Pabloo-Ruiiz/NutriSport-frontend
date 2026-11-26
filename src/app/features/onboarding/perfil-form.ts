@@ -4,6 +4,7 @@ import type {
   NivelActividad,
   ObjetivoDeportivo,
   PerfilRequest,
+  PerfilResponse,
   PreferenciaDto,
   Sexo,
   TipoPreferencia,
@@ -112,6 +113,38 @@ export function crearFormularioPerfil(): FormularioPerfil {
   objetivo.valueChanges.subscribe(() => fechaCompeticion.updateValueAndValidity());
 
   return form;
+}
+
+/**
+ * Rellena el formulario con el perfil y las preferencias guardados (Mi perfil) y lo deja sin
+ * cambios (pristine y sin tocar), para poder detectar después lo que edita el usuario.
+ */
+export function rellenarFormularioPerfil(
+  form: FormularioPerfil,
+  perfil: PerfilResponse,
+  preferencias: readonly PreferenciaDto[],
+): void {
+  form.reset({
+    sobreTi: {
+      fechaNacimiento: perfil.fechaNacimiento,
+      sexo: perfil.sexo,
+      alturaCm: perfil.alturaCm,
+      pesoKg: perfil.pesoKg,
+      porcentajeGrasa: perfil.porcentajeGrasa,
+    },
+    deporte: {
+      deportePrincipal: perfil.deportePrincipal,
+      diasEntrenamientoSemana: perfil.diasEntrenamientoSemana,
+      duracionMediaMin: perfil.duracionMediaMin,
+      nivelActividad: perfil.nivelActividad,
+    },
+    objetivo: { objetivo: perfil.objetivo, fechaCompeticion: perfil.fechaCompeticion ?? '' },
+    alimentacion: {
+      preferencias: [...preferencias],
+      comidasPorDia: perfil.comidasPorDia,
+      tiempoMaxCocinaMin: perfil.tiempoMaxCocinaMin,
+    },
+  });
 }
 
 /**

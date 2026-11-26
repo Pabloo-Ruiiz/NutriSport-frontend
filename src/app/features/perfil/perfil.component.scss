@@ -1,0 +1,113 @@
+// Mi perfil (DESIGN.md §7.5). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.ns-perfil__cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+}
+
+.ns-perfil__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-4);
+  margin-bottom: var(--ns-space-6);
+}
+
+.ns-perfil__avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-action-primary);
+  color: var(--ns-text-inverse);
+  font: 700 1.25rem/1 var(--ns-font-display);
+}
+
+.ns-perfil__identidad {
+  min-width: 0;
+}
+
+.ns-perfil__nombre {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ns-perfil__resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-1) var(--ns-space-3);
+  margin: var(--ns-space-1) 0 0;
+  color: var(--ns-text-secondary);
+
+  > span + span::before {
+    content: '·';
+    margin-right: var(--ns-space-3);
+    color: var(--ns-text-tertiary);
+  }
+}
+
+// Formulario y tarjeta lateral; en < 1024 px la tarjeta va debajo.
+.ns-perfil__cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+  gap: var(--ns-space-6);
+
+  @include bp.down(lg) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ns-perfil__formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+  min-width: 0;
+}
+
+.ns-perfil__lateral {
+  position: sticky;
+  top: calc(var(--ns-topbar-height) + var(--ns-space-6));
+
+  @include bp.down(lg) {
+    position: static;
+  }
+}
+
+.ns-perfil__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  padding: var(--ns-space-6);
+  border: 1px solid var(--ns-border);
+  border-top: 0;
+  border-radius: 0 0 var(--ns-radius-lg) var(--ns-radius-lg);
+  background: var(--ns-surface);
+
+  &[hidden] {
+    display: none;
+  }
+
+  @include bp.down(md) {
+    padding: var(--ns-space-4);
+  }
+}
+
+.ns-perfil__acciones {
+  display: flex;
+  justify-content: flex-end;
+
+  @include bp.down(md) {
+    > button {
+      width: 100%;
+    }
+  }
+}
