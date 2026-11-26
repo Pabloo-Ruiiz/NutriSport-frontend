@@ -1,0 +1,130 @@
+// Resumen de objetivos. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+}
+
+.ns-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+}
+
+.ns-resumen__datos {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-8);
+
+  @include bp.down(md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--ns-space-6);
+  }
+}
+
+.ns-resumen__anillo {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.ns-resumen__macros {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-resumen__macro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+}
+
+.ns-resumen__macro-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--ns-space-1) var(--ns-space-3);
+  margin: 0;
+}
+
+.ns-resumen__macro-nombre {
+  font-weight: 600;
+}
+
+.ns-resumen__manuales {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-2);
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-resumen__calculo {
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-md);
+}
+
+.ns-resumen__resumen {
+  min-height: 44px;
+  padding: var(--ns-space-3) var(--ns-space-4);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    @include m.focus-ring;
+    border-radius: var(--ns-radius-md);
+  }
+}
+
+.ns-resumen__explicacion {
+  margin: 0;
+  padding: 0 var(--ns-space-4);
+  color: var(--ns-text-secondary);
+}
+
+.ns-resumen__desglose {
+  display: flex;
+  flex-direction: column;
+  margin: var(--ns-space-3) 0 0;
+  padding: 0 var(--ns-space-4) var(--ns-space-3);
+}
+
+.ns-resumen__fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
+  padding: var(--ns-space-2) 0;
+  border-top: 1px solid var(--ns-border);
+
+  dt {
+    color: var(--ns-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.ns-resumen__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ns-space-3);
+
+  @include bp.down(md) {
+    flex-direction: column-reverse;
+
+    > * {
+      width: 100%;
+    }
+  }
+}

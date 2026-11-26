@@ -1,17 +1,27 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom, tap } from 'rxjs';
 
 import { environment } from '@env/environment';
-import type { PerfilResponse } from '../models';
+import type {
+  ObjetivosManualesRequest,
+  ObjetivosResponse,
+  PerfilRequest,
+  PerfilResponse,
+  PreferenciaDto,
+  PreferenciasRequest,
+} from '../models';
 import { estadoHttp } from '../util/api-error';
 
 /**
- * Perfil deportivo (NutriSport_API.md §4 y §6 Perfil).
+ * Perfil deportivo, preferencias alimentarias y objetivos (NutriSport_API.md §4 y §6 Perfil).
+ * Son datos de salud: sin el consentimiento vigente todo responde 403 CONSENTIMIENTO_REVOCADO.
  *
- * Por ahora solo sabe si el perfil existe, que es lo que necesita perfilGuard: muchos endpoints
- * responden 422 PERFIL_REQUERIDO sin él. El resultado se cachea en un signal para no repetir
- * GET /perfil en cada navegación; se borra al cerrar la sesión (AuthService llama a limpiar()).
+ * Además sabe si el perfil existe, que es lo que necesita perfilGuard: muchos endpoints responden
+ * 422 PERFIL_REQUERIDO sin él. Ese dato se cachea en un signal para no repetir GET /perfil en cada
+ * navegación; se borra al cerrar la sesión (AuthService llama a limpiar()).
+ *
+ * Los cuerpos se construyen campo a campo: el backend rechaza propiedades desconocidas (400).
  */
 @Injectable({ providedIn: 'root' })
 export class PerfilService {
@@ -57,6 +67,61 @@ export class PerfilService {
     return comprobacion;
   }
 
+  /** GET /perfil. 404 PERFIL_NO_ENCONTRADO si aún no se ha creado (y se anota que no existe). */
+  obtener(): Observable<PerfilResponse> {
+    return this.http.get<PerfilResponse>(this.url).pipe(
+      tap({
+        next: () => this.existeCache.set(true),
+        error: (error: unknown) => {
+          if (estadoHttp(error) === 404) this.existeCache.set(false);
+        },
+      }),
+    );
+  }
+
+  /**
+   * PUT /perfil: crea o actualiza el perfil. Si los objetivos no son manuales, el backend los
+   * recalcula. Marca el perfil como creado para perfilGuard.
+   */
+  guardar(req: PerfilRequest): Observable<PerfilResponse> {
+    return this.http.put<PerfilResponse>(this.url, cuerpoPerfil(req)).pipe(tap(() => this.marcarCreado()));
+  }
+
+  /** GET /perfil/preferencias: alergias, intolerancias, dietas, rechazos y favoritos. */
+  preferencias(): Observable<PreferenciaDto[]> {
+    return this.http.get<PreferenciaDto[]>(`${this.url}/preferencias`);
+  }
+
+  /** PUT /perfil/preferencias: sustituye la lista completa (máx. 100; vacía las borra todas). */
+  guardarPreferencias(lista: readonly PreferenciaDto[]): Observable<PreferenciaDto[]> {
+    const cuerpo: PreferenciasRequest = { preferencias: lista.map(cuerpoPreferencia) };
+    return this.http.put<PreferenciaDto[]>(`${this.url}/preferencias`, cuerpo);
+  }
+
+  /** GET /perfil/objetivos: objetivos base (sin el entrenamiento), desglose del cálculo y avisos. */
+  objetivos(): Observable<ObjetivosResponse> {
+    return this.http.get<ObjetivosResponse>(`${this.url}/objetivos`);
+  }
+
+  /**
+   * PUT /perfil/objetivos: objetivos manuales. Dejan de recalcularse al cambiar el perfil. Los
+   * avisos de la respuesta (macros que no cuadran con las kcal, kcal bajo el mínimo) no bloquean.
+   */
+  fijarObjetivosManuales(req: ObjetivosManualesRequest): Observable<ObjetivosResponse> {
+    const cuerpo: ObjetivosManualesRequest = {
+      kcal: req.kcal,
+      proteinaG: req.proteinaG,
+      carbohidratosG: req.carbohidratosG,
+      grasaG: req.grasaG,
+    };
+    return this.http.put<ObjetivosResponse>(`${this.url}/objetivos`, cuerpo);
+  }
+
+  /** DELETE /perfil/objetivos/manuales: vuelve al cálculo automático con el perfil actual. */
+  volverAlCalculo(): Observable<ObjetivosResponse> {
+    return this.http.delete<ObjetivosResponse>(`${this.url}/objetivos/manuales`);
+  }
+
   /** Tras crear el perfil (PUT /perfil en la bienvenida): el guard ya deja pasar sin preguntar. */
   marcarCreado(): void {
     this.generacion++;
@@ -70,4 +135,40 @@ export class PerfilService {
     this.comprobacion = null;
     this.existeCache.set(null);
   }
+}
+
+/** PerfilRequest solo con sus campos; los opcionales vacíos no se envían. */
+function cuerpoPerfil(req: PerfilRequest): PerfilRequest {
+  const cuerpo: PerfilRequest = {
+    fechaNacimiento: req.fechaNacimiento,
+    sexo: req.sexo,
+    alturaCm: req.alturaCm,
+    pesoKg: req.pesoKg,
+    objetivo: req.objetivo,
+    deportePrincipal: req.deportePrincipal,
+    nivelActividad: req.nivelActividad,
+    diasEntrenamientoSemana: req.diasEntrenamientoSemana,
+    duracionMediaMin: req.duracionMediaMin,
+    comidasPorDia: req.comidasPorDia,
+  };
+  if (presente(req.porcentajeGrasa)) cuerpo.porcentajeGrasa = req.porcentajeGrasa;
+  // fechaCompeticion solo tiene sentido (y es obligatoria) con el objetivo COMPETICION.
+  if (req.objetivo === 'COMPETICION' && presente(req.fechaCompeticion)) cuerpo.fechaCompeticion = req.fechaCompeticion;
+  if (presente(req.tiempoMaxCocinaMin)) cuerpo.tiempoMaxCocinaMin = req.tiempoMaxCocinaMin;
+  return cuerpo;
+}
+
+/** PreferenciaDto solo con sus campos (tipo, severidad y el que corresponda al tipo). */
+function cuerpoPreferencia(p: PreferenciaDto): PreferenciaDto {
+  const cuerpo: PreferenciaDto = { tipo: p.tipo, severidad: p.severidad };
+  if (presente(p.alergeno)) cuerpo.alergeno = p.alergeno;
+  if (presente(p.intolerancia)) cuerpo.intolerancia = p.intolerancia;
+  if (presente(p.dieta)) cuerpo.dieta = p.dieta;
+  if (presente(p.alimentoId)) cuerpo.alimentoId = p.alimentoId;
+  if (presente(p.categoriaId)) cuerpo.categoriaId = p.categoriaId;
+  return cuerpo;
+}
+
+function presente<T>(valor: T | null | undefined | ''): valor is T {
+  return valor !== null && valor !== undefined && valor !== '';
 }

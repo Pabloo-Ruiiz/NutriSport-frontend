@@ -1,0 +1,138 @@
+<div class="ns-preferencias__grupos" [id]="idControl()" [attr.aria-describedby]="describedBy()">
+  <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-alergias">
+    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-alergias">Alergias</h3>
+    <p class="ns-preferencias__ayuda">Marca los alérgenos que debes evitar.</p>
+    <ns-chip-group
+      [opciones]="opcionesAlergenos"
+      multiple
+      etiqueta="Alergias"
+      [ngModel]="alergenos()"
+      [ngModelOptions]="{ standalone: true }"
+      (ngModelChange)="cambiarAlergenos($event)"
+    />
+  </section>
+
+  <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-intolerancias">
+    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-intolerancias">Intolerancias</h3>
+    <ns-chip-group
+      [opciones]="opcionesLactosa"
+      multiple
+      etiqueta="Intolerancias"
+      [ngModel]="lactosa()"
+      [ngModelOptions]="{ standalone: true }"
+      (ngModelChange)="cambiarLactosa($event)"
+    />
+  </section>
+
+  @if (restricciones().length) {
+    <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-severidad">
+      <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-severidad">¿Cómo las tratamos?</h3>
+      <p class="ns-preferencias__ayuda">
+        <strong>Estricta:</strong> te avisamos y la evitamos en las sugerencias. <strong>Preferencia:</strong> solo te
+        avisamos.
+      </p>
+      <ul class="ns-preferencias__severidades" role="list">
+        @for (r of restricciones(); track r.nombre) {
+          <li class="ns-preferencias__severidad">
+            <span class="ns-preferencias__nombre">{{ r.nombre }}</span>
+            <ns-segmented
+              [opciones]="opcionesSeveridad"
+              [etiqueta]="'Cómo tratar ' + r.nombre"
+              [ngModel]="r.preferencia.severidad"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarSeveridad(r.preferencia, $event)"
+            />
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-dietas">
+    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-dietas">Dieta</h3>
+    <ns-chip-group
+      [opciones]="opcionesDietas"
+      multiple
+      etiqueta="Dieta"
+      [ngModel]="dietas()"
+      [ngModelOptions]="{ standalone: true }"
+      (ngModelChange)="cambiarDietas($event)"
+    />
+    <p class="ns-preferencias__nota" [class.ns-preferencias__nota--destacada]="hayDietaSinFiltro()">
+      * Halal y kosher se guardan en tu perfil, pero no se filtran automáticamente: revisa tú los alimentos y las
+      recetas.
+    </p>
+  </section>
+
+  <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-rechazos">
+    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-rechazos">Alimentos que no te gustan</h3>
+    <label class="ns-preferencias__ayuda" [for]="idCombo"
+      >Busca un alimento y elígelo para no recibirlo en las sugerencias.</label
+    >
+
+    <div class="ns-combo">
+      <div class="ns-combo__caja">
+        <svg class="ns-combo__lupa" lucideIcon="search" [size]="18" aria-hidden="true"></svg>
+        <input
+          class="ns-combo__input"
+          type="text"
+          role="combobox"
+          autocomplete="off"
+          placeholder="Escribe al menos 2 letras, p. ej. «brócoli»"
+          [id]="idCombo"
+          [value]="consulta()"
+          [disabled]="deshabilitado()"
+          aria-autocomplete="list"
+          [attr.aria-expanded]="abierto() && opcionesCombo().length > 0"
+          [attr.aria-controls]="idLista"
+          [attr.aria-activedescendant]="abierto() && activo() >= 0 ? idOpcion(activo()) : null"
+          (input)="alEscribir($event)"
+          (keydown)="alTeclear($event)"
+          (focus)="abierto.set(true)"
+          (blur)="alSalir()"
+        />
+        <ul
+          class="ns-combo__lista"
+          role="listbox"
+          [id]="idLista"
+          aria-label="Alimentos encontrados"
+          [hidden]="!abierto() || opcionesCombo().length === 0"
+        >
+          @for (alimento of opcionesCombo(); track alimento.id; let i = $index) {
+            <li
+              class="ns-combo__opcion"
+              role="option"
+              [id]="idOpcion(i)"
+              [class.ns-combo__opcion--activa]="i === activo()"
+              [attr.aria-selected]="i === activo()"
+              (mousedown)="$event.preventDefault()"
+              (click)="elegir(alimento)"
+            >
+              {{ nombreAlimento(alimento) }}
+            </li>
+          }
+        </ul>
+      </div>
+      <p class="ns-combo__estado" aria-live="polite">{{ estadoBusqueda() }}</p>
+    </div>
+
+    @if (rechazos().length) {
+      <ul class="ns-preferencias__rechazos" role="list" aria-label="Alimentos que no te gustan">
+        @for (r of rechazos(); track r.alimentoId) {
+          <li class="ns-preferencias__rechazo">
+            {{ r.nombre }}
+            <button
+              type="button"
+              class="ns-preferencias__quitar"
+              [attr.aria-label]="'Quitar ' + r.nombre"
+              [disabled]="deshabilitado()"
+              (click)="quitarRechazo(r.alimentoId)"
+            >
+              <svg lucideIcon="x" [size]="14" aria-hidden="true"></svg>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>
