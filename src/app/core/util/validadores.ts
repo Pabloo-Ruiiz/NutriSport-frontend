@@ -115,3 +115,17 @@ function hoyLocalApi(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+/**
+ * Fecha "AAAA-MM-DD" que no es posterior a hoy (pesajes, comidas ya hechas). Errores:
+ * { fechaNoValida: true } o { fechaFutura: true }. Vacío es válido. `hoy` se puede fijar en las pruebas.
+ */
+export function fechaNoFutura(hoy: () => string = hoyLocalApi): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const valor = control.value;
+    if (valor === null || valor === undefined || valor === '') return null;
+    if (typeof valor !== 'string' || edadEn(valor, valor) === null) return { fechaNoValida: true };
+    // "AAAA-MM-DD" se compara bien como texto.
+    return valor > hoy() ? { fechaFutura: true } : null;
+  };
+}

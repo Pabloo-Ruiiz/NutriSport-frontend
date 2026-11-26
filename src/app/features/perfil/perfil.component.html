@@ -1,0 +1,117 @@
+@switch (estado()) {
+  @case ('cargando') {
+    <div class="ns-perfil__cargando" aria-busy="true" aria-label="Cargando tu perfil">
+      <ns-skeleton shape="circle" [width]="64" />
+      <ns-skeleton shape="rect" [height]="320" />
+    </div>
+  }
+
+  @case ('error') {
+    <ns-alert type="error" titulo="No hemos podido cargar tu perfil">
+      {{ errorCarga() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+
+  @case ('listo') {
+    <header class="ns-perfil__cabecera">
+      <span class="ns-perfil__avatar" aria-hidden="true">{{ avatar() }}</span>
+      <div class="ns-perfil__identidad">
+        <h2 class="ns-text-h2 ns-perfil__nombre">{{ nombre() }}</h2>
+        <p class="ns-perfil__resumen">
+          @if (deporte()) {
+            <span><span class="ns-sr-only">Deporte principal: </span>{{ deporte() }}</span>
+          }
+          @if (objetivo()) {
+            <span><span class="ns-sr-only">Objetivo: </span>{{ objetivo() }}</span>
+          }
+        </p>
+      </div>
+    </header>
+
+    <div class="ns-perfil__cuerpo">
+      <div class="ns-perfil__formulario">
+        @if (recalculado()) {
+          <ns-alert type="info" dismissible (cerrar)="recalculado.set(false)"
+            >Tus objetivos se han recalculado.</ns-alert
+          >
+        }
+        @if (errorGuardado(); as error) {
+          <ns-alert type="error">{{ error }}</ns-alert>
+        }
+
+        <ns-tabs
+          class="ns-perfil__tabs"
+          [pestanas]="pestanas"
+          [(seleccionada)]="pestana"
+          etiqueta="Secciones del perfil"
+        >
+          <form
+            nsTabPanel="sobreTi"
+            class="ns-perfil__panel"
+            (submit)="$event.preventDefault(); guardar('sobreTi')"
+            novalidate
+          >
+            <app-paso-sobre-ti [grupo]="form.controls.sobreTi" />
+            <div class="ns-perfil__acciones">
+              <button nsButton type="submit" [loading]="guardando() === 'sobreTi'" [disabled]="!!guardando()">
+                Guardar
+              </button>
+            </div>
+          </form>
+          <form
+            nsTabPanel="deporte"
+            class="ns-perfil__panel"
+            (submit)="$event.preventDefault(); guardar('deporte')"
+            novalidate
+          >
+            <app-paso-deporte [grupo]="form.controls.deporte" />
+            <div class="ns-perfil__acciones">
+              <button nsButton type="submit" [loading]="guardando() === 'deporte'" [disabled]="!!guardando()">
+                Guardar
+              </button>
+            </div>
+          </form>
+          <form
+            nsTabPanel="objetivo"
+            class="ns-perfil__panel"
+            (submit)="$event.preventDefault(); guardar('objetivo')"
+            novalidate
+          >
+            <app-paso-objetivo [grupo]="form.controls.objetivo" />
+            <div class="ns-perfil__acciones">
+              <button nsButton type="submit" [loading]="guardando() === 'objetivo'" [disabled]="!!guardando()">
+                Guardar
+              </button>
+            </div>
+          </form>
+          <form
+            nsTabPanel="alimentacion"
+            class="ns-perfil__panel"
+            (submit)="$event.preventDefault(); guardar('alimentacion')"
+            novalidate
+          >
+            <app-paso-alimentacion [grupo]="form.controls.alimentacion" />
+            <div class="ns-perfil__acciones">
+              <button nsButton type="submit" [loading]="guardando() === 'alimentacion'" [disabled]="!!guardando()">
+                Guardar
+              </button>
+            </div>
+          </form>
+        </ns-tabs>
+      </div>
+
+      @if (objetivos(); as objetivos) {
+        <app-tarjeta-objetivos
+          class="ns-perfil__lateral"
+          [objetivos]="objetivos"
+          [pesoKg]="perfil()?.pesoKg ?? null"
+          (objetivosCambiados)="alCambiarObjetivos($event)"
+          (pesoRegistrado)="alRegistrarPeso($event)"
+        />
+      }
+    </div>
+  }
+}

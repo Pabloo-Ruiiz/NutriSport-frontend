@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { adminGuard } from '@core/guards/admin.guard';
 import { autenticadoGuard } from '@core/guards/autenticado.guard';
+import { cambiosSinGuardarGuard } from '@core/guards/cambios-sin-guardar.guard';
 import { invitadoGuard } from '@core/guards/invitado.guard';
 import { perfilGuard } from '@core/guards/perfil.guard';
 import { environment } from '@env/environment';
@@ -122,7 +123,12 @@ export const routes: Routes = [
           { path: 'comidas/:id/editar', title: 'Editar comida', ...pendiente(15) },
           { path: 'mis-alimentos', title: 'Mis alimentos', ...pendiente(14) },
           { path: 'actividad', title: 'Actividad', ...pendiente(17) },
-          { path: 'perfil', title: 'Mi perfil', ...pendiente(12) },
+          {
+            path: 'perfil',
+            title: 'Mi perfil',
+            loadComponent: () => import('@features/perfil/perfil.component').then((m) => m.PerfilComponent),
+            canDeactivate: [cambiosSinGuardarGuard],
+          },
         ],
       },
       // Sin perfilGuard: la cuenta se gestiona aunque no haya perfil o se haya revocado el consentimiento.

@@ -26,7 +26,7 @@ describe('mensajes de error', () => {
   });
 
   it('usa un mensaje genérico para errores desconocidos', () => {
-    expect(mensajeError('fechaFutura', true)).toBe('El valor no es válido.');
+    expect(mensajeError('claveDesconocida', true)).toBe('El valor no es válido.');
   });
 
   it('devuelve el primer error, con prioridad para el del servidor', () => {

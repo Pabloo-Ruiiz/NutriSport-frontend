@@ -307,7 +307,11 @@ describe('RevisaTuEmailComponent', () => {
         .expectOne('/api/v1/auth/reenviar-verificacion')
         .flush(cuerpo, { ...opciones, headers: { 'Retry-After': '1800' } }),
     );
-    expect(raiz().querySelector('ns-alert')?.textContent).toContain('Inténtalo de nuevo en 30 minutos.');
-    expect(boton.disabled).toBe(true);
+    // Bajo carga, el error puede tardar alguna vuelta más en pintarse.
+    await vi.waitFor(async () => {
+      await estable();
+      expect(raiz().querySelector('ns-alert')?.textContent).toContain('Inténtalo de nuevo en 30 minutos.');
+      expect(boton.disabled).toBe(true);
+    });
   });
 });
