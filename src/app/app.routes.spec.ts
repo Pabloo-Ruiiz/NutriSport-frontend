@@ -144,7 +144,8 @@ describe('rutas', () => {
     await harness.navigateByUrl('/admin');
     expect(url()).toBe('/admin/usuarios');
     expect(harness.fixture.nativeElement.querySelector('ns-admin-layout')).not.toBeNull();
-    expect(texto()).toContain('paso 21');
+    expect(harness.fixture.nativeElement.querySelector('app-usuarios-admin')).not.toBeNull();
+    TestBed.inject(HttpTestingController).expectOne((r) => r.url === '/api/v1/admin/usuarios');
   });
 
   it('una ruta que no existe muestra el 404', async () => {

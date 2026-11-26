@@ -6,6 +6,7 @@ import { FormatoFecha, formatearFecha } from './formato';
  * {{ '2026-11-21' | fechaCorta }} → "sáb. 21 nov"
  * {{ '2026-11-21' | fechaCorta: 'larga' }} → "sábado, 21 de noviembre"
  * {{ '2026-11-21' | fechaCorta: 'diaMes' }} → "21 nov"
+ * {{ usuario.creadoEn | fechaCorta: 'diaMesAnio' }} → "21 nov 2026"
  * {{ entrenamiento.fechaHora | fechaCorta: 'hora' }} → "08:30"
  * Sin dato o fecha no válida → "—".
  */

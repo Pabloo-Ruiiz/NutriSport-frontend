@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, forwardRef, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, booleanAttribute, computed, forwardRef, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 
@@ -12,6 +12,9 @@ import { NsControlValor } from './control-valor';
  *
  * Usa un <input type="checkbox"> nativo (invisible) encima de la caja dibujada, así que el teclado
  * y los lectores de pantalla funcionan como en cualquier casilla.
+ *
+ * `indeterminado` dibuja un guion y anuncia "mixto" (p. ej. "seleccionar todo" con solo algunas
+ * filas marcadas). Al pulsarla, el navegador la desmarca como indeterminada y emite su `checked`.
  */
 @Component({
   selector: 'ns-checkbox',
@@ -24,12 +27,17 @@ import { NsControlValor } from './control-valor';
           class="ns-checkbox__nativo"
           [id]="idControl()"
           [checked]="!!valor()"
+          [indeterminate]="indeterminado()"
           [disabled]="deshabilitado()"
           [attr.aria-describedby]="describedBy()"
           (change)="alCambiar($event)"
           (blur)="tocar()"
         />
-        <svg class="ns-checkbox__check" lucideIcon="check" [size]="14" [strokeWidth]="3" aria-hidden="true"></svg>
+        @if (indeterminado()) {
+          <svg class="ns-checkbox__check" lucideIcon="minus" [size]="14" [strokeWidth]="3" aria-hidden="true"></svg>
+        } @else {
+          <svg class="ns-checkbox__check" lucideIcon="check" [size]="14" [strokeWidth]="3" aria-hidden="true"></svg>
+        }
       </span>
       <span class="ns-checkbox__texto"><ng-content /></span>
     </label>
@@ -44,6 +52,7 @@ import { NsControlValor } from './control-valor';
 })
 export class NsCheckboxComponent extends NsControlValor<boolean> {
   readonly id = input<string>();
+  readonly indeterminado = input(false, { transform: booleanAttribute });
 
   readonly etiquetable = true;
   private readonly idGenerado = idUnico('ns-checkbox');

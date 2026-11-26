@@ -53,7 +53,7 @@ export function formatearGramos(valor: number | null | undefined, decimales = 0)
 
 // ---- Fechas
 
-export type FormatoFecha = 'corta' | 'larga' | 'diaMes' | 'hora';
+export type FormatoFecha = 'corta' | 'larga' | 'diaMes' | 'diaMesAnio' | 'hora';
 
 const PATRON_FECHA = /^\d{4}-\d{2}-\d{2}$/;
 const PATRON_HORA = /^(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/;
@@ -61,6 +61,7 @@ const PATRON_HORA = /^(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/;
 const formatoCorta = new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' });
 const formatoLarga = new Intl.DateTimeFormat(LOCALE, { weekday: 'long', day: 'numeric', month: 'long' });
 const formatoDiaMes = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short' });
+const formatoDiaMesAnio = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short', year: 'numeric' });
 const formatoHora = new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
 /** "AAAA-MM-DD" → fecha local (mediodía); ISO con hora → instante. Inválida → null. */
@@ -108,6 +109,8 @@ export function formatearFecha(valor: string | null | undefined, formato: Format
       return formatoLarga.format(fecha);
     case 'diaMes':
       return formatoDiaMes.format(fecha).replace('.', '');
+    case 'diaMesAnio':
+      return formatoDiaMesAnio.format(fecha).replace('.', '');
     case 'hora':
       return formatoHora.format(fecha);
   }

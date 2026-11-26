@@ -155,6 +155,21 @@ export const ICONOS_APP = [
     ['circle', { cx: '9', cy: '9', r: '2' }],
     ['path', { d: 'm21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21' }],
   ]),
+  // Ordenación de columnas (ns-table, DESIGN.md §5.9)
+  lucideLegacyIcon('arrow-up-down', [
+    ['path', { d: 'm21 16-4 4-4-4' }],
+    ['path', { d: 'M17 20V4' }],
+    ['path', { d: 'm3 8 4-4 4 4' }],
+    ['path', { d: 'M7 4v16' }],
+  ]),
+  lucideLegacyIcon('arrow-up', [
+    ['path', { d: 'm5 12 7-7 7 7' }],
+    ['path', { d: 'M12 19V5' }],
+  ]),
+  lucideLegacyIcon('arrow-down', [
+    ['path', { d: 'M12 5v14' }],
+    ['path', { d: 'm19 12-7 7-7-7' }],
+  ]),
 ];
 
 /** Nombres de los iconos registrados (para la página de muestra /dev/estilos). */

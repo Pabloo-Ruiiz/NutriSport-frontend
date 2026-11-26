@@ -46,7 +46,8 @@
     border-color: var(--ns-ink-700);
   }
 
-  &:checked {
+  &:checked,
+  &:indeterminate {
     border-color: var(--ns-action-primary);
     background: var(--ns-action-primary);
   }
@@ -65,7 +66,8 @@
   transition: opacity var(--ns-duration-fast) var(--ns-ease-out);
 }
 
-.ns-checkbox__nativo:checked + .ns-checkbox__check {
+.ns-checkbox__nativo:checked + .ns-checkbox__check,
+.ns-checkbox__nativo:indeterminate + .ns-checkbox__check {
   opacity: 1;
 }
 
