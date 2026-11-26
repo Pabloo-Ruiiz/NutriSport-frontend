@@ -8,6 +8,7 @@ describe('navegacion', () => {
     expect(rutas([...NAVEGACION])).toEqual([
       '/inicio',
       '/comidas',
+      '/mis-alimentos',
       '/actividad',
       '/perfil',
       '/configuracion',
@@ -28,9 +29,14 @@ describe('navegacion', () => {
   });
 
   it('el drawer lleva lo que no está en la barra inferior', () => {
-    expect(rutas(gruposDrawer(false))).toEqual(['/configuracion']);
-    expect(rutas(gruposDrawer(true))).toEqual(['/configuracion', '/admin/usuarios', '/admin/catalogo']);
-    expect(gruposDrawer(false).map((g) => g.titulo)).toEqual(['Cuenta']);
+    expect(rutas(gruposDrawer(false))).toEqual(['/mis-alimentos', '/configuracion']);
+    expect(rutas(gruposDrawer(true))).toEqual([
+      '/mis-alimentos',
+      '/configuracion',
+      '/admin/usuarios',
+      '/admin/catalogo',
+    ]);
+    expect(gruposDrawer(false).map((g) => g.titulo)).toEqual(['Principal', 'Cuenta']);
   });
 
   it('iniciales', () => {

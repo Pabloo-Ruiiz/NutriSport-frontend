@@ -66,55 +66,26 @@
 
   <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-rechazos">
     <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-rechazos">Alimentos que no te gustan</h3>
-    <label class="ns-preferencias__ayuda" [for]="idCombo"
-      >Busca un alimento y elígelo para no recibirlo en las sugerencias.</label
-    >
+    <p class="ns-preferencias__ayuda">Busca un alimento y elígelo para no recibirlo en las sugerencias.</p>
 
-    <div class="ns-combo">
-      <div class="ns-combo__caja">
-        <svg class="ns-combo__lupa" lucideIcon="search" [size]="18" aria-hidden="true"></svg>
-        <input
-          class="ns-combo__input"
-          type="text"
-          role="combobox"
-          autocomplete="off"
-          placeholder="Escribe al menos 2 letras, p. ej. «brócoli»"
-          [id]="idCombo"
-          [value]="consulta()"
-          [disabled]="deshabilitado()"
-          aria-autocomplete="list"
-          [attr.aria-expanded]="abierto() && opcionesCombo().length > 0"
-          [attr.aria-controls]="idLista"
-          [attr.aria-activedescendant]="abierto() && activo() >= 0 ? idOpcion(activo()) : null"
-          (input)="alEscribir($event)"
-          (keydown)="alTeclear($event)"
-          (focus)="abierto.set(true)"
-          (blur)="alSalir()"
-        />
-        <ul
-          class="ns-combo__lista"
-          role="listbox"
-          [id]="idLista"
-          aria-label="Alimentos encontrados"
-          [hidden]="!abierto() || opcionesCombo().length === 0"
-        >
-          @for (alimento of opcionesCombo(); track alimento.id; let i = $index) {
-            <li
-              class="ns-combo__opcion"
-              role="option"
-              [id]="idOpcion(i)"
-              [class.ns-combo__opcion--activa]="i === activo()"
-              [attr.aria-selected]="i === activo()"
-              (mousedown)="$event.preventDefault()"
-              (click)="elegir(alimento)"
-            >
-              {{ nombreAlimento(alimento) }}
-            </li>
+    <ns-combobox
+      [id]="idCombo"
+      [buscar]="buscarAlimentos"
+      [textoOpcion]="nombreAlimento"
+      [deshabilitado]="deshabilitado()"
+      etiqueta="Buscar alimentos que no te gustan"
+      placeholder="Escribe al menos 2 letras, p. ej. «brócoli»"
+      (seleccionado)="elegir($event)"
+    >
+      <ng-template nsComboboxOpcion let-a let-consulta="consulta">
+        <span>
+          <ns-resaltado [texto]="a.nombre" [consulta]="consulta" />
+          @if (a.marca) {
+            <span class="ns-preferencias__marca"> ({{ a.marca }})</span>
           }
-        </ul>
-      </div>
-      <p class="ns-combo__estado" aria-live="polite">{{ estadoBusqueda() }}</p>
-    </div>
+        </span>
+      </ng-template>
+    </ns-combobox>
 
     @if (rechazos().length) {
       <ul class="ns-preferencias__rechazos" role="list" aria-label="Alimentos que no te gustan">

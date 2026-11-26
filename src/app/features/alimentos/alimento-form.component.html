@@ -1,0 +1,115 @@
+<form class="ns-af" [id]="idFormulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+  @if (error(); as error) {
+    <ns-alert type="error">{{ error }}</ns-alert>
+  }
+
+  <fieldset class="ns-af__grupo">
+    <legend class="ns-af__leyenda">Datos básicos</legend>
+    <ns-form-field label="Nombre" obligatorio>
+      <input nsInput type="text" formControlName="nombre" maxlength="150" autocomplete="off" />
+    </ns-form-field>
+    <ns-form-field label="Marca" hint="Opcional.">
+      <input nsInput type="text" formControlName="marca" maxlength="80" autocomplete="off" />
+    </ns-form-field>
+    <ns-form-field label="Categoría" obligatorio>
+      <ns-select formControlName="categoriaId" [opciones]="categorias()" placeholder="Elige una categoría" />
+    </ns-form-field>
+    <div class="ns-af__fila">
+      <ns-form-field label="Preparación" hint="Opcional.">
+        <ns-select formControlName="preparacion" [opciones]="preparaciones" placeholder="Sin indicar" />
+      </ns-form-field>
+      <ns-form-field label="Se mide en" obligatorio>
+        <ns-segmented formControlName="unidadBase" [opciones]="unidades" />
+      </ns-form-field>
+    </div>
+  </fieldset>
+
+  <fieldset class="ns-af__grupo">
+    <legend class="ns-af__leyenda">Valores por 100 {{ unidad() }}</legend>
+    <div class="ns-af__fila">
+      <ns-form-field label="Energía" hint="Entre 0 y 900 kcal." obligatorio>
+        <ns-quantity-input formControlName="kcal100" [min]="0" [max]="900" unit="kcal" />
+      </ns-form-field>
+      <ns-form-field label="Proteínas" obligatorio>
+        <ns-quantity-input formControlName="proteinas100" [min]="0" [max]="100" [decimales]="1" unit="g" />
+      </ns-form-field>
+      <ns-form-field label="Hidratos de carbono" obligatorio>
+        <ns-quantity-input formControlName="carbohidratos100" [min]="0" [max]="100" [decimales]="1" unit="g" />
+      </ns-form-field>
+      <ns-form-field label="de los cuales azúcares" hint="Opcional.">
+        <ns-quantity-input formControlName="azucares100" [min]="0" [max]="100" [decimales]="1" unit="g" />
+      </ns-form-field>
+      <ns-form-field label="Grasas" obligatorio>
+        <ns-quantity-input formControlName="grasas100" [min]="0" [max]="100" [decimales]="1" unit="g" />
+      </ns-form-field>
+      <ns-form-field label="de las cuales saturadas" hint="Opcional.">
+        <ns-quantity-input formControlName="saturadas100" [min]="0" [max]="100" [decimales]="1" unit="g" />
+      </ns-form-field>
+      <ns-form-field label="Fibra" hint="Opcional.">
+        <ns-quantity-input formControlName="fibra100" [min]="0" [max]="100" [decimales]="1" unit="g" />
+      </ns-form-field>
+      <ns-form-field label="Sal" hint="Opcional.">
+        <ns-quantity-input formControlName="sal100" [min]="0" [max]="100" [decimales]="2" [step]="0.1" unit="g" />
+      </ns-form-field>
+    </div>
+    @for (aviso of avisos(); track aviso) {
+      <ns-alert type="warning">{{ aviso }}</ns-alert>
+    }
+  </fieldset>
+
+  <fieldset class="ns-af__grupo" formArrayName="porciones">
+    <legend class="ns-af__leyenda">Porciones caseras</legend>
+    <p class="ns-af__ayuda">Medidas que usas en casa, p. ej. «1 cucharada = 10 g». Hasta {{ maxPorciones }}.</p>
+    @for (porcion of form.controls.porciones.controls; track porcion; let i = $index) {
+      <div class="ns-af__porcion" [formGroupName]="i">
+        <ns-form-field label="Nombre de la porción" obligatorio>
+          <input nsInput type="text" formControlName="nombre" maxlength="40" placeholder="p. ej. cucharada" />
+        </ns-form-field>
+        <ns-form-field [label]="'Equivale a (' + unidad() + ')'" obligatorio>
+          <ns-quantity-input
+            formControlName="gramos"
+            [min]="0"
+            [max]="5000"
+            [step]="5"
+            [decimales]="1"
+            [unit]="unidad()"
+          />
+        </ns-form-field>
+        <button
+          type="button"
+          class="ns-af__quitar"
+          [attr.aria-label]="'Quitar la porción ' + (porcion.value.nombre || i + 1)"
+          (click)="quitarPorcion(i)"
+        >
+          <svg lucideIcon="trash" [size]="18" aria-hidden="true"></svg>
+        </button>
+      </div>
+    }
+    @if (form.controls.porciones.length < maxPorciones) {
+      <div>
+        <button nsButton type="button" variant="secondary" size="sm" icon="plus" (click)="anadirPorcion()">
+          Añadir porción
+        </button>
+      </div>
+    }
+  </fieldset>
+
+  <fieldset class="ns-af__grupo">
+    <legend class="ns-af__leyenda">Alérgenos</legend>
+    <ns-form-field label="Contiene">
+      <ns-chip-group formControlName="alergenosContiene" [opciones]="alergenos" multiple />
+    </ns-form-field>
+    <ns-form-field label="Puede contener trazas">
+      <ns-chip-group formControlName="alergenosTrazas" [opciones]="alergenos" multiple />
+    </ns-form-field>
+  </fieldset>
+
+  <fieldset class="ns-af__grupo">
+    <legend class="ns-af__leyenda">Lactosa y dietas</legend>
+    <ns-checkbox formControlName="contieneLactosa">Contiene lactosa</ns-checkbox>
+    <p class="ns-af__ayuda">Marcar «Apto para veganos» marca también vegetariano y pescetariano.</p>
+    <ns-checkbox formControlName="aptoVegano">Apto para veganos</ns-checkbox>
+    <ns-checkbox formControlName="aptoVegetariano">Apto para vegetarianos</ns-checkbox>
+    <ns-checkbox formControlName="aptoPescetariano">Apto para pescetarianos</ns-checkbox>
+  </fieldset>
+</form>

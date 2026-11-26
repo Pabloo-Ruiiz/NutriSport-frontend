@@ -15,6 +15,7 @@ import {
   LucideCircleExclamationPoint,
   LucideCoffee,
   LucideCopy,
+  LucideDatabase,
   LucideDumbbell,
   LucideEye,
   LucideEyeOff,
@@ -103,6 +104,8 @@ export const ICONOS_APP = [
   LucideUsers,
   LucideLibrary,
   LucideChevronsUpDown,
+  // Procedencia de los datos (ns-source-badge)
+  LucideDatabase,
 ];
 
 /** Nombres de los iconos registrados (para la página de muestra /dev/estilos). */

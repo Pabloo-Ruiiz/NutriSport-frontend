@@ -1,7 +1,6 @@
 // Preferencias y restricciones alimentarias. Solo tokens --ns-*.
 @use 'abstracts/mixins' as m;
 @use 'abstracts/breakpoints' as bp;
-@use '../../../shared/ui/form/campo';
 
 :host {
   display: block;
@@ -66,79 +65,8 @@
   font-weight: 500;
 }
 
-// Combobox de alimentos.
-.ns-combo {
-  position: relative;
-}
-
-.ns-combo__caja {
-  position: relative;
-  display: block;
-}
-
-.ns-combo__lupa {
-  position: absolute;
-  top: 50%;
-  left: var(--ns-space-3);
-  color: var(--ns-text-tertiary);
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.ns-combo__input {
-  @include campo.caja;
-  padding-left: 38px;
-}
-
-.ns-combo__lista {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  left: 0;
-  z-index: var(--ns-z-dropdown);
-  max-height: 280px;
-  margin: var(--ns-space-1) 0 0;
-  padding: var(--ns-space-1);
-  overflow-y: auto;
-  border: 1px solid var(--ns-border);
-  border-radius: var(--ns-radius-lg);
-  background: var(--ns-surface);
-  box-shadow: var(--ns-shadow-lg);
-  list-style: none;
-
-  &[hidden] {
-    display: none;
-  }
-}
-
-.ns-combo__opcion {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 0 var(--ns-space-3);
-  border-radius: var(--ns-radius-md);
-  cursor: pointer;
-
-  &:hover,
-  &.ns-combo__opcion--activa {
-    background: var(--ns-surface-muted);
-  }
-
-  &.ns-combo__opcion--activa {
-    box-shadow: inset 3px 0 0 var(--ns-action-primary);
-  }
-
-  @include bp.down(md) {
-    min-height: 44px;
-  }
-}
-
-.ns-combo__estado {
-  min-height: 1rem;
-  margin: var(--ns-space-1) 0 0;
-  color: var(--ns-text-tertiary);
-  font-size: 0.75rem;
-  line-height: 1rem;
+.ns-preferencias__marca {
+  color: var(--ns-text-secondary);
 }
 
 .ns-preferencias__rechazos {

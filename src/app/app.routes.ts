@@ -121,7 +121,12 @@ export const routes: Routes = [
           { path: 'comidas/foto', title: 'Registrar con foto', ...pendiente(19) },
           { path: 'comidas/foto/:id', title: 'Resultado del análisis', ...pendiente(20) },
           { path: 'comidas/:id/editar', title: 'Editar comida', ...pendiente(15) },
-          { path: 'mis-alimentos', title: 'Mis alimentos', ...pendiente(14) },
+          {
+            path: 'mis-alimentos',
+            title: 'Mis alimentos',
+            loadComponent: () =>
+              import('@features/alimentos/mis-alimentos.component').then((m) => m.MisAlimentosComponent),
+          },
           { path: 'actividad', title: 'Actividad', ...pendiente(17) },
           {
             path: 'perfil',

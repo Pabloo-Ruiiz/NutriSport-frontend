@@ -1,0 +1,137 @@
+// Mis alimentos. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+@use '../../shared/ui/form/campo';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  max-width: 880px;
+}
+
+.ns-mis__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
+}
+
+.ns-mis__titulo {
+  margin: 0;
+}
+
+.ns-mis__ayuda {
+  max-width: 60ch;
+  margin: var(--ns-space-1) 0 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-mis__buscador {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ns-mis__etiqueta {
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+}
+
+.ns-mis__caja {
+  position: relative;
+}
+
+.ns-mis__lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--ns-space-3);
+  color: var(--ns-text-tertiary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ns-mis__input {
+  @include campo.caja;
+  padding-left: 38px;
+}
+
+.ns-mis__resultados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.ns-mis__estado {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-mis__lista {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  list-style: none;
+}
+
+.ns-mis__fila {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-4);
+  padding: var(--ns-space-3) var(--ns-space-4);
+
+  & + & {
+    border-top: 1px solid var(--ns-border);
+  }
+
+  @include bp.down(sm) {
+    flex-wrap: wrap;
+    row-gap: var(--ns-space-1);
+  }
+}
+
+.ns-mis__textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+
+  @include bp.down(sm) {
+    flex-basis: 100%;
+  }
+}
+
+.ns-mis__nombre {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+
+.ns-mis__marca {
+  @include m.truncate;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.ns-mis__kcal {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.ns-mis__por {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.ns-mis__acciones {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--ns-space-1);
+
+  @include bp.down(sm) {
+    margin-left: auto;
+  }
+}

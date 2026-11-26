@@ -1,0 +1,119 @@
+// Combobox (DESIGN.md §5.4). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+@use 'campo';
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ns-combobox__caja {
+  position: relative;
+}
+
+.ns-combobox__lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--ns-space-3);
+  color: var(--ns-text-tertiary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ns-combobox__input {
+  @include campo.caja;
+  padding-left: 38px;
+  padding-right: 36px;
+}
+
+.ns-combobox__cargando {
+  position: absolute;
+  top: 50%;
+  right: var(--ns-space-3);
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid var(--ns-border-strong);
+  border-top-color: var(--ns-action-primary);
+  border-radius: var(--ns-radius-full);
+  animation: ns-combobox-giro 0.8s linear infinite;
+}
+
+.ns-combobox__lista {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: var(--ns-z-dropdown);
+  max-height: 320px;
+  margin: var(--ns-space-1) 0 0;
+  padding: var(--ns-space-1);
+  overflow-y: auto;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-lg);
+  list-style: none;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.ns-combobox__opcion {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--ns-space-2) var(--ns-space-3);
+  border-radius: var(--ns-radius-md);
+  cursor: pointer;
+
+  // Activa: fondo y borde izquierdo (no solo color).
+  &.ns-combobox__opcion--activa {
+    background: var(--ns-surface-muted);
+    box-shadow: inset 3px 0 0 var(--ns-action-primary);
+  }
+
+  @include bp.down(md) {
+    min-height: 44px;
+  }
+}
+
+.ns-combobox__estado {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+  min-height: 1rem;
+  margin-top: var(--ns-space-1);
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.ns-combobox__reintentar {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ns-text-link);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+@keyframes ns-combobox-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@include m.reduced-motion {
+  .ns-combobox__cargando {
+    animation: none;
+  }
+}

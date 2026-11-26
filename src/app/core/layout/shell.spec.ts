@@ -150,7 +150,7 @@ describe('ShellComponent', () => {
       await harness.fixture.whenStable();
       const drawer = document.querySelector('.ns-drawer') as HTMLElement;
       expect(drawer.classList).toContain('ns-drawer--izquierda');
-      expect(textos('.ns-nav__etiqueta', drawer)).toEqual(['Configuración']);
+      expect(textos('.ns-nav__etiqueta', drawer)).toEqual(['Mis alimentos', 'Configuración']);
 
       (drawer.querySelector('.ns-shell__cerrar-sesion') as HTMLButtonElement).click();
       expect(auth.logout).toHaveBeenCalled();

@@ -1,27 +1,22 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  forwardRef,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, forwardRef, inject, input, signal } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { Subject, catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import type { Alergeno, AlimentoResumenResponse, Dieta, PreferenciaDto, Severidad } from '@core/models';
 import { ETIQUETAS_ALERGENO, ETIQUETAS_DIETA, ETIQUETAS_SEVERIDAD } from '@core/models/etiquetas';
-import { AlimentosService, MIN_CARACTERES_BUSQUEDA } from '@core/services/alimentos.service';
+import { AlimentosService } from '@core/services/alimentos.service';
 import { NsChipGroupComponent } from '@shared/ui/form/chip-group.component';
+import {
+  NsComboboxComponent,
+  NsComboboxOpcionDirective,
+  NsResaltadoComponent,
+} from '@shared/ui/form/combobox.component';
 import { NsControlCampo, idUnico } from '@shared/ui/form/control-campo';
 import { NsControlValor, type NsOpcion } from '@shared/ui/form/control-valor';
 import { NsSegmentedComponent } from '@shared/ui/form/segmented.component';
 
-/** Retraso de la búsqueda de alimentos mientras se escribe. */
+/** Retraso de la búsqueda de alimentos mientras se escribe (el de ns-combobox). */
 export const DEBOUNCE_BUSQUEDA_MS = 250;
 
 const ALERGENOS = Object.keys(ETIQUETAS_ALERGENO) as Alergeno[];
@@ -45,7 +40,7 @@ interface Rechazo {
  * - Alérgenos (los 14): ALERGIA + alergeno, ESTRICTA por defecto y conmutable a PREFERENCIA.
  * - Intolerancia a la lactosa: INTOLERANCIA + intolerancia LACTOSA (también conmutable).
  * - Dietas: DIETA + dieta, ESTRICTA. Halal y kosher no se filtran automáticamente.
- * - Alimentos que no le gustan: combobox con AlimentosService.buscar (250 ms) → RECHAZO +
+ * - Alimentos que no le gustan: ns-combobox con AlimentosService.buscar (250 ms) → RECHAZO +
  *   alimentoId, PREFERENCIA.
  *
  * Cada tipo lleva solo el campo que exige (PUT /perfil/preferencias). Lo que no entiende (p. ej.
@@ -53,7 +48,15 @@ interface Rechazo {
  */
 @Component({
   selector: 'app-selector-preferencias',
-  imports: [FormsModule, LucideDynamicIcon, NsChipGroupComponent, NsSegmentedComponent],
+  imports: [
+    FormsModule,
+    LucideDynamicIcon,
+    NsChipGroupComponent,
+    NsComboboxComponent,
+    NsComboboxOpcionDirective,
+    NsResaltadoComponent,
+    NsSegmentedComponent,
+  ],
   templateUrl: './selector-preferencias.component.html',
   styleUrl: './selector-preferencias.component.scss',
   providers: [
@@ -121,58 +124,17 @@ export class SelectorPreferenciasComponent extends NsControlValor<PreferenciaDto
       .map((p) => ({ alimentoId: p.alimentoId!, nombre: this.nombres()[p.alimentoId!] ?? 'Alimento' })),
   );
 
-  // ---- Combobox de alimentos
+  // ---- Combobox de alimentos (ns-combobox)
   protected readonly idCombo = idUnico('ns-combo');
-  protected readonly idLista = `${this.idCombo}-lista`;
-  protected readonly consulta = signal('');
-  protected readonly resultados = signal<AlimentoResumenResponse[]>([]);
-  protected readonly buscando = signal(false);
-  protected readonly errorBusqueda = signal(false);
-  protected readonly abierto = signal(false);
-  protected readonly activo = signal(-1);
-  private readonly busquedas = new Subject<string>();
 
-  /** Resultados sin los ya rechazados. */
-  protected readonly opcionesCombo = computed(() => {
-    const elegidos = new Set(this.rechazos().map((r) => r.alimentoId));
-    return this.resultados().filter((a) => !elegidos.has(a.id));
-  });
-
-  protected readonly estadoBusqueda = computed(() => {
-    if (this.consulta().trim().length < MIN_CARACTERES_BUSQUEDA) return '';
-    if (this.buscando()) return 'Buscando…';
-    if (this.errorBusqueda()) return 'No hemos podido buscar. Inténtalo de nuevo.';
-    const n = this.opcionesCombo().length;
-    return n === 0 ? 'Sin resultados' : n === 1 ? '1 resultado' : `${n} resultados`;
-  });
-
-  constructor() {
-    super();
-    this.busquedas
-      .pipe(
-        map((texto) => texto.trim()),
-        debounceTime(DEBOUNCE_BUSQUEDA_MS),
-        distinctUntilChanged(),
-        tap(() => this.errorBusqueda.set(false)),
-        switchMap((texto) => {
-          if (texto.length < MIN_CARACTERES_BUSQUEDA) return of([]);
-          this.buscando.set(true);
-          return this.alimentos.buscar(texto, { size: 8 }).pipe(
-            map((pagina) => pagina.content),
-            catchError(() => {
-              this.errorBusqueda.set(true);
-              return of([]);
-            }),
-          );
-        }),
-        takeUntilDestroyed(inject(DestroyRef)),
-      )
-      .subscribe((resultados) => {
-        this.buscando.set(false);
-        this.resultados.set(resultados);
-        this.activo.set(resultados.length ? 0 : -1);
-      });
-  }
+  /** Búsqueda para ns-combobox, sin los alimentos que ya están rechazados. */
+  protected readonly buscarAlimentos = (texto: string): Observable<AlimentoResumenResponse[]> =>
+    this.alimentos.buscar(texto, { size: 8 }).pipe(
+      map((pagina) => {
+        const elegidos = new Set(this.rechazos().map((r) => r.alimentoId));
+        return pagina.content.filter((a) => !elegidos.has(a.id));
+      }),
+    );
 
   override writeValue(valor: PreferenciaDto[] | null): void {
     super.writeValue(Array.isArray(valor) ? [...valor] : []);
@@ -225,64 +187,11 @@ export class SelectorPreferenciasComponent extends NsControlValor<PreferenciaDto
 
   // ---- Combobox
 
-  protected alEscribir(evento: Event): void {
-    const texto = (evento.target as HTMLInputElement).value;
-    this.consulta.set(texto);
-    this.abierto.set(true);
-    if (texto.trim().length < MIN_CARACTERES_BUSQUEDA) {
-      this.resultados.set([]);
-      this.buscando.set(false);
-    }
-    this.busquedas.next(texto);
-  }
-
-  protected alTeclear(evento: KeyboardEvent): void {
-    const opciones = this.opcionesCombo();
-    switch (evento.key) {
-      case 'ArrowDown':
-        evento.preventDefault();
-        this.abierto.set(true);
-        if (opciones.length) this.activo.set((this.activo() + 1) % opciones.length);
-        break;
-      case 'ArrowUp':
-        evento.preventDefault();
-        if (opciones.length) this.activo.set((this.activo() - 1 + opciones.length) % opciones.length);
-        break;
-      case 'Enter':
-        if (this.abierto() && this.activo() >= 0 && opciones[this.activo()]) {
-          evento.preventDefault();
-          this.elegir(opciones[this.activo()]);
-        }
-        break;
-      case 'Escape':
-        if (this.abierto()) {
-          evento.preventDefault();
-          this.abierto.set(false);
-        }
-        break;
-    }
-  }
-
-  protected alSalir(): void {
-    this.tocar();
-    // Deja terminar el clic en una opción antes de cerrar la lista.
-    setTimeout(() => this.abierto.set(false), 150);
-  }
-
   protected elegir(alimento: AlimentoResumenResponse): void {
     this.nombres.update((n) => ({ ...n, [alimento.id]: nombreAlimento(alimento) }));
     if (!this.rechazos().some((r) => r.alimentoId === alimento.id)) {
       this.actualizar([...this.lista(), { tipo: 'RECHAZO', alimentoId: alimento.id, severidad: 'PREFERENCIA' }]);
     }
-    this.consulta.set('');
-    this.resultados.set([]);
-    this.activo.set(-1);
-    this.abierto.set(false);
-    this.busquedas.next('');
-  }
-
-  protected idOpcion(indice: number): string {
-    return `${this.idCombo}-op-${indice}`;
   }
 
   protected nombreAlimento = nombreAlimento;

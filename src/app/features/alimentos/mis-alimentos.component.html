@@ -1,0 +1,145 @@
+<header class="ns-mis__cabecera">
+  <div>
+    <h2 class="ns-text-h3 ns-mis__titulo">Mis alimentos</h2>
+    <p class="ns-mis__ayuda">
+      Los alimentos que creas solo los ves tú. Búscalos por su nombre; sin buscar, aquí ves los que has usado
+      últimamente y los que creas o editas ahora.
+    </p>
+  </div>
+  <button nsButton type="button" icon="plus" (click)="crear()">Crear alimento</button>
+</header>
+
+<div class="ns-mis__buscador">
+  <label class="ns-mis__etiqueta" [for]="idBuscador">Buscar entre mis alimentos</label>
+  <div class="ns-mis__caja">
+    <svg class="ns-mis__lupa" lucideIcon="search" [size]="18" aria-hidden="true"></svg>
+    <input
+      class="ns-mis__input"
+      type="search"
+      autocomplete="off"
+      [id]="idBuscador"
+      [placeholder]="'Escribe al menos ' + minCaracteres + ' letras'"
+      (input)="alEscribir($event)"
+    />
+  </div>
+</div>
+
+<section class="ns-mis__resultados" aria-labelledby="ns-mis-lista-titulo">
+  <h3 class="ns-sr-only" id="ns-mis-lista-titulo">
+    {{ buscando() ? 'Resultados de la búsqueda' : 'Alimentos usados últimamente' }}
+  </h3>
+
+  @if (buscando()) {
+    @switch (busqueda.estado()) {
+      @case ('cargando') {
+        <p class="ns-mis__estado" role="status">Buscando…</p>
+      }
+      @case ('error') {
+        <ns-alert type="error">
+          No hemos podido buscar.
+          <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="busqueda.reintentar()">
+            Reintentar
+          </button>
+        </ns-alert>
+      }
+      @case ('vacia') {
+        <ns-empty-state
+          icon="search"
+          [titulo]="'No tienes alimentos propios que coincidan con «' + busqueda.consulta() + '»'"
+          descripcion="Puede que esté en el catálogo general, o puedes crearlo tú."
+        >
+          <button nsButton type="button" variant="secondary" icon="plus" (click)="crear()">Crear alimento</button>
+        </ns-empty-state>
+      }
+    }
+  } @else if (cargandoUsados()) {
+    <div aria-busy="true" aria-label="Cargando tus alimentos">
+      @for (i of [1, 2, 3]; track i) {
+        <ns-skeleton shape="rect" height="56px" />
+      }
+    </div>
+  } @else if (errorUsados(); as error) {
+    <ns-alert type="error">
+      {{ error }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargarUsados()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+
+  @if (lista().length) {
+    @if (buscando()) {
+      <p class="ns-sr-only" role="status">{{ lista().length }} alimentos propios.</p>
+    }
+    <ul class="ns-mis__lista" role="list">
+      @for (a of lista(); track a.id) {
+        <li class="ns-mis__fila">
+          <span class="ns-mis__textos">
+            <span class="ns-mis__nombre"><ns-resaltado [texto]="a.nombre" [consulta]="busqueda.consulta()" /></span>
+            @if (a.marca) {
+              <span class="ns-mis__marca">{{ a.marca }}</span>
+            }
+          </span>
+          <span class="ns-mis__kcal ns-tnum"
+            >{{ formatear(a.kcal100) }} kcal<span class="ns-mis__por">/100 g</span></span
+          >
+          <span class="ns-mis__acciones">
+            <button
+              nsButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon="pencil"
+              [loading]="cargandoDetalle() === a.id"
+              (click)="editar(a)"
+            >
+              Editar<span class="ns-sr-only"> {{ a.nombre }}</span>
+            </button>
+            <button
+              nsButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon="trash"
+              [loading]="eliminando() === a.id"
+              (click)="eliminar(a)"
+            >
+              Eliminar<span class="ns-sr-only"> {{ a.nombre }}</span>
+            </button>
+          </span>
+        </li>
+      }
+    </ul>
+  } @else if (!buscando() && !cargandoUsados() && !errorUsados()) {
+    <ns-empty-state
+      icon="apple"
+      titulo="Aún no has usado alimentos propios"
+      descripcion="Búscalos por su nombre o crea uno nuevo con sus valores nutricionales."
+    >
+      <button nsButton type="button" icon="plus" (click)="crear()">Crear alimento</button>
+    </ns-empty-state>
+  }
+</section>
+
+<ns-drawer
+  [(abierto)]="drawerAbierto"
+  [titulo]="editando() ? 'Editar alimento' : 'Crear alimento'"
+  [ancho]="560"
+  etiquetaCerrar="Cerrar sin guardar"
+>
+  @if (drawerAbierto()) {
+    <app-alimento-form [alimento]="editando()" (guardado)="alGuardar($event)" />
+  }
+  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">
+    Cancelar
+  </button>
+  <button
+    nsDrawerAcciones
+    nsButton
+    type="submit"
+    [attr.form]="formulario()?.idFormulario"
+    [loading]="formulario()?.enviando() ?? false"
+  >
+    {{ editando() ? 'Guardar cambios' : 'Crear alimento' }}
+  </button>
+</ns-drawer>
