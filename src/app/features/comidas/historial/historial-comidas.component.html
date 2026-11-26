@@ -1,0 +1,101 @@
+<section class="ns-historial__filtros" aria-labelledby="ns-historial-filtros">
+  <h2 class="ns-sr-only" id="ns-historial-filtros">Filtros</h2>
+  @if (layout.esMovil()) {
+    <div class="ns-historial__filtros-movil">
+      <span class="ns-historial__periodo">{{ periodo() }}</span>
+      <button nsButton type="button" variant="secondary" size="sm" icon="settings" (click)="abrirFiltros()">
+        Filtros{{ numeroFiltros() ? ' (' + numeroFiltros() + ')' : '' }}
+      </button>
+    </div>
+  } @else {
+    <ns-card>
+      <app-filtros-historial [valor]="store.filtros()" (cambio)="alCambiarFiltros($event)" />
+    </ns-card>
+  }
+</section>
+
+@switch (store.estado()) {
+  @case ('cargando') {
+    <div class="ns-historial__cargando" aria-busy="true" aria-label="Cargando comidas">
+      <ns-skeleton shape="rect" height="72px" />
+      @for (i of [1, 2, 3]; track i) {
+        <ns-skeleton width="40%" />
+        <ns-skeleton shape="rect" height="96px" />
+      }
+    </div>
+  }
+  @case ('error') {
+    <ns-alert type="error" titulo="No hemos podido cargar tus comidas">
+      {{ store.error() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="store.cargar()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+  @case ('listo') {
+    @if (store.diasVisibles().length) {
+      <section class="ns-historial__resumen" aria-labelledby="ns-historial-resumen">
+        <h2 class="ns-sr-only" id="ns-historial-resumen">Resumen del periodo</h2>
+        <ns-card variant="metric" padding="sm">
+          <p nsCardTitulo>Media diaria</p>
+          <p class="ns-historial__cifra">
+            <span class="ns-text-metric-lg ns-tnum">{{ kcal(store.resumen().mediaKcal) }}</span>
+            <span class="ns-historial__unidad">kcal por día con comidas</span>
+          </p>
+        </ns-card>
+        <ns-card variant="metric" padding="sm">
+          <p nsCardTitulo>Días registrados</p>
+          <p class="ns-historial__cifra">
+            <span class="ns-text-metric-lg ns-tnum">{{ store.resumen().diasRegistrados }}</span>
+            <span class="ns-historial__unidad">{{ periodo().toLowerCase() }}</span>
+          </p>
+        </ns-card>
+      </section>
+
+      <section class="ns-historial__dias" aria-labelledby="ns-historial-lista">
+        <h2 class="ns-sr-only" id="ns-historial-lista">Comidas por día</h2>
+        @for (dia of store.diasVisibles(); track dia.fecha) {
+          <section class="ns-historial__dia" [attr.aria-labelledby]="'ns-dia-' + dia.fecha">
+            <header class="ns-historial__cabecera-dia">
+              <h3 class="ns-text-card-title ns-historial__fecha" [id]="'ns-dia-' + dia.fecha">
+                {{ cabeceraDia(dia.fecha) }}
+              </h3>
+              <span class="ns-historial__total ns-tnum">{{ kcal(dia.kcal) }} kcal</span>
+            </header>
+            <ul class="ns-historial__comidas" role="list">
+              @for (c of dia.comidas; track c.id) {
+                <li>
+                  <app-meal-card
+                    [comida]="c"
+                    (ver)="ver($event)"
+                    (editar)="editar($event)"
+                    (duplicar)="duplicar($event)"
+                    (eliminar)="eliminar($event)"
+                  />
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </section>
+    } @else if (store.hayFiltros()) {
+      <ns-empty-state
+        icon="search"
+        titulo="Ninguna comida coincide con los filtros"
+        descripcion="Prueba con otro tipo de comida u origen."
+      >
+        <button nsButton type="button" variant="secondary" (click)="quitarFiltros()">Quitar filtros</button>
+      </ns-empty-state>
+    } @else {
+      <ns-empty-state icon="utensils" titulo="Aún no hay comidas en estas fechas">
+        <a nsButton icon="plus" routerLink="/comidas/nueva">Registrar comida</a>
+      </ns-empty-state>
+    }
+
+    <div class="ns-historial__mas">
+      <button nsButton type="button" variant="secondary" [loading]="store.cargandoMas()" (click)="cargarMas()">
+        Cargar {{ diasPorTramo }} días más
+      </button>
+    </div>
+  }
+}

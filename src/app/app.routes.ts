@@ -116,7 +116,14 @@ export const routes: Routes = [
         canActivate: [perfilGuard],
         children: [
           { path: 'inicio', title: 'Inicio', ...pendiente(18) },
-          { path: 'comidas', title: 'Comidas', ...pendiente(16) },
+          {
+            path: 'comidas',
+            title: 'Comidas',
+            loadComponent: () =>
+              import('@features/comidas/historial/historial-comidas.component').then(
+                (m) => m.HistorialComidasComponent,
+              ),
+          },
           {
             path: 'comidas/nueva',
             title: 'Registrar comida',

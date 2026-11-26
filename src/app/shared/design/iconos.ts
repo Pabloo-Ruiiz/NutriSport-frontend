@@ -17,6 +17,7 @@ import {
   LucideCopy,
   LucideDatabase,
   LucideDumbbell,
+  LucideEllipsis,
   LucideEye,
   LucideEyeOff,
   LucideHouse,
@@ -100,6 +101,7 @@ export const ICONOS_APP = [
   LucideEyeOff,
   LucideLock,
   LucideStar,
+  LucideEllipsis,
   // Navegación (core/layout/navegacion.ts)
   LucideUsers,
   LucideLibrary,
