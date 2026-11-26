@@ -6,3 +6,4 @@ export * from './allergen-list.component';
 export * from './nutrition-facts.component';
 export * from './source-badge.component';
 export * from './chart.component';
+export * from './confidence-badge.component';

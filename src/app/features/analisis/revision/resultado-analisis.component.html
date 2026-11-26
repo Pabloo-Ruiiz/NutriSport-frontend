@@ -1,0 +1,174 @@
+<p class="ns-sr-only" aria-live="polite">{{ anuncio() }}</p>
+
+@switch (estado()) {
+  @case ('cargando') {
+    <div class="ns-resultado" aria-busy="true" aria-label="Cargando el análisis">
+      <ns-skeleton shape="rect" height="360px" />
+      <ns-skeleton shape="rect" height="480px" />
+    </div>
+  }
+  @case ('analizando') {
+    <section class="ns-resultado__panel ns-resultado__aviso" aria-busy="true">
+      <p class="ns-text-card-title" role="status">Seguimos analizando tu foto…</p>
+      <p class="ns-resultado__texto">En cuanto termine verás aquí los alimentos detectados.</p>
+      <a nsButton variant="secondary" routerLink="/comidas/nueva">Continuar manualmente</a>
+    </section>
+  }
+  @case ('error') {
+    <ns-alert type="error" titulo="No hemos podido cargar el análisis">
+      {{ errorCarga() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+  @case ('no-encontrado') {
+    <section class="ns-resultado__panel ns-resultado__aviso">
+      <h2 class="ns-text-h3">No encontramos este análisis</h2>
+      <p class="ns-resultado__texto">Puede que el enlace no sea correcto o que el análisis no sea tuyo.</p>
+      <a nsButton variant="ai" icon="camera" routerLink="/comidas/foto">Registrar con foto</a>
+    </section>
+  }
+  @case ('revocado') {
+    <ns-consentimiento-revocado />
+  }
+  @case ('terminado') {
+    @if (terminado(); as t) {
+      <section class="ns-resultado__panel ns-resultado__aviso" aria-labelledby="ns-resultado-terminado">
+        <h2 class="ns-text-h3" id="ns-resultado-terminado">{{ t.titulo }}</h2>
+        <p class="ns-resultado__texto">{{ t.texto }}</p>
+        <div class="ns-resultado__acciones-aviso">
+          @switch (t.estado) {
+            @case ('CONFIRMADO') {
+              <a nsButton routerLink="/comidas">Ver mis comidas</a>
+            }
+            @case ('DESCARTADO') {
+              <a nsButton variant="ai" icon="camera" routerLink="/comidas/foto">Registrar con foto</a>
+              <a nsButton variant="secondary" routerLink="/comidas/nueva">Registrar manualmente</a>
+            }
+            @default {
+              <a nsButton variant="ai" icon="camera" routerLink="/comidas/foto">Probar otra foto</a>
+              <a nsButton variant="secondary" routerLink="/comidas/nueva">Registrar manualmente</a>
+            }
+          }
+        </div>
+      </section>
+    }
+  }
+  @case ('revision') {
+    <header class="ns-resultado__cabecera">
+      <div>
+        <h2 class="ns-text-h2 ns-resultado__titulo">{{ titulo() }}</h2>
+        <p class="ns-resultado__texto">{{ resumen() }}</p>
+      </div>
+      <ns-stepper class="ns-resultado__stepper" [pasos]="pasos" [actual]="2" etiqueta="Pasos del registro con foto" />
+    </header>
+
+    <div class="ns-resultado">
+      <div class="ns-resultado__izquierda">
+        <section class="ns-resultado__panel" aria-label="Foto del plato">
+          <app-foto-marcadores
+            [url]="urlFoto()"
+            [estado]="estadoFoto()"
+            [marcadores]="marcadores()"
+            [resaltado]="resaltado()"
+            [compacta]="layout.esMovil()"
+            (elegido)="irAFila($event)"
+          />
+          <p class="ns-resultado__datos">{{ datosComida() }}</p>
+        </section>
+
+        @if (!layout.esMovil()) {
+          <app-totales-analisis class="ns-resultado__panel" [totales]="store.totales()" />
+        }
+      </div>
+
+      <section class="ns-resultado__panel ns-resultado__lista" aria-labelledby="ns-resultado-alimentos">
+        <div class="ns-resultado__lista-cabecera">
+          <h2 class="ns-text-card-title ns-resultado__subtitulo" id="ns-resultado-alimentos">Alimentos detectados</h2>
+          <p class="ns-resultado__texto">Ajusta los gramos o cambia el alimento si no es el correcto.</p>
+          <ns-alert type="ai" titulo="Revisa las cantidades">
+            Las estimaciones a partir de una foto pueden variar. El aceite y las salsas no siempre son visibles.
+          </ns-alert>
+        </div>
+
+        @for (linea of store.lineas(); track linea.id; let i = $index) {
+          <app-candidato-item
+            [linea]="linea"
+            [numero]="i + 1"
+            [resaltada]="resaltado() === i"
+            (mouseenter)="resaltado.set(i)"
+            (mouseleave)="resaltado.set(null)"
+            (focusin)="resaltado.set(i)"
+            (gramos)="store.cambiarGramos(i, $event)"
+            (alimento)="cambiarAlimento(i, $event)"
+            (quitar)="quitar(i)"
+          />
+        } @empty {
+          <p class="ns-resultado__vacia">No queda ningún alimento. Añade al menos uno para guardar la comida.</p>
+        }
+
+        <div class="ns-resultado__anadir">
+          @if (anadiendo()) {
+            <app-buscador-alimentos modo="combobox" etiqueta="Alimento no detectado" (elegido)="anadir($event)" />
+            <button nsButton type="button" variant="ghost" size="sm" (click)="anadiendo.set(false)">Cancelar</button>
+          } @else {
+            <button
+              nsButton
+              type="button"
+              variant="secondary"
+              icon="plus"
+              [disabled]="store.llena()"
+              (click)="anadiendo.set(true)"
+            >
+              Añadir alimento no detectado
+            </button>
+          }
+        </div>
+
+        <ns-disclaimer class="ns-resultado__disclaimer" context="analisis" />
+      </section>
+    </div>
+
+    <footer class="ns-resultado__pie" [class.ns-resultado__pie--movil]="layout.esMovil()">
+      @if (errorEnvio(); as error) {
+        <p class="ns-resultado__error" role="alert">{{ error }}</p>
+      }
+      @if (layout.esMovil()) {
+        <p class="ns-resultado__total ns-tnum">
+          <strong>{{ kcalTotal() }} kcal</strong>
+          <span>
+            P {{ store.totales().proteina }} g · HC {{ store.totales().carbohidratos }} g · G
+            {{ store.totales().grasa }} g
+          </span>
+        </p>
+      } @else {
+        <p class="ns-resultado__nota">Estimación orientativa. Nada se guarda en tu historial hasta que confirmes.</p>
+      }
+      <div class="ns-resultado__botones">
+        <button
+          nsButton
+          type="button"
+          variant="secondary"
+          [loading]="enviando() === 'descartar'"
+          [disabled]="enviando() === 'confirmar'"
+          (click)="descartar()"
+        >
+          Descartar
+        </button>
+        <button
+          nsButton
+          type="button"
+          icon="check"
+          [loading]="enviando() === 'confirmar'"
+          [disabled]="!store.valido() || enviando() === 'descartar'"
+          [attr.aria-describedby]="motivoNoValido() ? 'ns-resultado-motivo' : null"
+          (click)="confirmar()"
+        >
+          {{ layout.esMovil() ? 'Confirmar' : 'Confirmar y guardar · ' + kcalTotal() + ' kcal' }}
+        </button>
+      </div>
+      <p class="ns-sr-only" id="ns-resultado-motivo">{{ motivoNoValido() }}</p>
+    </footer>
+  }
+}

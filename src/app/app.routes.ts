@@ -141,7 +141,14 @@ export const routes: Routes = [
             loadComponent: () =>
               import('@features/analisis/foto/foto-comida.component').then((m) => m.FotoComidaComponent),
           },
-          { path: 'comidas/foto/:id', title: 'Resultado del análisis', ...pendiente(20) },
+          {
+            path: 'comidas/foto/:id',
+            title: 'Resultado del análisis',
+            loadComponent: () =>
+              import('@features/analisis/revision/resultado-analisis.component').then(
+                (m) => m.ResultadoAnalisisComponent,
+              ),
+          },
           {
             path: 'comidas/:id/editar',
             title: 'Editar comida',
