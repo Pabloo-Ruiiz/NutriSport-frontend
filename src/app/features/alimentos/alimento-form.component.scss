@@ -1,0 +1,85 @@
+// Formulario de alimento propio. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+}
+
+.ns-af {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+}
+
+.ns-af__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ns-af__leyenda {
+  margin-bottom: var(--ns-space-1);
+  padding: 0;
+  font: 600 0.9375rem/1.375rem var(--ns-font-body);
+}
+
+.ns-af__ayuda {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.ns-af__fila {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ns-space-4);
+
+  @include bp.down(sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ns-af__porcion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+  align-items: end;
+  gap: var(--ns-space-3);
+  padding-bottom: var(--ns-space-3);
+  border-bottom: 1px solid var(--ns-border);
+
+  @include bp.down(sm) {
+    grid-template-columns: minmax(0, 1fr) 44px;
+
+    > :nth-child(2) {
+      grid-row: 2;
+    }
+  }
+}
+
+.ns-af__quitar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-error-bg);
+    color: var(--ns-error);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}

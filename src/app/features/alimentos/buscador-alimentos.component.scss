@@ -1,0 +1,154 @@
+// Buscador de alimentos (DESIGN.md §7.6). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+@use '../../shared/ui/form/campo';
+
+:host {
+  display: block;
+}
+
+// Fila de un alimento (también dentro de ns-combobox).
+.ns-alimento {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--ns-space-3);
+  min-width: 0;
+}
+
+.ns-alimento__textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ns-alimento__nombre {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+
+.ns-alimento__marca {
+  @include m.truncate;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.ns-alimento__kcal {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.ns-alimento__por {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+@include bp.down(sm) {
+  .ns-alimento {
+    flex-wrap: wrap;
+    row-gap: var(--ns-space-1);
+  }
+
+  .ns-alimento__textos {
+    flex-basis: 100%;
+  }
+}
+
+.ns-buscador {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.ns-buscador__etiqueta {
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+}
+
+.ns-buscador__caja {
+  position: relative;
+}
+
+.ns-buscador__lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--ns-space-3);
+  color: var(--ns-text-tertiary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ns-buscador__input {
+  @include campo.caja;
+  padding-left: 38px;
+}
+
+.ns-buscador__panel {
+  padding-top: var(--ns-space-3);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.ns-buscador__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-buscador__opcion {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--ns-space-2) var(--ns-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--ns-border);
+    background: var(--ns-surface-muted);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-buscador__mas {
+  flex-shrink: 0;
+  color: var(--ns-action-primary);
+}
+
+.ns-buscador__aviso {
+  margin: 0;
+  padding: var(--ns-space-4) 0;
+  color: var(--ns-text-secondary);
+  text-align: center;
+}
+
+.ns-buscador__aviso--error {
+  color: var(--ns-error);
+}
+
+.ns-buscador__reintentar {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ns-text-link);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

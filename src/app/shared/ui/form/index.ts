@@ -10,3 +10,5 @@ export * from './quantity-input.component';
 export * from './segmented.component';
 export * from './select.component';
 export * from './switch.component';
+export * from './busqueda';
+export * from './combobox.component';

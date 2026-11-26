@@ -134,7 +134,9 @@ describe('SelectorPreferenciasComponent', () => {
     await fixture.whenStable();
 
     expect(input.getAttribute('aria-expanded')).toBe('true');
-    expect(raiz().querySelector('.ns-combo__estado')?.textContent).toContain('1 resultado');
+    expect(raiz().querySelector('.ns-combobox__estado')?.textContent).toContain('1 resultado');
+    expect(raiz().querySelector('[role=option] strong')?.textContent).toBe('Bróc');
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     await fixture.whenStable();
 
@@ -143,6 +145,38 @@ describe('SelectorPreferenciasComponent', () => {
 
     raiz().querySelector<HTMLButtonElement>('[aria-label="Quitar Brócoli"]')!.click();
     expect(valor()).toEqual([]);
+  });
+
+  it('no ofrece los alimentos que ya están rechazados', async () => {
+    fixture.componentInstance.control.setValue([{ tipo: 'RECHAZO', alimentoId: 'a-1', severidad: 'PREFERENCIA' }]);
+    await fixture.whenStable();
+    vi.useFakeTimers();
+    const input = raiz().querySelector<HTMLInputElement>('[role=combobox]')!;
+    input.value = 'bro';
+    input.dispatchEvent(new Event('input'));
+    vi.advanceTimersByTime(DEBOUNCE_BUSQUEDA_MS);
+    const alimento = (id: string, nombre: string) => ({
+      id,
+      nombre,
+      marca: null,
+      kcal100: 34,
+      proteinas100: 2.8,
+      carbohidratos100: 7,
+      grasas100: 0.4,
+      fuente: 'BEDCA',
+    });
+    http
+      .expectOne((req) => req.url === '/api/v1/alimentos')
+      .flush({
+        content: [alimento('a-1', 'Brócoli'), alimento('a-2', 'Brotes de soja')],
+        page: 0,
+        size: 8,
+        totalElements: 2,
+        totalPages: 1,
+      });
+    vi.useRealTimers();
+    await fixture.whenStable();
+    expect([...raiz().querySelectorAll('[role=option]')].map((o) => o.textContent?.trim())).toEqual(['Brotes de soja']);
   });
 
   it('conserva lo que no gestiona (FAVORITO) al cambiar otras preferencias', async () => {

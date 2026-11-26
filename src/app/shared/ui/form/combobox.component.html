@@ -1,0 +1,62 @@
+<div class="ns-combobox__caja">
+  <svg class="ns-combobox__lupa" lucideIcon="search" [size]="18" aria-hidden="true"></svg>
+  <input
+    #campo
+    class="ns-combobox__input"
+    type="text"
+    role="combobox"
+    autocomplete="off"
+    spellcheck="false"
+    [id]="idControl()"
+    [placeholder]="placeholder()"
+    [disabled]="deshabilitado()"
+    [attr.aria-label]="idEtiqueta() ? null : etiqueta()"
+    aria-autocomplete="list"
+    [attr.aria-expanded]="listaVisible()"
+    [attr.aria-controls]="idLista()"
+    [attr.aria-activedescendant]="listaVisible() && activo() >= 0 ? idOpcion(activo()) : null"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-busy]="busqueda.estado() === 'cargando' || null"
+    (input)="alEscribir($event)"
+    (keydown)="alTeclear($event)"
+    (focus)="abierto.set(true)"
+    (blur)="alSalir($event)"
+  />
+  @if (busqueda.estado() === 'cargando') {
+    <span class="ns-combobox__cargando" aria-hidden="true"></span>
+  }
+
+  <ul
+    class="ns-combobox__lista"
+    role="listbox"
+    [id]="idLista()"
+    [attr.aria-label]="etiqueta()"
+    [hidden]="!listaVisible()"
+  >
+    @for (item of busqueda.resultados(); track $index; let i = $index) {
+      <li
+        class="ns-combobox__opcion"
+        role="option"
+        [id]="idOpcion(i)"
+        [class.ns-combobox__opcion--activa]="i === activo()"
+        [attr.aria-selected]="i === activo()"
+        (mousedown)="$event.preventDefault()"
+        (mouseenter)="activo.set(i)"
+        (click)="elegir(item)"
+      >
+        @if (plantilla(); as p) {
+          <ng-container [ngTemplateOutlet]="p.plantilla" [ngTemplateOutletContext]="contexto(item, i)" />
+        } @else {
+          {{ textoOpcion()(item) }}
+        }
+      </li>
+    }
+  </ul>
+</div>
+
+<div class="ns-combobox__estado" [id]="idEstado()">
+  <span aria-live="polite">{{ textoEstado() }}</span>
+  @if (busqueda.estado() === 'error') {
+    <button type="button" class="ns-combobox__reintentar" (click)="reintentar()">Reintentar</button>
+  }
+</div>
