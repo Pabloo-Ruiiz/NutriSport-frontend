@@ -132,7 +132,11 @@ export const routes: Routes = [
         ],
       },
       // Sin perfilGuard: la cuenta se gestiona aunque no haya perfil o se haya revocado el consentimiento.
-      { path: 'configuracion', title: 'Configuración', ...pendiente(13) },
+      {
+        path: 'configuracion',
+        title: 'Configuración',
+        loadChildren: () => import('@features/configuracion/configuracion.routes').then((m) => m.RUTAS_CONFIGURACION),
+      },
     ],
   },
 

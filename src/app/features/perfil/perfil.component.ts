@@ -1,7 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { firstValueFrom, forkJoin } from 'rxjs';
 
 import type { ConCambiosSinGuardar } from '@core/guards/cambios-sin-guardar.guard';
+import {
+  ConsentimientoRevocadoComponent,
+  esConsentimientoRevocado,
+} from '@core/layout/consentimiento-revocado.component';
 import { iniciales } from '@core/layout/navegacion';
 import type { ObjetivosResponse, PerfilResponse, PesoResponse, TipoActividadResponse } from '@core/models';
 import { ETIQUETAS_OBJETIVO } from '@core/models/etiquetas';
@@ -38,7 +42,7 @@ const PESTANAS: readonly NsOpcion<PasoPerfil>[] = [
   { valor: 'alimentacion', etiqueta: 'Alimentación' },
 ];
 
-type Estado = 'cargando' | 'error' | 'listo';
+type Estado = 'cargando' | 'error' | 'listo' | 'revocado';
 
 /**
  * Mi perfil (DESIGN.md §7.5): cabecera con avatar, nombre, deporte y objetivo; pestañas con los
@@ -56,6 +60,7 @@ type Estado = 'cargando' | 'error' | 'listo';
 @Component({
   selector: 'app-perfil',
   imports: [
+    ConsentimientoRevocadoComponent,
     NsAlertComponent,
     NsButtonComponent,
     NsSkeletonComponent,
@@ -108,6 +113,14 @@ export class PerfilComponent implements ConCambiosSinGuardar {
 
   constructor() {
     void this.cargar();
+    // Si se vuelve a dar el consentimiento (de revocado a vigente), se recarga. Solo en ese paso: si
+    // la cuenta local aún dice "vigente" y el servidor responde 403, no debe recargar en bucle.
+    let anterior = this.auth.consentimientoVigente();
+    effect(() => {
+      const vigente = this.auth.consentimientoVigente();
+      if (vigente && !anterior && untracked(this.estado) === 'revocado') void this.cargar();
+      anterior = vigente;
+    });
   }
 
   tieneCambiosSinGuardar(): boolean {
@@ -134,8 +147,9 @@ export class PerfilComponent implements ConCambiosSinGuardar {
       this.objetivos.set(objetivos);
       this.estado.set('listo');
     } catch (e) {
-      this.errorCarga.set(aApiError(e).detalle);
-      this.estado.set('error');
+      const error = aApiError(e);
+      this.errorCarga.set(error.detalle);
+      this.estado.set(esConsentimientoRevocado(error) ? 'revocado' : 'error');
     }
     // Solo para el nombre del deporte en la cabecera; si falla, se muestra el código.
     this.tiposActividad.listar().subscribe({ next: (tipos) => this.tipos.set(tipos), error: () => undefined });
@@ -216,6 +230,10 @@ export class PerfilComponent implements ConCambiosSinGuardar {
   }
 
   private mostrarErrorGuardado(error: ApiError): void {
+    if (esConsentimientoRevocado(error)) {
+      this.estado.set('revocado');
+      return;
+    }
     const paso = error.status === 400 ? aplicarErroresPerfil(this.form, error) : null;
     if (paso !== null) {
       this.pestana.set(PASOS_PERFIL[paso]);

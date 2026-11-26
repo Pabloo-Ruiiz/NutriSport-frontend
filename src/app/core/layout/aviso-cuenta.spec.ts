@@ -145,4 +145,21 @@ describe('AvisoCuentaComponent', () => {
     await otraVez.whenStable();
     expect(alerta(otraVez)).not.toBeNull();
   });
+
+  it('el consentimiento revocado tiene prioridad sobre el email y enlaza con Privacidad', async () => {
+    entrar({ ...CUENTA, consentimientoSaludVigente: false });
+    const fixture = await crear();
+    const alertas = (fixture.nativeElement as HTMLElement).querySelectorAll('ns-alert');
+    expect(alertas.length).toBe(1);
+    expect(alertas[0].classList).toContain('ns-alert--warning');
+    expect(alertas[0].textContent).toContain(
+      'Has revocado el consentimiento de datos de salud: tus datos están bloqueados',
+    );
+    expect(alertas[0].querySelector('a')?.getAttribute('href')).toBe('/configuracion/privacidad');
+
+    // Al volver a darlo, reaparece el de email (sigue sin verificar).
+    auth.actualizarCuenta({ ...CUENTA, consentimientoSaludVigente: true });
+    await fixture.whenStable();
+    expect(alerta(fixture)?.textContent).toContain('Verifica tu email');
+  });
 });

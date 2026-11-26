@@ -26,6 +26,7 @@ class AuthServiceFalso {
   readonly cuenta = signal<CuentaResponse | null>(CUENTA);
   readonly esAdmin = signal(false);
   readonly emailVerificado = signal(true);
+  readonly consentimientoVigente = signal(true);
   logout = vi.fn(async () => true);
 }
 
