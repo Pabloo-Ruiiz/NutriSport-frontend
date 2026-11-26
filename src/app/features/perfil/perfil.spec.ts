@@ -105,7 +105,10 @@ beforeEach(() => {
       provideHttpClientTesting(),
       provideRouter([]),
       provideLucideIcons(...ICONOS_APP),
-      { provide: AuthService, useValue: { cuenta: signal({ nombre: 'Álex Romero' }) } },
+      {
+        provide: AuthService,
+        useValue: { cuenta: signal({ nombre: 'Álex Romero' }), consentimientoVigente: signal(true) },
+      },
       { provide: LayoutService, useValue: { esMovil: signal(false) } },
       { provide: InteractivityChecker, useClass: InteractivityCheckerJsdom },
     ],
@@ -245,6 +248,35 @@ describe('PerfilComponent', () => {
     http.expectOne({ method: 'DELETE', url: '/api/v1/perfil/objetivos/manuales' }).flush(OBJETIVOS);
     await esperar();
     expect(raiz().querySelector('app-tarjeta-objetivos')?.textContent).not.toContain('Manuales');
+  });
+});
+
+describe('PerfilComponent con el consentimiento revocado', () => {
+  it('un 403 CONSENTIMIENTO_REVOCADO muestra el estado vacío con el enlace a Privacidad', async () => {
+    fixture = TestBed.createComponent(PerfilComponent);
+    http.expectOne({ method: 'GET', url: '/api/v1/perfil' }).flush(
+      {
+        status: 403,
+        codigo: 'CONSENTIMIENTO_REVOCADO',
+        title: 'Consentimiento revocado',
+        detail: 'Revocado',
+        errors: [],
+      },
+      { status: 403, statusText: 'Forbidden' },
+    );
+    // El error tarda alguna vuelta en llegar a la vista; forkJoin cancela entonces las otras dos peticiones.
+    await vi.waitFor(async () => {
+      await fixture.whenStable();
+      expect(raiz().querySelector('ns-consentimiento-revocado')).not.toBeNull();
+    });
+    http.match('/api/v1/entrenamientos/tipos').forEach((p) => p.flush(TIPOS));
+    // Las otras dos peticiones de la carga no siempre quedan canceladas a tiempo: se cierran aquí.
+    http
+      .match((req) => req.url.startsWith('/api/v1/perfil/'))
+      .filter((p) => !p.cancelled)
+      .forEach((p) => p.flush(null, { status: 403, statusText: 'Forbidden' }));
+    expect(raiz().querySelector('a[href="/configuracion/privacidad"]')).not.toBeNull();
+    expect(raiz().querySelector('ns-tabs')).toBeNull();
   });
 });
 

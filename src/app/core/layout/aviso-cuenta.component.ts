@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Injectable, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { NsButtonComponent } from '@shared/ui/button/button.component';
@@ -7,6 +8,7 @@ import { NsToastService } from '@shared/ui/feedback/toast.service';
 import { AuthService } from '../services/auth.service';
 import { aApiError } from '../util/api-error';
 import { EsperaLimite } from '../util/espera-limite';
+import { RUTA_PRIVACIDAD } from './consentimiento-revocado.component';
 
 /**
  * Avisos cerrados en esta sesión. Solo en memoria (un signal): al recargar vuelven a salir. Se
@@ -24,13 +26,22 @@ export class AvisosCerradosService {
  *   "Reenviar correo" llama a POST /auth/reenviar-verificacion con el email de la cuenta (toast y
  *   429). Se puede cerrar durante la sesión.
  *
- * Paso 13: aquí irá también el aviso de consentimiento de salud revocado.
+ * - Consentimiento de salud revocado (tiene prioridad: solo se ve este): perfil, comidas, análisis,
+ *   entrenamientos y seguimiento responden 403 CONSENTIMIENTO_REVOCADO. Enlaza con Privacidad y no
+ *   se puede cerrar mientras dure. errorInterceptor lo activa en cuanto llega un 403 de ese tipo.
  */
 @Component({
   selector: 'ns-aviso-cuenta',
-  imports: [NsAlertComponent, NsButtonComponent],
+  imports: [RouterLink, NsAlertComponent, NsButtonComponent],
   template: `
-    @if (mostrarEmail()) {
+    @if (consentimientoRevocado()) {
+      <ns-alert type="warning">
+        Has revocado el consentimiento de datos de salud: tus datos están bloqueados.
+        <a nsAlertAcciones nsButton variant="secondary" size="sm" icon="shield-check" [routerLink]="rutaPrivacidad">
+          Ir a Privacidad
+        </a>
+      </ns-alert>
+    } @else if (mostrarEmail()) {
       <ns-alert
         class="ns-aviso-cuenta__alerta"
         type="info"
@@ -80,6 +91,11 @@ export class AvisoCuentaComponent {
   private readonly auth = inject(AuthService);
   private readonly toasts = inject(NsToastService);
   private readonly cerrados = inject(AvisosCerradosService);
+
+  protected readonly rutaPrivacidad = RUTA_PRIVACIDAD;
+  protected readonly consentimientoRevocado = computed(
+    () => !!this.auth.cuenta() && !this.auth.consentimientoVigente(),
+  );
 
   protected readonly mostrarEmail = computed(() => {
     const cuenta = this.auth.cuenta();

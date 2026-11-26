@@ -109,7 +109,8 @@ describe('rutas', () => {
     auth.entrar('DEPORTISTA');
     perfil.existe.mockResolvedValue(false);
     await harness.navigateByUrl('/configuracion');
-    expect(url()).toBe('/configuracion');
+    // En escritorio, /configuracion abre la primera sección.
+    expect(url()).toBe('/configuracion/cuenta');
     expect(perfil.existe).not.toHaveBeenCalled();
     expect(harness.fixture.nativeElement.querySelector('ns-shell')).not.toBeNull();
   });

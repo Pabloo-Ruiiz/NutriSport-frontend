@@ -4,7 +4,11 @@
 </header>
 
 <main class="ns-onboarding__main" id="contenido">
-  @if (objetivos(); as objetivos) {
+  @if (revocado()) {
+    <section class="ns-onboarding__tarjeta">
+      <ns-consentimiento-revocado [nivelTitulo]="1" />
+    </section>
+  } @else if (objetivos(); as objetivos) {
     <section class="ns-onboarding__tarjeta" aria-labelledby="ns-onboarding-titulo">
       <header class="ns-onboarding__encabezado">
         <h1 #titulo class="ns-text-h2" id="ns-onboarding-titulo" tabindex="-1">Tus objetivos diarios</h1>

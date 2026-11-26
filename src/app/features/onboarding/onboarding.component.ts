@@ -11,6 +11,10 @@ import {
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
+import {
+  ConsentimientoRevocadoComponent,
+  esConsentimientoRevocado,
+} from '@core/layout/consentimiento-revocado.component';
 import { LogoComponent } from '@core/layout/logo.component';
 import type { ObjetivosResponse } from '@core/models';
 import { AuthService } from '@core/services/auth.service';
@@ -65,6 +69,7 @@ const PASOS: readonly InfoPaso[] = [
 @Component({
   selector: 'app-onboarding',
   imports: [
+    ConsentimientoRevocadoComponent,
     LogoComponent,
     NsAlertComponent,
     NsButtonComponent,
@@ -96,6 +101,11 @@ export class OnboardingComponent {
   protected readonly error = signal<string | null>(null);
   /** Objetivos calculados: cuando llegan, se muestra el resumen. */
   protected readonly objetivos = signal<ObjetivosResponse | null>(null);
+  /** 403 CONSENTIMIENTO_REVOCADO: no se puede guardar el perfil hasta volver a darlo. */
+  protected readonly revocado = computed(
+    () => this.consentimientoRevocadoEnServidor() || (!!this.auth.cuenta() && !this.auth.consentimientoVigente()),
+  );
+  private readonly consentimientoRevocadoEnServidor = signal(false);
 
   private readonly tarjeta = viewChild<ElementRef<HTMLElement>>('tarjeta');
   private readonly titulo = viewChild<ElementRef<HTMLElement>>('titulo');
@@ -138,6 +148,10 @@ export class OnboardingComponent {
         await firstValueFrom(this.perfil.guardar(aPerfilRequest(valor)));
       } catch (e) {
         const error = aApiError(e);
+        if (esConsentimientoRevocado(error)) {
+          this.consentimientoRevocadoEnServidor.set(true);
+          return;
+        }
         const pasoConError = error.status === 400 ? aplicarErroresPerfil(this.form, error) : null;
         if (pasoConError !== null) {
           this.irA(pasoConError, false);
@@ -169,7 +183,9 @@ export class OnboardingComponent {
       this.objetivos.set(await firstValueFrom(this.perfil.objetivos()));
       this.enfocar(() => this.titulo()?.nativeElement);
     } catch (e) {
-      this.error.set(aApiError(e).detalle);
+      const error = aApiError(e);
+      if (esConsentimientoRevocado(error)) this.consentimientoRevocadoEnServidor.set(true);
+      else this.error.set(error.detalle);
     } finally {
       this.enviando.set(false);
     }
