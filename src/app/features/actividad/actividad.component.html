@@ -1,0 +1,119 @@
+<header class="ns-act__cabecera">
+  <nav class="ns-act__semana" aria-label="Semana">
+    <button type="button" class="ns-act__flecha" aria-label="Semana anterior" (click)="cambiarSemana(-1)">
+      <svg lucideIcon="chevron-left" [size]="20" aria-hidden="true"></svg>
+    </button>
+    <h2 class="ns-act__etiqueta ns-text-h4" aria-live="polite">
+      <span class="ns-sr-only">Semana del </span>{{ etiqueta() }}
+    </h2>
+    <button type="button" class="ns-act__flecha" aria-label="Semana siguiente" (click)="cambiarSemana(1)">
+      <svg lucideIcon="chevron-right" [size]="20" aria-hidden="true"></svg>
+    </button>
+    @if (!esSemanaActual()) {
+      <button nsButton type="button" variant="ghost" size="sm" (click)="irASemanaActual()">Esta semana</button>
+    }
+  </nav>
+  <button nsButton type="button" icon="plus" (click)="registrar()">Registrar entrenamiento</button>
+</header>
+
+@switch (estado()) {
+  @case ('cargando') {
+    <div class="ns-act__cargando" aria-busy="true" aria-label="Cargando entrenamientos">
+      <ns-skeleton shape="rect" height="88px" />
+      <ns-skeleton shape="rect" height="200px" />
+      <ns-skeleton shape="rect" height="96px" />
+      <ns-skeleton shape="rect" height="96px" />
+    </div>
+  }
+  @case ('error') {
+    <ns-alert type="error" titulo="No hemos podido cargar tus entrenamientos">
+      {{ error() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+  @case ('listo') {
+    @if (opcionesTipo().length > 2 || tipo()) {
+      <ns-form-field class="ns-act__filtro" label="Actividad">
+        <ns-select [opciones]="opcionesTipo()" [ngModel]="tipo()" (ngModelChange)="tipo.set($event)" />
+      </ns-form-field>
+    }
+
+    <section aria-labelledby="ns-act-kpis">
+      <h3 class="ns-sr-only" id="ns-act-kpis">Resumen de la semana</h3>
+      <app-kpis-semana [kpis]="kpis()" />
+    </section>
+
+    <ns-card>
+      <h3 nsCardTitulo id="ns-act-carga">Carga por día</h3>
+      <p nsCardSubtitulo>Minutos de entrenamiento por intensidad</p>
+      <app-carga-semana [dias]="carga()" />
+    </ns-card>
+
+    @if (filtrados().length === 0) {
+      <ns-empty-state
+        icon="activity"
+        [titulo]="tipo() ? 'No hay entrenamientos de esta actividad esta semana' : 'No hay entrenamientos esta semana'"
+        descripcion="Registra lo que has entrenado o planifica tus próximas sesiones."
+      >
+        <button nsButton type="button" icon="plus" (click)="registrar()">Registrar entrenamiento</button>
+      </ns-empty-state>
+    } @else {
+      <section class="ns-act__seccion" aria-labelledby="ns-act-proximos">
+        <h3 class="ns-text-card-title ns-act__titulo" id="ns-act-proximos">
+          Próximos <span class="ns-act__cuenta">({{ proximos().length }})</span>
+        </h3>
+        @if (proximos().length) {
+          <ul class="ns-act__lista" role="list">
+            @for (e of proximos(); track e.id) {
+              <li>
+                <app-entrenamiento-item
+                  [entrenamiento]="e"
+                  (realizar)="marcar($event, 'REALIZADO')"
+                  (omitir)="marcar($event, 'OMITIDO')"
+                  (editar)="editar($event)"
+                  (eliminar)="eliminar($event)"
+                />
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ns-act__vacio">No hay entrenamientos planificados esta semana.</p>
+        }
+      </section>
+
+      <section class="ns-act__seccion" aria-labelledby="ns-act-realizados">
+        <h3 class="ns-text-card-title ns-act__titulo" id="ns-act-realizados">
+          Realizados <span class="ns-act__cuenta">({{ realizados().length }})</span>
+        </h3>
+        @if (realizados().length) {
+          <ul class="ns-act__lista" role="list">
+            @for (e of realizados(); track e.id) {
+              <li>
+                <app-entrenamiento-item [entrenamiento]="e" (editar)="editar($event)" (eliminar)="eliminar($event)" />
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ns-act__vacio">Aún no has realizado ningún entrenamiento esta semana.</p>
+        }
+      </section>
+
+      @if (omitidos().length) {
+        <section class="ns-act__seccion" aria-labelledby="ns-act-omitidos">
+          <h3 class="ns-text-card-title ns-act__titulo" id="ns-act-omitidos">
+            Omitidos <span class="ns-act__cuenta">({{ omitidos().length }})</span>
+          </h3>
+          <ul class="ns-act__lista" role="list">
+            @for (e of omitidos(); track e.id) {
+              <li>
+                <app-entrenamiento-item [entrenamiento]="e" (editar)="editar($event)" (eliminar)="eliminar($event)" />
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    }
+  }
+}

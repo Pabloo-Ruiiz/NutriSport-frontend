@@ -1,0 +1,96 @@
+// Actividad deportiva (DESIGN.md §7.13). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  max-width: 960px;
+}
+
+.ns-act__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+}
+
+.ns-act__semana {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+}
+
+.ns-act__etiqueta {
+  min-width: 9ch;
+  margin: 0;
+  text-align: center;
+}
+
+.ns-act__flecha {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-surface-muted);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.ns-act__filtro {
+  max-width: 320px;
+}
+
+.ns-act__cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.ns-act__seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.ns-act__titulo {
+  margin: 0;
+}
+
+.ns-act__cuenta {
+  color: var(--ns-text-secondary);
+  font-weight: 500;
+}
+
+.ns-act__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-act__vacio {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.875rem;
+}
+
+@include bp.down(md) {
+  .ns-act__cabecera > [nsButton] {
+    width: 100%;
+  }
+}
