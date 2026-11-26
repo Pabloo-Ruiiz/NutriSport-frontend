@@ -7,3 +7,6 @@ export * from './nutrition-facts.component';
 export * from './source-badge.component';
 export * from './chart.component';
 export * from './confidence-badge.component';
+export * from './table-cell.directive';
+export * from './table.component';
+export * from './table-selection-bar.component';

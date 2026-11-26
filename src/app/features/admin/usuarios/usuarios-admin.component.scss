@@ -1,0 +1,92 @@
+// Usuarios (administración, DESIGN.md §7.17). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+}
+
+.ns-usuarios__titulo {
+  margin: 0;
+}
+
+.ns-usuarios__ayuda {
+  margin: var(--ns-space-1) 0 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-usuarios__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ns-space-4);
+}
+
+.ns-usuarios__buscar {
+  flex: 1 1 320px;
+  max-width: 480px;
+}
+
+.ns-usuarios__estado {
+  flex: 0 1 200px;
+}
+
+.ns-usuarios__nombre {
+  font-weight: 600;
+}
+
+.ns-usuarios__email {
+  color: var(--ns-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.ns-usuarios__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-1);
+}
+
+.ns-usuarios__verificado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  color: var(--ns-success);
+  white-space: nowrap;
+
+  &--no {
+    color: var(--ns-text-secondary);
+  }
+}
+
+.ns-usuarios__nunca {
+  color: var(--ns-text-tertiary);
+}
+
+.ns-usuarios__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+}
+
+.ns-usuarios__total {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-usuarios__paginador {
+  flex: 1 1 auto;
+}
+
+@include bp.down(md) {
+  .ns-usuarios__pie {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ns-usuarios__paginador {
+    width: 100%;
+  }
+}

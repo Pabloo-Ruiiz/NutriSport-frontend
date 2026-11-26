@@ -1,0 +1,227 @@
+// Tabla (DESIGN.md §5.9). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.ns-table__marco {
+  overflow-x: auto;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+}
+
+.ns-table__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--ns-text);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+}
+
+// ---- Cabecera: surface-muted, caption 600 text-secondary
+.ns-table__th {
+  padding: var(--ns-space-2) var(--ns-space-4);
+  background: var(--ns-surface-muted);
+  border-bottom: 1px solid var(--ns-border);
+  color: var(--ns-text-secondary);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  white-space: nowrap;
+}
+
+.ns-table__ordenar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  margin: calc(var(--ns-space-1) * -1);
+  padding: var(--ns-space-1);
+  border: 0;
+  border-radius: var(--ns-radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-table__icono-orden {
+  flex: none;
+  color: var(--ns-text-tertiary);
+
+  &--activo {
+    color: var(--ns-text);
+  }
+}
+
+// ---- Filas: 52 px, separador border, hover #F9FAFB
+.ns-table__td {
+  height: 52px;
+  padding: var(--ns-space-2) var(--ns-space-4);
+  border-bottom: 1px solid var(--ns-border);
+  vertical-align: middle;
+}
+
+.ns-table__fila:last-child .ns-table__td {
+  border-bottom: 0;
+}
+
+.ns-table__fila:not(.ns-table__fila--carga):hover {
+  // ≈ #F9FAFB: a medio camino entre surface y surface-muted.
+  background: color-mix(in srgb, var(--ns-surface-muted) 50%, var(--ns-surface));
+}
+
+.ns-table__fila--pulsable {
+  cursor: pointer;
+
+  &:focus-visible {
+    @include m.focus-ring;
+    outline-offset: -2px;
+  }
+}
+
+.ns-table__celda--start {
+  text-align: start;
+}
+
+.ns-table__celda--center {
+  text-align: center;
+}
+
+// Cifras a la derecha con tnum
+.ns-table__celda--end {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.ns-table__etiqueta {
+  display: none;
+}
+
+// ---- Selección
+.ns-table__celda-seleccion {
+  width: 48px;
+  padding-inline-end: 0;
+}
+
+.ns-table__texto-seleccion {
+  display: none;
+}
+
+.ns-table__fila--marcada,
+.ns-table__fila--marcada:hover {
+  background: var(--ns-info-bg);
+}
+
+// Orden y "seleccionar todo" en móvil (solo con tarjetas apiladas)
+.ns-table__barra-movil {
+  display: none;
+}
+
+.ns-table__vacia {
+  padding: var(--ns-space-8) var(--ns-space-4);
+}
+
+// ---- Móvil: cada fila, una tarjeta apilada con "Título: valor"
+@include bp.down(md) {
+  :host(.ns-table--stack) {
+    .ns-table__barra-movil {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--ns-space-3);
+      margin-bottom: var(--ns-space-3);
+    }
+
+    .ns-table__orden-movil {
+      flex: 1 1 200px;
+    }
+
+    .ns-table__celda-seleccion {
+      width: auto;
+    }
+
+    .ns-table__texto-seleccion {
+      display: inline;
+    }
+
+    .ns-table__marco {
+      overflow: visible;
+      border: 0;
+      background: none;
+    }
+
+    .ns-table__tabla,
+    tbody,
+    .ns-table__fila,
+    .ns-table__fila-vacia,
+    .ns-table__td,
+    .ns-table__vacia {
+      display: block;
+    }
+
+    // La cabecera sigue para los lectores de pantalla; en pantalla, la etiqueta de cada celda.
+    thead {
+      @include m.sr-only;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: var(--ns-space-3);
+    }
+
+    .ns-table__fila,
+    .ns-table__fila-vacia {
+      border: 1px solid var(--ns-border);
+      border-radius: var(--ns-radius-lg);
+      background: var(--ns-surface);
+    }
+
+    .ns-table__fila {
+      padding: var(--ns-space-2) var(--ns-space-4);
+    }
+
+    .ns-table__fila--marcada {
+      background: var(--ns-info-bg);
+    }
+
+    .ns-table__td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--ns-space-3);
+      height: auto;
+      min-height: 36px;
+      padding: var(--ns-space-1) 0;
+      border-bottom: 1px solid var(--ns-border);
+      text-align: end;
+    }
+
+    .ns-table__fila .ns-table__td:last-child {
+      border-bottom: 0;
+    }
+
+    .ns-table__etiqueta {
+      display: block;
+      flex: none;
+      color: var(--ns-text-secondary);
+      font: 600 0.75rem/1rem var(--ns-font-body);
+      text-align: start;
+    }
+
+    .ns-table__valor {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+}

@@ -1,0 +1,113 @@
+// Detalle de usuario (administración). Solo tokens --ns-*.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+}
+
+.ns-detalle__identidad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-2);
+}
+
+.ns-detalle__nombre {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ns-detalle__datos {
+  display: grid;
+  gap: var(--ns-space-3);
+  margin: var(--ns-space-4) 0 0;
+
+  div {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--ns-space-3);
+  }
+
+  dt {
+    color: var(--ns-text-secondary);
+    font: 600 0.75rem/1.25rem var(--ns-font-body);
+  }
+
+  dd {
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+.ns-detalle__email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-1) var(--ns-space-3);
+  overflow-wrap: anywhere;
+}
+
+.ns-detalle__verificado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  color: var(--ns-success);
+  font-size: 0.8125rem;
+
+  &--no {
+    color: var(--ns-text-secondary);
+  }
+}
+
+.ns-detalle__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-1);
+}
+
+.ns-detalle__nota,
+.ns-detalle__ayuda {
+  margin: var(--ns-space-3) 0 0;
+  color: var(--ns-text-tertiary);
+  font-size: 0.8125rem;
+}
+
+.ns-detalle__ayuda {
+  margin: 0;
+}
+
+.ns-detalle__bloque {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+  padding-top: var(--ns-space-6);
+  border-top: 1px solid var(--ns-border);
+}
+
+.ns-detalle__subtitulo {
+  margin: 0 0 var(--ns-space-1);
+  padding: 0;
+  font: 600 1rem/1.5rem var(--ns-font-body);
+}
+
+.ns-detalle__texto {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-detalle__roles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ns-detalle__error {
+  margin: 0;
+  color: var(--ns-error);
+  font-size: 0.8125rem;
+}

@@ -1,0 +1,110 @@
+<header class="ns-usuarios__cabecera">
+  <h2 class="ns-text-h3 ns-usuarios__titulo">Usuarios</h2>
+  <p class="ns-usuarios__ayuda">Busca cuentas, bloquéalas o cambia sus roles. Aquí nunca se ven datos de salud.</p>
+</header>
+
+<div class="ns-usuarios__filtros" role="search">
+  <ns-form-field class="ns-usuarios__buscar" label="Buscar por nombre o email">
+    <input
+      nsInput
+      type="search"
+      autocomplete="off"
+      placeholder="Ana, ana@correo.com…"
+      [value]="texto()"
+      (input)="alEscribir($event)"
+    />
+  </ns-form-field>
+  <ns-form-field class="ns-usuarios__estado" label="Estado">
+    <ns-select [formControl]="estadoControl" [opciones]="opcionesEstado" />
+  </ns-form-field>
+</div>
+
+@if (error(); as mensaje) {
+  <ns-alert type="error" titulo="No hemos podido cargar los usuarios">
+    {{ mensaje }}
+    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+      Reintentar
+    </button>
+  </ns-alert>
+} @else {
+  <ns-table
+    etiqueta="Usuarios"
+    filasPulsables
+    [columns]="columnas"
+    [data]="filas()"
+    [sort]="orden()"
+    (sortChange)="ordenar($event)"
+    [cargando]="cargando()"
+    [filasCarga]="filtro().size > 10 ? 10 : filtro().size"
+    [textoVacio]="hayFiltros() ? 'Ningún usuario coincide con la búsqueda' : 'Aún no hay usuarios'"
+    [descripcionVacio]="hayFiltros() ? 'Prueba con otro nombre o email, o cambia el estado.' : undefined"
+    (filaPulsada)="abrir($event)"
+  >
+    <ng-template nsCelda="nombre" [nsCeldaDe]="filas()" let-u>
+      <span class="ns-usuarios__nombre">{{ u.nombre }}</span>
+    </ng-template>
+    <ng-template nsCelda="email" [nsCeldaDe]="filas()" let-u>
+      <span class="ns-usuarios__email">{{ u.email }}</span>
+    </ng-template>
+    <ng-template nsCelda="roles" [nsCeldaDe]="filas()" let-u>
+      <span class="ns-usuarios__badges">
+        @for (rol of rolesOrdenados(u.roles); track rol) {
+          <ns-badge [variant]="varianteRol[rol]">{{ rol | etiqueta: 'rol' }}</ns-badge>
+        }
+      </span>
+    </ng-template>
+    <ng-template nsCelda="estado" [nsCeldaDe]="filas()" let-u>
+      <ns-badge [variant]="varianteEstado[u.estado]">{{ u.estado | etiqueta: 'estadoUsuario' }}</ns-badge>
+    </ng-template>
+    <ng-template nsCelda="emailVerificado" [nsCeldaDe]="filas()" let-u>
+      <span class="ns-usuarios__verificado" [class.ns-usuarios__verificado--no]="!u.emailVerificado">
+        <svg
+          [lucideIcon]="u.emailVerificado ? 'circle-check' : 'circle-exclamation-point'"
+          [size]="16"
+          aria-hidden="true"
+        ></svg>
+        {{ u.emailVerificado ? 'Verificado' : 'Sin verificar' }}
+      </span>
+    </ng-template>
+    <ng-template nsCelda="ultimoAcceso" [nsCeldaDe]="filas()" let-u>
+      @if (u.ultimoAcceso) {
+        <time [attr.datetime]="u.ultimoAcceso">{{ u.ultimoAcceso | fechaCorta: 'diaMesAnio' }}</time>
+      } @else {
+        <span class="ns-usuarios__nunca">Nunca</span>
+      }
+    </ng-template>
+    <ng-template nsCelda="creadoEn" [nsCeldaDe]="filas()" let-u>
+      <time [attr.datetime]="u.creadoEn">{{ u.creadoEn | fechaCorta: 'diaMesAnio' }}</time>
+    </ng-template>
+
+    @if (hayFiltros()) {
+      <button nsTablaVacia nsButton type="button" variant="secondary" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
+    }
+  </ns-table>
+
+  @if (pagina(); as p) {
+    <footer class="ns-usuarios__pie">
+      <p class="ns-usuarios__total ns-tnum" role="status">{{ total() }}</p>
+      <ns-paginator
+        class="ns-usuarios__paginador"
+        etiqueta="Páginas de usuarios"
+        etiquetaTamano="Usuarios por página"
+        [page]="p.page"
+        [totalPages]="p.totalPages"
+        [size]="filtro().size"
+        [tamanos]="tamanos"
+        (pageChange)="irAPagina($event)"
+        (sizeChange)="cambiarTamano($event)"
+      />
+    </footer>
+  }
+}
+
+<ns-drawer [(abierto)]="drawerAbierto" titulo="Usuario" [ancho]="560">
+  @if (drawerAbierto() && seleccionado(); as usuario) {
+    <app-usuario-detalle [usuario]="usuario" (actualizado)="alActualizar($event)" />
+  }
+  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">Cerrar</button>
+</ns-drawer>

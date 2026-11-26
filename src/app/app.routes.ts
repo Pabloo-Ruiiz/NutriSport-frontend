@@ -191,7 +191,12 @@ export const routes: Routes = [
     canActivate: [autenticadoGuard, adminGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'usuarios' },
-      { path: 'usuarios', title: 'Usuarios', ...pendiente(21) },
+      {
+        path: 'usuarios',
+        title: 'Usuarios',
+        loadComponent: () =>
+          import('@features/admin/usuarios/usuarios-admin.component').then((m) => m.UsuariosAdminComponent),
+      },
       { path: 'catalogo', title: 'Catálogo', ...pendiente(22) },
     ],
   },

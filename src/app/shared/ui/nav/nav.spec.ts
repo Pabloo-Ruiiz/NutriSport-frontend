@@ -99,3 +99,37 @@ describe('NsPaginatorComponent', () => {
     expect(raiz.querySelector('nav')).toBeNull();
   });
 });
+
+@Component({
+  imports: [NsPaginatorComponent],
+  template: `<ns-paginator [(page)]="pagina" [totalPages]="total()" [(size)]="tamano" [tamanos]="[10, 20, 50]" />`,
+})
+class AnfitrionPaginadorTamano {
+  readonly pagina = signal(2);
+  readonly total = signal(1);
+  readonly tamano = signal<number | null>(20);
+}
+
+describe('NsPaginatorComponent con tamaños', () => {
+  it('muestra el selector aunque haya una sola página y emite el tamaño sin tocar la página', async () => {
+    TestBed.configureTestingModule({ providers: [provideLucideIcons(...ICONOS_APP)] });
+    const fixture = TestBed.createComponent(AnfitrionPaginadorTamano);
+    await fixture.whenStable();
+    const raiz = fixture.nativeElement as HTMLElement;
+    expect(raiz.querySelector('.ns-paginator__texto')).toBeNull();
+    const select = raiz.querySelector('select') as HTMLSelectElement;
+    expect([...select.options].map((o) => o.textContent?.trim())).toEqual([
+      '10 por página',
+      '20 por página',
+      '50 por página',
+    ]);
+    expect(select.selectedOptions[0].textContent?.trim()).toBe('20 por página');
+    expect(select.getAttribute('aria-label')).toBe('Elementos por página');
+
+    select.selectedIndex = 2;
+    select.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(fixture.componentInstance.tamano()).toBe(50);
+    expect(fixture.componentInstance.pagina()).toBe(2);
+  });
+});

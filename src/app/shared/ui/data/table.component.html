@@ -1,0 +1,140 @@
+<!-- Móvil: la cabecera no se ve, así que el orden y "seleccionar todo" van aquí. -->
+@if (stackOnMobile() && (hayOrdenables() || (seleccionable() && filas().length))) {
+  <div class="ns-table__barra-movil">
+    @if (hayOrdenables()) {
+      <ns-form-field class="ns-table__orden-movil" label="Ordenar por">
+        <ns-select [opciones]="opcionesOrden()" [ngModel]="ordenNormalizado()" (ngModelChange)="cambiarOrden($event)" />
+      </ns-form-field>
+    }
+    @if (seleccionable() && filas().length) {
+      <ns-checkbox
+        [ngModel]="todasMarcadas()"
+        [indeterminado]="algunaMarcada()"
+        [disabled]="cargando()"
+        (ngModelChange)="marcarPagina($event)"
+      >
+        Seleccionar todo
+      </ns-checkbox>
+    }
+  </div>
+}
+
+@if (seleccionable() && seleccion().length) {
+  <ns-table-seleccion [texto]="textoSeleccion()" (quitar)="quitarSeleccion()">
+    <ng-content select="[nsTablaAcciones]" />
+  </ns-table-seleccion>
+}
+
+<div class="ns-table__marco">
+  <!-- role explícitos: en móvil las filas pasan a display:block y algunos navegadores pierden la semántica de tabla -->
+  <table class="ns-table__tabla" role="table" [attr.aria-label]="etiqueta()" [attr.aria-busy]="cargando() || null">
+    <thead class="ns-table__cabecera" role="rowgroup">
+      <tr role="row">
+        @if (seleccionable()) {
+          <th scope="col" role="columnheader" class="ns-table__th ns-table__celda-seleccion">
+            <ns-checkbox
+              [ngModel]="todasMarcadas()"
+              [indeterminado]="algunaMarcada()"
+              [disabled]="cargando() || !filas().length"
+              (ngModelChange)="marcarPagina($event)"
+            >
+              <span class="ns-sr-only">Seleccionar todas las filas de la página</span>
+            </ns-checkbox>
+          </th>
+        }
+        @for (col of columns(); track col.clave) {
+          <th
+            scope="col"
+            role="columnheader"
+            [class]="'ns-table__th ns-table__celda--' + (col.alinear ?? 'start')"
+            [style.width]="col.ancho"
+            [attr.aria-sort]="ariaSort(col)"
+          >
+            @if (col.ordenable) {
+              <button type="button" class="ns-table__ordenar" (click)="ordenar(col)">
+                <span>{{ col.titulo }}</span>
+                <svg
+                  class="ns-table__icono-orden"
+                  [class.ns-table__icono-orden--activo]="direccion(col) !== null"
+                  [lucideIcon]="icono(col)"
+                  [size]="14"
+                  aria-hidden="true"
+                ></svg>
+              </button>
+            } @else {
+              {{ col.titulo }}
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody role="rowgroup">
+      @if (cargando()) {
+        @for (i of filasSkeleton(); track i) {
+          <tr class="ns-table__fila ns-table__fila--carga" role="row" aria-hidden="true">
+            @if (seleccionable()) {
+              <td class="ns-table__td ns-table__celda-seleccion" role="cell">
+                <ns-skeleton width="18px" height="18px" />
+              </td>
+            }
+            @for (col of columns(); track col.clave) {
+              <td [class]="'ns-table__td ns-table__celda--' + (col.alinear ?? 'start')" role="cell">
+                <ns-skeleton [width]="$first ? '70%' : '50%'" />
+              </td>
+            }
+          </tr>
+        }
+      } @else if (vacia()) {
+        <tr class="ns-table__fila-vacia" role="row">
+          <td class="ns-table__vacia" role="cell" [attr.colspan]="totalColumnas()">
+            <ns-empty-state
+              [icon]="iconoVacio()"
+              [titulo]="textoVacio()"
+              [descripcion]="descripcionVacio()"
+              [nivelTitulo]="3"
+            >
+              <ng-content select="[nsTablaVacia]" />
+            </ns-empty-state>
+          </td>
+        </tr>
+      } @else {
+        @for (fila of filas(); track rastrear(fila); let i = $index) {
+          <tr
+            class="ns-table__fila"
+            role="row"
+            [class.ns-table__fila--pulsable]="filasPulsables()"
+            [class.ns-table__fila--marcada]="seleccionable() && estaMarcada(fila)"
+            [attr.tabindex]="filasPulsables() ? 0 : null"
+            (click)="pulsar(fila, $event)"
+            (keydown.enter)="pulsar(fila, $event)"
+            (keydown.space)="pulsar(fila, $event)"
+          >
+            @if (seleccionable()) {
+              <td class="ns-table__td ns-table__celda-seleccion" role="cell">
+                <ns-checkbox [ngModel]="estaMarcada(fila)" (ngModelChange)="marcarFila(fila, $event)">
+                  <span class="ns-table__texto-seleccion" aria-hidden="true">Seleccionar</span>
+                  <span class="ns-sr-only">Seleccionar {{ nombreFila(fila, i) }}</span>
+                </ns-checkbox>
+              </td>
+            }
+            @for (col of columns(); track col.clave) {
+              <td [class]="'ns-table__td ns-table__celda--' + (col.alinear ?? 'start')" role="cell">
+                @if (stackOnMobile()) {
+                  <span class="ns-table__etiqueta">{{ col.titulo }}:</span>
+                }
+                <span class="ns-table__valor">
+                  @if (plantillas().get(col.clave); as plantilla) {
+                    <ng-container [ngTemplateOutlet]="plantilla" [ngTemplateOutletContext]="contexto(fila, i)" />
+                  } @else {
+                    {{ valor(fila, col.clave) }}
+                  }
+                </span>
+              </td>
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>

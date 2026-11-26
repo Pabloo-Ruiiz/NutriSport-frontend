@@ -1,0 +1,122 @@
+@let u = actual();
+
+<section class="ns-detalle__cuenta" aria-labelledby="ns-detalle-cuenta">
+  <div class="ns-detalle__identidad">
+    <p class="ns-text-h4 ns-detalle__nombre" id="ns-detalle-cuenta">{{ u.nombre }}</p>
+    <ns-badge [variant]="varianteEstado[u.estado]">{{ u.estado | etiqueta: 'estadoUsuario' }}</ns-badge>
+  </div>
+
+  <dl class="ns-detalle__datos">
+    <div>
+      <dt>Email</dt>
+      <dd class="ns-detalle__email">
+        {{ u.email }}
+        <span class="ns-detalle__verificado" [class.ns-detalle__verificado--no]="!u.emailVerificado">
+          <svg
+            [lucideIcon]="u.emailVerificado ? 'circle-check' : 'circle-exclamation-point'"
+            [size]="16"
+            aria-hidden="true"
+          ></svg>
+          {{ u.emailVerificado ? 'Verificado' : 'Sin verificar' }}
+        </span>
+      </dd>
+    </div>
+    <div>
+      <dt>Roles</dt>
+      <dd class="ns-detalle__badges">
+        @for (rol of roles(); track rol) {
+          <ns-badge [variant]="varianteRol[rol]">{{ rol | etiqueta: 'rol' }}</ns-badge>
+        }
+      </dd>
+    </div>
+    <div>
+      <dt>Último acceso</dt>
+      <dd class="ns-tnum">
+        @if (u.ultimoAcceso) {
+          <time [attr.datetime]="u.ultimoAcceso">
+            {{ u.ultimoAcceso | fechaCorta: 'diaMesAnio' }}, {{ u.ultimoAcceso | fechaCorta: 'hora' }}
+          </time>
+        } @else {
+          Nunca
+        }
+      </dd>
+    </div>
+    <div>
+      <dt>Alta</dt>
+      <dd class="ns-tnum">
+        <time [attr.datetime]="u.creadoEn">{{ u.creadoEn | fechaCorta: 'diaMesAnio' }}</time>
+      </dd>
+    </div>
+  </dl>
+  <p class="ns-detalle__nota">Desde administración no se puede ver ningún dato de salud del usuario.</p>
+</section>
+
+@if (error(); as mensaje) {
+  <ns-alert type="error" titulo="No se ha podido guardar el cambio" dismissible (cerrar)="error.set(null)">
+    {{ mensaje }}
+  </ns-alert>
+}
+
+@if (soloLectura()) {
+  <ns-alert type="info" titulo="Cuenta eliminada">
+    El usuario eliminó su cuenta. Se muestra solo para consulta: no se puede bloquear ni cambiar sus roles.
+  </ns-alert>
+} @else {
+  <section class="ns-detalle__bloque" aria-labelledby="ns-detalle-acceso">
+    <h3 class="ns-detalle__subtitulo" id="ns-detalle-acceso">Acceso</h3>
+    @if (bloqueado()) {
+      <p class="ns-detalle__texto">La cuenta está bloqueada: no puede iniciar sesión.</p>
+      <button
+        nsButton
+        type="button"
+        variant="secondary"
+        icon="lock"
+        [loading]="guardando() === 'estado'"
+        [disabled]="guardando() !== null"
+        (click)="cambiarBloqueo()"
+      >
+        Desbloquear
+      </button>
+    } @else {
+      <p class="ns-detalle__texto">Al bloquearla se cierran todas sus sesiones y no podrá volver a entrar.</p>
+      @if (esUnoMismo()) {
+        <p class="ns-detalle__ayuda">No puedes bloquear tu propia cuenta.</p>
+      }
+      <button
+        nsButton
+        type="button"
+        variant="danger"
+        icon="lock"
+        [loading]="guardando() === 'estado'"
+        [disabled]="guardando() !== null || esUnoMismo()"
+        (click)="cambiarBloqueo()"
+      >
+        Bloquear
+      </button>
+    }
+  </section>
+
+  <form class="ns-detalle__bloque" [formGroup]="formRoles" (ngSubmit)="guardarRoles()">
+    <fieldset class="ns-detalle__roles">
+      <legend class="ns-detalle__subtitulo">Roles</legend>
+      <ns-checkbox formControlName="deportista">Deportista</ns-checkbox>
+      <ns-checkbox formControlName="admin">Administrador</ns-checkbox>
+    </fieldset>
+    @if (formRoles.hasError('sinRoles')) {
+      <p class="ns-detalle__error" role="alert">Marca al menos un rol.</p>
+    }
+    @if (esUnoMismo() && u.roles.includes('ADMIN')) {
+      <p class="ns-detalle__ayuda">No puedes quitarte a ti mismo el rol de administrador.</p>
+    }
+    <div>
+      <button
+        nsButton
+        type="submit"
+        [loading]="guardando() === 'roles'"
+        [disabled]="guardando() !== null || formRoles.invalid || !rolesCambiados()"
+      >
+        Guardar roles
+      </button>
+    </div>
+  </form>
+}
