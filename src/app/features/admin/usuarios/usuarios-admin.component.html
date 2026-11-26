@@ -5,7 +5,14 @@
 
 <div class="ns-usuarios__filtros" role="search">
   <ns-form-field class="ns-usuarios__buscar" label="Buscar por nombre o email">
-    <input nsInput type="search" autocomplete="off" placeholder="Ana, ana@correo.com…" [value]="texto()" (input)="alEscribir($event)" />
+    <input
+      nsInput
+      type="search"
+      autocomplete="off"
+      placeholder="Ana, ana@correo.com…"
+      [value]="texto()"
+      (input)="alEscribir($event)"
+    />
   </ns-form-field>
   <ns-form-field class="ns-usuarios__estado" label="Estado">
     <ns-select [formControl]="estadoControl" [opciones]="opcionesEstado" />
@@ -71,7 +78,9 @@
     </ng-template>
 
     @if (hayFiltros()) {
-      <button nsTablaVacia nsButton type="button" variant="secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+      <button nsTablaVacia nsButton type="button" variant="secondary" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
     }
   </ns-table>
 

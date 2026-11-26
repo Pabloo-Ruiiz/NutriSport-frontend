@@ -12,7 +12,11 @@
       <dd class="ns-detalle__email">
         {{ u.email }}
         <span class="ns-detalle__verificado" [class.ns-detalle__verificado--no]="!u.emailVerificado">
-          <svg [lucideIcon]="u.emailVerificado ? 'circle-check' : 'circle-exclamation-point'" [size]="16" aria-hidden="true"></svg>
+          <svg
+            [lucideIcon]="u.emailVerificado ? 'circle-check' : 'circle-exclamation-point'"
+            [size]="16"
+            aria-hidden="true"
+          ></svg>
           {{ u.emailVerificado ? 'Verificado' : 'Sin verificar' }}
         </span>
       </dd>

@@ -88,7 +88,12 @@
       } @else if (vacia()) {
         <tr class="ns-table__fila-vacia" role="row">
           <td class="ns-table__vacia" role="cell" [attr.colspan]="totalColumnas()">
-            <ns-empty-state [icon]="iconoVacio()" [titulo]="textoVacio()" [descripcion]="descripcionVacio()" [nivelTitulo]="3">
+            <ns-empty-state
+              [icon]="iconoVacio()"
+              [titulo]="textoVacio()"
+              [descripcion]="descripcionVacio()"
+              [nivelTitulo]="3"
+            >
               <ng-content select="[nsTablaVacia]" />
             </ns-empty-state>
           </td>

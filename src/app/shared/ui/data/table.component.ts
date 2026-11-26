@@ -139,7 +139,9 @@ export class NsTableComponent<T> {
   protected readonly filas = computed(() => this.data() ?? []);
   protected readonly orden = computed(() => leerOrden(this.sort()));
   protected readonly vacia = computed(() => !this.cargando() && this.filas().length === 0);
-  protected readonly filasSkeleton = computed(() => Array.from({ length: Math.max(1, this.filasCarga()) }, (_, i) => i));
+  protected readonly filasSkeleton = computed(() =>
+    Array.from({ length: Math.max(1, this.filasCarga()) }, (_, i) => i),
+  );
 
   /** Columnas de la tabla contando la de selección (colspan del estado vacío). */
   protected readonly totalColumnas = computed(() => this.columns().length + (this.seleccionable() ? 1 : 0));

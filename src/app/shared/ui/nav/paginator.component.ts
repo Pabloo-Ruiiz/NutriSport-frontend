@@ -106,7 +106,8 @@ export class NsPaginatorComponent {
   protected readonly opcionesTamano = computed<NsOpcion<number>[]>(() => {
     const actual = this.size();
     // Si llega un tamaño que no está en la lista, se ofrece igualmente para no mostrar el select vacío.
-    const tamanos = actual && !this.tamanos().includes(actual) ? [...this.tamanos(), actual].sort((a, b) => a - b) : this.tamanos();
+    const tamanos =
+      actual && !this.tamanos().includes(actual) ? [...this.tamanos(), actual].sort((a, b) => a - b) : this.tamanos();
     return tamanos.map((n) => ({ valor: n, etiqueta: `${n} por página` }));
   });
 

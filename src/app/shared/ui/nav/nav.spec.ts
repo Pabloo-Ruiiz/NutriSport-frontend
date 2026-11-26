@@ -118,7 +118,11 @@ describe('NsPaginatorComponent con tamaños', () => {
     const raiz = fixture.nativeElement as HTMLElement;
     expect(raiz.querySelector('.ns-paginator__texto')).toBeNull();
     const select = raiz.querySelector('select') as HTMLSelectElement;
-    expect([...select.options].map((o) => o.textContent?.trim())).toEqual(['10 por página', '20 por página', '50 por página']);
+    expect([...select.options].map((o) => o.textContent?.trim())).toEqual([
+      '10 por página',
+      '20 por página',
+      '50 por página',
+    ]);
     expect(select.selectedOptions[0].textContent?.trim()).toBe('20 por página');
     expect(select.getAttribute('aria-label')).toBe('Elementos por página');
 
