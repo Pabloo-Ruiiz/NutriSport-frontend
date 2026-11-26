@@ -1,0 +1,23 @@
+services:
+  frontend:
+    build: .
+    image: nutrisport-frontend
+    container_name: nutrisport-frontend
+    # Se publica en 4200 para mantener el origen http://localhost:4200
+    # que el backend espera en app.frontend-url (CORS, enlaces de correo...)
+    ports:
+      - "4200:80"
+    environment:
+      # Por defecto, el contenedor del backend en la red compartida.
+      # Backend ejecutado en el propio ordenador:
+      #   BACKEND_URL=http://host.docker.internal:8080 docker compose up -d
+      BACKEND_URL: ${BACKEND_URL:-http://nutrisport-backend:8080}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+# Red creada por el docker-compose del backend (proyecto nutrisport-backend)
+networks:
+  default:
+    name: nutrisport-backend_default
+    external: true

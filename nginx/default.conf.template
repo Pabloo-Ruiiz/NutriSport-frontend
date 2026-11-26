@@ -1,0 +1,82 @@
+# Plantilla procesada por envsubst al arrancar el contenedor (imagen oficial
+# de nginx). Solo se sustituyen variables de entorno definidas (BACKEND_URL);
+# las variables propias de nginx ($host, $uri...) se conservan intactas.
+
+# Cache-Control según el recurso. Se calcula aquí con un map para poder
+# declarar TODAS las cabeceras en el bloque server: un add_header dentro de
+# un location anula los heredados del server y perderíamos las de seguridad.
+map $uri $ns_cache_control {
+    # API: no tocamos la caché, decide el backend
+    ~^/api/                                                                   "";
+    # Ficheros con hash en el nombre (main-XXXXXXXX.js, chunk-*, styles-*,
+    # media/*-XXXXXXXX.woff2...): su contenido nunca cambia para esa URL
+    # (entre comillas porque contiene llaves)
+    "~*/[^/]+-[A-Za-z0-9_-]{8}\.(?:js|css|woff2?|ttf|otf|eot|png|jpe?g|gif|svg|webp|avif|ico)$"
+                                                                         "public, max-age=31536000, immutable";
+    # index.html y ficheros sin hash (favicon.ico, marca/*.svg): revalidar siempre
+    default                                                                   "no-cache";
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name _;
+
+    root  /usr/share/nginx/html;
+    index index.html;
+
+    server_tokens off;
+
+    # ---------- Compresión ----------
+    # text/html se comprime siempre; añadimos el resto
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_min_length 1024;
+    gzip_types text/css application/javascript text/javascript application/json image/svg+xml;
+
+    # ---------- Cabeceras ----------
+    add_header Cache-Control           $ns_cache_control;
+    add_header X-Content-Type-Options  "nosniff" always;
+    add_header Referrer-Policy         "no-referrer" always;
+    add_header X-Frame-Options         "DENY" always;
+    # Cámara solo para la propia app (escáner de códigos de barras); el resto denegado
+    add_header Permissions-Policy      "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), fullscreen=(self)" always;
+    # img-src:
+    #   http://localhost:9000            -> MinIO: fotos subidas por el usuario servidas
+    #                                       con URL prefirmada directamente desde MinIO
+    #   https://www.themealdb.com        -> imágenes de las recetas (TheMealDB)
+    #   https://images.openfoodfacts.org -> fotos de productos de Open Food Facts
+    #   https://images.openfoodfacts.net -> CDN/entorno alternativo de imágenes de Open Food Facts
+    #   data: blob:                      -> previsualizaciones locales (FileReader / URL.createObjectURL)
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: blob: http://localhost:9000 https://www.themealdb.com https://images.openfoodfacts.org https://images.openfoodfacts.net; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'" always;
+
+    # ---------- API → backend ----------
+    location /api/ {
+        # Sin URI tras el host: se reenvía la ruta original (/api/v1/...)
+        proxy_pass ${BACKEND_URL};
+
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        # SUSTITUYE la cabecera (no usa $proxy_add_x_forwarded_for): el backend
+        # confía en ella para la IP del cliente y no debe aceptar valores del navegador
+        proxy_set_header X-Forwarded-For   $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP         $remote_addr;
+
+        # Fotos y CSV de hasta 10 MB (+ margen del multipart)
+        client_max_body_size 11m;
+        # Análisis nutricional y asistente IA pueden tardar
+        proxy_read_timeout 60s;
+
+        # Evita cabeceras duplicadas si el backend (Spring Security) ya las envía
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header X-Content-Type-Options;
+    }
+
+    # ---------- SPA ----------
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

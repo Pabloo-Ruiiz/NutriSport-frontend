@@ -1,0 +1,14 @@
+node_modules
+dist
+.angular
+.git
+.github
+.husky
+.vscode
+docs
+coverage
+*.md
+!README.md
+Dockerfile
+docker-compose.yml
+.dockerignore
