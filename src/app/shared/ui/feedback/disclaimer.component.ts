@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-export type NsDisclaimerContext = 'analisis' | 'menu' | 'asistente' | 'receta';
+export type NsDisclaimerContext = 'analisis' | 'menu' | 'asistente' | 'receta' | 'objetivos';
 
 /**
  * Textos orientativos por contexto. NutriSport AI no sustituye a un dietista-nutricionista ni
@@ -21,6 +21,9 @@ export const TEXTOS_DISCLAIMER: Record<NsDisclaimerContext, string> = {
   receta:
     'Valores estimados a partir de los ingredientes, no medidos. ' +
     'Estimación orientativa: no sustituye el consejo de un profesional sanitario o dietista-nutricionista.',
+  objetivos:
+    'Objetivos orientativos calculados con fórmulas estándar a partir de tu perfil. ' +
+    'No sustituyen el consejo de un profesional sanitario o dietista-nutricionista.',
 };
 
 /**

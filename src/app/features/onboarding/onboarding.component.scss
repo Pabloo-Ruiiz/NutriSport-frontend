@@ -1,0 +1,141 @@
+// Configuración inicial del perfil (DESIGN.md §7.3). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--ns-bg);
+}
+
+.ns-onboarding__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
+  height: calc(var(--ns-topbar-height) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) max(var(--ns-space-6), env(safe-area-inset-right)) 0
+    max(var(--ns-space-6), env(safe-area-inset-left));
+  border-bottom: 1px solid var(--ns-border);
+  background: var(--ns-surface);
+}
+
+.ns-onboarding__salir {
+  min-height: 44px;
+  padding: 0 var(--ns-space-3);
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-onboarding__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ns-space-6);
+  width: 100%;
+  padding: var(--ns-space-8) var(--ns-space-6);
+
+  @include bp.down(md) {
+    gap: var(--ns-space-4);
+    padding: var(--ns-space-4) var(--ns-space-4) 0;
+  }
+}
+
+.ns-onboarding__stepper,
+.ns-onboarding__formulario,
+.ns-onboarding__main > .ns-onboarding__tarjeta {
+  width: 100%;
+  max-width: 640px;
+}
+
+.ns-onboarding__formulario {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+
+  @include bp.down(md) {
+    gap: 0;
+  }
+}
+
+.ns-onboarding__tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  padding: var(--ns-space-8);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-xl);
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-sm);
+
+  // Móvil: a ancho completo, sin marco.
+  @include bp.down(md) {
+    padding: var(--ns-space-5) var(--ns-space-4);
+    border-radius: var(--ns-radius-lg);
+  }
+}
+
+.ns-onboarding__encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+
+  h1 {
+    margin: 0;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.ns-onboarding__descripcion {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-onboarding__pie {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+
+  // Móvil: botones fijos abajo, con el safe-area.
+  @include bp.down(md) {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--ns-z-sticky);
+    margin: var(--ns-space-4) calc(-1 * var(--ns-space-4)) 0;
+    padding: var(--ns-space-3) var(--ns-space-4) max(var(--ns-space-3), env(safe-area-inset-bottom));
+    border-top: 1px solid var(--ns-border);
+    background: var(--ns-surface);
+
+    > button {
+      flex: 1;
+    }
+  }
+}
+
+.ns-onboarding__hueco {
+  flex: 1;
+
+  @include bp.down(md) {
+    display: none;
+  }
+}

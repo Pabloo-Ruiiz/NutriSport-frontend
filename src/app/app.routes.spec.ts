@@ -100,7 +100,7 @@ describe('rutas', () => {
     perfil.existe.mockResolvedValue(false);
     await harness.navigateByUrl('/comidas/nueva');
     expect(url()).toBe('/bienvenida');
-    expect(texto()).toContain('paso 11');
+    expect(texto()).toContain('Sobre ti');
     // Pantalla completa: sin sidebar.
     expect(harness.fixture.nativeElement.querySelector('ns-shell')).toBeNull();
   });

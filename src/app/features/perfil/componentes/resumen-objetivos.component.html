@@ -1,0 +1,75 @@
+<div class="ns-resumen">
+  <div class="ns-resumen__datos">
+    <ns-ring
+      class="ns-resumen__anillo"
+      [value]="actuales().kcal"
+      [max]="actuales().kcal"
+      [size]="180"
+      color="kcal"
+      unidad="kcal"
+      etiqueta="Energía diaria"
+    >
+      <span class="ns-text-metric-xl ns-tnum">{{ formatear(actuales().kcal) }}</span>
+      <span class="ns-text-caption ns-text-secondary">kcal al día</span>
+    </ns-ring>
+
+    <ul class="ns-resumen__macros" role="list">
+      @for (m of macros(); track m.clave) {
+        <li class="ns-resumen__macro">
+          <p class="ns-resumen__macro-cabecera">
+            <span class="ns-resumen__macro-nombre">{{ m.nombre }}</span>
+            <span class="ns-tnum">
+              <strong>{{ formatear(m.gramos) }} g</strong>
+              <span class="ns-text-secondary"> · {{ m.porcentaje }} % de la energía</span>
+            </span>
+          </p>
+          <ns-progress-bar
+            [value]="m.kcal"
+            [max]="actuales().kcal"
+            [color]="m.color"
+            unidad="kcal"
+            [etiqueta]="m.nombre + ': ' + formatear(m.gramos) + ' g, ' + m.porcentaje + ' % de la energía'"
+          />
+        </li>
+      }
+    </ul>
+  </div>
+
+  @if (actuales().manuales) {
+    <p class="ns-resumen__manuales">
+      <ns-badge icon="pencil">Objetivos manuales</ns-badge>
+      No se recalculan al cambiar tu perfil.
+    </p>
+  }
+
+  @for (aviso of avisos(); track aviso) {
+    <ns-alert type="warning">{{ aviso }}</ns-alert>
+  }
+
+  @if (desglose(); as filas) {
+    <details class="ns-resumen__calculo">
+      <summary class="ns-resumen__resumen">Cómo lo calculamos</summary>
+      <p class="ns-resumen__explicacion">
+        Estimamos lo que gastas en reposo (metabolismo basal), lo multiplicamos por tu actividad fuera del entrenamiento
+        y lo ajustamos según tu objetivo. Cada día se suma lo que gastes al entrenar.
+      </p>
+      <dl class="ns-resumen__desglose">
+        @for (fila of filas; track fila.termino) {
+          <div class="ns-resumen__fila">
+            <dt>{{ fila.termino }}</dt>
+            <dd class="ns-tnum">{{ fila.valor }}</dd>
+          </div>
+        }
+      </dl>
+    </details>
+  }
+
+  <ns-disclaimer context="objetivos" />
+
+  <div class="ns-resumen__acciones">
+    <button nsButton type="button" variant="secondary" icon="pencil" (click)="ajustar()">Ajustar manualmente</button>
+    @if (irAlPanel()) {
+      <a nsButton routerLink="/inicio" icon="chevron-right" iconPosition="end">Ir a mi panel</a>
+    }
+  </div>
+</div>

@@ -80,3 +80,38 @@ export function casillaMarcada(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null =>
     control.value === true ? null : { requiredTrue: true };
 }
+
+const FECHA_API = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** Años cumplidos el día `hoy` por quien nació en `nacimiento` (ambas "AAAA-MM-DD"). null si no es una fecha. */
+export function edadEn(nacimiento: string, hoy: string): number | null {
+  const n = FECHA_API.exec(nacimiento);
+  const h = FECHA_API.exec(hoy);
+  if (!n || !h) return null;
+  const [anio, mes, dia] = [Number(n[1]), Number(n[2]), Number(n[3])];
+  const fecha = new Date(anio, mes - 1, dia);
+  if (fecha.getFullYear() !== anio || fecha.getMonth() !== mes - 1 || fecha.getDate() !== dia) return null;
+  let edad = Number(h[1]) - anio;
+  if (Number(h[2]) < mes || (Number(h[2]) === mes && Number(h[3]) < dia)) edad--;
+  return edad;
+}
+
+/**
+ * Fecha de nacimiento ("AAAA-MM-DD", la de <input type="date">) de alguien con al menos `anios`.
+ * Errores: { fechaNoValida: true } o { edadMinima: { minima, actual } }. Vacío es válido.
+ * `hoy` se puede fijar en las pruebas.
+ */
+export function edadMinima(anios: number, hoy: () => string = hoyLocalApi): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const valor = control.value;
+    if (valor === null || valor === undefined || valor === '') return null;
+    const edad = typeof valor === 'string' ? edadEn(valor, hoy()) : null;
+    if (edad === null || edad < 0 || edad > 120) return { fechaNoValida: true };
+    return edad < anios ? { edadMinima: { minima: anios, actual: edad } } : null;
+  };
+}
+
+function hoyLocalApi(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}

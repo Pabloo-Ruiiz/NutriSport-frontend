@@ -1,0 +1,157 @@
+// Estilos comunes de los pasos del onboarding (DESIGN.md §7.3). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+:host {
+  display: block;
+}
+
+.ns-paso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+}
+
+.ns-paso__fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ns-space-4);
+
+  @include bp.down(sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ns-paso__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ns-paso__leyenda {
+  padding: 0;
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+}
+
+.ns-paso__subtitulo {
+  margin: var(--ns-space-1) 0 0;
+  color: var(--ns-text-tertiary);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ns-paso__ayuda {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+.ns-paso__error {
+  margin: 0;
+  color: var(--ns-error);
+  font: 500 0.75rem/1rem var(--ns-font-body);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// Tarjetas seleccionables sobre <input type="radio"> nativo (teclado y lectores gratis).
+.ns-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--ns-space-2);
+}
+
+.ns-tarjetas--grandes {
+  grid-template-columns: 1fr;
+}
+
+.ns-tarjeta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  min-height: 48px;
+  padding: var(--ns-space-3);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    background-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    border-color: var(--ns-border-input);
+  }
+
+  // Marcada: borde de 2 px, fondo y check (no solo color).
+  &:has(input:checked) {
+    border-color: var(--ns-action-primary);
+    background: var(--ns-data-kcal-bg);
+    box-shadow: inset 0 0 0 1px var(--ns-action-primary);
+  }
+
+  &:has(input:focus-visible) {
+    @include m.focus-ring;
+  }
+}
+
+.ns-tarjetas--grandes .ns-tarjeta {
+  align-items: flex-start;
+  padding: var(--ns-space-4);
+}
+
+.ns-tarjeta__radio {
+  @include m.sr-only;
+}
+
+.ns-tarjeta__icono {
+  flex-shrink: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-tarjeta:has(input:checked) .ns-tarjeta__icono {
+  color: var(--ns-action-primary);
+}
+
+.ns-tarjeta__textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ns-tarjeta__titulo {
+  font-weight: 600;
+}
+
+.ns-tarjeta__descripcion {
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+.ns-tarjeta__check {
+  flex-shrink: 0;
+  color: var(--ns-action-primary);
+  opacity: 0;
+}
+
+.ns-tarjeta:has(input:checked) .ns-tarjeta__check {
+  opacity: 1;
+}
+
+@include m.reduced-motion {
+  .ns-tarjeta {
+    transition: none;
+  }
+}

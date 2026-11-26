@@ -21,6 +21,8 @@ const MENSAJES: Record<string, (detalle: unknown) => string> = {
   contrasenaSegura: (e) => MENSAJES_CONTRASENA[(e as { motivo?: string })?.motivo ?? ''] ?? MENSAJE_GENERICO,
   coincideCon: () => 'Las contraseñas no coinciden.',
   noSoloEspacios: () => 'Escribe algo más que espacios.',
+  fechaNoValida: () => 'Escribe una fecha válida.',
+  edadMinima: (e) => `Debes tener al menos ${(e as Detalle)['minima']} años.`,
   // Texto que devuelve el backend (p. ej. "Ya existe una cuenta con este correo").
   servidor: (texto) => textoServidor(texto),
 };

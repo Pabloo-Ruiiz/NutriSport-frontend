@@ -1,0 +1,70 @@
+<header class="ns-onboarding__cabecera">
+  <ns-logo />
+  <button type="button" class="ns-onboarding__salir" (click)="cerrarSesion()">Cerrar sesión</button>
+</header>
+
+<main class="ns-onboarding__main" id="contenido">
+  @if (objetivos(); as objetivos) {
+    <section class="ns-onboarding__tarjeta" aria-labelledby="ns-onboarding-titulo">
+      <header class="ns-onboarding__encabezado">
+        <h1 #titulo class="ns-text-h2" id="ns-onboarding-titulo" tabindex="-1">Tus objetivos diarios</h1>
+        <p class="ns-onboarding__descripcion">
+          Calculados con tu perfil. Cada día sumaremos lo que gastes al entrenar.
+        </p>
+      </header>
+      <app-resumen-objetivos [objetivos]="objetivos" irAlPanel />
+    </section>
+  } @else {
+    <ns-stepper
+      class="ns-onboarding__stepper"
+      [pasos]="etiquetasPasos"
+      [actual]="paso()"
+      etiqueta="Configuración del perfil"
+      (pasoPulsado)="irAPaso($event)"
+    />
+
+    <form class="ns-onboarding__formulario" (submit)="$event.preventDefault(); continuar()" novalidate>
+      <section #tarjeta class="ns-onboarding__tarjeta" aria-labelledby="ns-onboarding-titulo">
+        <header class="ns-onboarding__encabezado">
+          <h1 #titulo class="ns-text-h2" id="ns-onboarding-titulo" tabindex="-1">{{ info().titulo }}</h1>
+          <p class="ns-onboarding__descripcion">{{ info().descripcion }}</p>
+        </header>
+
+        @if (error(); as error) {
+          <ns-alert type="error">{{ error }}</ns-alert>
+        }
+
+        @switch (paso()) {
+          @case (0) {
+            <app-paso-sobre-ti [grupo]="form.controls.sobreTi" />
+          }
+          @case (1) {
+            <app-paso-deporte [grupo]="form.controls.deporte" />
+          }
+          @case (2) {
+            <app-paso-objetivo [grupo]="form.controls.objetivo" />
+          }
+          @case (3) {
+            <app-paso-alimentacion [grupo]="form.controls.alimentacion" />
+          }
+        }
+      </section>
+
+      <footer class="ns-onboarding__pie">
+        @if (paso() > 0) {
+          <button nsButton type="button" variant="secondary" icon="chevron-left" (click)="atras()">Atrás</button>
+        }
+        <span class="ns-onboarding__hueco"></span>
+        <button
+          nsButton
+          type="submit"
+          [icon]="esUltimo() ? 'check' : 'chevron-right'"
+          [iconPosition]="esUltimo() ? 'start' : 'end'"
+          [loading]="enviando()"
+        >
+          {{ esUltimo() ? 'Calcular mis objetivos' : 'Continuar' }}
+        </button>
+      </footer>
+    </form>
+  }
+</main>

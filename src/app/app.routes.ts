@@ -96,7 +96,12 @@ export const routes: Routes = [
   },
 
   // Configuración inicial del perfil: pantalla completa, sin sidebar.
-  { path: 'bienvenida', title: 'Bienvenida', canActivate: [autenticadoGuard], ...pendiente(11) },
+  {
+    path: 'bienvenida',
+    title: 'Bienvenida',
+    canActivate: [autenticadoGuard],
+    loadComponent: () => import('@features/onboarding/onboarding.component').then((m) => m.OnboardingComponent),
+  },
 
   // Zona del deportista.
   {
