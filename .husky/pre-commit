@@ -1,0 +1,2 @@
+# Formatea con Prettier los ficheros de src/ que van en el commit (configuración "lint-staged" de package.json).
+npx lint-staged

@@ -1,0 +1,109 @@
+<div class="ns-cat__barra">
+  <ns-segmented [formControl]="tipoControl" [opciones]="tipos" etiqueta="Tipo de categoría" />
+  <button nsButton type="button" icon="plus" (click)="crear()">Nueva categoría</button>
+</div>
+
+@if (errorEliminar(); as mensaje) {
+  <ns-alert type="error" titulo="No se ha eliminado la categoría" dismissible (cerrar)="errorEliminar.set(null)">
+    {{ mensaje }}
+  </ns-alert>
+}
+
+@if (error(); as mensaje) {
+  <ns-alert type="error" titulo="No hemos podido cargar las categorías">
+    {{ mensaje }}
+    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+      Reintentar
+    </button>
+  </ns-alert>
+} @else if (cargando()) {
+  <div class="ns-cat__carga" aria-busy="true" aria-label="Cargando categorías">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <ns-skeleton shape="rect" height="52px" />
+    }
+  </div>
+} @else if (arbol().length === 0) {
+  <ns-empty-state
+    icon="library"
+    [titulo]="esAlimento() ? 'Aún no hay categorías de alimentos' : 'Aún no hay categorías de recetas'"
+    descripcion="Crea la primera para ordenar el catálogo."
+  >
+    <button nsButton type="button" icon="plus" (click)="crear()">Nueva categoría</button>
+  </ns-empty-state>
+} @else {
+  <ul class="ns-cat__arbol" [attr.aria-label]="esAlimento() ? 'Categorías de alimentos' : 'Categorías de recetas'">
+    @for (nodo of arbol(); track nodo.categoria.id) {
+      <ng-container [ngTemplateOutlet]="rama" [ngTemplateOutletContext]="{ $implicit: nodo }" />
+    }
+  </ul>
+}
+
+<ng-template #rama let-nodo>
+  <li class="ns-cat__nodo">
+    <div class="ns-cat__fila" [style.--nivel]="nodo.nivel">
+      <div class="ns-cat__datos">
+        <span class="ns-cat__nombre">{{ nodo.categoria.nombre }}</span>
+        <span class="ns-cat__meta">
+          <ns-badge>Orden {{ nodo.categoria.orden }}</ns-badge>
+          @if (esAlimento() && nodo.categoria.seccionCompra) {
+            <ns-badge variant="info" icon="shopping-basket">{{ nodo.categoria.seccionCompra }}</ns-badge>
+          }
+          @if (nodo.hijos.length) {
+            <span class="ns-cat__hijos">{{
+              nodo.hijos.length === 1 ? '1 subcategoría' : nodo.hijos.length + ' subcategorías'
+            }}</span>
+          }
+        </span>
+      </div>
+      <span class="ns-cat__acciones">
+        <button nsButton type="button" variant="ghost" size="sm" icon="pencil" (click)="editar(nodo.categoria)">
+          Editar<span class="ns-sr-only"> {{ nodo.categoria.nombre }}</span>
+        </button>
+        <button nsButton type="button" variant="ghost" size="sm" icon="plus" (click)="crear(nodo.categoria)">
+          Subcategoría<span class="ns-sr-only"> de {{ nodo.categoria.nombre }}</span>
+        </button>
+        <button
+          nsButton
+          type="button"
+          variant="ghost"
+          size="sm"
+          icon="trash"
+          [loading]="eliminando() === nodo.categoria.id"
+          (click)="eliminar(nodo)"
+        >
+          Eliminar<span class="ns-sr-only"> {{ nodo.categoria.nombre }}</span>
+        </button>
+      </span>
+    </div>
+    @if (nodo.hijos.length) {
+      <ul class="ns-cat__subarbol" [attr.aria-label]="'Subcategorías de ' + nodo.categoria.nombre">
+        @for (hijo of nodo.hijos; track hijo.categoria.id) {
+          <ng-container [ngTemplateOutlet]="rama" [ngTemplateOutletContext]="{ $implicit: hijo }" />
+        }
+      </ul>
+    }
+  </li>
+</ng-template>
+
+<ns-drawer [(abierto)]="drawerAbierto" [titulo]="tituloDrawer()" [ancho]="560" etiquetaCerrar="Cerrar sin guardar">
+  @if (drawerAbierto()) {
+    <app-categoria-form
+      [categoria]="editando()"
+      [tipo]="padreNueva()?.tipo ?? tipoActual()"
+      [padreId]="padreNueva()?.id ?? null"
+      (guardado)="alGuardar($event)"
+    />
+  }
+  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">
+    Cancelar
+  </button>
+  <button
+    nsDrawerAcciones
+    nsButton
+    type="submit"
+    [attr.form]="formulario()?.idFormulario"
+    [loading]="formulario()?.enviando() ?? false"
+  >
+    {{ editando() ? 'Guardar cambios' : 'Crear categoría' }}
+  </button>
+</ns-drawer>

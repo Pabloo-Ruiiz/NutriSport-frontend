@@ -1,0 +1,100 @@
+<ns-dialog-shell>
+  @if (resultado(); as r) {
+    <section class="ns-importar" aria-labelledby="ns-importar-resultado">
+      <h3 class="ns-importar__subtitulo" id="ns-importar-resultado">Resultado de la importación</h3>
+      <div class="ns-importar__metricas" role="status">
+        <ns-metric label="Creados" [value]="r.creados" />
+        <ns-metric label="Actualizados" [value]="r.actualizados" />
+        <ns-metric label="Filas con errores" [value]="r.errores.length" />
+      </div>
+      <p class="ns-importar__ayuda">Los alimentos importados quedan con los alérgenos pendientes de revisar.</p>
+      @if (r.errores.length) {
+        <ns-alert type="warning" titulo="Algunas filas no se han importado">
+          Corrígelas en el fichero y vuelve a importarlo: las que ya existen se actualizan.
+        </ns-alert>
+        <ns-table
+          etiqueta="Filas con errores"
+          [columns]="columnasErrores"
+          [data]="filasErrores()"
+          [stackOnMobile]="true"
+        />
+      }
+    </section>
+  } @else {
+    <form class="ns-importar" [id]="idFormulario" [formGroup]="form" (ngSubmit)="importar()" novalidate>
+      <p class="ns-importar__ayuda">
+        CSV en UTF-8 con cabecera, hasta {{ maxFilas }} filas y 10 MB. Se dan de alta o se actualizan por nombre, marca
+        y preparación.
+      </p>
+
+      <div class="ns-importar__fichero">
+        <label class="ns-importar__etiqueta" [for]="idFichero">Fichero CSV <span aria-hidden="true">*</span></label>
+        <input
+          class="ns-importar__input"
+          type="file"
+          accept=".csv,text/csv"
+          [id]="idFichero"
+          [attr.aria-invalid]="errorArchivo() ? true : null"
+          [attr.aria-describedby]="idFichero + '-ayuda'"
+          (change)="alElegir($event)"
+        />
+        <p class="ns-importar__ayuda" [id]="idFichero + '-ayuda'">
+          @if (errorArchivo(); as problema) {
+            <span class="ns-importar__error" role="alert">{{ problema }}</span>
+          } @else if (archivo(); as a) {
+            {{ a.name }} · {{ tamano() }}
+          } @else {
+            Solo .csv, hasta 10 MB.
+          }
+        </p>
+      </div>
+
+      <div class="ns-importar__fila">
+        <ns-form-field label="Fuente" obligatorio>
+          <ns-select formControlName="fuente" [opciones]="fuentes" />
+        </ns-form-field>
+        <ns-form-field label="Referencia" hint="Opcional: versión o fecha de los datos, p. ej. «2024».">
+          <input nsInput type="text" formControlName="referencia" [maxlength]="maxReferencia" autocomplete="off" />
+        </ns-form-field>
+      </div>
+
+      @if (leyendo()) {
+        <p class="ns-importar__ayuda" role="status">Leyendo el fichero…</p>
+      } @else if (vistaPrevia(); as vista) {
+        <section aria-labelledby="ns-importar-vista">
+          <h3 class="ns-importar__subtitulo" id="ns-importar-vista">Vista previa</h3>
+          <p class="ns-importar__ayuda">
+            Las {{ vista.filas.length }} primeras filas, tal como se leen. Solo es orientativa: el servidor comprueba el
+            fichero al importarlo.
+          </p>
+          @if (vista.cabecera.length) {
+            <ns-table
+              etiqueta="Vista previa del CSV"
+              [columns]="columnasVista()"
+              [data]="filasVista()"
+              textoVacio="El fichero solo tiene la cabecera"
+            />
+          }
+        </section>
+      }
+
+      @if (error(); as mensaje) {
+        <ns-alert type="error" titulo="No se ha podido importar el fichero">{{ mensaje }}</ns-alert>
+      }
+    </form>
+  }
+
+  @if (resultado()) {
+    <button nsDialogAcciones nsButton type="button" (click)="cerrar()">Cerrar</button>
+  }
+  @if (!resultado()) {
+    <button nsDialogAcciones nsButton type="button" variant="secondary" [disabled]="importando()" (click)="ref.close()">
+      Cancelar
+    </button>
+  }
+  @if (!resultado()) {
+    <button nsDialogAcciones nsButton type="submit" [attr.form]="idFormulario" icon="upload" [loading]="importando()">
+      Importar
+    </button>
+  }
+</ns-dialog-shell>

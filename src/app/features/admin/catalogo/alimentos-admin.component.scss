@@ -1,0 +1,72 @@
+// Alimentos del catálogo (administración, DESIGN.md §7.17). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+}
+
+.ns-alim__barra {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ns-space-3);
+}
+
+.ns-alim__filtros {
+  display: grid;
+  grid-template-columns: minmax(240px, 2fr) repeat(4, minmax(150px, 1fr));
+  align-items: end;
+  gap: var(--ns-space-4);
+
+  @include bp.down(lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ns-alim__buscar {
+  @include bp.down(lg) {
+    grid-column: 1 / -1;
+  }
+}
+
+.ns-alim__nombre {
+  font-weight: 600;
+}
+
+.ns-alim__revision {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  color: var(--ns-success);
+  white-space: nowrap;
+
+  &--pendiente {
+    color: var(--ns-warning);
+  }
+}
+
+.ns-alim__acciones {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ns-space-1);
+}
+
+.ns-alim__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+}
+
+.ns-alim__total {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-alim__paginador {
+  flex: 1 1 auto;
+}

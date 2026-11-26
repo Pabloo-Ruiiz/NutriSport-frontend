@@ -1,0 +1,90 @@
+// Categorías del catálogo (administración). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+}
+
+.ns-cat__barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+}
+
+.ns-cat__carga {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+}
+
+.ns-cat__arbol,
+.ns-cat__subarbol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-cat__arbol {
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+}
+
+.ns-cat__arbol > .ns-cat__nodo + .ns-cat__nodo,
+.ns-cat__subarbol {
+  border-top: 1px solid var(--ns-border);
+}
+
+.ns-cat__subarbol .ns-cat__nodo + .ns-cat__nodo {
+  border-top: 1px solid var(--ns-border);
+}
+
+// Sangría por nivel.
+.ns-cat__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-2) var(--ns-space-4);
+  min-height: 52px;
+  padding: var(--ns-space-2) var(--ns-space-4);
+  padding-inline-start: calc(var(--ns-space-4) + var(--nivel, 0) * var(--ns-space-6));
+
+  @include bp.down(md) {
+    padding-inline-start: calc(var(--ns-space-4) + var(--nivel, 0) * var(--ns-space-4));
+  }
+}
+
+.ns-cat__datos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+  min-width: 0;
+}
+
+.ns-cat__nombre {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.ns-cat__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-2);
+}
+
+.ns-cat__hijos {
+  color: var(--ns-text-tertiary);
+  font-size: 0.8125rem;
+}
+
+.ns-cat__acciones {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-1);
+}

@@ -10,12 +10,13 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { firstValueFrom, map } from 'rxjs';
 
-import type { Alergeno, AlimentoResponse, Preparacion, UnidadBase } from '@core/models';
-import { ETIQUETAS_ALERGENO, ETIQUETAS_PREPARACION } from '@core/models/etiquetas';
+import type { Alergeno, AlimentoResponse, FuenteAlimento, Preparacion, UnidadBase } from '@core/models';
+import { ETIQUETAS_ALERGENO, ETIQUETAS_FUENTE_ALIMENTO, ETIQUETAS_PREPARACION } from '@core/models/etiquetas';
+import { AdminCatalogoService, FUENTES_CATALOGO } from '@core/services/admin/admin-catalogo.service';
 import { AlimentosService } from '@core/services/alimentos.service';
 import { CategoriasService } from '@core/services/categorias.service';
 import { aApiError } from '@core/util/api-error';
@@ -40,8 +41,14 @@ import {
   crearPorcion,
 } from './alimento-form';
 
+/** Longitud máxima de la referencia externa (código BEDCA, FDC ID de USDA, código de barras…). */
+const MAX_REFERENCIA = 100;
+
 /**
  * Crear o editar un alimento propio (NutriSport_API.md §5 AlimentoRequest, POST y PUT /alimentos).
+ *
+ * Con  guarda con POST y PUT /admin/alimentos (alimentos públicos o de cualquier
+ * usuario) y, solo al crear, añade la fuente y la referencia externa, que viajan en la query.
  * No pinta botones: quien lo usa pone el de guardar con `form` = `idFormulario` (p. ej. en el pie
  * de un ns-drawer) y lee `enviando`.
  *
@@ -71,8 +78,11 @@ export class AlimentoFormComponent implements OnInit {
   /** Alimento que se edita; sin él, se crea uno nuevo. Se lee al crear el componente. */
   readonly alimento = input<AlimentoResponse | null>(null);
   readonly guardado = output<AlimentoResponse>();
+  /** 'admin': endpoints de administración y, al crear, fuente y referencia externa. */
+  readonly modo = input<'usuario' | 'admin'>('usuario');
 
   private readonly alimentos = inject(AlimentosService);
+  private readonly adminCatalogo = inject(AdminCatalogoService);
 
   readonly idFormulario = idUnico('ns-alimento-form');
   readonly enviando = signal(false);
@@ -107,6 +117,18 @@ export class AlimentoFormComponent implements OnInit {
   }));
   protected readonly maxPorciones = MAX_PORCIONES;
 
+  // ---- Origen (solo administración, al crear)
+  protected readonly origen = new FormGroup({
+    fuente: new FormControl<FuenteAlimento>('ADMIN', { nonNullable: true, validators: Validators.required }),
+    referenciaExterna: new FormControl('', { nonNullable: true, validators: Validators.maxLength(MAX_REFERENCIA) }),
+  });
+  protected readonly fuentes: NsOpcion<FuenteAlimento>[] = FUENTES_CATALOGO.map((valor) => ({
+    valor,
+    etiqueta: ETIQUETAS_FUENTE_ALIMENTO[valor],
+  }));
+  protected readonly maxReferencia = MAX_REFERENCIA;
+  protected readonly conOrigen = computed(() => this.modo() === 'admin' && !this.alimento());
+
   private readonly valor = signal(this.form.getRawValue());
   protected readonly unidad = computed(() => (this.valor().unidadBase === 'ML' ? 'ml' : 'g'));
   protected readonly avisos = computed(() => avisosAlimento(this.valor()));
@@ -117,6 +139,15 @@ export class AlimentoFormComponent implements OnInit {
     this.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.valor.set(this.form.getRawValue()));
+  }
+
+  private peticionGuardar(existente: AlimentoResponse | null, peticion: ReturnType<typeof aAlimentoRequest>) {
+    if (this.modo() === 'admin') {
+      if (existente) return this.adminCatalogo.editarAlimento(existente.id, peticion);
+      const { fuente, referenciaExterna } = this.origen.getRawValue();
+      return this.adminCatalogo.crearAlimento(peticion, fuente, referenciaExterna);
+    }
+    return existente ? this.alimentos.editar(existente.id, peticion) : this.alimentos.crear(peticion);
   }
 
   protected anadirPorcion(): void {
@@ -133,13 +164,15 @@ export class AlimentoFormComponent implements OnInit {
 
   /** true si hay cambios sin guardar. */
   tieneCambios(): boolean {
-    return this.form.dirty;
+    return this.form.dirty || (this.conOrigen() && this.origen.dirty);
   }
 
   protected async guardar(): Promise<void> {
     if (this.enviando()) return;
-    if (this.form.invalid) {
+    const origenValido = !this.conOrigen() || this.origen.valid;
+    if (this.form.invalid || !origenValido) {
       this.form.markAllAsTouched();
+      this.origen.markAllAsTouched();
       return;
     }
     const peticion = aAlimentoRequest(this.form.getRawValue());
@@ -147,10 +180,9 @@ export class AlimentoFormComponent implements OnInit {
     this.enviando.set(true);
     this.error.set(null);
     try {
-      const alimento = await firstValueFrom(
-        existente ? this.alimentos.editar(existente.id, peticion) : this.alimentos.crear(peticion),
-      );
+      const alimento = await firstValueFrom(this.peticionGuardar(existente, peticion));
       this.form.markAsPristine();
+      this.origen.markAsPristine();
       this.guardado.emit(alimento);
     } catch (e) {
       const error = aApiError(e);

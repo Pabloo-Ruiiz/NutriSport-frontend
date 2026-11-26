@@ -112,7 +112,8 @@ Comprueba que responde: <http://localhost:8080/swagger-ui/index.html>. Los corre
 4. Cuando un prompt cite una maqueta (`docs/design/mockups/png/…`), adjunta la imagen al chat.
 5. **Revisa el código** antes de aceptarlo: tiene que cumplir las reglas del Prompt 0. Entenderlo es parte de la defensa.
 6. **Ahorra tokens:** no añadas `#file:` a los documentos grandes (`NutriSport_API.md`, `NutriSport-API.json`, `DESIGN.md`, `PROJECT_PROPOSAL.md`). Los prompts ya citan el fichero de `docs/api/` y la sección que hacen falta; el asistente los abre solo si los necesita. Las maquetas PNG sí se adjuntan. Empieza una conversación nueva en cada paso.
-7. Después de cada prompt, compila: `npm run build`. Si falla, usa el **Prompt de corrección**. Al final de cada paso, `npm test`.
+7. **Formato automático:** el repositorio tiene un *hook* de Git (husky + lint-staged) que pasa Prettier a los ficheros de `src/` de cada commit, para que el CI no falle por formato. Se activa solo con `npm install` (script `prepare`). Si alguna vez falla el paso «Comprobar el formato (Prettier)» del CI, ejecuta `npm run format` y vuelve a hacer el commit.
+8. Después de cada prompt, compila: `npm run build`. Si falla, usa el **Prompt de corrección**. Al final de cada paso, `npm test`.
 
 ### Prompt 0 · Contexto del frontend (empieza cada conversación con él)
 
@@ -5283,8 +5284,9 @@ Lista de control de lo que crea cada paso (además de las pruebas `*.spec.ts` qu
 13. **Estado de la Ampliación por *polling*** también en el asistente: el backend devuelve la respuesta completa (sin *streaming*), así que se muestra "Escribiendo…" mientras dura la petición.
 14. **Modo oscuro, PWA y multi-idioma** son Visión; los textos se escriben directamente en castellano en las plantillas (sin `@angular/localize`).
 15. **Fecha de "hoy"** calculada en el navegador con la zona del usuario; el backend usa Europe/Madrid. Para un usuario en España coinciden; el resumen sin `fecha` usa siempre la del servidor.
-16. **Recetas sin publicar en la administración:** la API no tiene un listado de administración de recetas ni devuelve el campo `publicada`. La pestaña Recetas busca con `GET /recetas`, publica justo después de crear y guarda en la sesión las recetas recién creadas. Si hace falta más, se puede añadir un `GET /admin/recetas` al backend.
-17. **Mis alimentos sin listado propio:** `GET /alimentos` exige texto de búsqueda; los alimentos propios se reconocen por `fuente = USUARIO` y, sin texto, se muestran los de recientes y frecuentes.
+16. **Formato antes de cada commit:** husky + lint-staged ejecutan `prettier --write` sobre los ficheros de `src/` preparados en cada `git commit` (`.husky/pre-commit` y la clave `lint-staged` de `package.json`). Copilot no siempre respeta Prettier y el CI comprueba el formato.
+17. **Recetas sin publicar en la administración:** la API no tiene un listado de administración de recetas ni devuelve el campo `publicada`. La pestaña Recetas busca con `GET /recetas`, publica justo después de crear y guarda en la sesión las recetas recién creadas. Si hace falta más, se puede añadir un `GET /admin/recetas` al backend.
+18. **Mis alimentos sin listado propio:** `GET /alimentos` exige texto de búsqueda; los alimentos propios se reconocen por `fuente = USUARIO` y, sin texto, se muestran los de recientes y frecuentes.
 
 ---
 
