@@ -1,0 +1,220 @@
+// Resultado del análisis (DESIGN.md §7.8, mockup 03). 5 + 7 columnas. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.ns-resultado__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
+  margin-bottom: var(--ns-space-6);
+}
+
+.ns-resultado__titulo {
+  margin: 0;
+}
+
+.ns-resultado__stepper {
+  flex: 0 1 420px;
+
+  @include bp.down(md) {
+    flex-basis: 100%;
+  }
+}
+
+.ns-resultado__texto {
+  margin: var(--ns-space-1) 0 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-resultado {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: start;
+  gap: var(--ns-space-6);
+
+  @include bp.down(lg) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ns-resultado__izquierda {
+  position: sticky;
+  top: calc(var(--ns-topbar-height) + var(--ns-space-6));
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+
+  @include bp.down(lg) {
+    position: static;
+  }
+}
+
+.ns-resultado__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-6);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+
+  @include bp.down(md) {
+    padding: var(--ns-space-4);
+  }
+}
+
+.ns-resultado__datos {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+// La lista: las filas van de borde a borde (su resaltado ocupa todo el ancho).
+.ns-resultado__lista {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+
+  > app-candidato-item {
+    border-top: 1px solid var(--ns-border);
+
+    @include bp.down(md) {
+      padding-right: var(--ns-space-4);
+      padding-left: var(--ns-space-4);
+    }
+  }
+}
+
+.ns-resultado__lista-cabecera,
+.ns-resultado__anadir,
+.ns-resultado__vacia,
+.ns-resultado__disclaimer {
+  padding: var(--ns-space-4) var(--ns-space-6);
+
+  @include bp.down(md) {
+    padding: var(--ns-space-4);
+  }
+}
+
+.ns-resultado__lista-cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  padding-top: var(--ns-space-6);
+
+  .ns-resultado__texto {
+    margin: calc(-1 * var(--ns-space-2)) 0 0;
+    font-size: 0.875rem;
+  }
+}
+
+.ns-resultado__subtitulo {
+  margin: 0;
+}
+
+.ns-resultado__vacia {
+  margin: 0;
+  border-top: 1px solid var(--ns-border);
+  color: var(--ns-text-secondary);
+}
+
+.ns-resultado__anadir {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ns-space-2);
+  border-top: 1px solid var(--ns-border);
+
+  app-buscador-alimentos {
+    flex: 1 1 260px;
+  }
+}
+
+.ns-resultado__disclaimer {
+  padding-top: 0;
+}
+
+// Estados sin revisión (analizando, terminado, no encontrado).
+.ns-resultado__aviso {
+  align-items: center;
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.ns-resultado__acciones-aviso {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--ns-space-2);
+}
+
+// Pie fijo: pegado al borde inferior del contenido (en móvil, sobre la barra de navegación).
+.ns-resultado__pie {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--ns-z-sticky);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-2) var(--ns-space-4);
+  margin-top: var(--ns-space-6);
+  padding: var(--ns-space-3) var(--ns-space-6);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg) var(--ns-radius-lg) 0 0;
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-md);
+}
+
+.ns-resultado__pie--movil {
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  margin-right: calc(-1 * var(--ns-space-4));
+  margin-left: calc(-1 * var(--ns-space-4));
+  padding: var(--ns-space-2) var(--ns-space-4);
+  border-radius: 0;
+}
+
+.ns-resultado__error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--ns-error);
+  font-size: 0.8125rem;
+}
+
+.ns-resultado__nota {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.ns-resultado__total {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+
+  strong {
+    font: 700 1.125rem/1.5rem var(--ns-font-display);
+  }
+
+  span {
+    color: var(--ns-text-secondary);
+    font-size: 0.75rem;
+  }
+}
+
+.ns-resultado__botones {
+  display: flex;
+  gap: var(--ns-space-2);
+  margin-left: auto;
+}

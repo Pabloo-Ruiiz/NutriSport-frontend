@@ -122,7 +122,9 @@ describe('rutas', () => {
   it('las rutas con parámetro cargan su pantalla', async () => {
     auth.entrar('DEPORTISTA');
     await harness.navigateByUrl('/comidas/foto/abc');
-    expect(texto()).toContain('paso 20');
+    // La revisión del análisis lo pide nada más abrirse.
+    TestBed.inject(HttpTestingController).expectOne('/api/v1/analisis/abc');
+    expect(harness.fixture.nativeElement.querySelector('app-resultado-analisis')).not.toBeNull();
     await harness.navigateByUrl('/comidas/abc/editar');
     // El registro en modo edición pide la comida.
     TestBed.inject(HttpTestingController).expectOne('/api/v1/comidas/abc');
