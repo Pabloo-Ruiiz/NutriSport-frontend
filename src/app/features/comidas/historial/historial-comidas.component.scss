@@ -1,0 +1,91 @@
+// Historial de comidas (DESIGN.md §7.9). Solo tokens --ns-*.
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  max-width: 880px;
+}
+
+.ns-historial__filtros-movil {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+}
+
+.ns-historial__periodo {
+  color: var(--ns-text-secondary);
+  font-size: 0.875rem;
+}
+
+.ns-historial__cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.ns-historial__resumen {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ns-space-3);
+}
+
+.ns-historial__cifra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ns-space-1) var(--ns-space-2);
+  margin: var(--ns-space-1) 0 0;
+}
+
+.ns-historial__unidad {
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.ns-historial__dias {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+}
+
+.ns-historial__dia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.ns-historial__cabecera-dia {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+  padding-bottom: var(--ns-space-2);
+  border-bottom: 1px solid var(--ns-border);
+}
+
+.ns-historial__fecha {
+  margin: 0;
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.ns-historial__total {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.ns-historial__comidas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-historial__mas {
+  display: flex;
+  justify-content: center;
+}
