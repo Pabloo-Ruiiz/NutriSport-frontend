@@ -197,7 +197,26 @@ export const routes: Routes = [
         loadComponent: () =>
           import('@features/admin/usuarios/usuarios-admin.component').then((m) => m.UsuariosAdminComponent),
       },
-      { path: 'catalogo', title: 'Catálogo', ...pendiente(22) },
+      {
+        path: 'catalogo',
+        loadComponent: () =>
+          import('@features/admin/catalogo/catalogo-admin.component').then((m) => m.CatalogoAdminComponent),
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'alimentos' },
+          {
+            path: 'alimentos',
+            title: 'Catálogo · Alimentos',
+            loadComponent: () =>
+              import('@features/admin/catalogo/alimentos-admin.component').then((m) => m.AlimentosAdminComponent),
+          },
+          {
+            path: 'categorias',
+            title: 'Catálogo · Categorías',
+            loadComponent: () =>
+              import('@features/admin/catalogo/categorias-admin.component').then((m) => m.CategoriasAdminComponent),
+          },
+        ],
+      },
     ],
   },
 

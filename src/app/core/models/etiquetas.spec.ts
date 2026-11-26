@@ -20,6 +20,7 @@ import type {
   TipoComida,
   TipoPreferencia,
   UnidadCompra,
+  Visibilidad,
 } from './index';
 import { ETIQUETAS, ICONOS_TIPO_COMIDA, ORDEN_TIPOS_COMIDA, TipoEtiqueta } from './etiquetas';
 
@@ -63,6 +64,7 @@ const VALORES: Record<TipoEtiqueta, readonly string[]> = {
   severidad: ['ESTRICTA', 'PREFERENCIA'] satisfies Severidad[],
   preparacion: ['CRUDO', 'COCIDO', 'PLANCHA', 'FRITO', 'HORNO', 'ENVASADO', 'OTRA'] satisfies Preparacion[],
   fuenteAlimento: ['BEDCA', 'USDA', 'OPEN_FOOD_FACTS', 'ADMIN', 'USUARIO', 'OCR'] satisfies FuenteAlimento[],
+  visibilidad: ['PUBLICO', 'PRIVADO'] satisfies Visibilidad[],
   estadoAnalisis: [
     'PENDIENTE',
     'PROCESANDO',

@@ -1,0 +1,72 @@
+// Importación CSV (administración). Solo tokens --ns-*.
+@use 'abstracts/mixins' as m;
+
+.ns-importar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.ns-importar__ayuda {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.ns-importar__subtitulo {
+  margin: 0 0 var(--ns-space-1);
+  font: 600 1rem/1.5rem var(--ns-font-body);
+}
+
+.ns-importar__fichero {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ns-importar__etiqueta {
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+}
+
+.ns-importar__input {
+  padding: var(--ns-space-2);
+  border: 1px dashed var(--ns-border-input);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface);
+  font: 400 0.875rem/1.25rem var(--ns-font-body);
+
+  &::file-selector-button {
+    margin-right: var(--ns-space-3);
+    padding: var(--ns-space-1) var(--ns-space-3);
+    border: 1px solid var(--ns-border-strong);
+    border-radius: var(--ns-radius-sm);
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+    font: 600 0.8125rem/1.25rem var(--ns-font-body);
+    cursor: pointer;
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--ns-error);
+  }
+}
+
+.ns-importar__error {
+  color: var(--ns-error);
+}
+
+.ns-importar__fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ns-space-4);
+}
+
+.ns-importar__metricas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ns-space-4);
+}

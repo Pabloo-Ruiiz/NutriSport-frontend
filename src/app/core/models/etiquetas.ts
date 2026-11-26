@@ -5,6 +5,7 @@ import type { EstadoAnalisis } from './analisis';
 import type { OrigenComida } from './comidas';
 import type { UnidadCompra } from './compra';
 import type { Alergeno, EstadoUsuario, FuenteAlimento, Preparacion, Rol, TipoComida } from './comun';
+import type { Visibilidad } from './alimentos';
 import type { EstadoMenu } from './menus';
 import type { Dieta, NivelActividad, ObjetivoDeportivo, Severidad, Sexo, TipoPreferencia } from './perfil';
 import type { EstadoConversion, EstadoNutricional } from './recetas';
@@ -123,6 +124,11 @@ export const ETIQUETAS_FUENTE_ALIMENTO: Record<FuenteAlimento, string> = {
   OCR: 'Etiqueta',
 };
 
+export const ETIQUETAS_VISIBILIDAD: Record<Visibilidad, string> = {
+  PUBLICO: 'Público',
+  PRIVADO: 'Privado',
+};
+
 export const ETIQUETAS_ESTADO_ANALISIS: Record<EstadoAnalisis, string> = {
   PENDIENTE: 'En cola',
   PROCESANDO: 'Analizando',
@@ -216,6 +222,7 @@ export const ETIQUETAS = {
   severidad: ETIQUETAS_SEVERIDAD,
   preparacion: ETIQUETAS_PREPARACION,
   fuenteAlimento: ETIQUETAS_FUENTE_ALIMENTO,
+  visibilidad: ETIQUETAS_VISIBILIDAD,
   estadoAnalisis: ETIQUETAS_ESTADO_ANALISIS,
   estadoNutricional: ETIQUETAS_ESTADO_NUTRICIONAL,
   estadoConversion: ETIQUETAS_ESTADO_CONVERSION,

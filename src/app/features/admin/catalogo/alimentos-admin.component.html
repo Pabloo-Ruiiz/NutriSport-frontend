@@ -1,0 +1,142 @@
+<div class="ns-alim__barra">
+  <button
+    nsButton
+    type="button"
+    [variant]="soloPendientes() ? 'primary' : 'secondary'"
+    icon="shield-check"
+    [attr.aria-pressed]="soloPendientes()"
+    (click)="alternarPendientes()"
+  >
+    Pendientes de revisar
+  </button>
+  <button nsButton type="button" variant="secondary" icon="upload" (click)="importarCsv()">Importar CSV</button>
+  <button nsButton type="button" icon="plus" (click)="crear()">Nuevo alimento</button>
+</div>
+
+<div class="ns-alim__filtros" role="search" [formGroup]="filtros">
+  <ns-form-field class="ns-alim__buscar" label="Buscar por nombre o marca">
+    <input nsInput type="search" autocomplete="off" placeholder="Avena, Hacendado…" [value]="texto()" (input)="alEscribir($event)" />
+  </ns-form-field>
+  <ns-form-field label="Fuente">
+    <ns-select formControlName="fuente" [opciones]="opcionesFuente" />
+  </ns-form-field>
+  <ns-form-field label="Alérgenos">
+    <ns-select formControlName="revisados" [opciones]="opcionesRevisados" />
+  </ns-form-field>
+  <ns-form-field label="Visibilidad">
+    <ns-select formControlName="visibilidad" [opciones]="opcionesVisibilidad" />
+  </ns-form-field>
+  <ns-form-field label="Estado">
+    <ns-select formControlName="activo" [opciones]="opcionesActivo" />
+  </ns-form-field>
+</div>
+
+@if (error(); as mensaje) {
+  <ns-alert type="error" titulo="No hemos podido cargar el catálogo">
+    {{ mensaje }}
+    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">Reintentar</button>
+  </ns-alert>
+} @else {
+  <ns-table
+    etiqueta="Alimentos del catálogo"
+    [columns]="columnas"
+    [data]="filas()"
+    [sort]="orden()"
+    (sortChange)="ordenar($event)"
+    [cargando]="cargando()"
+    [filasCarga]="filtro().size > 10 ? 10 : filtro().size"
+    [textoVacio]="
+      soloPendientes() && !filtro().q ? 'No hay alimentos pendientes de revisar' : hayFiltros() ? 'Ningún alimento coincide con los filtros' : 'El catálogo está vacío'
+    "
+    [descripcionVacio]="hayFiltros() && !soloPendientes() ? 'Prueba con otro texto o quita algún filtro.' : undefined"
+  >
+    <ng-template nsCelda="nombre" [nsCeldaDe]="filas()" let-a>
+      <span class="ns-alim__nombre">{{ a.nombre }}</span>
+    </ng-template>
+    <ng-template nsCelda="fuente" [nsCeldaDe]="filas()" let-a>
+      <ns-source-badge [fuente]="a.fuente" />
+    </ng-template>
+    <ng-template nsCelda="visibilidad" [nsCeldaDe]="filas()" let-a>
+      <ns-badge [variant]="a.visibilidad === 'PRIVADO' ? 'warning' : 'neutral'" [icon]="a.visibilidad === 'PRIVADO' ? 'lock' : undefined">
+        {{ a.visibilidad | etiqueta: 'visibilidad' }}
+      </ns-badge>
+    </ng-template>
+    <ng-template nsCelda="alergenosRevisados" [nsCeldaDe]="filas()" let-a>
+      <span class="ns-alim__revision" [class.ns-alim__revision--pendiente]="!a.alergenosRevisados">
+        <svg
+          [lucideIcon]="a.alergenosRevisados ? 'circle-check' : 'triangle-exclamation-point'"
+          [size]="16"
+          aria-hidden="true"
+        ></svg>
+        {{ a.alergenosRevisados ? 'Revisados' : 'Sin revisar' }}
+      </span>
+    </ng-template>
+    <ng-template nsCelda="activo" [nsCeldaDe]="filas()" let-a>
+      <ns-badge [variant]="a.activo ? 'success' : 'neutral'">{{ a.activo ? 'Activo' : 'Desactivado' }}</ns-badge>
+    </ng-template>
+    <ng-template nsCelda="acciones" [nsCeldaDe]="filas()" let-a>
+      <span class="ns-alim__acciones">
+        <button nsButton type="button" variant="ghost" size="sm" icon="pencil" (click)="editar(a)">
+          Editar<span class="ns-sr-only"> {{ a.nombre }}</span>
+        </button>
+        <button nsButton type="button" variant="ghost" size="sm" icon="shield-check" (click)="revisar(a)">
+          Alérgenos<span class="ns-sr-only"> de {{ a.nombre }}</span>
+        </button>
+        <button
+          nsButton
+          type="button"
+          variant="ghost"
+          size="sm"
+          icon="trash"
+          [loading]="eliminando() === a.id"
+          [disabled]="!a.activo"
+          (click)="eliminar(a)"
+        >
+          Eliminar<span class="ns-sr-only"> {{ a.nombre }}</span>
+        </button>
+      </span>
+    </ng-template>
+
+    @if (hayFiltros()) {
+      <button nsTablaVacia nsButton type="button" variant="secondary" (click)="limpiarFiltros()">Limpiar filtros</button>
+    }
+  </ns-table>
+
+  @if (pagina(); as p) {
+    <footer class="ns-alim__pie">
+      <p class="ns-alim__total ns-tnum" role="status">{{ total() }}</p>
+      <ns-paginator
+        class="ns-alim__paginador"
+        etiqueta="Páginas del catálogo"
+        etiquetaTamano="Alimentos por página"
+        [page]="p.page"
+        [totalPages]="p.totalPages"
+        [size]="filtro().size"
+        [tamanos]="tamanos"
+        (pageChange)="irAPagina($event)"
+        (sizeChange)="cambiarTamano($event)"
+      />
+    </footer>
+  }
+}
+
+<ns-drawer
+  [(abierto)]="drawerAbierto"
+  [titulo]="editando() ? 'Editar alimento' : 'Nuevo alimento'"
+  [ancho]="560"
+  etiquetaCerrar="Cerrar sin guardar"
+>
+  @if (drawerAbierto()) {
+    <app-alimento-form modo="admin" [alimento]="editando()" (guardado)="alGuardar($event)" />
+  }
+  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">Cancelar</button>
+  <button
+    nsDrawerAcciones
+    nsButton
+    type="submit"
+    [attr.form]="formulario()?.idFormulario"
+    [loading]="formulario()?.enviando() ?? false"
+  >
+    {{ editando() ? 'Guardar cambios' : 'Crear alimento' }}
+  </button>
+</ns-drawer>
