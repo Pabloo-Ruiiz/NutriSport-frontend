@@ -10,11 +10,13 @@ import {
 } from '@angular/core';
 import { TitleStrategy, provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { provideLucideIcons } from '@lucide/angular';
+import { provideEchartsCore } from 'ngx-echarts';
 
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { NutriSportTitleStrategy } from '@core/layout/titulo.strategy';
 import { AuthService } from '@core/services/auth.service';
+import { cargarEcharts } from '@shared/design/echarts-theme';
 import { ICONOS_APP } from '@shared/design/iconos';
 import { routes } from './app.routes';
 
@@ -32,6 +34,9 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'es-ES' },
     // Iconos de Lucide disponibles por nombre en <svg lucideIcon="…"> (shared/design/iconos.ts).
     provideLucideIcons(...ICONOS_APP),
+    // ECharts se carga bajo demanda (import dinámico) al pintar el primer ns-chart, y en ese momento
+    // se registra el tema 'nutrisport' (shared/design/echarts-theme.ts).
+    provideEchartsCore({ echarts: cargarEcharts }),
     // Recupera la sesión con la cookie ns_refresh antes de la primera navegación (NutriSport_API.md §2.1).
     provideAppInitializer(() => inject(AuthService).restaurarSesion()),
   ],

@@ -115,7 +115,11 @@ export const routes: Routes = [
         path: '',
         canActivate: [perfilGuard],
         children: [
-          { path: 'inicio', title: 'Inicio', ...pendiente(18) },
+          {
+            path: 'inicio',
+            title: 'Inicio',
+            loadComponent: () => import('@features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          },
           {
             path: 'comidas',
             title: 'Comidas',

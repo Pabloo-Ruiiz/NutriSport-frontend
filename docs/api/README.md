@@ -4,7 +4,7 @@ Fragmentos de `docs/NutriSport_API.md` para que el asistente lea solo lo que nec
 
 | Fichero | Contenido | Tamaño |
 |---|---|---|
-| [`general.md`](general.md) | Convenciones (§1), requisitos de la cuenta (§4), discrepancias del OpenAPI (§11) y entorno (§12) | 7.6 KB |
+| [`general.md`](general.md) | Convenciones (§1), requisitos de la cuenta (§4), discrepancias del OpenAPI (§11) y entorno (§12) | 7.7 KB |
 | [`sesion-errores.md`](sesion-errores.md) | Sesión y refresh (§2), errores y códigos (§3) | 10.7 KB |
 | [`tipos-comunes.md`](tipos-comunes.md) | Enumerados, `Pagina<T>`, `ProblemDetail` y tipos de nutrición (§5) | 4.1 KB |
 | [`rutas-etiquetas.md`](rutas-etiquetas.md) | Rutas y pantallas (§9) y etiquetas de los enumerados (§10) | 7.2 KB |

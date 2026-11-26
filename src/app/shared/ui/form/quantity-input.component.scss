@@ -47,7 +47,8 @@
 
 .ns-quantity__input {
   @include campo.caja;
-  width: 7ch;
+  // border-box: el ancho incluye el relleno. 6ch para la cifra ("1.250,5") más el relleno de los dos lados.
+  width: calc(6ch + 2 * var(--ns-space-2));
   min-width: 100%;
   height: 44px;
   padding-inline: var(--ns-space-2);
@@ -57,6 +58,8 @@
 
 // Con unidad, el número se desplaza para dejarle sitio a la derecha.
 .ns-quantity__caja:has(.ns-quantity__unidad) .ns-quantity__input {
+  // El hueco de la unidad se suma al ancho (antes se restaba y en "73,6 kg" solo se veía "3,6").
+  width: calc(6ch + 3ch + 2 * var(--ns-space-2));
   padding-right: calc(var(--ns-space-2) + 3ch);
 }
 

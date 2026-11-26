@@ -47,7 +47,7 @@ Comprobadas en el código del backend:
 
 1. **`MensajeResponse` duplicado.** El backend tiene dos clases con ese nombre y springdoc las fusiona en el esquema `{ mensaje }`. Es correcto para las respuestas 202 de `/auth/*` y `PUT /cuenta/email`, pero `POST /asistente/conversaciones/{id}/mensajes` y `ConversacionResponse.mensajes` devuelven **`MensajeAsistente`** `{ id, rol, contenido, herramientasUsadas, valoracion, creadoEn }` (§5).
 2. **Booleanos obligatorios.** El JSON no marca como `required` `mantenerSesion`, `mayorDeEdad`, `aceptaTerminos`, `consentimientoSalud` ni `inmediata`, pero son primitivos en Java y el backend responde 400 si faltan (comprobado con `curl`).
-3. **`GET /perfil` sin perfil** responde 404 con `codigo = NO_ENCONTRADO` (la descripción dice `PERFIL_NO_ENCONTRADO`).
+3. **`GET /perfil` sin perfil** responde 404 con `codigo = PERFIL_NO_ENCONTRADO` (comprobado contra el backend). El OpenAPI no lista los códigos de cada endpoint: el frontend debe tratar cualquier 404 de `/perfil` como "sin perfil".
 4. **Contraseña actual incorrecta** (`PUT /cuenta/password`, `PUT /cuenta/email`, `DELETE /cuenta`) responde 400 `VALIDACION` con el error en el campo de la contraseña (la descripción habla de `PASSWORD_INCORRECTA`, que es el texto, no el código).
 5. **Paginación:** los parámetros `page`, `size` y `sort` aparecen en endpoints que limitan el tamaño (50 o 100) aunque el JSON no lo diga; la búsqueda de alimentos ignora `sort` (ordena por parecido).
 6. **`GET /productos`** tiene su propio `page` (0–49) y devuelve una **lista** (`ProductoResumenResponse[]`), no una página.
