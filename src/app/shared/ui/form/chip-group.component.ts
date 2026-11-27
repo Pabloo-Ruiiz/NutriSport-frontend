@@ -17,6 +17,8 @@ import { NsComparador, NsControlValor, NsOpcion } from './control-valor';
  *   <ns-form-field label="Restricciones alimentarias">
  *     <ns-chip-group formControlName="restricciones" [opciones]="restricciones" multiple />
  *   </ns-form-field>
+ *
+ * Con `desplazable`, los chips van en una sola fila con scroll horizontal (categorías de recetas).
  */
 @Component({
   selector: 'ns-chip-group',
@@ -56,12 +58,14 @@ import { NsComparador, NsControlValor, NsOpcion } from './control-valor';
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => NsChipGroupComponent), multi: true },
     { provide: NsControlCampo, useExisting: forwardRef(() => NsChipGroupComponent) },
   ],
-  host: { class: 'ns-chip-group' },
+  host: { class: 'ns-chip-group', '[class.ns-chip-group--desplazable]': 'desplazable()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NsChipGroupComponent<T = unknown> extends NsControlValor<T | T[]> {
   readonly opciones = input.required<readonly NsOpcion<T>[]>();
   readonly multiple = input(false, { transform: booleanAttribute });
+  /** Una sola fila con scroll horizontal en lugar de varias líneas. */
+  readonly desplazable = input(false, { transform: booleanAttribute });
   /** Nombre accesible del grupo cuando no está dentro de ns-form-field. */
   readonly etiqueta = input<string>();
   readonly compararCon = input<NsComparador<T>>(Object.is);

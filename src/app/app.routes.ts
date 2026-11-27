@@ -168,6 +168,11 @@ export const routes: Routes = [
               import('@features/productos/buscador-productos.component').then((m) => m.BuscadorProductosComponent),
           },
           {
+            path: 'recetas',
+            title: 'Recetas',
+            loadComponent: () => import('@features/recetas/recetas.component').then((m) => m.RecetasComponent),
+          },
+          {
             path: 'mis-alimentos',
             title: 'Mis alimentos',
             loadComponent: () =>

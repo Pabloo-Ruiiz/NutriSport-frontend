@@ -8,7 +8,7 @@ import type { Alergeno, EstadoUsuario, FuenteAlimento, Preparacion, Rol, TipoCom
 import type { Visibilidad } from './alimentos';
 import type { EstadoMenu } from './menus';
 import type { Dieta, NivelActividad, ObjetivoDeportivo, Severidad, Sexo, TipoPreferencia } from './perfil';
-import type { EstadoConversion, EstadoNutricional } from './recetas';
+import type { EstadoConversion, EstadoNutricional, OrigenReceta } from './recetas';
 import type { SeveridadInsight } from './seguimiento';
 
 export const ETIQUETAS_TIPO_COMIDA: Record<TipoComida, string> = {
@@ -138,6 +138,11 @@ export const ETIQUETAS_ESTADO_ANALISIS: Record<EstadoAnalisis, string> = {
   DESCARTADO: 'Descartado',
 };
 
+export const ETIQUETAS_ORIGEN_RECETA: Record<OrigenReceta, string> = {
+  PROPIA: 'NutriSport',
+  THEMEALDB: 'TheMealDB',
+};
+
 export const ETIQUETAS_ESTADO_NUTRICIONAL: Record<EstadoNutricional, string> = {
   COMPLETO: 'Cálculo completo',
   APROXIMADO: 'Cálculo aproximado',
@@ -224,6 +229,7 @@ export const ETIQUETAS = {
   fuenteAlimento: ETIQUETAS_FUENTE_ALIMENTO,
   visibilidad: ETIQUETAS_VISIBILIDAD,
   estadoAnalisis: ETIQUETAS_ESTADO_ANALISIS,
+  origenReceta: ETIQUETAS_ORIGEN_RECETA,
   estadoNutricional: ETIQUETAS_ESTADO_NUTRICIONAL,
   estadoConversion: ETIQUETAS_ESTADO_CONVERSION,
   estadoMenu: ETIQUETAS_ESTADO_MENU,
