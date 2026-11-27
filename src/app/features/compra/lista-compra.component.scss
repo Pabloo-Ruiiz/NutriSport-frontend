@@ -1,0 +1,132 @@
+// Detalle de la lista de la compra (DESIGN.md §7.12): mobile-first, filas de 56 px. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+  max-width: 760px;
+}
+
+.volver {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--ns-space-1);
+  min-height: 44px;
+  color: var(--ns-text-secondary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--ns-text);
+  }
+}
+
+.cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.cabecera__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-2);
+}
+
+.nombre {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.nombre-form {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: var(--ns-space-2);
+
+  input {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.origen {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  margin: 0;
+
+  a {
+    color: var(--ns-text-link);
+  }
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-2);
+}
+
+.ocultar {
+  min-height: 44px;
+
+  @include bp.up(md) {
+    margin-inline-start: auto;
+  }
+}
+
+.icono {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.secciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+// Botón "Añadir" flotante en móvil, por encima de la barra inferior (64 px + safe-area).
+.fab {
+  position: fixed;
+  right: max(var(--ns-space-4), env(safe-area-inset-right));
+  bottom: calc(64px + var(--ns-space-4) + env(safe-area-inset-bottom));
+  z-index: var(--ns-z-sticky);
+  min-height: 56px;
+  padding-inline: var(--ns-space-5);
+  border-radius: var(--ns-radius-full);
+  box-shadow: var(--ns-shadow-lg);
+}
+
+// Hueco para que el botón flotante no tape el último producto.
+@include bp.down(md) {
+  :host {
+    padding-bottom: calc(56px + var(--ns-space-4));
+  }
+}

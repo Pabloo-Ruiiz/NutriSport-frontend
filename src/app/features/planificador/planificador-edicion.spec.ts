@@ -313,6 +313,21 @@ describe('PlanificadorEditor', () => {
     expect(servicio.cambiarComida).toHaveBeenCalledWith('m1', 'c0', destino);
   });
 
+  it('"Añadir ingredientes a la lista" abre el diálogo con la receta, sus raciones y el menú', () => {
+    const lista = { id: 'l1', nombre: 'Compra semana' };
+    abrirDialogo.mockReturnValue({ closed: of({ lista, nueva: false }) });
+    editor.anadirALista(comidaDe('c0'));
+    const data = abrirDialogo.mock.calls[0][1].data;
+    expect(data.receta).toEqual({ id: 'r-c0', nombre: comidaDe('c0').receta.nombre });
+    expect(data.raciones).toBe(comidaDe('c0').raciones);
+    expect(data.menu.id).toBe('m1');
+    expect(toast.exito).toHaveBeenCalledWith(
+      'Ingredientes añadidos',
+      'Compra semana',
+      expect.objectContaining({ texto: 'Ver lista' }),
+    );
+  });
+
   it('ver receta navega a /recetas/{id}', () => {
     const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     editor.verReceta(comidaDe('c0'));

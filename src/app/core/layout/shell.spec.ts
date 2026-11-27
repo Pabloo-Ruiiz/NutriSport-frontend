@@ -160,6 +160,7 @@ describe('ShellComponent', () => {
       expect(textos('.ns-nav__etiqueta', drawer)).toEqual([
         'Mis alimentos',
         'Productos',
+        'Lista de la compra',
         'Recetas',
         'Mi perfil',
         'Configuración',

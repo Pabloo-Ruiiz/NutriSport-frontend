@@ -118,6 +118,16 @@
               nsButton
               type="button"
               variant="secondary"
+              icon="shopping-basket"
+              aria-haspopup="dialog"
+              (click)="anadirALista()"
+            >
+              Añadir a la lista
+            </button>
+            <button
+              nsButton
+              type="button"
+              variant="secondary"
               icon="heart"
               class="favorita"
               [class.favorita--activa]="r.favorita"

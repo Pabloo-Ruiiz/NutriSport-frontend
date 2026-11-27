@@ -16,11 +16,12 @@ import { LucideDynamicIcon } from '@lucide/angular';
 import { Observable } from 'rxjs';
 
 import { LayoutService } from '@core/layout/layout.service';
-import type { MenuResponse } from '@core/models';
+import type { ListaCompraResponse, MenuResponse } from '@core/models';
 import { ETIQUETAS_ESTADO_MENU } from '@core/models/etiquetas';
 import { MenusService } from '@core/services/menus.service';
 import { aApiError } from '@core/util/api-error';
 import { hoyLocal, lunesDeLaSemana } from '@core/util/fechas';
+import { GenerarListaDialogComponent, type GenerarListaData } from '@features/compra/generar-lista-dialog.component';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
 import { NsEmptyStateComponent } from '@shared/ui/feedback/empty-state.component';
@@ -48,7 +49,7 @@ const FECHA = /^\d{4}-\d{2}-\d{2}$/;
  * Planificador semanal (/planificador, DESIGN.md §7.10 y docs/api/menus.md §7.5).
  *
  * - Cabecera: semana (‹ 23–29 nov 2026 ›), selector con los menús que se solapan con la semana,
- *   "Lista de la compra" (paso 32), "Regenerar" (o "Generar menú" si la semana está vacía) y el
+ *   "Lista de la compra" (GenerarListaDialogComponent), "Regenerar" (o "Generar menú" si la semana está vacía) y el
  *   menú de acciones del menú elegido.
  * - Resumen del menú y, desde 768 px, la rejilla semanal; en móvil, la vista por día.
  * - Todo lo que devuelve el servidor se aplica con `PlanificadorStore.reemplazarMenu`: el cliente
@@ -203,9 +204,22 @@ export class PlanificadorComponent {
     void this.editor.regenerar();
   }
 
-  /** Se conecta con la lista de la compra en el paso 32. */
+  /** Genera la lista de la compra del menú (entero o unos días) y la abre. */
   protected listaCompra(): void {
-    this.toast.info('La lista de la compra estará disponible pronto');
+    const menu = this.menu();
+    if (!menu) return;
+    this.dialogos
+      .open<GenerarListaDialogComponent, ListaCompraResponse, GenerarListaData>(GenerarListaDialogComponent, {
+        titulo: 'Lista de la compra',
+        size: 'sm',
+        data: { menu },
+      })
+      .closed.subscribe((lista) => {
+        if (!lista) return;
+        if (lista.total === 0) this.toast.info('Lista creada sin productos', 'No hay nada que comprar en esos días.');
+        else this.toast.exito('Lista de la compra creada', lista.nombre);
+        void this.router.navigate(['/compra', lista.id]);
+      });
   }
 
   // ---- Acciones del menú

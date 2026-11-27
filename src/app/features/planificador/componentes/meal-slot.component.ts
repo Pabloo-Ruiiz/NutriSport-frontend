@@ -98,7 +98,12 @@ import { PlanificadorEditor } from '../planificador-editor';
           Ver receta
         </button>
         @if (!comida().consumida) {
-          <button type="button" class="ns-menu__item" cdkMenuItem (cdkMenuItemTriggered)="editor!.anadirALista()">
+          <button
+            type="button"
+            class="ns-menu__item"
+            cdkMenuItem
+            (cdkMenuItemTriggered)="editor!.anadirALista(comida())"
+          >
             <svg lucideIcon="shopping-basket" [size]="18" aria-hidden="true"></svg>
             Añadir ingredientes a la lista
           </button>

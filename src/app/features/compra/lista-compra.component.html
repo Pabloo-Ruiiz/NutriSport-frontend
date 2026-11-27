@@ -1,0 +1,154 @@
+<a class="volver ns-text-body-sm" routerLink="/compra">
+  <svg lucideIcon="chevron-left" [size]="16" aria-hidden="true"></svg>
+  Mis listas
+</a>
+
+@switch (estado()) {
+  @case ('cargando') {
+    <div class="cargando" aria-busy="true" aria-label="Cargando la lista">
+      <ns-skeleton shape="rect" height="140px" />
+      <ns-skeleton shape="rect" height="240px" />
+      <ns-skeleton shape="rect" height="180px" />
+    </div>
+  }
+  @case ('no-encontrada') {
+    <ns-empty-state
+      icon="search"
+      titulo="No encontramos esta lista"
+      descripcion="Puede que se haya eliminado o que el enlace no sea correcto."
+      [nivelTitulo]="1"
+    >
+      <a nsButton routerLink="/compra" variant="secondary">Ver mis listas</a>
+    </ns-empty-state>
+  }
+  @case ('error') {
+    <h1 class="ns-sr-only">Lista de la compra</h1>
+    <ns-alert type="error" titulo="No hemos podido cargar la lista">
+      {{ error() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+  @default {
+    @if (lista(); as l) {
+      <header class="cabecera">
+        <div class="cabecera__titulo">
+          @if (editandoNombre()) {
+            <form class="nombre-form" (ngSubmit)="guardarNombre()" novalidate>
+              <label class="ns-sr-only" for="ns-lista-nombre">Nombre de la lista</label>
+              <input
+                nsInput
+                id="ns-lista-nombre"
+                name="nombre"
+                type="text"
+                autocomplete="off"
+                [maxlength]="maxNombre"
+                [ngModel]="nombreEditado()"
+                (ngModelChange)="nombreEditado.set($event)"
+                (keydown.escape)="cancelarEdicionNombre()"
+              />
+              <button nsButton type="submit" size="sm">Guardar</button>
+              <button nsButton type="button" variant="secondary" size="sm" (click)="cancelarEdicionNombre()">
+                Cancelar
+              </button>
+            </form>
+          } @else {
+            <h1 class="ns-text-h2 nombre">{{ l.nombre }}</h1>
+            <button
+              type="button"
+              class="icono"
+              aria-label="Cambiar el nombre de la lista"
+              [disabled]="guardandoLista()"
+              (click)="empezarEdicionNombre()"
+            >
+              <svg lucideIcon="pencil" [size]="18" aria-hidden="true"></svg>
+            </button>
+          }
+          @if (completada()) {
+            <ns-badge variant="success" icon="circle-check">Completada</ns-badge>
+          }
+        </div>
+
+        <p class="origen ns-text-body-sm ns-text-secondary">
+          @if (l.menuId) {
+            <svg lucideIcon="calendar" [size]="14" aria-hidden="true"></svg>
+            @if (semanaMenu(); as semana) {
+              <a routerLink="/planificador" [queryParams]="{ semana }">Del menú</a>
+            } @else {
+              Del menú
+            }
+            @if (rango(); as r) {
+              · {{ r }}
+            }
+          } @else {
+            Lista sin menú de origen
+          }
+        </p>
+
+        <ns-progress-bar
+          class="progreso"
+          [value]="l.comprados"
+          [max]="l.total"
+          [alto]="10"
+          [color]="completada() || todoComprado() ? 'success' : 'kcal'"
+          unidad="comprados"
+          etiqueta="Progreso de la compra"
+          showLabel
+        />
+
+        <div class="acciones">
+          @if (!esMovil()) {
+            <button nsButton type="button" icon="plus" (click)="anadirProducto()">Añadir producto</button>
+          }
+          <button
+            nsButton
+            type="button"
+            variant="secondary"
+            [icon]="completada() ? 'refresh-cw' : 'circle-check'"
+            [loading]="guardandoLista()"
+            (click)="cambiarEstado()"
+          >
+            {{ completada() ? 'Reabrir lista' : 'Completar lista' }}
+          </button>
+          <button nsButton type="button" variant="secondary" icon="share-2" (click)="compartir()">Compartir</button>
+          <ns-switch class="ocultar" [ngModel]="ocultarComprados()" (ngModelChange)="ocultarComprados.set($event)">
+            Ocultar comprados
+          </ns-switch>
+        </div>
+      </header>
+
+      @if (l.total === 0) {
+        <ns-empty-state
+          icon="shopping-basket"
+          titulo="La lista está vacía"
+          descripcion="No había nada que comprar en esos días. Añade productos a mano o los ingredientes de una receta desde su ficha."
+        >
+          <button nsButton type="button" icon="plus" (click)="anadirProducto()">Añadir producto</button>
+        </ns-empty-state>
+      } @else if (secciones().length === 0) {
+        <ns-empty-state
+          icon="circle-check"
+          titulo="Lo tienes todo"
+          descripcion="Has comprado todos los productos. Desactiva «Ocultar comprados» para verlos."
+        />
+      } @else {
+        <div class="secciones">
+          @for (s of secciones(); track s.nombre) {
+            <app-seccion-compra
+              [seccion]="s"
+              [ocupados]="ocupados()"
+              (marcar)="marcar($event)"
+              (editar)="editar($event)"
+              (quitar)="quitar($event)"
+            />
+          }
+        </div>
+      }
+
+      @if (esMovil()) {
+        <button nsButton type="button" class="fab" icon="plus" (click)="anadirProducto()">Añadir</button>
+      }
+    }
+  }
+}
