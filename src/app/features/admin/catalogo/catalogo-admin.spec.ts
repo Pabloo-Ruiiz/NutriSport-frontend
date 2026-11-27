@@ -149,7 +149,7 @@ describe('CatalogoAdminComponent', () => {
     await abrir('/admin/catalogo');
     expect(url()).toBe('/admin/catalogo/alimentos');
     const pestanas = raiz().querySelectorAll<HTMLButtonElement>('[role="tab"]');
-    expect([...pestanas].map((p) => p.textContent?.trim())).toEqual(['Alimentos', 'Categorías']);
+    expect([...pestanas].map((p) => p.textContent?.trim())).toEqual(['Alimentos', 'Categorías', 'Recetas']);
     expect(pestanas[0].getAttribute('aria-selected')).toBe('true');
 
     pestanas[1].click();

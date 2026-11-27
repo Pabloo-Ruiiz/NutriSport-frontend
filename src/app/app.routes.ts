@@ -254,7 +254,21 @@ export const routes: Routes = [
             loadComponent: () =>
               import('@features/admin/catalogo/categorias-admin.component').then((m) => m.CategoriasAdminComponent),
           },
+          {
+            path: 'recetas',
+            title: 'Catálogo · Recetas',
+            loadComponent: () =>
+              import('@features/admin/catalogo/recetas-admin.component').then((m) => m.RecetasAdminComponent),
+          },
         ],
+      },
+      {
+        path: 'ingredientes',
+        title: 'Ingredientes',
+        loadComponent: () =>
+          import('@features/admin/ingredientes/mapeos-ingredientes.component').then(
+            (m) => m.MapeosIngredientesComponent,
+          ),
       },
     ],
   },

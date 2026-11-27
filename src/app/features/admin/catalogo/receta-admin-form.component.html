@@ -1,0 +1,255 @@
+@if (cargando()) {
+  <div class="ns-raf__cargando" aria-busy="true" aria-label="Cargando la receta">
+    <ns-skeleton shape="rect" height="48px" />
+    <ns-skeleton shape="rect" height="120px" />
+    <ns-skeleton shape="rect" height="240px" />
+  </div>
+} @else if (errorCarga(); as mensaje) {
+  <ns-alert type="error" titulo="No hemos podido cargar la receta">{{ mensaje }}</ns-alert>
+} @else {
+  <form class="ns-raf" [id]="idFormulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    @if (error(); as mensaje) {
+      <ns-alert type="error" titulo="No se ha podido guardar la receta">{{ mensaje }}</ns-alert>
+    }
+
+    <!-- Datos -->
+    <ns-form-field label="Nombre" obligatorio>
+      <input nsInput type="text" formControlName="nombre" [maxlength]="maxNombre" autocomplete="off" />
+    </ns-form-field>
+    <ns-form-field label="Descripción" [hint]="'Opcional. Hasta ' + maxDescripcion + ' caracteres.'">
+      <textarea nsInput rows="3" formControlName="descripcion" [maxlength]="maxDescripcion"></textarea>
+    </ns-form-field>
+    <ns-form-field label="Categoría de receta" obligatorio>
+      <ns-select formControlName="categoriaId" [opciones]="categorias()" placeholder="Elige una categoría" />
+    </ns-form-field>
+
+    <div class="ns-raf__fila">
+      <ns-form-field label="Raciones" obligatorio [hint]="minRaciones + '–' + maxRaciones">
+        <input
+          nsInput
+          type="number"
+          inputmode="numeric"
+          formControlName="raciones"
+          [min]="minRaciones"
+          [max]="maxRaciones"
+          step="1"
+        />
+      </ns-form-field>
+      <ns-form-field label="Tiempo" sufijo="min" [hint]="'Opcional, ' + minTiempo + '–' + maxTiempo">
+        <input
+          nsInput
+          type="number"
+          inputmode="numeric"
+          formControlName="tiempoPreparacionMin"
+          [min]="minTiempo"
+          [max]="maxTiempo"
+          step="1"
+        />
+      </ns-form-field>
+      <ns-form-field label="Dificultad">
+        <ns-select formControlName="dificultad" [opciones]="dificultades" />
+      </ns-form-field>
+    </div>
+
+    <ns-form-field label="Franjas aptas" hint="En qué comidas del planificador puede salir.">
+      <ns-chip-group formControlName="franjasAptas" [opciones]="franjas" multiple />
+    </ns-form-field>
+
+    <!-- Etiquetas -->
+    <fieldset class="ns-raf__grupo">
+      <legend class="ns-raf__leyenda">
+        Etiquetas
+        <span class="ns-raf__contador ns-tnum">{{ form.controls.etiquetas.value.length }} / {{ maxEtiquetas }}</span>
+      </legend>
+      @if (form.controls.etiquetas.value.length > 0) {
+        <ul class="ns-raf__etiquetas" role="list">
+          @for (e of form.controls.etiquetas.value; track e; let i = $index) {
+            <li class="ns-raf__etiqueta">
+              {{ e }}
+              <button
+                type="button"
+                class="ns-raf__quitar-etiqueta"
+                [attr.aria-label]="'Quitar la etiqueta ' + e"
+                (click)="quitarEtiqueta(i)"
+              >
+                <svg lucideIcon="x" [size]="14" aria-hidden="true"></svg>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+      <div class="ns-raf__nueva-etiqueta">
+        <label class="ns-sr-only" for="ns-raf-etiqueta">Nueva etiqueta</label>
+        <input
+          nsInput
+          id="ns-raf-etiqueta"
+          type="text"
+          autocomplete="off"
+          placeholder="Alta en proteína"
+          [formControl]="etiquetaNueva"
+          (keydown.enter)="anadirEtiqueta($event)"
+        />
+        <button
+          nsButton
+          type="button"
+          variant="secondary"
+          size="sm"
+          icon="plus"
+          [disabled]="etiquetasLlenas()"
+          (click)="anadirEtiqueta()"
+        >
+          Añadir
+        </button>
+      </div>
+    </fieldset>
+
+    <!-- Ingredientes -->
+    <fieldset class="ns-raf__grupo" formArrayName="ingredientes">
+      <legend class="ns-raf__leyenda">
+        Ingredientes <span class="ns-raf__contador ns-tnum">{{ ingredientes.length }} / {{ maxIngredientes }}</span>
+      </legend>
+      <ol class="ns-raf__lista" role="list">
+        @for (fila of ingredientes.controls; track fila; let i = $index) {
+          <li class="ns-raf__ingrediente" [formGroupName]="i">
+            <div class="ns-raf__cabecera-fila">
+              <span class="ns-raf__numero ns-tnum" aria-hidden="true">{{ i + 1 }}</span>
+              @if (fila.controls.alimentoId.value) {
+                <p class="ns-raf__alimento">
+                  <svg lucideIcon="apple" [size]="16" aria-hidden="true"></svg>
+                  <span
+                    ><span class="ns-sr-only">Ingrediente {{ i + 1 }}: </span
+                    >{{ fila.controls.alimentoNombre.value }}</span
+                  >
+                </p>
+                <button nsButton type="button" variant="ghost" size="sm" (click)="cambiarAlimento(fila)">
+                  Cambiar<span class="ns-sr-only"> el alimento del ingrediente {{ i + 1 }}</span>
+                </button>
+              } @else {
+                <ns-form-field class="ns-raf__buscar" [label]="'Alimento del ingrediente ' + (i + 1)">
+                  <ns-combobox
+                    [buscar]="buscarAlimentos"
+                    [textoOpcion]="nombreAlimento"
+                    placeholder="Busca en el catálogo público"
+                    (seleccionado)="elegirAlimento(fila, $event)"
+                  >
+                    <ng-template nsComboboxOpcion let-a let-consulta="consulta">
+                      <ns-resaltado [texto]="a.nombre" [consulta]="consulta" />
+                      @if (a.marca) {
+                        <span class="ns-text-secondary"> · {{ a.marca }}</span>
+                      }
+                    </ng-template>
+                  </ns-combobox>
+                </ns-form-field>
+              }
+              <button
+                type="button"
+                class="ns-raf__icono"
+                [attr.aria-label]="'Quitar el ingrediente ' + (i + 1)"
+                [disabled]="ingredientes.length <= 1"
+                (click)="quitarIngrediente(i)"
+              >
+                <svg lucideIcon="trash" [size]="18" aria-hidden="true"></svg>
+              </button>
+            </div>
+            @if (sinAlimento(fila)) {
+              <p class="ns-raf__error">Elige un alimento del catálogo.</p>
+            }
+
+            <div class="ns-raf__cantidad">
+              <ns-segmented
+                formControlName="modo"
+                [opciones]="modos"
+                [etiqueta]="'Cantidad del ingrediente ' + (i + 1)"
+              />
+              @if (fila.controls.modo.value === 'gramos') {
+                <ns-form-field label="Gramos" sufijo="g">
+                  <input
+                    nsInput
+                    type="number"
+                    inputmode="decimal"
+                    formControlName="gramos"
+                    min="0.1"
+                    [max]="maxGramos"
+                    step="any"
+                  />
+                </ns-form-field>
+              } @else {
+                <ns-form-field label="Medida" hint="P. ej. «2 cucharadas»">
+                  <input nsInput type="text" formControlName="medida" [maxlength]="maxMedida" autocomplete="off" />
+                </ns-form-field>
+              }
+            </div>
+          </li>
+        }
+      </ol>
+      <button
+        nsButton
+        type="button"
+        variant="secondary"
+        icon="plus"
+        [disabled]="ingredientes.length >= maxIngredientes"
+        (click)="anadirIngrediente()"
+      >
+        Añadir ingrediente
+      </button>
+    </fieldset>
+
+    <!-- Pasos -->
+    <fieldset class="ns-raf__grupo" formArrayName="pasos">
+      <legend class="ns-raf__leyenda">
+        Pasos <span class="ns-raf__contador ns-tnum">{{ pasos.length }} / {{ maxPasos }}</span>
+      </legend>
+      @if (pasos.length > 0) {
+        <ol class="ns-raf__lista" role="list">
+          @for (paso of pasos.controls; track paso; let i = $index; let primero = $first; let ultimo = $last) {
+            <li class="ns-raf__paso">
+              <ns-form-field class="ns-raf__paso-texto" [label]="'Paso ' + (i + 1)">
+                <textarea nsInput rows="2" [formControlName]="i"></textarea>
+              </ns-form-field>
+              <div class="ns-raf__paso-acciones">
+                <button
+                  type="button"
+                  class="ns-raf__icono"
+                  [attr.aria-label]="'Subir el paso ' + (i + 1)"
+                  [disabled]="primero"
+                  (click)="moverPaso(i, -1)"
+                >
+                  <svg lucideIcon="arrow-up" [size]="18" aria-hidden="true"></svg>
+                </button>
+                <button
+                  type="button"
+                  class="ns-raf__icono"
+                  [attr.aria-label]="'Bajar el paso ' + (i + 1)"
+                  [disabled]="ultimo"
+                  (click)="moverPaso(i, 1)"
+                >
+                  <svg lucideIcon="arrow-down" [size]="18" aria-hidden="true"></svg>
+                </button>
+                <button
+                  type="button"
+                  class="ns-raf__icono"
+                  [attr.aria-label]="'Quitar el paso ' + (i + 1)"
+                  (click)="quitarPaso(i)"
+                >
+                  <svg lucideIcon="trash" [size]="18" aria-hidden="true"></svg>
+                </button>
+              </div>
+            </li>
+          }
+        </ol>
+      } @else {
+        <p class="ns-raf__vacio">Sin pasos. Son opcionales.</p>
+      }
+      <button
+        nsButton
+        type="button"
+        variant="secondary"
+        icon="plus"
+        [disabled]="pasos.length >= maxPasos"
+        (click)="anadirPaso()"
+      >
+        Añadir paso
+      </button>
+    </fieldset>
+  </form>
+}

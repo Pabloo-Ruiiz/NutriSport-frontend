@@ -1,0 +1,180 @@
+<div class="ns-radm__barra">
+  <ns-form-field class="ns-radm__buscar" label="Buscar recetas">
+    <input
+      nsInput
+      type="search"
+      autocomplete="off"
+      placeholder="Pollo, lentejas…"
+      [value]="texto()"
+      (input)="alEscribir($event)"
+    />
+  </ns-form-field>
+  <button nsButton type="button" icon="plus" (click)="crear()">Nueva receta</button>
+</div>
+
+<ns-alert type="info">
+  La búsqueda no muestra las recetas propias sin publicar: las que crees o edites ahora aparecen en «Creadas en esta
+  sesión» para que puedas publicarlas.
+</ns-alert>
+
+@if (sesion.recetas().length > 0) {
+  <section class="ns-radm__sesion" aria-labelledby="ns-radm-sesion-titulo">
+    <h3 class="ns-text-h4 ns-radm__titulo" id="ns-radm-sesion-titulo">Creadas en esta sesión</h3>
+    <ul class="ns-radm__lista" role="list">
+      @for (s of sesion.recetas(); track s.receta.id) {
+        <li class="ns-radm__item">
+          <div class="ns-radm__item-info">
+            <span class="ns-radm__nombre">{{ s.receta.nombre }}</span>
+            <span class="ns-radm__badges">
+              <ns-badge>{{ s.accion === 'creada' ? 'Creada' : 'Editada' }}</ns-badge>
+              @if (s.publicada === true) {
+                <ns-badge variant="success" icon="eye">Publicada</ns-badge>
+              } @else if (s.publicada === false) {
+                <ns-badge variant="warning" icon="eye-off">Sin publicar</ns-badge>
+              }
+              <ns-badge [variant]="s.receta.estadoNutricional === 'INCOMPLETO' ? 'warning' : 'neutral'">
+                {{ s.receta.estadoNutricional | etiqueta: 'estadoNutricional' }}
+              </ns-badge>
+            </span>
+          </div>
+          <span class="ns-radm__acciones">
+            <button nsButton type="button" variant="ghost" size="sm" icon="pencil" (click)="editar(s.receta.id)">
+              Editar<span class="ns-sr-only"> {{ s.receta.nombre }}</span>
+            </button>
+            <button nsButton type="button" variant="ghost" size="sm" icon="eye" (click)="abrirPublicacion(s.receta)">
+              Publicación<span class="ns-sr-only"> de {{ s.receta.nombre }}</span>
+            </button>
+            <button
+              nsButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              icon="trash"
+              [loading]="ocupada() === s.receta.id"
+              (click)="eliminar(s.receta)"
+            >
+              Eliminar<span class="ns-sr-only"> {{ s.receta.nombre }}</span>
+            </button>
+          </span>
+        </li>
+      }
+    </ul>
+  </section>
+}
+
+@if (error(); as mensaje) {
+  <ns-alert type="error" titulo="No hemos podido buscar recetas">
+    {{ mensaje }}
+    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+      Reintentar
+    </button>
+  </ns-alert>
+} @else {
+  @if (resultado()?.themealdbDisponible === false) {
+    <ns-alert type="info">TheMealDB no está disponible ahora: se muestran solo las recetas del catálogo.</ns-alert>
+  }
+  <ns-table
+    etiqueta="Recetas"
+    [columns]="columnas"
+    [data]="filas()"
+    [claveFila]="clave"
+    [cargando]="cargando() && !resultado()"
+    [actualizando]="cargando() && !!resultado()"
+    [filasCarga]="8"
+    [textoVacio]="texto().trim() ? 'Ninguna receta coincide con la búsqueda' : 'No hay recetas'"
+  >
+    <ng-template nsCelda="nombre" [nsCeldaDe]="filas()" let-r>
+      <span class="ns-radm__nombre">{{ r.nombre }}</span>
+      @if (!r.id) {
+        <span class="ns-radm__nota">Sin importar</span>
+      }
+    </ng-template>
+    <ng-template nsCelda="origen" [nsCeldaDe]="filas()" let-r>
+      <ns-badge [variant]="r.origen === 'PROPIA' ? 'success' : 'info'">{{
+        r.origen | etiqueta: 'origenReceta'
+      }}</ns-badge>
+    </ng-template>
+    <ng-template nsCelda="estadoNutricional" [nsCeldaDe]="filas()" let-r>
+      @if (r.estadoNutricional) {
+        <span class="ns-radm__estado" [class.ns-radm__estado--incompleto]="r.estadoNutricional === 'INCOMPLETO'">
+          <svg
+            [lucideIcon]="r.estadoNutricional === 'INCOMPLETO' ? 'triangle-exclamation-point' : 'circle-check'"
+            [size]="16"
+            aria-hidden="true"
+          ></svg>
+          {{ r.estadoNutricional | etiqueta: 'estadoNutricional' }}
+        </span>
+      } @else {
+        <span class="ns-text-tertiary">Sin calcular</span>
+      }
+    </ng-template>
+    <ng-template nsCelda="acciones" [nsCeldaDe]="filas()" let-r>
+      <span class="ns-radm__acciones">
+        @if (r.origen === 'PROPIA' && r.id) {
+          <button nsButton type="button" variant="ghost" size="sm" icon="pencil" (click)="editar(r.id)">
+            Editar<span class="ns-sr-only"> {{ r.nombre }}</span>
+          </button>
+        }
+        <button
+          nsButton
+          type="button"
+          variant="ghost"
+          size="sm"
+          icon="eye"
+          [loading]="ocupada() === clave(r)"
+          (click)="publicar(r)"
+        >
+          Publicar o despublicar<span class="ns-sr-only"> {{ r.nombre }}</span>
+        </button>
+        @if (r.origen === 'PROPIA' && r.id) {
+          <button
+            nsButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            icon="trash"
+            [loading]="ocupada() === r.id"
+            (click)="eliminar({ id: r.id, nombre: r.nombre })"
+          >
+            Eliminar<span class="ns-sr-only"> {{ r.nombre }}</span>
+          </button>
+        }
+      </span>
+    </ng-template>
+  </ns-table>
+
+  @if (resultado(); as res) {
+    <footer class="ns-radm__pie">
+      <p class="ns-radm__total ns-tnum" role="status">{{ total() }}</p>
+      <ns-paginator
+        etiqueta="Páginas de recetas"
+        [page]="res.catalogo.page"
+        [totalPages]="res.catalogo.totalPages"
+        (pageChange)="irAPagina($event)"
+      />
+    </footer>
+  }
+}
+
+<ns-drawer
+  [(abierto)]="drawerAbierto"
+  [titulo]="editando() ? 'Editar receta' : 'Nueva receta'"
+  [ancho]="560"
+  etiquetaCerrar="Cerrar sin guardar"
+>
+  @if (drawerAbierto()) {
+    <app-receta-admin-form [recetaId]="editando()" (guardado)="alGuardar($event)" />
+  }
+  <button nsDrawerAcciones nsButton type="button" variant="secondary" (click)="drawerAbierto.set(false)">
+    Cancelar
+  </button>
+  <button
+    nsDrawerAcciones
+    nsButton
+    type="submit"
+    [attr.form]="formulario()?.idFormulario"
+    [loading]="formulario()?.enviando() ?? false"
+  >
+    {{ editando() ? 'Guardar cambios' : 'Crear receta' }}
+  </button>
+</ns-drawer>

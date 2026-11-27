@@ -18,6 +18,7 @@ describe('navegacion', () => {
       '/configuracion',
       '/admin/usuarios',
       '/admin/catalogo',
+      '/admin/ingredientes',
     ]);
   });
 
@@ -56,6 +57,7 @@ describe('navegacion', () => {
       '/configuracion',
       '/admin/usuarios',
       '/admin/catalogo',
+      '/admin/ingredientes',
     ]);
     expect(gruposDrawer(false).map((g) => g.titulo)).toEqual(['Principal', 'Cuenta']);
   });
