@@ -3,8 +3,14 @@ import { ACCIONES_REGISTRO, BARRA_INFERIOR, NAVEGACION, gruposDrawer, gruposVisi
 const rutas = (grupos: { elementos: { ruta: string }[] }[]) => grupos.flatMap((g) => g.elementos.map((e) => e.ruta));
 
 describe('navegacion', () => {
-  it('los grupos del MVP, en el orden de DESIGN.md §6.2', () => {
-    expect(NAVEGACION.map((g) => g.titulo)).toEqual(['Principal', 'Rendimiento', 'Cuenta', 'Administración']);
+  it('los grupos, en el orden de DESIGN.md §6.2', () => {
+    expect(NAVEGACION.map((g) => g.titulo)).toEqual([
+      'Principal',
+      'Rendimiento',
+      'Inteligencia',
+      'Cuenta',
+      'Administración',
+    ]);
     expect(rutas([...NAVEGACION])).toEqual([
       '/inicio',
       '/comidas',
@@ -15,6 +21,7 @@ describe('navegacion', () => {
       '/recetas',
       '/actividad',
       '/estadisticas',
+      '/asistente',
       '/perfil',
       '/configuracion',
       '/admin/usuarios',
@@ -24,14 +31,14 @@ describe('navegacion', () => {
   });
 
   it('gruposVisibles oculta Administración a quien no es ADMIN', () => {
-    expect(gruposVisibles(false).map((g) => g.titulo)).toEqual(['Principal', 'Rendimiento', 'Cuenta']);
+    expect(gruposVisibles(false).map((g) => g.titulo)).toEqual(['Principal', 'Rendimiento', 'Inteligencia', 'Cuenta']);
     expect(gruposVisibles(true).map((g) => g.titulo)).toContain('Administración');
   });
 
-  it('la barra inferior con la Ampliación es Inicio · Comidas · [Registrar] · Plan · Actividad', () => {
+  it('la barra inferior con la Ampliación es Inicio · Comidas · [Registrar] · Plan · Asistente', () => {
     expect(BARRA_INFERIOR.izquierda.map((e) => e.etiqueta)).toEqual(['Inicio', 'Comidas']);
-    expect(BARRA_INFERIOR.derecha.map((e) => e.etiqueta)).toEqual(['Plan', 'Actividad']);
-    expect(BARRA_INFERIOR.derecha[0].ruta).toBe('/planificador');
+    expect(BARRA_INFERIOR.derecha.map((e) => e.etiqueta)).toEqual(['Plan', 'Asistente']);
+    expect(BARRA_INFERIOR.derecha.map((e) => e.ruta)).toEqual(['/planificador', '/asistente']);
     expect(ACCIONES_REGISTRO.map((a) => a.etiqueta)).toEqual([
       'Foto del plato',
       'Buscar alimento',
@@ -46,6 +53,7 @@ describe('navegacion', () => {
       '/productos',
       '/compra',
       '/recetas',
+      '/actividad',
       '/estadisticas',
       '/perfil',
       '/configuracion',
@@ -55,6 +63,7 @@ describe('navegacion', () => {
       '/productos',
       '/compra',
       '/recetas',
+      '/actividad',
       '/estadisticas',
       '/perfil',
       '/configuracion',

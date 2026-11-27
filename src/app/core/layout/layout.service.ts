@@ -17,6 +17,7 @@ export const CONSULTAS = {
   movil: `(max-width: ${BREAKPOINTS.md - 0.02}px)`,
   tablet: `(min-width: ${BREAKPOINTS.md}px) and (max-width: ${BREAKPOINTS.lg - 0.02}px)`,
   escritorio: `(min-width: ${BREAKPOINTS.lg}px)`,
+  xl: `(min-width: ${BREAKPOINTS.xl}px)`,
 } as const;
 
 /**
@@ -35,6 +36,9 @@ export class LayoutService {
 
   /** 1024 px o más: sidebar expandida. */
   readonly esEscritorio = this.consulta(CONSULTAS.escritorio);
+
+  /** 1280 px o más: hay sitio para un tercer panel (p. ej. el contexto del asistente). */
+  readonly esXl = this.consulta(CONSULTAS.xl);
 
   private consulta(mediaQuery: string): Signal<boolean> {
     return toSignal(this.observer.observe(mediaQuery).pipe(map((estado) => estado.matches)), {

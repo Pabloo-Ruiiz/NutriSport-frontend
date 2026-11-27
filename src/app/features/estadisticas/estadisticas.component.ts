@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { type Observable, catchError, forkJoin, map, of } from 'rxjs';
 
-import type { EstadisticasResponse, RelacionNutricionResponse, SeriePesoResponse } from '@core/models';
+import type { EstadisticasResponse, InsightResponse, RelacionNutricionResponse, SeriePesoResponse } from '@core/models';
+import { AsistenteService } from '@core/services/asistente.service';
 import { AuthService } from '@core/services/auth.service';
 import { EntrenamientosService } from '@core/services/entrenamientos.service';
 import { SeguimientoService } from '@core/services/seguimiento.service';
@@ -15,6 +16,7 @@ import { NsInsightCardComponent } from '@shared/ui/data/insight-card.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
 import { NsEmptyStateComponent } from '@shared/ui/feedback/empty-state.component';
 import { NsSkeletonComponent } from '@shared/ui/feedback/skeleton.component';
+import { borradorDeInsight } from '../asistente/asistente';
 import { EntrenoDescansoComponent } from './componentes/entreno-descanso.component';
 import { FiltrosPeriodoComponent } from './componentes/filtros-periodo.component';
 import { GraficoEnergiaComponent } from './componentes/grafico-energia.component';
@@ -93,6 +95,7 @@ export class EstadisticasComponent {
   private readonly seguimiento = inject(SeguimientoService);
   private readonly entrenamientos = inject(EntrenamientosService);
   private readonly auth = inject(AuthService);
+  private readonly asistente = inject(AsistenteService);
   private readonly router = inject(Router);
   private readonly ruta = inject(ActivatedRoute);
 
@@ -149,8 +152,12 @@ export class EstadisticasComponent {
     params: () => (this.insightsActivos() ? true : undefined),
     stream: () => this.seguimiento.insights(),
   });
-  /** El asistente se conecta en el paso 35. */
-  protected readonly asistenteDisponible = signal(false);
+
+  /** "Preguntar al asistente": conversación nueva con el insight como borrador. */
+  protected preguntar(insight: InsightResponse): void {
+    this.asistente.dejarBorrador(borradorDeInsight(insight));
+    void this.router.navigate(['/asistente']);
+  }
 
   protected cambiarFiltros(f: FiltrosEstadisticas): void {
     void this.router.navigate([], { relativeTo: this.ruta, queryParams: aParametros(f) });

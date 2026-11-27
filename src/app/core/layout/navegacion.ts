@@ -2,8 +2,7 @@
  * Navegación de la aplicación (DESIGN.md §6.2 y §6.4). Una sola fuente para la sidebar, el drawer
  * móvil, la barra inferior y el bottom sheet de "Registrar".
  *
- * Los elementos de la Ampliación están comentados: se activan en su paso, junto con su ruta y,
- * si su icono aún no está, añadiéndolo a shared/design/iconos.ts.
+ * Un elemento nuevo se añade junto con su ruta y, si su icono aún no está, en shared/design/iconos.ts.
  */
 
 export interface ElementoNav {
@@ -34,9 +33,7 @@ export const PLANIFICADOR: ElementoNav = { etiqueta: 'Planificador', ruta: '/pla
 
 export const COMPRA: ElementoNav = { etiqueta: 'Lista de la compra', ruta: '/compra', icono: 'shopping-basket' };
 export const ESTADISTICAS: ElementoNav = { etiqueta: 'Estadísticas', ruta: '/estadisticas', icono: 'chart-column' };
-
-// Ampliación:
-// export const ASISTENTE: ElementoNav = { etiqueta: 'Asistente IA', ruta: '/asistente', icono: 'sparkles' };
+export const ASISTENTE: ElementoNav = { etiqueta: 'Asistente IA', ruta: '/asistente', icono: 'sparkles' };
 
 /** Grupos de la sidebar, en orden. */
 export const NAVEGACION: readonly GrupoNav[] = [
@@ -48,8 +45,7 @@ export const NAVEGACION: readonly GrupoNav[] = [
     titulo: 'Rendimiento',
     elementos: [ACTIVIDAD, ESTADISTICAS],
   },
-  // Ampliación:
-  // { titulo: 'Inteligencia', elementos: [ASISTENTE] },
+  { titulo: 'Inteligencia', elementos: [ASISTENTE] },
   { titulo: 'Cuenta', elementos: [MI_PERFIL, CONFIGURACION] },
   {
     titulo: 'Administración',
@@ -70,15 +66,15 @@ export function gruposVisibles(esAdmin: boolean, grupos: readonly GrupoNav[] = N
 /**
  * Barra inferior en móvil (§6.4), a los lados del botón central "Registrar".
  * MVP: Inicio · Comidas · [Registrar] · Actividad · Perfil.
- * Ampliación: Inicio · Comidas · [Registrar] · Plan · Asistente (Actividad y Perfil pasan al drawer).
- *
- * Mientras no exista el Asistente, su hueco lo ocupa Actividad; Perfil ya pasa al drawer (también se
- * llega desde el avatar).
+ * Ampliación: Inicio · Comidas · [Registrar] · Plan · Asistente (Actividad y Perfil pasan al drawer;
+ * a Perfil también se llega desde el avatar).
  */
 export const BARRA_INFERIOR: { izquierda: ElementoNav[]; derecha: ElementoNav[] } = {
   izquierda: [INICIO, COMIDAS],
-  derecha: [{ ...PLANIFICADOR, etiqueta: 'Plan' }, ACTIVIDAD],
-  // derecha: [{ ...PLANIFICADOR, etiqueta: 'Plan' }, { ...ASISTENTE, etiqueta: 'Asistente' }],
+  derecha: [
+    { ...PLANIFICADOR, etiqueta: 'Plan' },
+    { ...ASISTENTE, etiqueta: 'Asistente' },
+  ],
 };
 
 /**

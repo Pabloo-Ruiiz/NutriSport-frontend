@@ -45,7 +45,7 @@ export function textoPeriodoInsight(desde: string | null, hasta: string | null):
  *
  *   <ns-insight-card [insight]="i" [nivelTitulo]="3" (preguntar)="abrirAsistente($event)" />
  *
- * El botón se muestra deshabilitado hasta que el asistente esté disponible (`asistenteDisponible`).
+ * Con `asistenteDisponible` a false (p. ej. sin acceso al asistente), el botón sale deshabilitado.
  */
 @Component({
   selector: 'ns-insight-card',
@@ -150,8 +150,8 @@ export class NsInsightCardComponent {
   readonly insight = input.required<InsightResponse>();
   /** Nivel del título en la página (por defecto 3). */
   readonly nivelTitulo = input(3, { transform: numberAttribute });
-  /** Paso 35: el asistente IA. Hasta entonces, el botón está deshabilitado. */
-  readonly asistenteDisponible = input(false, { transform: booleanAttribute });
+  /** false: "Preguntar al asistente" deshabilitado. */
+  readonly asistenteDisponible = input(true, { transform: booleanAttribute });
   readonly preguntar = output<InsightResponse>();
 
   protected readonly clase = computed(() => this.insight().severidad.toLowerCase());
