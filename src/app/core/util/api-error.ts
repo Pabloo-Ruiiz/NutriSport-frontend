@@ -150,6 +150,10 @@ export function estadoHttp(e: unknown): number | null {
  * - Cualquier otro (502 del proxy con HTML, error de JavaScript…) → ERROR_INTERNO con un texto
  *   genérico; el original queda en `cause`.
  * En todos los casos con respuesta HTTP se lee Retry-After.
+ *
+ * Con responseType 'blob' el cuerpo del error llega como Blob, que solo se puede leer de forma
+ * asíncrona: aquí se trata como un cuerpo desconocido (ERROR_INTERNO). Para esas peticiones se usa
+ * aApiErrorAsync(), que lo lee antes (errorInterceptor ya lo hace).
  */
 export function aApiError(e: unknown): ApiError {
   if (e instanceof ApiError) return e;
@@ -200,6 +204,37 @@ export function aApiError(e: unknown): ApiError {
     titulo: 'Error inesperado',
     detalle: DETALLE_ERROR_INTERNO,
     cause: e,
+  });
+}
+
+/**
+ * Como aApiError(), pero si el cuerpo del error es un Blob (peticiones con responseType 'blob',
+ * como GET /cuenta/exportacion) lee antes su texto para encontrar el Problem Details.
+ */
+export async function aApiErrorAsync(e: unknown): Promise<ApiError> {
+  return aApiError(await leerCuerpoBlob(e));
+}
+
+/** true si es un HttpErrorResponse cuyo cuerpo es un Blob (hay que leerlo con aApiErrorAsync). */
+export function tieneCuerpoBlob(e: unknown): e is HttpErrorResponse {
+  return e instanceof HttpErrorResponse && typeof Blob !== 'undefined' && e.error instanceof Blob;
+}
+
+/** El mismo HttpErrorResponse con el texto del Blob como cuerpo; si no es Blob o no se lee, tal cual. */
+async function leerCuerpoBlob(e: unknown): Promise<unknown> {
+  if (!tieneCuerpoBlob(e)) return e;
+  let texto: string;
+  try {
+    texto = await (e.error as Blob).text();
+  } catch {
+    return e;
+  }
+  return new HttpErrorResponse({
+    error: texto,
+    headers: e.headers,
+    status: e.status,
+    statusText: e.statusText,
+    url: e.url ?? undefined,
   });
 }
 

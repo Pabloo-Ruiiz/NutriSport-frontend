@@ -211,3 +211,105 @@ por el hecho de que existan tests con respuestas simuladas.
 
 No se modificó el código de la aplicación ni los tests durante esta ejecución: la suite ya
 pasaba. La aceptación manual del paso 31 sigue pendiente hasta recuperar el navegador.
+
+## Ampliación · Plan de casos manuales (paso 36)
+
+**Estado: 36 casos nuevos (PM-38 a PM-73), todos PENDIENTES de ejecución manual.**
+
+Los bloques siguientes amplían el plan con los módulos de la Ampliación. Se ejecutan como en el
+paso 25: imagen Docker del frontend (`docker compose up -d --build`) contra el backend completo,
+con una **cuenta nueva** (verificada y, donde se indica, sin verificar) y con el **administrador
+local**. Antes de marcar un caso como OK hay que verlo en el navegador. Los tests con API simulada
+(columna *Observaciones*) muestran que la lógica está cubierta, pero no cuentan como evidencia
+manual (criterio ya aplicado en las comprobaciones A1, A2–A3 y Paso 31).
+
+**Cómo provocar los fallos de proveedor y los límites** (en el entorno de pruebas, y
+deshaciéndolo después como en PM-23/25):
+
+- **Open Food Facts o TheMealDB no disponibles:** cortar la salida a Internet del backend (por
+  ejemplo, `docker network disconnect` de la red con salida, o arrancarlo sin red) y repetir la
+  búsqueda **sin caché**: el backend guarda Open Food Facts 1 hora, así que hay que buscar un texto
+  nuevo. La respuesta esperada es **200** con la cabecera `X-Proveedor-No-Disponible`: lista vacía
+  en `GET /productos` y `themealdbDisponible = false` en `GET /recetas`. `GET /productos/{código}`
+  y la importación de TheMealDB responden **503**.
+- **429:** los límites son por día o por hora (docs/api/sesion-errores.md §2.3). El asistente
+  admite 50 mensajes al día y el reenvío de verificación 3 por hora. Para no esperar, se puede
+  bajar el límite en la configuración local del backend, si la tiene, o inyectar un `return 429`
+  con `Retry-After` en el nginx del contenedor, solo para la ruta probada.
+- **Email sin verificar:** registrar una cuenta nueva y no abrir el enlace de Mailpit.
+
+## Productos y escáner
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-38 | HU-22 · Buscar productos comerciales | Abre `/productos` y escribe «yogur griego». Con DevTools › Network abierto, espera a que salgan los resultados y pulsa después **Buscar en productos comerciales**. | Mientras se escribe solo se consulta el catálogo (`/alimentos`), en ningún caso `/productos`. Al pulsar el botón aparece la lista de Open Food Facts, con imagen, marca y kcal/100 g, y **Ver más productos** si hay más de 20. | PENDIENTE | Automatizado: `productos.spec.ts` comprueba que no se pide `/productos` al escribir. Pendiente de la A1: falta la búsqueda real y la captura de Network. |
+| PM-39 | HU-22 · Ficha y registro de un producto | Elige un producto de la lista. Revisa la ficha y añádelo a la **Merienda** con 125 g. Abre el historial. | La ficha muestra los nutrientes por 100 g, la ración, los ingredientes, los alérgenos (con aviso si chocan con tus restricciones) y la atribución «Datos de Open Food Facts (ODbL)» con enlace. La comida se guarda y en el historial aparece el producto. | PENDIENTE | Pendiente de la A1. |
+| PM-40 | HU-22 · RF-45 · Open Food Facts no disponible | Corta la salida a Internet del backend (ver «Cómo provocar…»). En `/productos`, busca un texto nuevo y pulsa **Buscar en productos comerciales**. Comprueba la respuesta en Network. | La respuesta es 200 con `X-Proveedor-No-Disponible` y lista vacía. Sale el aviso informativo «Productos comerciales no disponibles ahora mismo. Puedes seguir usando tu catálogo.», no un error. No se ofrece «Ver más». El catálogo sigue buscando al escribir. | PENDIENTE | La cabecera la lee `ProductosService.buscar` (`proveedorDisponible`). Devolver la red del backend al terminar. |
+| PM-41 | HU-23 · Código de barras manual | Abre `/escaner` → **Introducir el código**. Escribe `123` y después `3017624010701`. Añade el producto a una comida. | Con `123` sale el error de 8 a 14 dígitos y no se hace la petición. Con el código válido sale la ficha compacta con la atribución de Open Food Facts y el formulario para añadirlo a una comida. La comida se guarda. | PENDIENTE | La comprobación del escáner del 27/11 vio la ficha de Nutella, pero no guardó la comida. |
+| PM-42 | HU-23 · Producto inexistente | En `/escaner`, introduce un código válido que no exista (por ejemplo, `00000000`). | Aparece «No encontramos este producto», con las opciones de buscarlo por nombre o crear un alimento propio. No se guarda nada. | PENDIENTE | — |
+| PM-43 | HU-23 · Cámara | En un móvil o un portátil con cámara, abre `/escaner`. Deniega el permiso una vez y, después, concédelo y enfoca un código de barras real. | Si se deniega, se explica cómo activar el permiso y se pasa a la introducción manual. Con permiso, el visor lee el código y abre la ficha sin pulsar nada más. | PENDIENTE | Automatizado: `escaner.component.spec.ts` simula `NotAllowedError`. Pendiente del 27/11: lectura física y permiso real. |
+| PM-44 | HU-23 · RF-45 · Escáner sin proveedor | Con la red del backend cortada, introduce en `/escaner` un código que **no** esté en el catálogo. | Respuesta 503 (`PROVEEDOR_NO_DISPONIBLE`): sale un mensaje comprensible y, si llega `Retry-After`, el tiempo de espera («Inténtalo de nuevo en…»). Un código que ya está en el catálogo sigue encontrándose. | PENDIENTE | — |
+
+## Recetas
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-45 | HU-24 · Explorar recetas | En `/recetas`, busca «chicken», elige la categoría Pollo y pon un máximo de 600 kcal. Recarga la página y vuelve atrás. | Los filtros viajan en la URL y se conservan al recargar y al volver. Aparecen los bloques «Nuestro catálogo» y «De TheMealDB». Al pie, la atribución «Recetas e imágenes de TheMealDB». | PENDIENTE | La comprobación A2–A3 dio OK tras la corrección del filtro de categoría. Repetir con la imagen final. |
+| PM-46 | HU-24 · Importar y favoritas | Abre una receta de TheMealDB que no esté importada. Márcala como favorita y abre la pestaña **Favoritas**. | Durante la importación, la tarjeta muestra un spinner. El detalle muestra el badge «Receta original en inglés», las raciones supuestas y la atribución «Receta e imagen: TheMealDB». La favorita aparece en su pestaña y sigue ahí después de recargar. | PENDIENTE | La comprobación A2–A3 lo vio con Chicken Handi. |
+| PM-47 | HU-24 · Cálculo y raciones | En una receta con cálculo **incompleto**, revisa los botones. Pulsa **Ver cómo se calcula**. Cambia a 2 raciones en una receta completa. | Con el cálculo incompleto, «Registrar como comida» y «Añadir al plan» están desactivados y su motivo se ve en pantalla. El desglose muestra los gramos, la conversión y la fuente (catálogo o USDA) de cada ingrediente, con la nota de USDA FoodData Central. Las cantidades se duplican. | PENDIENTE | — |
+| PM-48 | HU-24 · RF-45 · TheMealDB no disponible | Con la red del backend cortada, busca en `/recetas` un texto que no se haya buscado antes. Abre después una receta de TheMealDB que no esté importada. | La búsqueda responde 200 con `themealdbDisponible = false`: sale el aviso «TheMealDB no está disponible ahora: mostramos solo nuestras recetas» y el catálogo propio se ve con normalidad. Al abrir una receta externa sin importar, sale el toast «TheMealDB no está disponible ahora» y no se navega. | PENDIENTE | Mismo aviso en Registrar comida › Recetas y en Admin › Recetas (PM-61). |
+| PM-49 | HU-25 · Registrar una receta | Desde el detalle de una receta completa, pulsa **Registrar como comida**, elige 2 raciones y Cena. Abre el historial. | La comida se crea con el origen «Receta» y las kcal de 2 raciones. | PENDIENTE | La comprobación A2–A3 lo vio con una receta sintética. |
+
+## Planificador
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-50 | HU-12 · Generar menú | Con una alergia estricta (gluten) en el perfil, abre `/planificador` en una semana vacía y pulsa **Generar menú**. | Se genera la semana con recetas aptas para cada franja, que respetan la alergia. «Por qué este menú» explica los criterios. La semana va en la URL (`?semana=`) y se conserva al recargar. | PENDIENTE | — |
+| PM-51 | HU-13 · Añadir y sustituir | Añade una receta a una franja vacía desde el drawer. Después, en otra comida, pulsa **Sustituir** y elige una alternativa. | El drawer solo muestra recetas compatibles y, si alguna es de TheMealDB, la atribución al pie. Los cambios se guardan y se conservan al recargar. | PENDIENTE | Pendiente del Paso 31. |
+| PM-52 | HU-13 · Mover y bloquear | Arrastra una comida a otro día. Mueve otra con el teclado usando **Mover a…**. Bloquea dos comidas y pulsa **Regenerar**. | Los dos métodos mueven la comida y el cambio persiste. Al regenerar se conservan las dos comidas bloqueadas. | PENDIENTE | Pendiente del Paso 31. |
+| PM-53 | HU-13 · Sugerencia IA | En una comida, pulsa **Pedir sugerencia IA**, escribe una preferencia y aplícala. | La tarjeta «Sugerencia IA» muestra el ajuste con las cifras calculadas por NutriSport. Al aplicarla, la comida pasa a usar una receta propia derivada. | PENDIENTE | — |
+| PM-54 | HU-13 · Sugerencia sin email verificado | Con una cuenta **sin verificar**, pide una sugerencia IA. | Sale el aviso de verificar el email con **Reenviar**, y no la tarjeta de error. Al reenviar llega el correo a Mailpit. | PENDIENTE | Automatizado: `planificador-ia.spec.ts`. |
+| PM-55 | HU-13 · IA no disponible | Provoca un 503 en `/sugerencia-ia`, deteniendo la IA o inyectándolo en nginx. | Sale «La IA no está disponible ahora» y el menú sigue siendo editable. | PENDIENTE | — |
+| PM-56 | HU-13 · Registrar desde el plan | En el menú ⋯ de una comida de hoy, pulsa **Registrar como consumida** y confirma la hora. Abre `/inicio`. | La comida se registra con su hora y el dashboard suma sus kcal. En el plan queda marcada como consumida y su menú ya no ofrece volver a registrarla. | PENDIENTE | Pendiente del Paso 31. |
+
+## Lista de la compra
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-57 | HU-14 · Generar lista | En el planificador, pulsa **Lista de la compra**, elige un rango de 3 días y genera la lista. | Se abre `/compra/:id` con los ingredientes sumados y agrupados por sección, y con el rango del menú de origen. | PENDIENTE | — |
+| PM-58 | HU-14 · Marcar y editar | Marca 3 productos como comprados, oculta los comprados, añade un producto a mano en «Otros» y renombra la lista. Recarga. | Marcar un producto lo tacha y lo baja al final al momento. El progreso «3 / N» se actualiza. Los cambios se conservan al recargar. | PENDIENTE | — |
+| PM-59 | HU-25 · Receta a la lista | Desde el detalle de una receta, añade sus ingredientes a una lista que ya exista. | Los ingredientes se suman a los productos que ya había y no se duplican. | PENDIENTE | — |
+| PM-60 | HU-14 · Completar y compartir | Pulsa **Completar** y, después, **Compartir**, en un móvil y en un escritorio. Elimina otra lista desde `/compra`. | La lista lleva el badge «Completada». En el móvil se abre la hoja de compartir del sistema; en el escritorio se copia el texto. Al eliminar se pide confirmación. | PENDIENTE | — |
+
+## Administración de recetas
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-61 | HU-18 · Recetas del catálogo | Con el administrador, abre `/admin/catalogo/recetas` y busca «chicken». Repite con la red del backend cortada. | La tabla mezcla las recetas propias con las de TheMealDB («Sin importar»), con la atribución de TheMealDB al pie. Sin red sale el aviso «TheMealDB no está disponible ahora: se muestran solo las recetas del catálogo». | PENDIENTE | — |
+| PM-62 | HU-18 · Crear y publicar | Crea una receta propia con 3 ingredientes y 2 pasos. Deja un gramo vacío para ver el error y después corrígelo. Publícala con 2 raciones y las franjas Comida y Cena. | El error aparece junto al campo del ingrediente. La receta se guarda y se publica, y aparece en `/recetas` y en el drawer del planificador para esas franjas. | PENDIENTE | — |
+| PM-63 | HU-18 · Emparejar ingredientes | En `/admin/ingredientes`, filtro Pendientes, empareja un ingrediente con un alimento del catálogo. | Un toast indica las recetas recalculadas y el ingrediente sale de la cola. Los emparejamientos con confianza menor de 0,6 llevan aviso. La atribución de TheMealDB se ve al pie. | PENDIENTE | — |
+| PM-64 | HU-18 · Permisos | Con la cuenta de deportista, abre `/admin/catalogo/recetas` y `/admin/ingredientes`. | Se redirige a «Sin permiso» y no se hace ninguna petición de administración. | PENDIENTE | — |
+
+## Estadísticas
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-65 | HU-15 · Periodo y comparación | En `/estadisticas`, cambia a 4 semanas con agrupación Semana y activa **Comparar con el periodo anterior**. Recarga. | Los KPIs muestran su variación. Los gráficos de energía, macros, peso, adherencia y reparto se actualizan. Los filtros viajan en la URL y se conservan al recargar. | PENDIENTE | — |
+| PM-66 | HU-15 · Rango personalizado | Elige un rango personalizado de 400 días y luego uno con la fecha de fin anterior a la de inicio. | Se muestra el error junto a las fechas (máximo 366 días, sin fechas futuras, fin igual o posterior al inicio) y no se pide nada hasta corregirlo. | PENDIENTE | — |
+| PM-67 | HU-15 · Actividad e insights | Con entrenamientos y comidas en varios días, revisa «Entreno frente a descanso», «Alimentos más consumidos» e insights. Pulsa **Preguntar al asistente** en un insight. | La comparación muestra las dos columnas. La tabla de alimentos lleva el badge de fuente de cada uno y, si alguno es de USDA u Open Food Facts, la atribución al pie. El insight abre el asistente con la pregunta en el borrador. Con los insights desactivados en la cuenta, no se piden. | PENDIENTE | — |
+| PM-68 | HU-15 · Sin datos | Abre `/estadisticas` con una cuenta sin registros. | Sale el estado vacío «Aún no hay suficientes datos» con el botón **Registrar comida** y sin errores. | PENDIENTE | — |
+
+## Asistente
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-69 | HU-16 · Conversar | En `/asistente`, pulsa una sugerencia y después pregunta «¿Cuántas proteínas llevo hoy?». Renombra la conversación y archívala. | El primer mensaje crea la conversación y cambia la URL a `/asistente/:id`. La respuesta usa tus datos y se anuncia en la región `aria-live`. El aviso orientativo está siempre visible. El título y el archivado persisten. | PENDIENTE | — |
+| PM-70 | HU-16 · RF-32 · Respuesta segura | Pregunta por una dosis de un medicamento o por una conducta de riesgo. | La respuesta es segura, deriva a un profesional y no da instrucciones. | PENDIENTE | — |
+| PM-71 | HU-16 · Límite y email | (a) Con una cuenta sin verificar, intenta escribir. (b) Supera el límite diario (o inyecta un 429 con `Retry-After`). (c) Provoca un 503. | (a) El compositor está desactivado, con «Verifica tu email» y **Reenviar**. (b) «Has llegado al límite de 50 mensajes de hoy» con el tiempo de espera, y el compositor desactivado mientras dura. (c) El mensaje queda marcado con **Reintentar** y, al reintentar, no se duplica. | PENDIENTE | Automatizado: `asistente.spec.ts` y `asistente.store.spec.ts`. |
+
+## Exportación
+
+| ID | Historia de usuario | Pasos | Resultado esperado | Resultado (OK/KO) | Observaciones |
+|---|---|---|---|---|---|
+| PM-72 | HU-21 · RF-05 · Exportar mis datos | En **Configuración › Privacidad**, pulsa **Exportar mis datos**. Abre el JSON y busca `password` y `token`. Revoca el consentimiento y exporta de nuevo. | El botón muestra loading y se descarga `nutrisport-datos-AAAAMMDD.json`, con la cuenta y los consentimientos, el perfil, las comidas, los entrenamientos, los pesos, los menús, las listas, las favoritas, las conversaciones, los análisis (sin imágenes) y los insights. No hay contraseñas ni tokens. Con el consentimiento revocado también funciona. | PENDIENTE | Automatizado: `descarga.spec.ts`, `cuenta.service.spec.ts` y `configuracion.spec.ts`. |
+| PM-73 | HU-21 · Exportar sin email verificado | Con una cuenta sin verificar, abre Privacidad. Pulsa **Reenviar** cuatro veces seguidas. | En lugar de la descarga sale «Verifica tu email» con **Reenviar**, y el botón de exportar está desactivado. El cuarto envío en una hora devuelve 429: el aviso «Demasiados envíos» muestra la espera y desactiva el botón. Si la cuenta en memoria estaba desfasada y el servidor responde 403 `EMAIL_NO_VERIFICADO`, el aviso aparece igualmente. | PENDIENTE | El 403 llega como Blob; lo convierten `aApiErrorAsync` y `errorInterceptor` (test en `interceptors.spec.ts`). |

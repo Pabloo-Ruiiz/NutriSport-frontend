@@ -7,6 +7,7 @@ import { formatearNumero } from '@shared/pipes/formato';
 import { NsAllergenListComponent } from '@shared/ui/data/allergen-list.component';
 import { NsNutritionFactsComponent } from '@shared/ui/data/nutrition-facts.component';
 import { NsSourceBadgeComponent } from '@shared/ui/data/source-badge.component';
+import { NsSourcesNoteComponent } from '@shared/ui/data/sources-note.component';
 import { NsBadgeComponent } from '@shared/ui/feedback/badge.component';
 
 /**
@@ -24,6 +25,7 @@ import { NsBadgeComponent } from '@shared/ui/feedback/badge.component';
     NsBadgeComponent,
     NsNutritionFactsComponent,
     NsSourceBadgeComponent,
+    NsSourcesNoteComponent,
   ],
   template: `
     @let a = alimento();
@@ -48,6 +50,7 @@ import { NsBadgeComponent } from '@shared/ui/feedback/badge.component';
 
     <section class="ns-ficha__seccion" [attr.aria-label]="'Información nutricional de ' + a.nombre">
       <ns-nutrition-facts [valores]="a" [unidadBase]="a.unidadBase" />
+      <ns-sources-note [fuentes]="[a.fuente]" />
     </section>
 
     @if (a.porciones.length) {

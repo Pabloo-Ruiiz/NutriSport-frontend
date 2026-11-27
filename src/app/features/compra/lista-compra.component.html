@@ -16,13 +16,12 @@
       icon="search"
       titulo="No encontramos esta lista"
       descripcion="Puede que se haya eliminado o que el enlace no sea correcto."
-      [nivelTitulo]="1"
+      [nivelTitulo]="2"
     >
       <a nsButton routerLink="/compra" variant="secondary">Ver mis listas</a>
     </ns-empty-state>
   }
   @case ('error') {
-    <h1 class="ns-sr-only">Lista de la compra</h1>
     <ns-alert type="error" titulo="No hemos podido cargar la lista">
       {{ error() }}
       <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar()">
@@ -54,7 +53,7 @@
               </button>
             </form>
           } @else {
-            <h1 class="ns-text-h2 nombre">{{ l.nombre }}</h1>
+            <h2 class="ns-text-h2 nombre">{{ l.nombre }}</h2>
             <button
               type="button"
               class="icono"

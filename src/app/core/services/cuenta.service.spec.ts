@@ -139,6 +139,28 @@ describe('CuentaService', () => {
     http.expectNone('/api/v1/cuenta');
   });
 
+  describe('exportar()', () => {
+    it('hace GET /cuenta/exportacion como Blob y toma el nombre de Content-Disposition', async () => {
+      const promesa = firstValueFrom(servicio.exportar());
+      const peticion = http.expectOne({ method: 'GET', url: '/api/v1/cuenta/exportacion' });
+      expect(peticion.request.responseType).toBe('blob');
+      const blob = new Blob(['{"cuenta":{}}'], { type: 'application/json' });
+      peticion.flush(blob, {
+        headers: { 'Content-Disposition': 'attachment; filename="nutrisport-datos-20261127.json"' },
+      });
+
+      const exportacion = await promesa;
+      expect(exportacion.blob).toBe(blob);
+      expect(exportacion.nombre).toBe('nutrisport-datos-20261127.json');
+    });
+
+    it('sin Content-Disposition usa "nutrisport-datos.json"', async () => {
+      const promesa = firstValueFrom(servicio.exportar());
+      http.expectOne('/api/v1/cuenta/exportacion').flush(new Blob(['{}']));
+      expect((await promesa).nombre).toBe('nutrisport-datos.json');
+    });
+  });
+
   describe('eliminar()', () => {
     it('envía { password, inmediata } en el cuerpo de un DELETE y cierra la sesión local', async () => {
       const promesa = firstValueFrom(servicio.eliminar({ password: 'secreta1234', inmediata: true }));

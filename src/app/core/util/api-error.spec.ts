@@ -1,6 +1,14 @@
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
-import { ApiError, DETALLE_ERROR_INTERNO, DETALLE_SIN_CONEXION, aApiError, leerRetryAfter } from './api-error';
+import {
+  ApiError,
+  DETALLE_ERROR_INTERNO,
+  DETALLE_SIN_CONEXION,
+  aApiError,
+  aApiErrorAsync,
+  leerRetryAfter,
+  tieneCuerpoBlob,
+} from './api-error';
 
 /** Respuesta real del backend a un registro incompleto (NutriSport_API.md §3). */
 const REGISTRO_INCOMPLETO = {
@@ -121,6 +129,46 @@ describe('aApiError', () => {
   it('devuelve el mismo ApiError si ya lo es', () => {
     const original = aApiError(respuesta(400, REGISTRO_INCOMPLETO));
     expect(aApiError(original)).toBe(original);
+  });
+});
+
+describe('aApiErrorAsync (cuerpo Blob, responseType blob)', () => {
+  const json = (valor: unknown) => new Blob([JSON.stringify(valor)], { type: 'application/problem+json' });
+  const NO_VERIFICADO = {
+    status: 403,
+    codigo: 'EMAIL_NO_VERIFICADO',
+    title: 'Email no verificado',
+    detail: 'Verifica tu email para exportar tus datos',
+  };
+
+  it('lee el Problem Details del Blob y conserva Retry-After y la url', async () => {
+    const e = respuesta(403, json(NO_VERIFICADO), { 'Retry-After': '30' }, '/api/v1/cuenta/exportacion');
+    expect(tieneCuerpoBlob(e)).toBe(true);
+
+    const error = await aApiErrorAsync(e);
+    expect(error.status).toBe(403);
+    expect(error.codigo).toBe('EMAIL_NO_VERIFICADO');
+    expect(error.detalle).toBe('Verifica tu email para exportar tus datos');
+    expect(error.retryAfterSegundos).toBe(30);
+    expect(error.url).toBe('/api/v1/cuenta/exportacion');
+  });
+
+  it('sin leerlo, aApiError no entiende el Blob: ERROR_INTERNO', () => {
+    expect(aApiError(respuesta(403, json(NO_VERIFICADO))).codigo).toBe('ERROR_INTERNO');
+  });
+
+  it('un Blob que no es Problem Details da ERROR_INTERNO con el status original', async () => {
+    const error = await aApiErrorAsync(respuesta(502, new Blob(['<html>Bad gateway</html>'], { type: 'text/html' })));
+    expect(error.codigo).toBe('ERROR_INTERNO');
+    expect(error.status).toBe(502);
+    expect(error.detalle).toBe(DETALLE_ERROR_INTERNO);
+  });
+
+  it('sin Blob se comporta como aApiError', async () => {
+    const e = respuesta(400, REGISTRO_INCOMPLETO);
+    expect(tieneCuerpoBlob(e)).toBe(false);
+    expect((await aApiErrorAsync(e)).codigo).toBe('VALIDACION');
+    expect((await aApiErrorAsync(new Error('x'))).codigo).toBe('ERROR_INTERNO');
   });
 });
 

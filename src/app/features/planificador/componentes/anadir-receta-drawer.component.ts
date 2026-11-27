@@ -13,6 +13,7 @@ import { KcalPipe } from '@shared/pipes/kcal.pipe';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsCalcStatusComponent } from '@shared/ui/data/calc-status.component';
 import { NsSourceBadgeComponent } from '@shared/ui/data/source-badge.component';
+import { NsSourcesNoteComponent } from '@shared/ui/data/sources-note.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
 import { NsSkeletonComponent } from '@shared/ui/feedback/skeleton.component';
 import { NsFormFieldComponent } from '@shared/ui/form/form-field.component';
@@ -74,6 +75,7 @@ export function racionesValidas(raciones: number | null | undefined): raciones i
     NsQuantityInputComponent,
     NsSkeletonComponent,
     NsSourceBadgeComponent,
+    NsSourcesNoteComponent,
   ],
   template: `
     <ns-drawer
@@ -163,6 +165,7 @@ export function racionesValidas(raciones: number | null | undefined): raciones i
             Solo aparecen recetas publicadas con cálculo nutricional completo o aproximado, aptas para la franja y
             compatibles con tus restricciones. Las cifras son para las raciones propuestas.
           </p>
+          <ns-sources-note [fuentes]="origenes()" />
         </div>
       }
 
@@ -369,6 +372,7 @@ export class AnadirRecetaDrawerComponent {
     const r = this.resultado();
     return r?.estado === 'listo' ? r.recetas : [];
   });
+  protected readonly origenes = computed(() => this.recetas().map((r) => r.receta.origen));
   protected readonly errorResultado = computed(() => {
     const r = this.resultado();
     return r?.estado === 'error' ? r.error : null;

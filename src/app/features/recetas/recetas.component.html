@@ -1,5 +1,5 @@
 <header class="cabecera">
-  <h1 class="ns-text-h2">Recetas</h1>
+  <h2 class="ns-text-h2">Recetas</h2>
   <p class="ns-text-secondary">
     Recetas propias y de TheMealDB. Los nutrientes se calculan a partir de los ingredientes.
   </p>
@@ -93,7 +93,7 @@
     @switch (estadoFavoritas()) {
       @case ('cargando') {
         @if (favoritas(); as lista) {
-          <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: lista }" />
+          <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: lista, nivel: 3 }" />
         } @else {
           <ng-container *ngTemplateOutlet="esqueleto" />
         }
@@ -108,12 +108,13 @@
       }
       @default {
         @if (favoritas()?.length) {
-          <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: favoritas() }" />
+          <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: favoritas(), nivel: 3 }" />
         } @else {
           <ns-empty-state
             icon="heart"
             titulo="Aún no tienes recetas favoritas"
             descripcion="Pulsa el corazón de una receta para guardarla aquí."
+            [nivelTitulo]="3"
           >
             <button nsButton type="button" variant="secondary" (click)="cambiarVista('explorar')">
               Explorar recetas
@@ -152,6 +153,7 @@
       icon="search"
       titulo="No hay recetas con estos filtros"
       descripcion="Busca por otro nombre o cambia el ingrediente principal."
+      [nivelTitulo]="3"
     >
       @if (hayFiltros()) {
         <button nsButton type="button" variant="secondary" (click)="limpiarFiltros()">Quitar filtros</button>
@@ -160,10 +162,10 @@
   } @else {
     @if (catalogo().length) {
       <section class="bloque" aria-labelledby="titulo-catalogo">
-        <h2 id="titulo-catalogo" class="ns-text-overline ns-text-secondary">
+        <h3 id="titulo-catalogo" class="ns-text-overline ns-text-secondary">
           Nuestro catálogo · {{ totalCatalogo() }}
-        </h2>
-        <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: catalogo() }" />
+        </h3>
+        <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: catalogo(), nivel: 4 }" />
         <ns-paginator
           etiqueta="Páginas de recetas"
           [page]="busqueda()?.catalogo?.page ?? 0"
@@ -174,19 +176,20 @@
     }
     @if (deTheMealDb().length) {
       <section class="bloque" aria-labelledby="titulo-themealdb">
-        <h2 id="titulo-themealdb" class="ns-text-overline ns-text-secondary">De TheMealDB</h2>
-        <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: deTheMealDb() }" />
+        <h3 id="titulo-themealdb" class="ns-text-overline ns-text-secondary">De TheMealDB</h3>
+        <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: deTheMealDb(), nivel: 4 }" />
       </section>
     }
   }
 </ng-template>
 
-<ng-template #rejilla let-lista>
+<ng-template #rejilla let-lista let-nivel="nivel">
   <ul class="rejilla" role="list">
     @for (r of $any(lista); track clave(r)) {
       <li>
         <ns-recipe-card
           [receta]="r"
+          [nivelTitulo]="nivel ?? 3"
           [abriendo]="abriendo() === clave(r)"
           [guardandoFavorita]="guardando().has(clave(r))"
           (abrir)="abrir(r)"

@@ -1,5 +1,5 @@
 <header class="cabecera">
-  <h1 class="ns-text-h2">Lista de la compra</h1>
+  <h2 class="ns-text-h2">Lista de la compra</h2>
   <p class="ns-text-secondary">
     Listas generadas desde tus menús, con las cantidades sumadas y agrupadas por sección del supermercado.
   </p>
@@ -37,9 +37,9 @@
             @for (lista of p.content; track lista.id) {
               <li>
                 <ns-card class="tarjeta" [class.tarjeta--completada]="lista.estado === 'COMPLETADA'">
-                  <h2 nsCardTitulo>
+                  <h3 nsCardTitulo>
                     <a class="tarjeta__enlace" [routerLink]="['/compra', lista.id]">{{ lista.nombre }}</a>
-                  </h2>
+                  </h3>
                   <p nsCardSubtitulo>
                     @if (rango(lista.fechaDesde, lista.fechaHasta); as r) {
                       <svg lucideIcon="calendar" [size]="14" aria-hidden="true"></svg>

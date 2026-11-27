@@ -203,7 +203,7 @@ describe('ListaCompraComponent', () => {
   it('pinta la cabecera, el progreso y las secciones con su contador de pendientes', async () => {
     await crear();
     expect(servicio.detalle).toHaveBeenCalledWith('l1');
-    expect(raiz.querySelector('h1')?.textContent).toContain('Compra semana');
+    expect(raiz.querySelector('h2')?.textContent).toContain('Compra semana');
     expect(raiz.querySelector('.origen')?.textContent).toContain('23–29 nov 2026');
     expect(raiz.querySelector('.origen a')?.getAttribute('href')).toBe('/planificador?semana=2026-11-23');
     expect(raiz.querySelector('ns-progress-bar')?.textContent?.replace(/\s+/g, ' ')).toContain('1 / 4 comprados');
@@ -303,7 +303,7 @@ describe('ListaCompraComponent', () => {
     (raiz.querySelector('.nombre-form') as HTMLFormElement).dispatchEvent(new Event('submit'));
     await refrescar();
     expect(servicio.actualizar).toHaveBeenCalledWith('l1', { nombre: 'Súper' });
-    expect(raiz.querySelector('h1')?.textContent).toContain('Súper');
+    expect(raiz.querySelector('h2')?.textContent).toContain('Súper');
   });
 
   it('Compartir usa navigator.share si existe y, si no, copia al portapapeles', async () => {

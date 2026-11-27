@@ -37,6 +37,7 @@ import { EtiquetaPipe } from '@shared/pipes/etiqueta.pipe';
 import { formatearNumero } from '@shared/pipes/formato';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsSourceBadgeComponent } from '@shared/ui/data/source-badge.component';
+import { NsSourcesNoteComponent } from '@shared/ui/data/sources-note.component';
 import { NsCeldaDirective } from '@shared/ui/data/table-cell.directive';
 import { NsColumna, NsTableComponent } from '@shared/ui/data/table.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
@@ -95,6 +96,7 @@ type CambiosUrl = Record<string, string | number | boolean | null>;
     NsPaginatorComponent,
     NsSelectComponent,
     NsSourceBadgeComponent,
+    NsSourcesNoteComponent,
     NsTableComponent,
   ],
   templateUrl: './alimentos-admin.component.html',
@@ -142,6 +144,7 @@ export class AlimentosAdminComponent {
   protected readonly error = signal<string | null>(null);
   private readonly recargas = new Subject<void>();
   protected readonly filas = computed(() => this.pagina()?.content ?? []);
+  protected readonly fuentes = computed(() => this.filas().map((a) => a.fuente));
   protected readonly total = computed(() => {
     const n = this.pagina()?.totalElements ?? 0;
     return n === 1 ? '1 alimento' : `${formatearNumero(n, 0)} alimentos`;

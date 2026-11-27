@@ -6,19 +6,32 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
 import { CuentaService } from '@core/services/cuenta.service';
 import { aApiError } from '@core/util/api-error';
+import { descargarBlob } from '@core/util/descarga';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
 import { NsBadgeComponent } from '@shared/ui/feedback/badge.component';
 import { NsToastService } from '@shared/ui/feedback/toast.service';
 import { NsCheckboxComponent } from '@shared/ui/form/checkbox.component';
 import { NsConfirmService } from '@shared/ui/overlay/confirm.service';
+import { ReenviarVerificacionComponent } from '../auth/componentes/reenviar-verificacion.component';
 import { TextoDatosSaludComponent } from '../auth/componentes/texto-datos-salud.component';
+
+/** Lo que incluye GET /cuenta/exportacion (RGPD art. 20). */
+const CONTENIDO_EXPORTACION = [
+  'Tu cuenta y tus consentimientos',
+  'Tu perfil, preferencias y objetivos',
+  'Tus comidas, entrenamientos y pesajes',
+  'Tus menús, listas de la compra y recetas favoritas',
+  'Tus conversaciones con el asistente',
+  'Tus análisis de fotos (sin las imágenes) e insights',
+];
 
 /**
  * Configuración › Privacidad y datos (DESIGN.md §7.16, NutriSport_API.md §4):
  * - Consentimiento de datos de salud: estado, qué se trata y qué va al proveedor de IA, revocar
  *   (con confirmación) o volver a darlo.
- * - Exportar mis datos: hueco para la Ampliación (paso 36).
+ * - Exportar mis datos (§7.6): qué incluye, descarga del JSON y, sin el email verificado, el aviso
+ *   con "Reenviar". No depende del consentimiento: se puede exportar aunque esté revocado.
  * - Zona de peligro: eliminar la cuenta (contraseña y, opcionalmente, borrado inmediato).
  */
 @Component({
@@ -29,6 +42,7 @@ import { TextoDatosSaludComponent } from '../auth/componentes/texto-datos-salud.
     NsBadgeComponent,
     NsButtonComponent,
     NsCheckboxComponent,
+    ReenviarVerificacionComponent,
     TextoDatosSaludComponent,
   ],
   template: `
@@ -75,14 +89,39 @@ import { TextoDatosSaludComponent } from '../auth/componentes/texto-datos-salud.
     <section class="ns-bloque" aria-labelledby="ns-exportar-titulo">
       <div class="ns-bloque__cabecera">
         <h3 class="ns-text-h4" id="ns-exportar-titulo">Exportar mis datos</h3>
-        <ns-badge>Próximamente</ns-badge>
       </div>
       <p class="ns-bloque__texto">
-        Podrás descargar un archivo con tu cuenta, tu perfil, tus comidas, entrenamientos y pesajes.
+        Descarga un archivo JSON con todos tus datos de NutriSport. Puedes hacerlo aunque hayas revocado el
+        consentimiento. Incluye:
       </p>
-      <!-- Paso 36: GET /cuenta/exportacion (NutriSport_API.md §7.6). -->
+      <ul class="ns-bloque__vinetas">
+        @for (elemento of contenidoExportacion; track elemento) {
+          <li>{{ elemento }}</li>
+        }
+      </ul>
+      <p class="ns-bloque__nota">Nunca incluye tu contraseña ni tus tokens de sesión.</p>
+
+      @if (!emailVerificado()) {
+        <ns-alert type="info" titulo="Verifica tu email">
+          Para exportar tus datos tienes que verificar tu email. Abre el enlace que te enviamos o pide uno nuevo.
+        </ns-alert>
+        <app-reenviar-verificacion [email]="email()" textoBoton="Reenviar" />
+      } @else if (errorExportar(); as error) {
+        <ns-alert type="error">{{ error }}</ns-alert>
+      }
+
       <div class="ns-bloque__acciones">
-        <button nsButton type="button" variant="secondary" disabled>Exportar mis datos</button>
+        <button
+          nsButton
+          type="button"
+          variant="secondary"
+          icon="download"
+          [loading]="exportando()"
+          [disabled]="!emailVerificado()"
+          (click)="exportar()"
+        >
+          Exportar mis datos
+        </button>
       </div>
     </section>
 
@@ -117,6 +156,12 @@ export class PrivacidadComponent {
 
   protected readonly vigente = computed(() => this.auth.consentimientoVigente());
   protected readonly cambiandoConsentimiento = signal(false);
+
+  protected readonly contenidoExportacion = CONTENIDO_EXPORTACION;
+  protected readonly emailVerificado = this.auth.emailVerificado;
+  protected readonly email = computed(() => this.auth.cuenta()?.email ?? null);
+  protected readonly exportando = signal(false);
+  protected readonly errorExportar = signal<string | null>(null);
 
   protected readonly inmediata = new FormControl(false, { nonNullable: true });
   protected readonly eliminando = signal(false);
@@ -160,6 +205,28 @@ export class PrivacidadComponent {
       this.toasts.error('No hemos podido cambiar el consentimiento', aApiError(e).detalle);
     } finally {
       this.cambiandoConsentimiento.set(false);
+    }
+  }
+
+  protected async exportar(): Promise<void> {
+    if (this.exportando() || !this.emailVerificado()) return;
+    this.exportando.set(true);
+    this.errorExportar.set(null);
+    try {
+      const { blob, nombre } = await firstValueFrom(this.cuentas.exportar());
+      descargarBlob(blob, nombre);
+      this.toasts.exito('Datos exportados', `Se ha descargado ${nombre}.`);
+    } catch (e) {
+      const error = aApiError(e);
+      const cuenta = this.auth.cuenta();
+      if (error.esCodigo('EMAIL_NO_VERIFICADO') && cuenta) {
+        // La cuenta en memoria estaba desfasada: se muestra el aviso con "Reenviar".
+        this.auth.actualizarCuenta({ ...cuenta, emailVerificado: false });
+      } else {
+        this.errorExportar.set(error.detalle);
+      }
+    } finally {
+      this.exportando.set(false);
     }
   }
 

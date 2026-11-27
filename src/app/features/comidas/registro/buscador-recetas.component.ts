@@ -10,6 +10,7 @@ import { formatearNumero } from '@shared/pipes/formato';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsCalcStatusComponent, estadoCalculo } from '@shared/ui/data/calc-status.component';
 import { NsSourceBadgeComponent } from '@shared/ui/data/source-badge.component';
+import { NsSourcesNoteComponent } from '@shared/ui/data/sources-note.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
 import { NsSpinnerComponent } from '@shared/ui/feedback/spinner.component';
 import { BusquedaReactiva } from '@shared/ui/form/busqueda';
@@ -33,6 +34,7 @@ const TAMANO = 10;
     NsCalcStatusComponent,
     NsInputDirective,
     NsSourceBadgeComponent,
+    NsSourcesNoteComponent,
     NsSpinnerComponent,
   ],
   template: `
@@ -117,6 +119,7 @@ const TAMANO = 10;
           </li>
         }
       </ul>
+      <ns-sources-note class="atribucion" [fuentes]="origenes($any(recetas))" />
     </ng-template>
   `,
   styles: `
@@ -180,6 +183,9 @@ const TAMANO = 10;
       grid-row: 1 / span 2;
       align-self: center;
     }
+    .atribucion {
+      margin-top: var(--ns-space-2);
+    }
     .fila__motivo {
       margin: var(--ns-space-1) 0 0;
       color: var(--ns-text-secondary);
@@ -206,6 +212,8 @@ export class BuscadorRecetasComponent {
   protected readonly favoritas = toSignal(this.recetas.favoritas().pipe(catchError(() => of([]))), {
     initialValue: [] as RecetaResumenResponse[],
   });
+
+  protected readonly origenes = (recetas: RecetaResumenResponse[]) => recetas.map((r) => r.origen);
 
   /** "≈ 390 kcal/ración", "Cálculo pendiente" o vacío. */
   protected cifras(r: RecetaResumenResponse): string {

@@ -47,8 +47,10 @@ export class EsperaLimite {
       return;
     }
     this.sinTiempo.set(false);
-    this.ahora.set(Date.now());
-    this.hasta.set(Date.now() + segundos * 1000);
+    // Un único Date.now(): con dos lecturas, 1 ms entre ellas daba 1801 s y "31 minutos" en vez de 30.
+    const inicio = Date.now();
+    this.ahora.set(inicio);
+    this.hasta.set(inicio + segundos * 1000);
     this.intervalo = setInterval(() => {
       this.ahora.set(Date.now());
       if (!this.activa()) this.limpiar();

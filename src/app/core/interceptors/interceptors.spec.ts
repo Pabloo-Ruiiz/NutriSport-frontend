@@ -237,5 +237,21 @@ describe('authInterceptor + errorInterceptor', () => {
       expect(auth.consentimientoVigente()).toBe(false);
       expect(auth.autenticado()).toBe(true);
     });
+
+    it('con responseType blob lee el Problem Details del Blob', async () => {
+      iniciarSesion();
+      const resultado = firstValueFrom(http.get('/api/v1/cuenta/exportacion', { responseType: 'blob' })).catch(
+        (e: unknown) => e,
+      );
+      const noVerificado = problema(403, 'EMAIL_NO_VERIFICADO', 'Verifica tu email');
+      backend
+        .expectOne('/api/v1/cuenta/exportacion')
+        .flush(new Blob([JSON.stringify(noVerificado.body)]), noVerificado.opciones);
+
+      const error = (await resultado) as ApiError;
+      expect(error).toBeInstanceOf(ApiError);
+      expect(error.codigo).toBe('EMAIL_NO_VERIFICADO');
+      expect(error.detalle).toBe('Verifica tu email');
+    });
   });
 });
