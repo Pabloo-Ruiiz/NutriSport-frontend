@@ -54,6 +54,8 @@
         <app-comidas-hoy
           class="ns-dash__comidas"
           [comidas]="r.comidas"
+          [pendientes]="r.comidasPlanificadasPendientes"
+          [marcando]="marcandoPlan()"
           [fecha]="dia()"
           [esHoy]="esHoy()"
           [volver]="volver()"
@@ -61,6 +63,7 @@
           (editar)="editarComida($event)"
           (duplicar)="duplicarComida($event)"
           (eliminar)="eliminarComida($event)"
+          (marcar)="marcarPlanificada($event)"
         />
 
         <app-entrenamiento-hoy

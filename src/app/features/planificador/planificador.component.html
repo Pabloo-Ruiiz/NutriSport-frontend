@@ -35,7 +35,20 @@
     >
       Lista de la compra
     </button>
-    <button nsButton type="button" icon="plus" (click)="generar()">Generar menú</button>
+    @if (menu()) {
+      <button
+        nsButton
+        type="button"
+        icon="refresh-cw"
+        [loading]="editor.ocupado()"
+        [disabled]="ocupado()"
+        (click)="regenerar()"
+      >
+        Regenerar
+      </button>
+    } @else {
+      <button nsButton type="button" icon="plus" (click)="generar()">Generar menú</button>
+    }
     @if (menu(); as m) {
       <button
         type="button"
@@ -49,6 +62,11 @@
 
       <ng-template #acciones>
         <div class="ns-menu" cdkMenu>
+          <button type="button" class="ns-menu__item" cdkMenuItem (cdkMenuItemTriggered)="generar()">
+            <svg lucideIcon="plus" [size]="18" aria-hidden="true"></svg>
+            Generar otro menú
+          </button>
+          <hr class="ns-menu__separador" />
           <button type="button" class="ns-menu__item" cdkMenuItem (cdkMenuItemTriggered)="cambiarFavorito(m)">
             <svg lucideIcon="heart" [size]="18" aria-hidden="true"></svg>
             {{ m.favorito ? 'Quitar de favoritos' : 'Guardar como favorito' }}
@@ -114,3 +132,5 @@
     <button nsButton type="button" icon="plus" (click)="generar()">Generar menú</button>
   </ns-empty-state>
 }
+
+<app-anadir-receta-drawer />

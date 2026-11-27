@@ -1,24 +1,73 @@
-<h2>Productos comerciales</h2>
-<button nsButton variant="secondary" [disabled]="!consultaBusqueda().trim()" [loading]="cargando()" (click)="buscar()">
-  Buscar en productos comerciales
-</button>
-<p>Las búsquedas en Open Food Facts tienen un límite compartido. Solo consultamos al pulsar el botón.</p>
-<div aria-live="polite" [attr.aria-busy]="cargando() || cargandoFicha()">
+<h2 class="ns-pc__seccion">
+  <span class="ns-text-overline">Productos comerciales</span>
+  <span class="ns-pc__contador">
+    · Open Food Facts
+    @if (buscado() && resultados().length) {
+      · {{ resultados().length }} {{ resultados().length === 1 ? 'resultado' : 'resultados' }}
+    }
+  </span>
+</h2>
+
+<div class="ns-pc__estado" aria-live="polite" [attr.aria-busy]="cargando() || cargandoFicha()">
   @if (error()) {
     <ns-alert [type]="tipoError()">{{ error() }}</ns-alert>
   }
   @if (!disponible()) {
     <ns-alert type="info">Productos comerciales no disponibles ahora mismo. Puedes seguir usando tu catálogo.</ns-alert>
-  } @else if (buscado() && !resultados().length) {
-    <p>No hay productos comerciales para esta búsqueda.</p>
+  } @else if (buscado() && !resultados().length && !cargando()) {
+    <p class="ns-pc__nota">No hay productos comerciales para «{{ consultaActual() }}».</p>
   }
   @if (cargandoFicha()) {
-    <p>Cargando ficha del producto…</p>
-  }
-  @for (producto of resultados(); track producto.codigoBarras) {
-    <app-producto-item [producto]="producto" (elegido)="elegir($event)" />
+    <p class="ns-pc__nota">Cargando ficha del producto…</p>
   }
 </div>
-@if (mas()) {
-  <button nsButton variant="secondary" [loading]="cargando()" (click)="buscar(true)">Más resultados</button>
+
+@if (cargando() && !resultados().length) {
+  <div class="ns-pc__lista" aria-hidden="true">
+    <ns-skeleton shape="rect" height="72px" />
+    <ns-skeleton shape="rect" height="72px" />
+  </div>
+}
+
+@if (resultados().length) {
+  <ul class="ns-pc__lista" role="list">
+    @for (producto of resultados(); track producto.codigoBarras) {
+      <li>
+        <app-producto-item
+          [producto]="producto"
+          [seleccionado]="producto.codigoBarras === seleccionado()"
+          (elegido)="elegir($event)"
+        />
+      </li>
+    }
+  </ul>
+}
+
+<div class="ns-pc__pie">
+  <p class="ns-pc__nota">
+    Las búsquedas en Open Food Facts tienen un límite por minuto: solo consultamos al pulsar el botón.
+  </p>
+  @if (yaBuscado()) {
+    @if (mas()) {
+      <button nsButton type="button" variant="secondary" icon="search" [loading]="cargando()" (click)="buscar(true)">
+        Ver más productos
+      </button>
+    }
+  } @else {
+    <button
+      nsButton
+      type="button"
+      variant="secondary"
+      icon="search"
+      [disabled]="!consultaBusqueda().trim()"
+      [loading]="cargando()"
+      (click)="buscar()"
+    >
+      Buscar en productos comerciales
+    </button>
+  }
+</div>
+
+@if (resultados()[0]; as primero) {
+  <ns-attribution class="ns-pc__atribucion" [fuente]="primero.fuente" />
 }

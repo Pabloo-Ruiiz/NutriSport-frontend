@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, model } from '@angular/core';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 import type { MenuResponse } from '@core/models';
 import { ETIQUETAS_TIPO_COMIDA } from '@core/models/etiquetas';
 import { hoyLocal } from '@core/util/fechas';
 import { NsDateStripComponent } from '@shared/ui/nav/date-strip.component';
 import { comidasDeFranja, franjasVisibles, type ColumnaSemana } from '../planificador';
+import { PlanificadorEditor } from '../planificador-editor';
 import { CabeceraDiaComponent } from './cabecera-dia.component';
 import { MealSlotComponent } from './meal-slot.component';
 
@@ -16,7 +18,7 @@ import { MealSlotComponent } from './meal-slot.component';
  */
 @Component({
   selector: 'app-dia-planificador',
-  imports: [CabeceraDiaComponent, MealSlotComponent, NsDateStripComponent],
+  imports: [CabeceraDiaComponent, LucideDynamicIcon, MealSlotComponent, NsDateStripComponent],
   template: `
     <ns-date-strip
       [(selected)]="fecha"
@@ -35,7 +37,18 @@ import { MealSlotComponent } from './meal-slot.component';
           @for (comida of comidasDeFranja(dia, franja); track comida.id) {
             <app-meal-slot [comida]="comida" />
           } @empty {
-            <p class="ns-dp__vacio">Sin comida planificada</p>
+            @if (editor) {
+              <button
+                type="button"
+                class="ns-dp__anadir"
+                (click)="editor.abrirReceta({ modo: 'anadir', fecha: dia.fecha, tipoComida: franja })"
+              >
+                <svg lucideIcon="plus" [size]="16" aria-hidden="true"></svg>
+                Añadir receta<span class="ns-sr-only"> a {{ etiquetas[franja].toLowerCase() }}</span>
+              </button>
+            } @else {
+              <p class="ns-dp__vacio">Sin comida planificada</p>
+            }
           }
         </section>
       }
@@ -71,6 +84,26 @@ import { MealSlotComponent } from './meal-slot.component';
       border: 1px dashed var(--ns-border);
       border-radius: var(--ns-radius-md);
     }
+    .ns-dp__anadir {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--ns-space-2);
+      min-height: 48px;
+      border: 1px dashed var(--ns-border-strong);
+      border-radius: var(--ns-radius-md);
+      background: transparent;
+      color: var(--ns-text-secondary);
+      font: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: 2px solid var(--ns-focus-ring);
+        outline-offset: 2px;
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -81,6 +114,7 @@ export class DiaPlanificadorComponent {
   /** Fecha de hoy; se puede fijar en pruebas. */
   readonly hoy = input(hoyLocal());
 
+  protected readonly editor = inject(PlanificadorEditor, { optional: true });
   protected readonly etiquetas = ETIQUETAS_TIPO_COMIDA;
   protected readonly comidasDeFranja = comidasDeFranja;
 

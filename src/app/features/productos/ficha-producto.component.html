@@ -1,37 +1,74 @@
 @let p = producto();
-@if (p.imagenUrl) {
-  <img class="imagen" [src]="p.imagenUrl" [alt]="p.nombre" (error)="imagen.hidden = true" #imagen />
-}
-<h2>{{ p.nombre }}</h2>
-<p>{{ p.marca }}</p>
-<p>Código de barras: {{ p.codigoBarras }}</p>
+<header class="ns-fp__cabecera">
+  <div class="ns-fp__imagen" aria-hidden="true">
+    @if (p.imagenUrl && !sinImagen()) {
+      <img [src]="p.imagenUrl" alt="" (error)="sinImagen.set(true)" />
+    } @else {
+      <svg lucideIcon="scan-barcode" [size]="28"></svg>
+    }
+  </div>
+  <div class="ns-fp__titulos">
+    <div class="ns-fp__badges">
+      <ns-source-badge fuente="OPEN_FOOD_FACTS" />
+      @if (p.id) {
+        <ns-badge variant="success" icon="check">En tu catálogo</ns-badge>
+      }
+    </div>
+    <h2 class="ns-fp__nombre">{{ p.nombre }}</h2>
+    <p class="ns-fp__marca">
+      {{ p.marca || 'Sin marca' }}
+      @if (racion(); as r) {
+        · {{ r.nombre }} ({{ r.gramos }} {{ unidad() }})
+      }
+      · <abbr title="Código de barras">EAN</abbr> {{ p.codigoBarras }}
+    </p>
+  </div>
+</header>
+
 <ns-nutrition-facts [valores]="valores()" [unidadBase]="p.unidadBase" [racion]="racion()" />
 @if (racion()) {
-  <p>Valores por ración: estimación a partir de los datos por 100 {{ p.unidadBase === 'ML' ? 'ml' : 'g' }}.</p>
+  <p class="ns-fp__nota">Valores por ración: estimación a partir de los datos por 100 {{ unidad() }}.</p>
 }
-<h3>Ingredientes</h3>
-<p>{{ p.ingredientesTexto || 'Ingredientes no disponibles.' }}</p>
-<h3>Alérgenos</h3>
-<p>Contiene: {{ p.alergenosContiene.join(', ') || 'Sin alérgenos declarados' }}</p>
-<p>Puede contener: {{ p.alergenosTrazas.join(', ') || 'Sin trazas declaradas' }}</p>
-<p>Datos de alérgenos de la fuente, sin revisar por NutriSport.</p>
-<ns-attribution [fuente]="p.fuente" />
-@if (p.nutricionCompleta) {
-  <app-anadir-a-comida [producto]="p" [personalizarComida]="compacta()" />
-} @else {
-  <ns-alert type="info">Información nutricional incompleta. Completa los datos creando un alimento propio.</ns-alert>
-  @if (creado()) {
-    <ns-alert type="success">Alimento propio creado. Ya puedes buscarlo en tu catálogo.</ns-alert>
-  } @else if (creando()) {
-    <app-alimento-form
-      #formulario
-      [valoresIniciales]="{ nombre: p.nombre, marca: p.marca }"
-      (guardado)="creado.set(true); creando.set(false)"
-    />
-    <button nsButton type="submit" [attr.form]="formulario.idFormulario" [loading]="formulario.enviando()">
-      Guardar alimento
-    </button>
+
+<section class="ns-fp__seccion" aria-labelledby="ns-fp-ingredientes">
+  <h3 class="ns-text-overline" id="ns-fp-ingredientes">Ingredientes</h3>
+  <p class="ns-fp__texto">{{ p.ingredientesTexto || 'Ingredientes no disponibles.' }}</p>
+</section>
+
+<section class="ns-fp__seccion" aria-labelledby="ns-fp-alergenos">
+  <h3 class="ns-text-overline" id="ns-fp-alergenos">Alérgenos</h3>
+  @if (p.alergenosContiene.length || p.alergenosTrazas.length) {
+    <ns-allergen-list [contiene]="contiene()" [trazas]="trazas()" [revisados]="p.alergenosRevisados" />
   } @else {
-    <button nsButton type="button" (click)="creando.set(true)">Crear alimento propio</button>
+    <p class="ns-fp__texto">Sin alérgenos declarados.</p>
   }
-}
+  <p class="ns-fp__nota">Datos de alérgenos de la fuente, sin revisar por NutriSport.</p>
+</section>
+
+<div class="ns-fp__accion">
+  @if (p.nutricionCompleta) {
+    <app-anadir-a-comida [producto]="p" [personalizarComida]="compacta()" />
+  } @else {
+    <ns-alert type="warning" titulo="Información nutricional incompleta">
+      No se puede añadir a una comida. Completa los datos creando un alimento propio.
+    </ns-alert>
+    @if (creado()) {
+      <ns-alert type="success">Alimento propio creado. Ya puedes buscarlo en tu catálogo.</ns-alert>
+    } @else if (creando()) {
+      <app-alimento-form
+        #formulario
+        [valoresIniciales]="{ nombre: p.nombre, marca: p.marca }"
+        (guardado)="creado.set(true); creando.set(false)"
+      />
+      <button nsButton type="submit" fullWidth [attr.form]="formulario.idFormulario" [loading]="formulario.enviando()">
+        Guardar alimento
+      </button>
+    } @else {
+      <button nsButton type="button" variant="secondary" icon="plus" fullWidth (click)="creando.set(true)">
+        Crear alimento propio
+      </button>
+    }
+  }
+</div>
+
+<ns-attribution class="ns-fp__atribucion" [fuente]="p.fuente" />

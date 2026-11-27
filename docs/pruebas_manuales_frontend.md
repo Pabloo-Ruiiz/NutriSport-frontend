@@ -187,3 +187,27 @@ La receta propia examinada muestra cuatro ingredientes resueltos pero completitu
 0 % y estado incompleto. Se registra como incidencia de datos/cálculo del entorno, sin
 forzar su estado a completo ni modificar el backend. Los tests con API simulada cubren el
 registro con origen de receta. El caso real se completó después con la receta sintética autorizada.
+
+## Comprobación · Paso 31 · 27/11/2026
+
+**Automatizada: OK. Manual: pendiente por indisponibilidad del control del navegador.**
+La apertura de `/planificador` falló antes de devolver una pestaña: timeout de `service_info`.
+Se reintentó y se reinició la sesión de control; el intento posterior también agotó el tiempo.
+No se pudo observar ni modificar un menú real. No se consideran aprobados los casos manuales
+por el hecho de que existan tests con respuestas simuladas.
+
+| Comprobación | Resultado | Evidencia |
+|---|---|---|
+| Añadir una receta a una franja vacía | PENDIENTE manual | Tests de drawer, búsqueda y POST pasan; falta ejecutar y comprobar persistencia en un menú real. |
+| Sustituir por una alternativa | PENDIENTE manual | Test de hasta tres alternativas y sustitución mediante PUT pasa; falta elección y persistencia reales. |
+| Arrastrar una comida a otro día | PENDIENTE manual | Tests de evento de CDK drop, actualización optimista y reversión pasan. No se realizó un arrastre físico en navegador. |
+| Bloquear dos comidas y regenerar conservándolas | PENDIENTE manual | Tests de bloqueo PUT y aplicación de respuesta de regeneración pasan. El test usa un servicio simulado: no demuestra por sí solo que el backend conserve dos comidas concretas. |
+| Pedir y aplicar sugerencia IA | PENDIENTE manual | Tests de petición, aplicación válida y errores pasan con API simulada; no se pidió ni aplicó una sugerencia real. |
+| Registrar una comida de hoy desde planificador | PENDIENTE manual | Tests de diálogo, hora, registro, aviso y recarga pasan. No se creó una comida real en esta comprobación. |
+| Registrar otra comida de hoy desde dashboard | PENDIENTE manual | No se pudo abrir y operar el dashboard para verificar el registro real y sus totales. |
+| `npm run build` mediante `npm.cmd` | OK con avisos | Código 0. Inicial 521,31 kB (presupuesto de aviso 500 kB). `buscador-productos.component.scss`: 5,01 kB (presupuesto 4 kB). |
+| `npm test -- --watch=false` mediante `npm.cmd` | OK | 752 tests aprobados en 91 archivos, código 0, duración 124,74 s. |
+| `docker compose up -d --build` | OK con avisos | Imagen actual compilada y contenedor recreado y arrancado, con proxy al backend local mediante `BACKEND_URL=http://host.docker.internal:8080`. |
+
+No se modificó el código de la aplicación ni los tests durante esta ejecución: la suite ya
+pasaba. La aceptación manual del paso 31 sigue pendiente hasta recuperar el navegador.

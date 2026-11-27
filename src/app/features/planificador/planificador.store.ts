@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import type { EstadoMenu, MenuResponse, MenuResumenResponse } from '@core/models';
+import type { EstadoMenu, MenuResponse, MenuResumenResponse, TipoComida } from '@core/models';
 import { MenusService } from '@core/services/menus.service';
 import { aApiError } from '@core/util/api-error';
 import { hoyLocal, lunesDeLaSemana, rangoDias, sumarDias } from '@core/util/fechas';
@@ -145,6 +145,37 @@ export class PlanificadorStore {
       this.semana.set(lunesDeLaSemana(menu.fechaInicio));
       this.cargar(menu.id);
     }
+  }
+
+  /** Vuelve a pedir el menú seleccionado (tras un 204 o un error de reglas). El actual sigue visible. */
+  recargar(): void {
+    const id = this.menu()?.id;
+    if (id) this.seleccionar(id);
+  }
+
+  /**
+   * Mueve una comida a otro día y franja solo en la vista, mientras llega la respuesta del PUT
+   * (drag & drop). No toca ninguna cifra: las del día las da el servidor al responder. Devuelve el
+   * menú anterior para restaurarlo si la petición falla, o null si no hay nada que mover.
+   */
+  moverEnVista(comidaId: string, fecha: string, tipoComida: TipoComida): MenuResponse | null {
+    const anterior = this.menu();
+    const comida = anterior?.dias.flatMap((d) => d.comidas).find((c) => c.id === comidaId);
+    if (!anterior || !comida || !anterior.dias.some((d) => d.fecha === fecha)) return null;
+    const movida = { ...comida, fecha, tipoComida };
+    this.menu.set({
+      ...anterior,
+      dias: anterior.dias.map((d) => {
+        const comidas = d.comidas.filter((c) => c.id !== comidaId);
+        return { ...d, comidas: d.fecha === fecha ? [...comidas, movida] : comidas };
+      }),
+    });
+    return anterior;
+  }
+
+  /** Vuelve al menú anterior a un cambio en la vista que el servidor ha rechazado. */
+  restaurar(menu: MenuResponse): void {
+    this.menu.set(menu);
   }
 
   /** Quita un menú eliminado; si era el seleccionado, selecciona otro de la semana (o ninguno). */

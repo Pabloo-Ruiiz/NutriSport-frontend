@@ -1,4 +1,74 @@
+// Bloque "Productos comerciales" del buscador (DESIGN.md §7.19). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
   min-width: 0;
+}
+
+.ns-pc__seccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ns-space-1);
+  margin: 0;
+  font: inherit;
+}
+
+.ns-pc__contador {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+}
+
+.ns-pc__estado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.ns-pc__nota {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.ns-pc__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-pc__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+
+  .ns-pc__nota {
+    flex: 1;
+    font-size: 0.75rem;
+  }
+  [nsButton] {
+    flex-shrink: 0;
+  }
+
+  @include bp.down(sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.ns-pc__atribucion {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
 }

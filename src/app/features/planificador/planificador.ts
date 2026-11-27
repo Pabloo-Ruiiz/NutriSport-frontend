@@ -3,6 +3,7 @@
 import type { ComidaPlanificadaResponse, DiaMenuResponse, MenuResponse, TipoComida } from '@core/models';
 import { ORDEN_TIPOS_COMIDA } from '@core/models/etiquetas';
 import { desdeFechaApi, lunesDeLaSemana, rangoDias, sumarDias } from '@core/util/fechas';
+import { formatearNumero } from '@shared/pipes/formato';
 
 /** Franjas que siempre tienen fila en la rejilla; el resto, solo si hay comidas de ese tipo. */
 export const FRANJAS_FIJAS: readonly TipoComida[] = ['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA'];
@@ -73,4 +74,11 @@ export function fechaInicioSugerida(tipo: 'DIARIO' | 'SEMANAL', hoy: string, pre
     if (lunes >= hoy) return lunes;
   }
   return proximoLunes;
+}
+
+/** Diferencia con signo: "+20", "−10", "±0" (signo menos tipográfico). */
+export function formatearDelta(valor: number, decimales = 0): string {
+  const redondeado = Number(valor.toFixed(decimales));
+  if (redondeado === 0) return '±0';
+  return `${redondeado > 0 ? '+' : '−'}${formatearNumero(Math.abs(redondeado), decimales)}`;
 }

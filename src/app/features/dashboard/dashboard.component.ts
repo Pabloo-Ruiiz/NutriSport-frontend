@@ -4,9 +4,15 @@ import { Observable, Subscription, catchError, finalize, forkJoin, of, shareRepl
 
 import { LayoutService } from '@core/layout/layout.service';
 import { AuthService } from '@core/services/auth.service';
-import type { EntrenamientoResponse, RegistroComidaResponse, ResumenDiarioResponse } from '@core/models';
+import type {
+  ComidaPendienteResponse,
+  EntrenamientoResponse,
+  RegistroComidaResponse,
+  ResumenDiarioResponse,
+} from '@core/models';
 import { ComidasService } from '@core/services/comidas.service';
 import { EntrenamientosService } from '@core/services/entrenamientos.service';
+import { MenusService } from '@core/services/menus.service';
 import { SeguimientoService } from '@core/services/seguimiento.service';
 import { type ApiError, aApiError } from '@core/util/api-error';
 import { hoyLocal, lunesDeLaSemana, rangoDias, sumarDias } from '@core/util/fechas';
@@ -76,6 +82,7 @@ export class DashboardComponent {
   private readonly seguimiento = inject(SeguimientoService);
   private readonly comidasService = inject(ComidasService);
   private readonly entrenamientos = inject(EntrenamientosService);
+  private readonly menus = inject(MenusService);
   private readonly dialogos = inject(NsDialogService);
   private readonly confirmacion = inject(NsConfirmService);
   private readonly toasts = inject(NsToastService);
@@ -122,6 +129,8 @@ export class DashboardComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly resumen = signal<ResumenDiarioResponse | null>(null);
   protected readonly marcando = signal<string | null>(null);
+  /** Comida del plan que se está marcando como consumida. */
+  protected readonly marcandoPlan = signal<string | null>(null);
 
   private readonly cache = new Map<string, ResumenDiarioResponse | null>();
   /**
@@ -288,6 +297,28 @@ export class DashboardComponent {
         this.recargar();
       },
       error: (e: unknown) => this.toasts.error('No hemos podido eliminar la comida', aApiError(e).detalle),
+    });
+  }
+
+  /**
+   * "Marcar comida" en una comida del plan: POST /menus/{menuId}/comidas/{id}/registrar (la hora la
+   * pone el servidor) y recarga el resumen, donde aparece ya como comida registrada.
+   */
+  protected marcarPlanificada(p: ComidaPendienteResponse): void {
+    if (!p.menuId || this.marcandoPlan()) return;
+    this.marcandoPlan.set(p.id);
+    this.menus.registrarComida(p.menuId, p.id).subscribe({
+      next: () => {
+        this.marcandoPlan.set(null);
+        this.toasts.exito('Comida registrada', p.receta.nombre);
+        this.recargar();
+      },
+      error: (e: unknown) => {
+        this.marcandoPlan.set(null);
+        this.toasts.error('No hemos podido registrar la comida', aApiError(e).detalle);
+        // Puede que ya estuviera registrada (409): el resumen lo dirá.
+        this.recargar();
+      },
     });
   }
 

@@ -30,6 +30,7 @@ import type { NsOpcion } from '@shared/ui/form/control-valor';
 import { NsSelectComponent } from '@shared/ui/form/select.component';
 import { NsConfirmService } from '@shared/ui/overlay/confirm.service';
 import { NsDialogService } from '@shared/ui/overlay/dialog.service';
+import { AnadirRecetaDrawerComponent } from './componentes/anadir-receta-drawer.component';
 import { DiaPlanificadorComponent } from './componentes/dia-planificador.component';
 import { ResumenSemanaComponent } from './componentes/resumen-semana.component';
 import { WeekPlannerComponent } from './componentes/week-planner.component';
@@ -37,6 +38,7 @@ import { DuplicarMenuDialogComponent, type DuplicarMenuData } from './dialogos/d
 import { GenerarMenuDialogComponent, type GenerarMenuData } from './dialogos/generar-menu-dialog.component';
 import { RenombrarMenuDialogComponent, type RenombrarMenuData } from './dialogos/renombrar-menu-dialog.component';
 import { etiquetaSemana } from './planificador';
+import { PlanificadorEditor } from './planificador-editor';
 import { PlanificadorStore } from './planificador.store';
 
 /** "AAAA-MM-DD" válida para ?semana= */
@@ -46,15 +48,18 @@ const FECHA = /^\d{4}-\d{2}-\d{2}$/;
  * Planificador semanal (/planificador, DESIGN.md §7.10 y docs/api/menus.md §7.5).
  *
  * - Cabecera: semana (‹ 23–29 nov 2026 ›), selector con los menús que se solapan con la semana,
- *   "Lista de la compra" (paso 32), "Generar menú" y el menú de acciones del menú elegido.
+ *   "Lista de la compra" (paso 32), "Regenerar" (o "Generar menú" si la semana está vacía) y el
+ *   menú de acciones del menú elegido.
  * - Resumen del menú y, desde 768 px, la rejilla semanal; en móvil, la vista por día.
  * - Todo lo que devuelve el servidor se aplica con `PlanificadorStore.reemplazarMenu`: el cliente
- *   no recalcula nada. "Regenerar" y las acciones de cada comida llegan en el paso 31.
+ *   no recalcula nada. Las ediciones de comidas (añadir, sustituir, mover, bloquear, quitar,
+ *   registrar) y regenerar van por PlanificadorEditor, provisto aquí.
  * - La semana visible va en la URL (?semana=AAAA-MM-DD, el lunes): se conserva al recargar.
  */
 @Component({
   selector: 'app-planificador',
   imports: [
+    AnadirRecetaDrawerComponent,
     CdkMenu,
     CdkMenuItem,
     CdkMenuTrigger,
@@ -69,7 +74,7 @@ const FECHA = /^\d{4}-\d{2}-\d{2}$/;
     ResumenSemanaComponent,
     WeekPlannerComponent,
   ],
-  providers: [PlanificadorStore],
+  providers: [PlanificadorStore, PlanificadorEditor],
   templateUrl: './planificador.component.html',
   styleUrl: './planificador.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +85,7 @@ export class PlanificadorComponent {
 
   private readonly router = inject(Router);
   protected readonly store = inject(PlanificadorStore);
+  protected readonly editor = inject(PlanificadorEditor);
   private readonly menusService = inject(MenusService);
   private readonly dialogos = inject(NsDialogService);
   private readonly confirmacion = inject(NsConfirmService);
@@ -190,6 +196,11 @@ export class PlanificadorComponent {
         this.store.reemplazarMenu(menu);
         this.toast.exito('Menú generado', menu.nombre);
       });
+  }
+
+  /** POST regenerar, tras confirmar (se conservan las bloqueadas y las consumidas). */
+  protected regenerar(): void {
+    void this.editor.regenerar();
   }
 
   /** Se conecta con la lista de la compra en el paso 32. */

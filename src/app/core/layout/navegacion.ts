@@ -126,7 +126,13 @@ export const ACCIONES_REGISTRO: readonly AccionRegistro[] = [
     ruta: '/escaner',
     icono: 'scan-barcode',
   },
-  // { etiqueta: 'Desde mi plan', descripcion: 'Marca una comida planificada para hoy', ruta: '/planificador', icono: 'calendar' },
+  {
+    etiqueta: 'Desde mi plan',
+    descripcion: 'Marca una comida planificada para hoy',
+    // Sin ?semana= el planificador abre la semana actual; en móvil, en el día de hoy.
+    ruta: '/planificador',
+    icono: 'calendar',
+  },
 ];
 
 /** Ruta del botón "Registrar comida" de la topbar. */

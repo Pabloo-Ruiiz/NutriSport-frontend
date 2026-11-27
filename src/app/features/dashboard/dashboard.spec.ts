@@ -297,6 +297,49 @@ describe('DashboardComponent', () => {
     recarga.flush(resumen({ entrenamientos: [entrenamiento({ estado: 'REALIZADO' })] }));
   });
 
+  it('las comidas del plan pendientes van en su franja y "Marcar comida" las registra y recarga', async () => {
+    const pendiente = {
+      menuId: 'm1',
+      menuNombre: 'Semana',
+      id: 'cp-1',
+      fecha: HOY,
+      tipoComida: 'PRE_ENTRENO' as const,
+      receta: {
+        id: 'r1',
+        nombre: 'Tostadas con plátano',
+      } as ResumenDiarioResponse['comidasPlanificadasPendientes'][number]['receta'],
+      raciones: 1,
+      nutrientes: { kcal: 380, proteina: 11, carbohidratos: 70, grasa: 6 },
+    };
+    const { harness, el } = await abrir(resumen({ comidasPlanificadasPendientes: [pendiente] }));
+    // Con una comida del plan no se muestra el estado vacío, y la franja Pre-entreno aparece.
+    expect(el.querySelector('app-comidas-hoy ns-empty-state')).toBeNull();
+    const franja = [...el.querySelectorAll('.ns-ch__franja')].find((f) => f.textContent!.includes('Pre-entreno'))!;
+    expect(franja.querySelector('.ns-ch__plan-texto')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Del plan: Tostadas con plátano · 380 kcal',
+    );
+    expect(franja.querySelector('.ns-ch__anadir')).toBeNull();
+
+    (franja.querySelector('.ns-ch__pendiente button') as HTMLButtonElement).click();
+    const post = http.expectOne(`${API}/menus/m1/comidas/cp-1/registrar`);
+    expect(post.request.method).toBe('POST');
+    post.flush({ id: 'reg-1' });
+    await harness.fixture.whenStable();
+    const [recarga] = resumenes();
+    expect(recarga.request.params.get('fecha')).toBe(HOY);
+    recarga.flush(resumen({ comidas: [comida('reg-1', 'PRE_ENTRENO', '17:00:00')] }));
+  });
+
+  it('franjas: incluye las de las comidas del plan', () => {
+    expect(franjasDelDia([], ['POST_ENTRENO']).map((f) => f.tipo)).toEqual([
+      'DESAYUNO',
+      'COMIDA',
+      'MERIENDA',
+      'POST_ENTRENO',
+      'CENA',
+    ]);
+  });
+
   it('elegir otro día lo lleva a la URL y pide su resumen', async () => {
     const { harness } = await abrir();
     const ayer = sumarDias(HOY, -1);
