@@ -3,11 +3,19 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
 import { environment } from '@env/environment';
-import type { EntrenamientoRequest, EntrenamientoResponse, EstadoEntrenamiento } from '../models';
+import type {
+  EntrenamientoRequest,
+  EntrenamientoResponse,
+  EstadoEntrenamiento,
+  RelacionNutricionResponse,
+} from '../models';
 import { diasEntre } from '../util/fechas';
 
 /** Días que puede abarcar GET /entrenamientos (desde y hasta incluidos). */
 export const MAX_DIAS_ENTRENAMIENTOS = 92;
+
+/** Días que puede abarcar GET /entrenamientos/relacion-nutricion (desde y hasta incluidos). */
+export const MAX_DIAS_RELACION_NUTRICION = 366;
 
 /**
  * Entrenamientos (NutriSport_API.md §6 Actividad): realizados y planificados. Cada cambio recalcula
@@ -57,6 +65,26 @@ export class EntrenamientosService {
    */
   marcarEstado(e: EntrenamientoResponse, estado: EstadoEntrenamiento): Observable<EntrenamientoResponse> {
     return this.editar(e.id, { ...peticionDesdeEntrenamiento(e), estado });
+  }
+
+  /**
+   * GET /entrenamientos/relacion-nutricion: media diaria consumida y objetivo medio en los días con
+   * entreno (planificado o realizado) frente a los de descanso (solo días con alguna comida), y
+   * cuántas sesiones tienen al menos 25 g de proteína en las 2 h siguientes. Como mucho 366 días: un
+   * rango mayor o al revés no llega a pedirse y falla con RangeError.
+   */
+  relacionNutricion(desde: string, hasta: string): Observable<RelacionNutricionResponse> {
+    const dias = diasEntre(desde, hasta) + 1;
+    if (dias < 1 || dias > MAX_DIAS_RELACION_NUTRICION) {
+      return throwError(
+        () =>
+          new RangeError(
+            `La relación con la alimentación debe abarcar de 1 a ${MAX_DIAS_RELACION_NUTRICION} días (son ${dias}).`,
+          ),
+      );
+    }
+    const params = new HttpParams().set('desde', desde).set('hasta', hasta);
+    return this.http.get<RelacionNutricionResponse>(`${this.url}/relacion-nutricion`, { params });
   }
 }
 

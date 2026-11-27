@@ -46,6 +46,12 @@
   }
 }
 
+.ns-dash__entreno {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
 .ns-dash__macros {
   &:focus-visible {
     @include m.focus-ring;

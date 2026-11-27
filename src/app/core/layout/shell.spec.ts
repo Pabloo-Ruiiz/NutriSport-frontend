@@ -162,6 +162,7 @@ describe('ShellComponent', () => {
         'Productos',
         'Lista de la compra',
         'Recetas',
+        'Estadísticas',
         'Mi perfil',
         'Configuración',
       ]);

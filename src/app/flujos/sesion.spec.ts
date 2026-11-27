@@ -159,6 +159,9 @@ describe('Flujo de sesión', () => {
       if (peticion !== delDia) peticion.flush(resumen(peticion.request.params.get('fecha')!));
     }
 
+    // La tarjeta "Patrón detectado" pide los insights (la cuenta los tiene activos).
+    await new Promise((resolver) => setTimeout(resolver));
+    http.expectOne(`${API}/seguimiento/insights`).flush([]);
     await harness.fixture.whenStable();
     await new Promise((resolver) => setTimeout(resolver));
     http

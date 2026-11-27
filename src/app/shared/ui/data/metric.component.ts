@@ -12,7 +12,7 @@ export type NsTendencia = 'up' | 'down' | 'flat';
  *
  * - `trend` se deduce del signo de `delta` si no se indica.
  * - `aumentoBueno` decide el color: si subir es bueno, ▲ va en éxito y ▼ en error; si no, al revés.
- *   Sin cambios, en neutro. La flecha va con texto ("Sube 8 g"), no solo con color.
+ *   Sin cambios (o con `neutro`), en neutro. La flecha va con texto ("Sube 8 g"), no solo con color.
  */
 @Component({
   selector: 'ns-metric',
@@ -52,6 +52,8 @@ export class NsMetricComponent {
   readonly trend = input<NsTendencia>();
   /** true si subir es una buena noticia (por defecto). Para el peso en pérdida de grasa, false. */
   readonly aumentoBueno = input(true, { transform: booleanAttribute });
+  /** Variación sin valoración (siempre en tono neutro), p. ej. el peso cuando no se sabe el objetivo. */
+  readonly neutro = input(false, { transform: booleanAttribute });
 
   protected readonly valorTexto = computed(() => {
     const valor = this.value();
@@ -68,7 +70,7 @@ export class NsMetricComponent {
   /** buena / mala / neutra: decide el color. */
   protected readonly sentido = computed(() => {
     const tendencia = this.tendencia();
-    if (tendencia === 'flat') return 'neutra';
+    if (tendencia === 'flat' || this.neutro()) return 'neutra';
     return (tendencia === 'up') === this.aumentoBueno() ? 'buena' : 'mala';
   });
 

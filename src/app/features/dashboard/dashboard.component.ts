@@ -37,6 +37,7 @@ import {
 import { ComidasHoyComponent } from './componentes/comidas-hoy.component';
 import { EntrenamientoHoyComponent } from './componentes/entrenamiento-hoy.component';
 import { GraficoSemanaComponent } from './componentes/grafico-semana.component';
+import { PatronDetectadoComponent } from './componentes/patron-detectado.component';
 import { TarjetaEnergiaComponent } from './componentes/tarjeta-energia.component';
 import { TarjetaMacroComponent } from './componentes/tarjeta-macro.component';
 import { TarjetaPesoComponent } from './componentes/tarjeta-peso.component';
@@ -55,7 +56,7 @@ type Estado = 'cargando' | 'error' | 'listo';
  * gráfico semanal, el resumen de cada día de la semana (ver GraficoSemanaComponent): da el
  * objetivo REAL de cada día (cambia con los entrenamientos), lo consumido y si hubo entreno. Se
  * guardan en caché por fecha: cambiar de día dentro de la misma semana no repite peticiones.
- * El peso lo carga su tarjeta.
+ * El peso lo carga su tarjeta, y el insight más reciente, la de "Patrón detectado".
  */
 @Component({
   selector: 'app-dashboard',
@@ -67,6 +68,7 @@ type Estado = 'cargando' | 'error' | 'listo';
     NsButtonComponent,
     NsDateStripComponent,
     NsSkeletonComponent,
+    PatronDetectadoComponent,
     TarjetaEnergiaComponent,
     TarjetaMacroComponent,
     TarjetaPesoComponent,

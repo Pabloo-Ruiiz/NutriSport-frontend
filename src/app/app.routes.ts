@@ -207,6 +207,12 @@ export const routes: Routes = [
             loadComponent: () => import('@features/actividad/actividad.component').then((m) => m.ActividadComponent),
           },
           {
+            path: 'estadisticas',
+            title: 'Estadísticas',
+            loadComponent: () =>
+              import('@features/estadisticas/estadisticas.component').then((m) => m.EstadisticasComponent),
+          },
+          {
             path: 'perfil',
             title: 'Mi perfil',
             loadComponent: () => import('@features/perfil/perfil.component').then((m) => m.PerfilComponent),
