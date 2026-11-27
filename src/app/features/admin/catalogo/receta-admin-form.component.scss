@@ -1,0 +1,219 @@
+// Formulario de receta de administración (drawer de 560 px). Solo tokens --ns-*.
+
+.ns-raf,
+.ns-raf__cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.ns-raf__fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--ns-space-3);
+}
+
+.ns-raf__grupo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+  min-width: 0;
+  margin: 0;
+  padding: var(--ns-space-4);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+}
+
+.ns-raf__leyenda {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+  padding: 0 var(--ns-space-1);
+  color: var(--ns-text);
+  font-weight: 600;
+}
+
+.ns-raf__contador {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ns-raf__etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-raf__etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  padding: 2px 2px 2px var(--ns-space-3);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface-sunken);
+  font-size: 0.875rem;
+}
+
+.ns-raf__quitar-etiqueta {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--ns-radius-full);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+  }
+}
+
+.ns-raf__nueva-etiqueta {
+  display: flex;
+  align-self: stretch;
+  gap: var(--ns-space-2);
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.ns-raf__lista {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: var(--ns-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-raf__ingrediente {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  padding-bottom: var(--ns-space-3);
+  border-bottom: 1px solid var(--ns-border);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+.ns-raf__cabecera-fila {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ns-space-2);
+}
+
+.ns-raf__numero {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 24px;
+  height: 40px;
+  color: var(--ns-text-tertiary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.ns-raf__buscar {
+  flex: 1;
+  min-width: 0;
+}
+
+.ns-raf__alimento {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--ns-space-2);
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.ns-raf__cantidad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ns-space-3);
+  padding-left: calc(24px + var(--ns-space-2));
+
+  ns-form-field {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+.ns-raf__paso {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ns-space-2);
+}
+
+.ns-raf__paso-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.ns-raf__paso-acciones {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.ns-raf__icono {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}
+
+.ns-raf__error {
+  margin: 0;
+  padding-left: calc(24px + var(--ns-space-2));
+  color: var(--ns-error);
+  font-size: 0.8125rem;
+}
+
+.ns-raf__vacio {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.875rem;
+}

@@ -60,6 +60,7 @@ export const NAVEGACION: readonly GrupoNav[] = [
     elementos: [
       { etiqueta: 'Usuarios', ruta: '/admin/usuarios', icono: 'users' },
       { etiqueta: 'Catálogo', ruta: '/admin/catalogo', icono: 'library' },
+      { etiqueta: 'Ingredientes', ruta: '/admin/ingredientes', icono: 'list' },
     ],
   },
 ];

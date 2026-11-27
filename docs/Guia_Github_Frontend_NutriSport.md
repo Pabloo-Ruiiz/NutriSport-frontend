@@ -152,6 +152,70 @@ Al ejecutar `npm run build` (o `npm test`, o en la consola del navegador) me sal
 Explícame la causa en dos líneas y corrige solo los archivos afectados, respetando las reglas del proyecto.
 ```
 
+## Cómo hacer las comprobaciones
+
+Cada paso termina con una **Comprobación**: una lista numerada de lo que debes hacer, qué menú o botón pulsar, qué resultado esperar y qué hacer si no sale. Estas son las herramientas que usan todas.
+
+### Terminal (Git Bash en VS Code)
+
+1. En VS Code, menú **Terminal → New Terminal** (o `` Ctrl+` ``).
+2. Si no es Git Bash: en el panel de la terminal, pulsa la flecha **∨** que hay junto al **+** y elige **Git Bash**.
+3. Para tener **dos terminales** (una con `npm start` y otra para los comandos): pulsa el **+** del panel o **Terminal → Split Terminal** (`Ctrl+Shift+5`).
+4. Para **parar** un proceso (por ejemplo `npm start`): haz clic en su terminal y pulsa **Ctrl+C**.
+
+### Arrancar el frontend
+
+1. En una terminal: `npm start`.
+2. Espera a que aparezca `Local: http://localhost:4200/`. Si la terminal pregunta algo de analítica, responde **N**.
+3. Abre esa dirección en Chrome (o pulsa **Ctrl+clic** sobre ella en la terminal).
+4. Si sale `Port 4200 is already in use`: ya tienes otro `npm start` (o el contenedor del paso 24) en marcha. Páralo con **Ctrl+C** en su terminal (o `docker compose down`) y vuelve a empezar.
+
+### Compilar y probar
+
+- `npm run build` → debe terminar con `Application bundle generation complete` y **sin** líneas `ERROR`. Los `WARNING` de tamaño (*budget*) no bloquean, pero apúntalos.
+- `npm test` → al final, todas las pruebas en verde (`Tests  N passed`). Si se queda esperando cambios (modo *watch*), pulsa **q** para salir.
+- Si algo falla: copia el error **completo** y usa el **Prompt de corrección**.
+
+### DevTools de Chrome
+
+- **Abrir:** `F12` o `Ctrl+Shift+I`, o el menú **⋮ → Más herramientas → Herramientas para desarrolladores**. Si DevTools está en español, la pestaña *Network* se llama **Red**, *Application* **Aplicación** y *Console* **Consola**.
+- **Network (Red):**
+  1. Marca la casilla **Preserve log** (*Conservar registro*) para no perder las peticiones al navegar.
+  2. Pulsa el filtro **Fetch/XHR** para ver solo las llamadas a la API.
+  3. Haz clic en una petición: la pestaña **Headers** muestra la URL, el método y el código de estado; **Payload**, el cuerpo enviado; **Response**, la respuesta.
+  4. El icono **⊘** (*Clear*) vacía la lista antes de una prueba.
+- **Application (Aplicación):** en el menú lateral, **Storage → Cookies → http://localhost:4200** muestra las cookies (columna **HttpOnly**). **Local storage** y **Session storage** están en el mismo menú.
+- **Console (Consola):** para ver errores en rojo y ejecutar código. La primera vez que pegues algo, Chrome puede pedirte que escribas `allow pasting` y pulses **Enter**.
+- **Tamaño de pantalla:** pulsa el icono de móvil y tableta (**Toggle device toolbar**, `Ctrl+Shift+M`). En la barra que aparece arriba, elige **Dimensions → Responsive** y escribe el ancho (360, 375, 768, 900, 1280) en la primera casilla. Para volver, pulsa el mismo icono otra vez.
+- **Recargar:** `F5`; recarga sin caché: `Ctrl+Shift+R`.
+- **Ventana privada** (para un segundo usuario sin mezclar sesiones): menú **⋮ → Nueva ventana de incógnito** (`Ctrl+Shift+N`).
+
+### Swagger del backend
+
+Dirección: <http://localhost:8080/swagger-ui/index.html>.
+
+- **Probar un endpoint:** pulsa sobre él para desplegarlo → **Try it out** → rellena los parámetros o el cuerpo → **Execute**. El resultado sale debajo, en **Server response** (*Code* y *Response body*).
+- **Autenticarte** (para los endpoints con candado):
+  1. Despliega **POST /api/v1/auth/login** → **Try it out**.
+  2. En el cuerpo, pon tu email y contraseña (con `"mantenerSesion": false`) → **Execute**.
+  3. Copia el valor de `accessToken` del *Response body* (sin las comillas).
+  4. Sube arriba del todo y pulsa el botón **Authorize** (el candado).
+  5. Pega el token en **Value** → **Authorize** → **Close**. Caduca a los 15 minutos: si recibes 401, repite.
+
+### Mailpit (correos del backend)
+
+1. Abre <http://localhost:8025>.
+2. En la bandeja **Inbox**, pulsa el correo más reciente (el asunto indica si es de verificación o de recuperación).
+3. En el cuerpo del correo, pulsa el botón o enlace: se abre `http://localhost:4200/…#token=…`.
+
+### Usuarios de prueba
+
+- **Deportista:** crea uno propio desde `/registro` (a partir del paso 9) o desde Swagger con **POST /api/v1/auth/registro** (antes del paso 9). Usa emails inventados, por ejemplo `prueba1@nutrisport.local`.
+- **Administrador:** el de `ADMIN_EMAIL` (por defecto `admin@nutrisport.local`), con la contraseña `ADMIN_PASS` del `.env` del backend. **No** la copies en el repositorio del frontend.
+- **Iniciar sesión en la aplicación** (a partir del paso 9): ve a `http://localhost:4200/login`, escribe el email y la contraseña y pulsa **Iniciar sesión**.
+
+---
+
 ## Arquitectura del frontend
 
 ```text
@@ -372,12 +436,36 @@ docs/
 
 ### Comprobación
 
-```bash
-npm start            # abre http://localhost:4200 y para con Ctrl+C
-npm run build
-ls -d .git           # un único .git, el de la raíz
-git status           # sin node_modules/, dist/ ni .angular/
-```
+**A · La aplicación arranca**
+
+1. En la terminal: `npm start`.
+2. Cuando aparezca `Local: http://localhost:4200/`, ábrelo en Chrome.
+   - **Esperado:** la página de bienvenida de Angular.
+   - **Si falla:** si sale `ng: command not found`, vuelve a ejecutar `npm i -g @angular/cli@latest`; si sale `Cannot find module`, ejecuta `npm install`.
+3. Vuelve a la terminal y para el servidor con **Ctrl+C**.
+
+**B · Compila**
+
+1. `npm run build`
+   - **Esperado:** `Application bundle generation complete` y la carpeta `dist/nutrisport/browser`.
+
+**C · Un único repositorio Git**
+
+1. `ls -d .git` → **Esperado:** `.git` (uno solo, en la raíz).
+2. `ls nutrisport 2>/dev/null` → **Esperado:** nada (la carpeta temporal ya no existe). Si existe, bórrala con `rm -rf nutrisport`.
+
+**D · No se suben ficheros generados**
+
+1. `git status`
+   - **Esperado:** aparecen `src/`, `angular.json`, `package.json`, `docs/`…, pero **no** `node_modules/`, `dist/` ni `.angular/`.
+   - **Si aparecen:** abre `.gitignore` en VS Code, añade las líneas `node_modules/`, `/dist/` y `/.angular/`, guarda (**Ctrl+S**) y repite `git status`.
+2. En VS Code, abre la vista **Source Control** (icono de ramas de la barra lateral, o `Ctrl+Shift+G`) y revisa la lista de cambios: no debe haber ningún `.env`.
+
+**E · Documentación y Prompt 0**
+
+1. En el **Explorer** de VS Code (`Ctrl+Shift+E`), despliega `docs/` y comprueba que están `NutriSport_API.md`, `NutriSport-API.json`, `api/`, `DESIGN.md`, `PROJECT_PROPOSAL.md`, `design/mockups/png/` y esta guía.
+2. Abre `.github/copilot-instructions.md` y comprueba que termina con «Cuando termines, dime qué archivos has creado o modificado.» (el Prompt 0 está completo).
+3. Abre el chat de Copilot, pulsa el icono **⚙** o **Configure Chat** y comprueba que *Instructions* incluye `copilot-instructions.md`.
 
 ### Commit, push y pull request
 
@@ -513,15 +601,25 @@ Lee `docs/NutriSport_API.md` §1 y §2. Debes saber explicar por qué con el pro
 
 ### Comprobación
 
-Con el backend arrancado y `npm start` en otra terminal:
+**Antes de empezar:** el backend en marcha (Paso 0) y, en otra terminal, `npm start`.
 
-```bash
-curl -i http://localhost:4200/api/v1/cuenta
-npm run build
-npm test
-```
+**A · El proxy llega al backend**
 
-La primera petición debe responder `401` con `Content-Type: application/problem+json` y `"codigo":"NO_AUTENTICADO"`: el proxy funciona y el formato de error es el de la referencia (§3).
+1. En una segunda terminal (Git Bash): `curl -i http://localhost:4200/api/v1/cuenta`
+   - **Esperado:** primera línea `HTTP/1.1 401`, una cabecera `Content-Type: application/problem+json` y en el cuerpo `"codigo":"NO_AUTENTICADO"`.
+   - **Si sale `504` o `ECONNREFUSED`** en la terminal de `npm start`: el backend no está arrancado. Abre <http://localhost:8080/swagger-ui/index.html> para confirmarlo.
+   - **Si sale `404` con HTML de Angular:** el proxy no está registrado. Abre `angular.json` y comprueba que `architect → serve → options` tiene `"proxyConfig": "proxy.conf.json"`; para `npm start` con **Ctrl+C** y vuelve a arrancarlo.
+2. Repítelo desde el navegador: abre DevTools (`F12`) → pestaña **Network** → escribe `http://localhost:4200/api/v1/cuenta` en la barra de direcciones y pulsa **Enter**. Haz clic en la petición `cuenta`: en **Headers**, *Status Code* `401`; en **Response**, el JSON de error.
+
+**B · Alias y estructura**
+
+1. En el **Explorer** de VS Code, despliega `src/app`: deben existir `core/`, `shared/` y `features/` con sus subcarpetas (cada una vacía con su `.gitkeep`).
+2. Abre `tsconfig.json` y comprueba en `compilerOptions.paths` los cuatro alias (`@core/*`, `@shared/*`, `@features/*`, `@env/*`).
+
+**C · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → las pruebas de `fechas.spec.ts` en verde (incluidas las del cambio de mes, el bisiesto y el cambio de hora de octubre).
 
 ### Commit, push y pull request
 
@@ -661,16 +759,31 @@ En angular.json, apunta "styles" a src/styles/styles.scss y añade stylePreproce
 
 ### Comprobación
 
-```bash
-npm start
-```
+**Antes de empezar:** `npm start`.
 
-Abre `http://localhost:4200/dev/estilos` y compáralo con `DESIGN.md` §2 y §3 (los nombres de los tokens deben coincidir). En *DevTools → Network → Font*, las fuentes salen de `localhost:4200`.
+**A · Página de muestra de estilos**
 
-```bash
-grep -rnE "#[0-9a-fA-F]{3,6}\b" src/app --include=*.scss
-npm run build
-```
+1. Abre `http://localhost:4200/dev/estilos`.
+   - **Esperado:** las paletas con el nombre de cada token, la escala tipográfica, los radios y las sombras.
+   - **Si sale en blanco:** abre DevTools → **Console** y copia el error en el Prompt de corrección.
+2. Compara con `docs/DESIGN.md` §2 y §3: abre `DESIGN.md` en VS Code, pulsa **Ctrl+Shift+V** (vista previa) y busca (`Ctrl+F`) tres tokens, por ejemplo `--ns-primary-600`. El nombre y el color deben coincidir.
+
+**B · Las fuentes son locales**
+
+1. DevTools (`F12`) → pestaña **Network** → filtro **Font**.
+2. Recarga con `Ctrl+Shift+R`.
+   - **Esperado:** ficheros `.woff2` de Manrope e Inter servidos desde `localhost:4200` (columna *Domain*, o pasa el ratón sobre *Name*). Ninguno de `fonts.googleapis.com` ni `fonts.gstatic.com`.
+3. Haz clic con el botón derecho sobre un título → **Inspeccionar** → en el panel **Computed**, busca `font-family`: debe ser `Manrope Variable`.
+
+**C · Iconos**
+
+1. En la misma página debe verse al menos un icono de Lucide. Si en **Console** aparece un error de icono no registrado, añádelo a `provideLucideIcons` en `app.config.ts`.
+
+**D · Sin colores sueltos**
+
+1. En una segunda terminal: `grep -rnE "#[0-9a-fA-F]{3,6}\b" src/app --include=*.scss`
+   - **Esperado:** ninguna línea. Si sale alguna, sustituye el color por su token `var(--ns-…)`.
+2. `npm run build` → sin `ERROR`.
 
 ### Commit, push y pull request
 
@@ -790,12 +903,23 @@ No añadas propiedades, no las renombres y no conviertas fechas a Date. Si un ti
 
 ### Comprobación
 
-```bash
-npm run build
-npm test
-```
+**A · Compilación y pruebas**
 
-Abre `docs/NutriSport-API.json`, busca `"RegistroComidaResponse"` y compara sus propiedades con `core/models/comidas.ts`. Haz lo mismo con dos esquemas más que elijas.
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde, incluidas las pruebas de los pipes («2.450 kcal», «1,5 g», «sáb. 21 nov») y la que comprueba que todos los enumerados tienen etiqueta.
+
+**B · Los modelos coinciden con el OpenAPI**
+
+1. En VS Code, abre `docs/NutriSport-API.json`.
+2. Pulsa **Ctrl+F**, escribe `"RegistroComidaResponse"` y pulsa **Enter** hasta llegar a la definición dentro de `components → schemas` (la que tiene `"properties"`).
+3. Abre al lado `src/app/core/models/comidas.ts`: haz clic con el botón derecho en su pestaña → **Split Right**.
+4. Compara propiedad por propiedad: mismo nombre, mismo tipo, y `| null` cuando el JSON tenga `"nullable": true` o no esté en `required`.
+   - **Si falta o sobra alguna:** corrígela o pide a Copilot que la ajuste citando el esquema.
+5. Repite con otros dos esquemas, por ejemplo `PerfilResponse` (en `perfil.ts`) y `ProblemDetail` (en `comun.ts`).
+
+**C · Etiquetas**
+
+1. Abre `core/models/etiquetas.ts` y comprueba con **Ctrl+F** que `MEDIA_MANANA` tiene la etiqueta «Media mañana» y que `CARBOHIDRATOS`, si aparece, se muestra como «Hidratos».
 
 ### Commit, push y pull request
 
@@ -924,16 +1048,36 @@ Pruebas: NsButtonComponent (loading deshabilita y pone aria-busy; la variante se
 
 ### Comprobación
 
-```bash
-npm start
-```
+**Antes de empezar:** `npm start` y abre `http://localhost:4200/dev/componentes`.
 
-Abre `/dev/componentes`, recorre la página **solo con el teclado** (Tab, Mayús+Tab, flechas en el segmentado, Espacio en checkbox y switch) y comprueba el foco visible. Reduce la ventana a 360 px.
+**A · Todas las variantes se ven**
 
-```bash
-npm run build
-npm test
-```
+1. Recorre la página: botones (5 variantes y 3 tamaños), campos, select, checkbox, switch, segmentado, chips, tarjetas, badges, alertas, spinner, skeleton y estado vacío.
+   - **Esperado:** ninguno sin estilo. Si alguno sale «en crudo», abre **Console** y busca errores.
+
+**B · Solo con el teclado**
+
+1. Haz clic en la barra de direcciones y pulsa **Tab** para entrar en la página.
+2. Ve pulsando **Tab** (adelante) y **Mayús+Tab** (atrás).
+   - **Esperado:** cada elemento interactivo muestra un **anillo de foco** visible y el orden sigue la lectura.
+3. En el **segmentado**, usa las **flechas ← →**: la opción seleccionada cambia.
+4. En el **checkbox** y el **switch**, pulsa **Espacio**: cambian de estado.
+5. En un botón con `loading`, comprueba que no se puede pulsar.
+
+**C · Errores de formulario**
+
+1. En el ejemplo de campo obligatorio, entra con **Tab** y sal sin escribir: aparece el mensaje en castellano bajo el campo.
+2. Clic derecho en el campo → **Inspeccionar**: el `<input>` tiene `aria-describedby` con el id del mensaje.
+
+**D · Móvil a 360 px**
+
+1. DevTools → **Toggle device toolbar** (`Ctrl+Shift+M`) → **Dimensions → Responsive** → ancho `360`.
+   - **Esperado:** sin scroll horizontal (la barra inferior del navegador no debe permitir desplazarse a los lados) y botones de al menos 44 px de alto (clic derecho → **Inspeccionar** → **Computed** → `height`).
+
+**E · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (`NsButtonComponent` y `ErrorCampoDirective`).
 
 ### Commit, push y pull request
 
@@ -1064,16 +1208,46 @@ Pruebas: NsToastService (añade y retira), NsConfirmService (resuelve true/false
 
 ### Comprobación
 
-```bash
-npm start
-```
+**Antes de empezar:** `npm start` y abre `http://localhost:4200/dev/componentes`.
 
-En `/dev/componentes`: abre un diálogo y ciérralo con Escape (el foco vuelve al botón), lanza un toast con "Deshacer", prueba el anillo con un valor mayor que el máximo y el `ns-quantity-input` con el teclado. Repite en 360 px: el diálogo sale como *bottom sheet*.
+**A · Diálogo**
 
-```bash
-npm run build
-npm test
-```
+1. Pulsa el botón de ejemplo que abre un diálogo.
+2. Pulsa **Tab** varias veces: el foco **no sale** del diálogo.
+3. Pulsa **Escape**.
+   - **Esperado:** el diálogo se cierra y el foco vuelve al botón que lo abrió (se ve su anillo de foco).
+4. Ábrelo otra vez y ciérralo con el botón **✕** de la cabecera.
+
+**B · Confirmación y drawer**
+
+1. Pulsa el ejemplo de confirmación → **Cancelar** (resultado `false`) y otra vez → el botón de confirmar (resultado `true`).
+2. Abre el drawer: sale por la derecha y se cierra con **Escape**.
+
+**C · Toasts**
+
+1. Pulsa el ejemplo de toast con «Deshacer» → aparece abajo y pulsa **Deshacer** antes de que desaparezca.
+2. Lanza 4 toasts seguidos: como mucho se ven 3.
+
+**D · Anillo y cantidad**
+
+1. En el anillo de ejemplo con un valor mayor que el máximo, el exceso sale en color de advertencia.
+2. Clic derecho sobre el anillo → **Inspeccionar**: tiene `role="progressbar"` y `aria-valuenow`.
+3. En `ns-quantity-input`, entra con **Tab**, escribe `1,5` y usa los botones **−** y **+**: el valor cambia con el `step` y no baja del mínimo.
+
+**E · Navegación**
+
+1. En las pestañas (`ns-tabs`), pulsa **Tab** hasta ellas y usa las **flechas ← →**.
+2. En la tira de fechas, pulsa la flecha de semana siguiente: avanzan 7 días.
+
+**F · Móvil**
+
+1. DevTools → `Ctrl+Shift+M` → ancho `375`.
+2. Abre el diálogo: ahora sale como **bottom sheet** desde abajo y a ancho completo.
+
+**G · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -1216,19 +1390,50 @@ Pruebas con HttpTestingController: añade la cabecera; no la añade a /auth/logi
 
 ### Comprobación
 
-Con el backend arrancado, `npm start` y un usuario cualquiera (puedes crearlo desde Swagger con `POST /auth/registro`; para entrar no hace falta verificar el email), abre la consola del navegador en `http://localhost:4200` y ejecuta:
+**Antes de empezar:** el backend en marcha y `npm start`.
+
+**A · Crea un usuario de prueba (desde Swagger)**
+
+1. Abre <http://localhost:8080/swagger-ui/index.html>.
+2. Despliega **POST /api/v1/auth/registro** → **Try it out**.
+3. Rellena el cuerpo con un nombre, un email inventado, una contraseña de al menos 10 caracteres con letras y números, y los tres booleanos a `true` → **Execute**.
+   - **Esperado:** *Code* `202`. Para entrar no hace falta verificar el email.
+
+**B · Inicia sesión desde la consola**
+
+1. Abre `http://localhost:4200` en Chrome y abre DevTools (`F12`) → pestaña **Console**.
+2. Pega este código, cambia `tu-email-de-prueba` por el email del apartado A y pulsa **Enter**:
 
 ```js
 await fetch('/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ email: 'tu-email-de-prueba', password: prompt('Contraseña'), mantenerSesion: true }) }).then(r => r.status)
 ```
 
-Recarga la página: en *Network* debe aparecer `POST /api/v1/auth/refresh` con 200 (la sesión se restaura desde la cookie). En *Application → Cookies* la cookie `ns_refresh` aparece como **HttpOnly** y en *Local/Session Storage* no hay ningún token.
+3. En la ventana que aparece, escribe la contraseña y pulsa **Aceptar**.
+   - **Esperado:** la consola muestra `200`. Si muestra `401`, el email o la contraseña no son correctos.
 
-```bash
-npm run build
-npm test
-```
+**C · La sesión se restaura al recargar**
+
+1. Pestaña **Network** → marca **Preserve log** → filtro **Fetch/XHR**.
+2. Recarga la página (`F5`).
+   - **Esperado:** una petición `refresh` (`POST /api/v1/auth/refresh`) con *Status* `200`. Haz clic en ella → **Response**: trae `accessToken`.
+
+**D · Dónde está (y dónde no) el token**
+
+1. Pestaña **Application** → menú lateral **Storage → Cookies → http://localhost:4200**.
+   - **Esperado:** la cookie `ns_refresh` con la casilla **HttpOnly** marcada (✓).
+2. En el mismo menú, abre **Local storage → http://localhost:4200** y **Session storage → http://localhost:4200**.
+   - **Esperado:** ningún token (vacíos o sin nada parecido a `eyJ…`).
+
+**E · Sin cookie no hay sesión**
+
+1. En **Cookies**, haz clic derecho sobre `ns_refresh` → **Delete**.
+2. Recarga: la petición `refresh` responde `401` y la aplicación no muestra ningún error.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (incluida la de dos 401 a la vez con un único refresh).
 
 ### Commit, push y pull request
 
@@ -1374,17 +1579,43 @@ Las pantallas que aún no existen cargan PaginaPendienteComponent (features/erro
 
 ### Comprobación
 
-Con el backend arrancado y `npm start`:
+**Antes de empezar:** el backend en marcha, `npm start` y el usuario de prueba del paso 7 (todavía **sin perfil**).
 
-1. Sin sesión, abre `/inicio` → acabas en `/login?volver=%2Finicio`.
-2. Inicia sesión desde la consola (como en el paso 7) con un usuario **sin perfil** y abre `/inicio` → `/bienvenida`.
-3. Abre `/admin/usuarios` con ese usuario → "No tienes permiso".
-4. Cambia el ancho de la ventana: 1280 px (sidebar), 900 px (sidebar de iconos) y 375 px (barra inferior y botón central).
+**A · Sin sesión te manda al login**
 
-```bash
-npm run build
-npm test
-```
+1. Abre una **ventana de incógnito** (`Ctrl+Shift+N`) y escribe `http://localhost:4200/inicio`.
+   - **Esperado:** la barra de direcciones cambia a `/login?volver=%2Finicio`. De momento la pantalla puede ser «Pantalla en construcción (paso 9)».
+
+**B · Sin perfil te manda a la bienvenida**
+
+1. En esa misma ventana, inicia sesión desde **Console** con el código del paso 7.
+2. Escribe `http://localhost:4200/inicio` en la barra de direcciones y pulsa **Enter**.
+   - **Esperado:** acabas en `/bienvenida`.
+3. En **Network**, la petición `perfil` (`GET /api/v1/perfil`) responde `404`: es lo que hace saltar el guard.
+
+**C · Un deportista no entra en la administración**
+
+1. Abre `http://localhost:4200/admin/usuarios`.
+   - **Esperado:** la pantalla «No tienes permiso» (`/sin-permiso`).
+
+**D · Layout responsive**
+
+1. Abre `http://localhost:4200/configuracion` (no exige perfil, así que se ve el shell).
+2. DevTools → `Ctrl+Shift+M` → **Dimensions → Responsive** y prueba estos anchos:
+   - `1280` → sidebar completa de 248 px con textos.
+   - `900` → sidebar estrecha, solo con iconos.
+   - `375` → sin sidebar; **barra inferior** con el botón central redondo. Púlsalo: se abre el bottom sheet con «Foto del plato» y «Buscar alimento».
+3. Pulsa **Tab** nada más cargar la página: el primer elemento es «Saltar al contenido».
+
+**E · Título de la pestaña y 404**
+
+1. Mira la pestaña del navegador: el título termina en « · NutriSport».
+2. Abre `http://localhost:4200/no-existe` → pantalla de página no encontrada.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (una prueba por guard).
 
 ### Commit, push y pull request
 
@@ -1511,17 +1742,40 @@ Pruebas: el login envía mantenerSesion=false por defecto y navega a volver; el 
 
 ### Comprobación
 
-Con el backend y `npm start`:
+**Antes de empezar:** el backend en marcha, `npm start` y Mailpit abierto en otra pestaña (<http://localhost:8025>).
 
-1. Regístrate con un email nuevo → "Revisa tu email". Abre Mailpit y comprueba el correo (el enlace lo usa el paso 10).
-2. Regístrate con contraseña `password123` → error del servidor en el campo (contraseña común).
-3. Inicia sesión con una contraseña errónea 5 veces → aviso con el tiempo de espera.
-4. Inicia sesión bien → `/bienvenida` (todavía no hay perfil).
+**A · Registro correcto**
 
-```bash
-npm run build
-npm test
-```
+1. Abre `http://localhost:4200/registro`.
+2. Rellena **Nombre**, **Email** (uno nuevo, p. ej. `prueba2@nutrisport.local`), **Contraseña** y **Confirmar contraseña**. Mira cómo cambia el medidor (Débil → Fuerte).
+3. Pulsa el enlace **Qué datos tratamos y por qué**: se abre el diálogo. Ciérralo con **Entendido**.
+4. Marca las tres casillas (**mayor de 18 años**, **términos de uso** y **datos de salud**).
+5. Pulsa **Crear cuenta**.
+   - **Esperado:** pantalla «Revisa tu email» (`/registro/revisa-tu-email`).
+6. En Mailpit, pulsa **Inbox**: aparece el correo de verificación. **No pulses aún el enlace** (lo usa el paso 10).
+7. En DevTools → **Network** → petición `registro` → **Payload**: hay `nombre`, `email`, `password` y los tres booleanos, pero **no** `confirmarPassword`.
+
+**B · Contraseña común**
+
+1. Vuelve a `/registro`, rellena con otro email y la contraseña `password123` y pulsa **Crear cuenta**.
+   - **Esperado:** mensaje de error del servidor debajo del campo **Contraseña** (no un aviso genérico).
+
+**C · Límite de intentos**
+
+1. Ve a `/login`, escribe el email del apartado A y una contraseña incorrecta y pulsa **Iniciar sesión** 5 veces seguidas.
+   - **Esperado:** las primeras veces, el aviso «credenciales incorrectas»; después, un aviso amarillo con el tiempo de espera («Inténtalo de nuevo en N minutos») y el botón **Iniciar sesión** desactivado.
+   - Si quieres repetir la prueba sin esperar, reinicia el backend.
+
+**D · Login correcto**
+
+1. Con otro usuario (o tras la espera), escribe la contraseña correcta, deja sin marcar **Mantener la sesión iniciada** y pulsa **Iniciar sesión**.
+   - **Esperado:** `/bienvenida` (todavía no hay perfil). En **Network** → `login` → **Payload**: `"mantenerSesion": false`.
+2. Abre `http://localhost:4200/login?volver=%2Fperfil` en otra sesión: tras entrar, vas a `/perfil` (o a `/bienvenida` por el guard de perfil).
+
+**E · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -1644,14 +1898,41 @@ Crea core/layout/AvisoCuentaComponent y colócalo bajo la topbar del ShellCompon
 
 ### Comprobación
 
-1. Con el usuario del paso 9, abre el enlace del correo de Mailpit → "Email verificado". Vuelve a abrirlo → "El enlace ha caducado o ya se ha usado".
-2. `/recuperar-password` con tu email → mensaje genérico → enlace del correo → contraseña nueva → login con la nueva.
-3. Con un usuario sin verificar, el shell muestra el aviso; tras verificar y recargar, desaparece.
+**Antes de empezar:** el backend en marcha, `npm start`, Mailpit (<http://localhost:8025>) y el usuario del paso 9 **sin verificar**.
 
-```bash
-npm run build
-npm test
-```
+**A · Aviso de email sin verificar**
+
+1. Inicia sesión con ese usuario y abre `http://localhost:4200/configuracion` (o cualquier pantalla del shell).
+   - **Esperado:** bajo la barra superior, el aviso «Verifica tu email para usar el análisis de fotos y el asistente» con el botón **Reenviar correo**.
+2. Pulsa **Reenviar correo** → aparece un toast y llega un correo nuevo a Mailpit.
+
+**B · Verificar el email**
+
+1. En Mailpit → **Inbox**, abre el correo de verificación más reciente y pulsa su enlace.
+   - **Esperado:** se abre `/verificar-email`, se ve un momento el spinner y después «Email verificado» con **Ir a mi panel** (o **Iniciar sesión** si no hay sesión).
+   - La barra de direcciones ya **no** muestra `#token=…`.
+2. Vuelve a Mailpit y pulsa **el mismo enlace** otra vez.
+   - **Esperado:** «El enlace ha caducado o ya se ha usado», con un campo de email para pedir otro.
+3. Vuelve a la pestaña de la aplicación y recarga (`F5`): el aviso de verificación ha desaparecido.
+
+**C · Recuperar la contraseña**
+
+1. Cierra sesión (menú del usuario → **Cerrar sesión**) y ve a `/login` → enlace **¿Olvidaste tu contraseña?**.
+2. Escribe tu email y pulsa **Enviar enlace**.
+   - **Esperado:** el mensaje genérico «Si existe una cuenta con ese email…». Repite con un email que no exista: **el mismo** mensaje.
+3. En Mailpit, abre el correo de recuperación y pulsa el enlace → `/restablecer-password`.
+4. Escribe la nueva contraseña dos veces y pulsa **Restablecer**.
+   - **Esperado:** toast «Contraseña cambiada. Inicia sesión con la nueva.» y vuelta a `/login`.
+5. Inicia sesión con la contraseña **antigua** (falla) y con la **nueva** (funciona).
+
+**D · Enlace incompleto**
+
+1. Abre `http://localhost:4200/verificar-email` sin `#token=…` → mensaje de enlace incompleto.
+
+**E · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -1780,12 +2061,47 @@ Lee solo docs/DESIGN.md §7.3 y docs/api/perfil.md, docs/api/actividad.md y docs
 
 ### Comprobación
 
-Con un usuario sin perfil: completa los 4 pasos, revisa el resumen y "Cómo lo calculamos", ajusta los objetivos a mano (prueba kcal = 900 → error de validación) y entra en el panel. Prueba también una fecha de nacimiento de hace 16 años → error en el campo y vuelta al paso 1.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario **sin perfil** (crea uno nuevo en `/registro` si ya completaste el del paso 9).
 
-```bash
-npm run build
-npm test
-```
+**A · Validación del paso 1**
+
+1. Inicia sesión → acabas en `/bienvenida`.
+2. En **Sobre ti**, pon una fecha de nacimiento de hace 16 años y pulsa **Continuar**.
+   - **Esperado:** error en el campo de fecha y no avanzas.
+3. Corrige la fecha (mayor de 18), rellena sexo, altura (`175`) y peso (`70`) y pulsa **Continuar**.
+
+**B · Los 4 pasos**
+
+1. **Tu deporte:** elige una tarjeta de deporte, los días por semana, la duración y el nivel de actividad → **Continuar**.
+2. **Tu objetivo:** elige una tarjeta. Si eliges **Competición**, prueba a continuar sin fecha (debe pedírtela) → **Continuar**.
+3. **Alimentación:** marca un alérgeno (p. ej. **Gluten**) y busca un alimento rechazado escribiendo 2 letras en el buscador → elige uno.
+4. Pulsa **Calcular mis objetivos**.
+   - **Esperado:** el resumen con el anillo de kcal y las barras de proteína, hidratos y grasa.
+5. En **Network**, comprueba el orden: `PUT perfil` → `PUT preferencias` → `GET objetivos`, todas con 200.
+
+**C · Cómo lo calculamos**
+
+1. Despliega **Cómo lo calculamos**: se ven la edad, el metabolismo basal, el factor de actividad y el ajuste.
+
+**D · Objetivos manuales**
+
+1. Pulsa **Ajustar manualmente**.
+2. Escribe kcal = `900` y pulsa **Guardar**.
+   - **Esperado:** error de validación en el campo de kcal (el diálogo no se cierra).
+3. Pon un valor válido (p. ej. `2400`) y pulsa **Guardar**: el resumen se actualiza.
+
+**E · Entrar en el panel**
+
+1. Pulsa **Ir a mi panel** → `/inicio`. Recarga (`F5`): ya no vuelves a `/bienvenida`.
+
+**F · El cuerpo que se envía**
+
+1. En **Network**, haz clic derecho sobre `PUT perfil` → **Copy → Copy as fetch** y mira el cuerpo: solo los campos de `PerfilRequest`, con números como número (sin comillas).
+
+**G · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (incluidas las de `perfil-form`).
 
 ### Commit, push y pull request
 
@@ -1904,12 +2220,43 @@ Lee solo docs/DESIGN.md §7.5. Crea features/perfil/PerfilComponent (/perfil):
 
 ### Comprobación
 
-En `/perfil`: cambia el peso de 70 a 80 kg y guarda → las kcal de la tarjeta suben. Fija objetivos manuales y vuelve al cálculo. Registra un pesaje de hoy y comprueba que el peso de "Datos físicos" se actualiza al recargar.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario **con perfil** (el del paso 11).
 
-```bash
-npm run build
-npm test
-```
+**A · Cambiar el peso recalcula los objetivos**
+
+1. Abre `/perfil` (sidebar → **Mi perfil**). Apunta las kcal de la tarjeta de objetivos.
+2. En la pestaña **Datos físicos**, cambia el peso de `70` a `80` y pulsa **Guardar**.
+   - **Esperado:** aviso «Tus objetivos se han recalculado» y las kcal de la tarjeta **suben**.
+
+**B · Aviso de cambios sin guardar**
+
+1. Cambia la altura y, **sin guardar**, pulsa **Inicio** en la sidebar.
+   - **Esperado:** un diálogo que avisa de los cambios sin guardar. Pulsa el botón de quedarte.
+
+**C · Objetivos manuales y vuelta al cálculo**
+
+1. En la tarjeta de objetivos, activa el switch **Fijar objetivos manualmente**.
+2. En el diálogo, cambia las kcal y pulsa **Guardar** → aparece el badge **Manuales**.
+3. Pulsa **Volver al cálculo automático** y confirma.
+   - **Esperado:** desaparece el badge y vuelven las kcal calculadas.
+
+**D · Registrar un pesaje**
+
+1. En la tarjeta, pulsa **Registrar peso**.
+2. Deja la fecha de hoy, escribe `78,5` y pulsa **Guardar**.
+   - **Esperado:** toast «Peso guardado».
+3. Prueba una fecha de mañana: el campo da error (no se admiten fechas futuras).
+4. Recarga (`F5`) y abre la pestaña **Datos físicos**: el peso muestra `78,5`.
+
+**E · Pestaña Alimentación**
+
+1. Abre **Alimentación**, quita un alérgeno y pulsa **Guardar**.
+2. En **Network**, `PUT preferencias` responde 200.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -2026,15 +2373,48 @@ En AvisoCuentaComponent añade, con prioridad sobre el de email, el aviso de con
 
 ### Comprobación
 
-1. Cambia el nombre → se ve en la sidebar.
-2. Revoca el consentimiento → aviso global; abre `/perfil` → estado bloqueado. Vuelve a darlo → todo funciona.
-3. Cambia la contraseña → te pide iniciar sesión.
-4. Con un usuario de prueba desechable: elimina la cuenta con borrado inmediato → `/login`; ese email ya no puede iniciar sesión.
+**Antes de empezar:** el backend en marcha, `npm start`, un usuario con perfil y, para el apartado E, otro **desechable** creado solo para borrarlo.
 
-```bash
-npm run build
-npm test
-```
+**A · Datos de la cuenta**
+
+1. Abre `/configuracion` (menú del usuario → **Configuración**): se abre **Cuenta**.
+2. Cambia el **Nombre** y pulsa **Guardar cambios**.
+   - **Esperado:** el nuevo nombre aparece abajo en la sidebar sin recargar.
+
+**B · Consentimiento de datos de salud**
+
+1. En el menú lateral de configuración, pulsa **Privacidad**.
+2. Pulsa **Revocar consentimiento** y confirma en el diálogo.
+   - **Esperado:** el aviso amarillo «Has revocado el consentimiento…» bajo la barra superior.
+3. Abre `/perfil` → estado vacío bloqueado con el enlace a Privacidad.
+4. Vuelve a **Privacidad** → **Volver a dar el consentimiento**.
+   - **Esperado:** desaparece el aviso y `/perfil` vuelve a funcionar.
+
+**C · Cambiar la contraseña**
+
+1. Pulsa **Seguridad** en el menú de configuración.
+2. Escribe una contraseña actual **errónea**, la nueva y su confirmación y pulsa **Cambiar contraseña**.
+   - **Esperado:** error en el campo de la contraseña actual.
+3. Repite con la contraseña actual correcta.
+   - **Esperado:** toast y vuelta a `/login`. Entra con la nueva.
+
+**D · Cerrar todas las sesiones**
+
+1. Inicia sesión con el mismo usuario en una **ventana de incógnito**.
+2. En la ventana normal: **Seguridad** → **Cerrar todas las sesiones** → confirma.
+3. En la ventana de incógnito, recarga (`F5`) → vuelves a `/login`.
+
+**E · Eliminar la cuenta (usuario desechable)**
+
+1. Inicia sesión con el usuario desechable → **Configuración** → **Privacidad** → zona de peligro.
+2. Pulsa **Eliminar mi cuenta**, marca **Borrar todo inmediatamente**, escribe la contraseña y confirma.
+   - **Esperado:** toast y `/login`.
+3. Intenta iniciar sesión con ese email → error de credenciales.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (incluida la del `DELETE` con cuerpo).
 
 ### Commit, push y pull request
 
@@ -2159,12 +2539,40 @@ Añade "Mis alimentos" al grupo Principal de la sidebar.
 
 ### Comprobación
 
-En `/mis-alimentos` crea "Batido de proteína casero" con una porción "vaso" de 300 g. Búscalo con una falta de ortografía. Edítalo y elimínalo. Con otro usuario, comprueba que no lo ve.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con perfil.
 
-```bash
-npm run build
-npm test
-```
+**A · Crear un alimento propio**
+
+1. Sidebar → **Mis alimentos** (`/mis-alimentos`) → **Crear alimento**: se abre el drawer.
+2. Rellena **Nombre** «Batido de proteína casero», una categoría, unidad base **ML** y los valores por 100 ml (p. ej. kcal 80, proteínas 10).
+3. En **Porciones caseras**, pulsa el botón de añadir y escribe «vaso» con `300` g.
+4. Marca **Vegano**: se marcan solos **Vegetariano** y **Pescetariano**.
+5. Pulsa **Guardar**.
+   - **Esperado:** toast, el drawer se cierra y el alimento aparece en la lista.
+
+**B · Buscar con una falta de ortografía**
+
+1. En el buscador escribe `batdo protina`.
+   - **Esperado:** aparece «Batido de proteína casero» con el badge de fuente **Propio**.
+2. Con el teclado: **↓** para moverte por los resultados, **Enter** para elegir y **Escape** para cerrar la lista.
+3. En **Network**, escribe rápido varias letras: solo sale una petición `alimentos?q=…` (*debounce*) y las anteriores aparecen como `canceled`.
+
+**C · Ficha, edición y borrado**
+
+1. Pulsa el alimento → se ve la ficha con la tabla «por 100 ml», la porción «vaso» y las aptitudes.
+2. Pulsa **Editar**, cambia las kcal y pulsa **Guardar**.
+3. Pulsa **Eliminar** → lee el aviso del diálogo y confirma. Desaparece de la lista.
+
+**D · Privacidad entre usuarios**
+
+1. Crea otro alimento propio y cierra sesión.
+2. En una **ventana de incógnito**, entra con otro usuario y busca ese alimento.
+   - **Esperado:** no aparece.
+
+**E · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (el combobox no busca con 1 carácter).
 
 ### Commit, push y pull request
 
@@ -2285,12 +2693,50 @@ Lee solo docs/DESIGN.md §7.6. Crea features/comidas/registro/RegistroComidaComp
 
 ### Comprobación
 
-Registra un desayuno con avena (40 g), leche (1 vaso si existe la porción, o 250 ml) y plátano. Comprueba el aviso si en tu perfil marcaste alergia estricta a algún alimento que añadas. Usa "Deshacer". Edita una comida y cámbiale una cantidad.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con perfil (con una **alergia estricta** marcada, p. ej. leche, para el apartado B).
 
-```bash
-npm run build
-npm test
-```
+**A · Registrar un desayuno**
+
+1. Pulsa **Registrar comida** en la barra superior (o abre `/comidas/nueva`).
+2. Comprueba que el **tipo de comida** se ha elegido según la hora.
+3. Cambia el tipo a **Desayuno** en el selector.
+4. En el buscador escribe `avena` → pulsa el resultado. En **Tu comida**, pon `40` en la cantidad.
+5. Busca `leche` → elígela → en el selector de unidad, elige la porción **vaso** si existe (si no, `250` **ml**).
+6. Busca `plátano` → elígelo.
+   - **Esperado:** el total de kcal y las mini barras cambian con cada línea, con la marca «Estimación».
+
+**B · Avisos de restricciones**
+
+1. Con la leche en la comida, pulsa **Guardar comida**.
+   - **Esperado:** antes de salir se muestran los avisos de la respuesta (alérgeno).
+   - Pulsa **Continuar**.
+
+**C · Deshacer**
+
+1. Tras guardar aparece el toast «Comida guardada · N kcal». Pulsa **Deshacer** antes de que desaparezca.
+   - **Esperado:** en **Network**, un `DELETE comidas/{id}` con `204`.
+2. Repite el registro y esta vez deja que el toast desaparezca.
+
+**D · Editar**
+
+1. Ve a `/comidas` y, en la tarjeta de la comida, abre el menú **⋮** → **Editar** (`/comidas/{id}/editar`).
+2. Cambia la cantidad de la avena a `60` y pulsa **Guardar comida**.
+   - **Esperado:** **Network** muestra `PUT comidas/{id}` con 200 y el total cambia.
+
+**E · Copiar comida anterior y aviso de salida**
+
+1. En `/comidas/nueva`, pulsa **Copiar comida anterior** → elige la del apartado A: sus alimentos se cargan.
+2. Sin guardar, pulsa **Inicio** en la sidebar → aparece el aviso de cambios sin guardar.
+
+**F · Móvil**
+
+1. DevTools → `Ctrl+Shift+M` → ancho `375` → recarga `/comidas/nueva` y añade un alimento.
+   - **Esperado:** la barra inferior fija con «N alimentos · N kcal · **Ver comida**». Púlsala: se abre el bottom sheet.
+
+**G · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -2410,12 +2856,41 @@ Crea features/comidas/historial/HistorialComidasComponent (/comidas):
 
 ### Comprobación
 
-Registra comidas en tres días distintos (pasados), filtra por "Cena", duplica una en mañana y elimina otra con "Deshacer".
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con perfil.
 
-```bash
-npm run build
-npm test
-```
+**A · Comidas en tres días**
+
+1. Abre `/comidas/nueva` y registra una comida cambiando la **fecha** a ayer; repite con anteayer (tipo **Cena**) y con hace 3 días.
+2. Abre `/comidas` (sidebar → **Comidas**).
+   - **Esperado:** grupos por día con la fecha larga y el total de kcal; arriba, el resumen del periodo (media de kcal y días registrados).
+
+**B · Filtrar**
+
+1. En los filtros, elige el tipo **Cena**.
+   - **Esperado:** solo la cena. En **Network**, la petición lleva `tipo=CENA`.
+2. Pulsa **Quitar filtros**.
+
+**C · Detalle y duplicado**
+
+1. En una tarjeta, abre el menú **⋮** → **Ver**: el diálogo con los alimentos, cantidades y totales. Ciérralo.
+2. En otra, **⋮** → **Duplicar** → cambia la fecha a **mañana** → **Duplicar**.
+   - **Esperado:** toast y la comida aparece en el día de mañana con el badge **Copia**.
+
+**D · Eliminar con deshacer**
+
+1. **⋮** → **Eliminar** en una tarjeta.
+   - **Esperado:** la tarjeta desaparece al momento y sale el toast «Comida eliminada».
+2. Pulsa **Deshacer** → la comida vuelve (en **Network**, un `POST comidas`).
+
+**E · Cargar más y estados**
+
+1. Pulsa **Cargar 30 días más** al final de la lista.
+2. Con un usuario nuevo sin comidas, abre `/comidas` → «Aún no hay comidas en estas fechas» con **Registrar comida**.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -2535,12 +3010,42 @@ Lee solo docs/DESIGN.md §7.13. Crea features/actividad/ActividadComponent (/act
 
 ### Comprobación
 
-Planifica un entrenamiento para mañana y registra uno realizado hoy. Comprueba las kcal estimadas, márcalo como omitido y vuelve a realizado. Cambia de semana.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con perfil.
 
-```bash
-npm run build
-npm test
-```
+**A · Planificar uno para mañana**
+
+1. Sidebar → **Actividad** (`/actividad`) → **Registrar entrenamiento**.
+2. Elige un tipo, fecha de **mañana**, 60 min e intensidad **Media**.
+3. Comprueba que en **Estado** la opción **Realizado** está desactivada (la fecha es futura) y que no aparece el RPE.
+4. Pulsa **Guardar** → aparece en **Próximos** con sus kcal estimadas.
+
+**B · Registrar uno realizado hoy**
+
+1. **Registrar entrenamiento** → fecha de hoy, estado **Realizado**, 45 min, RPE `7` (se ve el valor al mover el control) → **Guardar**.
+   - **Esperado:** toast «Tu objetivo de hoy se ha actualizado» y el entrenamiento en **Realizados**.
+2. En **Network** → `POST entrenamientos` → **Payload**: la fecha lleva la zona horaria (`…T18:30:00+01:00`).
+3. Los KPIs de la semana (sesiones, minutos, kcal y carga) y las barras por día se actualizan.
+
+**C · Cambiar el estado**
+
+1. En el entrenamiento de hoy, pulsa **Omitir** → cambia a omitido.
+2. Pulsa **Marcar como realizado** → vuelve a realizado.
+3. En el de mañana, comprueba que **Marcar como realizado** no aparece.
+
+**D · Cambiar de semana y filtrar**
+
+1. Pulsa **›** en la navegación de semanas: la semana siguiente (sale el de mañana si cae en ella). Pulsa **‹** para volver.
+2. Usa el filtro por tipo de actividad.
+
+**E · Editar y eliminar**
+
+1. **Editar** → cambia la duración → **Guardar**.
+2. **Eliminar** → confirma → desaparece.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (la conversión con la zona horaria).
 
 ### Commit, push y pull request
 
@@ -2668,12 +3173,44 @@ Lee solo docs/DESIGN.md §7.4 y mira #file:docs/design/mockups/png/01-dashboard.
 
 ### Comprobación
 
-Con un día con comidas y un entrenamiento: compara las cifras del dashboard con `GET /seguimiento/resumen` en Swagger (deben ser idénticas: el frontend no recalcula). Cambia de día con la tira de fechas, marca el entrenamiento como realizado y registra un peso. Revisa el dashboard a 375 px.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con perfil, con **comidas y un entrenamiento hoy** (pasos 15 y 17).
 
-```bash
-npm run build
-npm test
-```
+**A · Las cifras son las del backend**
+
+1. Abre `/inicio`. Apunta las kcal consumidas, el objetivo y los gramos de proteína.
+2. Abre Swagger y autentícate con ese usuario (sección «Swagger del backend»).
+3. Despliega **GET /api/v1/seguimiento/resumen** → **Try it out** → deja la fecha vacía (hoy) → **Execute**.
+   - **Esperado:** los mismos números que el dashboard (el frontend no recalcula). En DevTools → **Network** → `resumen` → **Response** verás el mismo JSON.
+
+**B · Cambiar de día**
+
+1. En la tira de fechas, pulsa el día de ayer.
+   - **Esperado:** la URL o los datos cambian y se hace otra petición `resumen?fecha=…`.
+2. Comprueba que no puedes ir más allá de mañana.
+
+**C · Entrenamiento y peso**
+
+1. Si hay un entrenamiento planificado hoy, pulsa **Marcar como realizado** → el resumen se recarga y cambia el anillo interior.
+2. En la tarjeta de peso, pulsa **Registrar peso** → escribe un peso → **Guardar** → la línea del gráfico se actualiza.
+
+**D · Comidas de hoy**
+
+1. En una franja vacía, pulsa **Añadir** → se abre `/comidas/nueva?tipoComida=…&fecha=…`. Registra una comida.
+   - **Esperado:** al volver a `/inicio` el resumen está actualizado.
+
+**E · Gráficos accesibles**
+
+1. Clic derecho sobre el gráfico semanal → **Inspeccionar**: el contenedor tiene `role="img"` y `aria-label`.
+
+**F · Móvil**
+
+1. DevTools → `Ctrl+Shift+M` → ancho `375`.
+   - **Esperado:** una sola columna en el orden de `DESIGN.md` §7.4 y las tarjetas de macros en carrusel horizontal.
+
+**G · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -2800,12 +3337,37 @@ Añade ns-disclaimer context 'analisis'. Activa "Foto del plato" en el bottom sh
 
 ### Comprobación
 
-Con el email verificado: sube una foto de un plato (en el modo simulado del backend el resultado es de ejemplo). En *Network* comprueba que `POST /api/v1/analisis/imagenes?tipoComida=…` lleva un `multipart/form-data` con `imagen` de tipo `image/jpeg`, y que el polling se detiene al completar. Prueba con un usuario sin verificar.
+**Antes de empezar:** el backend en marcha, `npm start`, un usuario con perfil y **email verificado** (paso 10), y una foto de un plato en el ordenador.
 
-```bash
-npm run build
-npm test
-```
+**A · Subir y analizar**
+
+1. En `/inicio` pulsa **Registrar con foto** (o abre `/comidas/foto`).
+2. Arrastra la foto a la zona discontinua, o pulsa **Subir archivo** y elígela.
+   - **Esperado:** la previsualización y el botón **Cambiar foto**.
+3. Deja el tipo de comida sugerido, escribe una descripción opcional y pulsa **Analizar**.
+   - **Esperado:** el efecto de escaneo y las fases «Imagen optimizada y sin metadatos» → «Detectando alimentos» → «Calculando nutrientes»; al terminar, `/comidas/foto/{id}`. En el modo simulado del backend el resultado es de ejemplo.
+
+**B · Lo que se envía**
+
+1. Repite con DevTools → **Network** (**Preserve log**, **Fetch/XHR**).
+2. Pulsa la petición `imagenes?tipoComida=…`:
+   - **Headers:** `POST /api/v1/analisis/imagenes?tipoComida=…` y `Content-Type: multipart/form-data; boundary=…`.
+   - **Payload:** un campo `imagen` con `filename="foto.jpg"` y `Content-Type: image/jpeg` (aunque la original fuera PNG).
+3. Después aparecen varias `GET analisis/imagenes/{id}` cada ~1,5 s y **se detienen** cuando el estado es `COMPLETADO`.
+
+**C · Errores de archivo**
+
+1. Prueba a subir un fichero que no sea imagen (p. ej. un `.txt`) → mensaje de error en el paso 1, sin subir nada.
+
+**D · Usuario sin verificar**
+
+1. Entra con un usuario sin verificar y abre `/comidas/foto`.
+   - **Esperado:** aviso de verificar el email con **Reenviar correo**, el botón **Analizar** desactivado y el enlace **Registrar manualmente** visible.
+
+**E · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (los parámetros van en la query y el polling se detiene).
 
 ### Commit, push y pull request
 
@@ -2931,12 +3493,39 @@ Lee solo docs/DESIGN.md §7.8 y mira #file:docs/design/mockups/png/03-resultado-
 
 ### Comprobación
 
-Sube una foto, cambia los gramos del primer alimento, cambia el segundo por otro del catálogo, quita el tercero, añade uno a mano y confirma. En el historial, la comida aparece con el badge "Foto" y los alimentos que elegiste. Repite y descarta.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario verificado.
 
-```bash
-npm run build
-npm test
-```
+**A · Corregir y confirmar**
+
+1. Sube una foto (paso 19) y espera a `/comidas/foto/{id}`.
+2. En el **primer** alimento, cambia los gramos con **−**/**+** o escribiéndolos.
+3. En el **segundo**, pulsa **Cambiar alimento** → elige otra coincidencia o busca otro alimento del catálogo.
+4. En el **tercero**, pulsa **Quitar**.
+5. Pulsa **Añadir alimento no detectado** → busca uno → indica los gramos → **Añadir**.
+   - **Esperado:** los totales de la tarjeta de la izquierda cambian con cada acción.
+6. Pulsa **Confirmar y guardar**.
+   - **Esperado:** toast «{Tipo de comida} guardada · N kcal» y vuelta a `/inicio`.
+7. En **Network** → `confirmar` → **Payload**: solo `alimentoId`, `gramos` e `indiceCandidato` (este último **no** aparece en el alimento añadido a mano).
+
+**B · Se ve en el historial**
+
+1. Abre `/comidas`: la comida tiene el badge **Foto** y los alimentos que elegiste.
+2. **⋮** → **Ver**: «Estimación IA» con la confianza de cada alimento.
+
+**C · Descartar**
+
+1. Sube otra foto y, en el resultado, pulsa **Descartar** → confirma.
+   - **Esperado:** vuelta a `/inicio` y ninguna comida nueva en `/comidas`.
+2. Abre de nuevo la URL `/comidas/foto/{id}` de ese análisis → tarjeta de estado «Descartado».
+
+**D · Validación**
+
+1. Quita todos los alimentos: **Confirmar y guardar** se desactiva.
+
+**E · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -3053,12 +3642,42 @@ Crea features/admin/usuarios/UsuariosAdminComponent (/admin/usuarios, dentro de 
 
 ### Comprobación
 
-Entra con el administrador de `ADMIN_EMAIL` (contraseña en el `.env` del backend: no la copies en el frontend). Busca el usuario de prueba, bloquéalo (intenta entrar con él en otra ventana privada → error de credenciales) y desbloquéalo. Intenta quitarte el rol `ADMIN` a ti mismo.
+**Antes de empezar:** el backend en marcha, `npm start` y un deportista de prueba.
 
-```bash
-npm run build
-npm test
-```
+**A · Entrar como administrador**
+
+1. Abre `/login` y entra con el email de `ADMIN_EMAIL` y la contraseña de `ADMIN_PASS` (en el `.env` del backend; no la copies en el frontend).
+   - **Esperado:** acabas en `/admin/usuarios`, con la franja superior índigo y el badge **Admin**.
+
+**B · Buscar y filtrar**
+
+1. Escribe parte del nombre o el email del deportista en el buscador.
+   - **Esperado:** la tabla se filtra y la URL lleva `?q=…`. Recarga (`F5`): el filtro se mantiene.
+2. Cambia el filtro de estado a **Bloqueados** y vuelve a **Activos**.
+3. Si hay más de una página, pulsa **Siguiente** en el paginador.
+
+**C · Bloquear y desbloquear**
+
+1. Pulsa la fila del deportista: se abre el drawer con sus datos (sin datos de salud).
+2. Pulsa **Bloquear** → lee la explicación → confirma.
+3. Abre una **ventana de incógnito** e intenta entrar con ese deportista.
+   - **Esperado:** error de credenciales.
+4. Vuelve al drawer → **Desbloquear** → confirma. En la ventana de incógnito ya puedes entrar.
+
+**D · Roles**
+
+1. Abre **tu propia** fila (la del administrador) y desmarca **ADMIN** → **Guardar**.
+   - **Esperado:** un aviso con el motivo (no puedes quitarte el rol a ti mismo) y el rol sigue igual.
+2. Desmarca los dos roles de otro usuario: el formulario no lo permite (al menos uno).
+
+**E · Móvil**
+
+1. DevTools → `Ctrl+Shift+M` → ancho `375`: cada fila se ve como una tarjeta con «Título: valor».
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -3178,12 +3797,45 @@ Pruebas del servicio (crearAlimento pone fuente en la query; importar envía el 
 
 ### Comprobación
 
-Como administrador: filtra los alimentos con alérgenos sin revisar y revisa uno. Crea un alimento público y compruébalo desde la búsqueda de un deportista. Importa un CSV pequeño con una fila errónea (usa las columnas del importador del backend: mira `src/main/resources/datos/alimentos_desarrollo.csv` en el repositorio del backend). Crea una subcategoría y trata de borrar una con alimentos.
+**Antes de empezar:** el backend en marcha, `npm start`, sesión con el administrador y un CSV de prueba (ver apartado D).
 
-```bash
-npm run build
-npm test
-```
+**A · Revisar alérgenos**
+
+1. Sidebar → **Catálogo** (`/admin/catalogo`), pestaña **Alimentos**.
+2. Pulsa **Pendientes de revisar**: la URL lleva `revisados=false`.
+3. En un alimento, abre la revisión de alérgenos, marca los que contiene y pulsa **Guardar**.
+   - **Esperado:** desaparece de la lista de pendientes.
+
+**B · Crear un alimento público**
+
+1. Pulsa **Nuevo alimento** → el drawer con los campos extra **Fuente** y **Referencia externa**.
+2. Rellénalo (p. ej. «Tortitas de arroz de prueba») y pulsa **Guardar**.
+3. En una **ventana de incógnito**, entra como deportista y búscalo en `/comidas/nueva`.
+   - **Esperado:** aparece.
+
+**C · Desactivar o eliminar**
+
+1. En ese alimento pulsa **Eliminar** (o desactivar) y confirma.
+
+**D · Importar un CSV con una fila errónea**
+
+1. Abre en el repositorio del backend `src/main/resources/datos/alimentos_desarrollo.csv` y copia la **cabecera** y 2 filas en un fichero nuevo `prueba.csv`.
+2. Añade una tercera fila con un valor imposible (p. ej. kcal `-5`) y guarda.
+3. Pulsa **Importar CSV** → elige `prueba.csv`, la fuente y una referencia.
+   - **Esperado:** la vista previa con las primeras filas.
+4. Pulsa el botón de importar.
+   - **Esperado:** el resultado con «creados / actualizados» y una tabla de errores con el número de la fila mala y su mensaje.
+
+**E · Categorías**
+
+1. Pestaña **Categorías** → **Nueva categoría** → elige un padre (subcategoría) → **Guardar**: aparece en el árbol bajo su padre.
+2. Intenta **Eliminar** una categoría que tenga alimentos → confirma.
+   - **Esperado:** un mensaje que explica que no se puede (409), y la categoría sigue.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (`fuente` va en la query y la importación envía el campo `archivo`).
 
 ### Commit, push y pull request
 
@@ -3299,13 +3951,48 @@ Crea docs/revision_accesibilidad.md con una tabla: pantalla, herramienta, proble
 
 ### Comprobación
 
-```bash
-npm run build:prod
-```
+**A · Build de producción**
 
-> El LCP se mide sobre el build de producción servido por nginx (paso 24). Mientras tanto, usa `npm start` y Lighthouse en modo *Navigation* con *Throttling: Fast 4G* para orientarte (el servidor de desarrollo es más lento).
+1. `npm run build:prod` → sin `ERROR`. Apunta los `WARNING` de tamaño si los hay.
 
-Pasa axe en las 5 pantallas, recorre el MVP con el teclado y revisa 360, 768 y 1280 px con el modo dispositivo de DevTools.
+> El LCP se mide sobre el build de producción servido por nginx (paso 24). Mientras tanto, usa `npm start` y Lighthouse para orientarte (el servidor de desarrollo es más lento).
+
+**B · Lighthouse (orientativo)**
+
+1. Con `npm start`, entra con un usuario con datos y abre `/inicio`.
+2. DevTools → pestaña **Lighthouse** (si no se ve, pulsa **»** y elígela).
+3. En **Mode**, elige **Navigation**; en **Device**, **Mobile**; en **Categories**, marca **Performance** y **Accessibility**.
+4. Abre el engranaje ⚙ (*Throttling*) y elige **Fast 4G** si aparece.
+5. Pulsa **Analyze page load**.
+   - **Esperado:** *Accessibility* ≥ 90 y, en *Performance*, el valor de **Largest Contentful Paint**. Apúntalo en `docs/revision_accesibilidad.md`.
+
+**C · axe en las 5 pantallas**
+
+1. Instala la extensión **axe DevTools** de Deque desde la Chrome Web Store (una sola vez).
+2. Abre cada pantalla: `/login`, `/inicio`, `/comidas/nueva`, `/comidas/foto` y `/perfil`.
+3. En DevTools, pestaña **axe DevTools** → **Scan ALL of my page**.
+   - **Esperado:** 0 problemas *Critical* y *Serious*. Anota el resto en `docs/revision_accesibilidad.md`.
+
+**D · Teclado**
+
+1. Recorre el MVP solo con **Tab**, **Mayús+Tab**, **Enter**, **Espacio**, **flechas** y **Escape**: registra una comida, abre y cierra un diálogo y cambia de pestaña en `/perfil`.
+   - **Esperado:** el foco siempre visible; al navegar, va al título (`h1`) de la página nueva; al cerrar un diálogo, vuelve a su botón.
+
+**E · Responsive**
+
+1. DevTools → `Ctrl+Shift+M` → **Dimensions → Responsive** y revisa cada pantalla a `360`, `768` y `1280`.
+   - **Esperado:** sin scroll horizontal, sin textos cortados y con botones de 44 px en móvil.
+
+**F · Estados**
+
+1. Para el backend (**Ctrl+C** en su terminal) y recarga `/inicio`: estado de error con **Reintentar**.
+2. Vuelve a arrancarlo y pulsa **Reintentar**: carga.
+3. Con un usuario nuevo, revisa que las pantallas sin datos muestran su estado vacío con una acción.
+
+**G · Movimiento reducido**
+
+1. DevTools → menú **⋮** (del propio DevTools) → **More tools → Rendering**.
+2. En **Emulate CSS media feature prefers-reduced-motion**, elige **reduce**: el escaneo de la foto y los skeletons ya no se animan.
 
 ### Commit, push y pull request
 
@@ -3421,19 +4108,51 @@ Añade al README una sección "Docker" con los comandos.
 
 ### Comprobación
 
-Desde la carpeta del backend levanta todo, incluido el backend en contenedor; después, desde la del frontend, su imagen:
+**Antes de empezar:** para el `npm start` (**Ctrl+C**) y abre **Docker Desktop**; espera a que la barra inferior diga *Engine running*.
+
+**A · Levantar todo**
+
+1. En una terminal, en la carpeta `NutriSport-backend`:
 
 ```bash
-# en NutriSport-backend
 docker compose --profile app up -d --build
-# en NutriSport-frontend (para antes el `npm start` si lo tenías)
+```
+
+2. En otra terminal, en `NutriSport-frontend`:
+
+```bash
 docker compose up -d --build
+```
+
+3. En **Docker Desktop → Containers**, comprueba que `nutrisport-frontend` y el backend están en verde (*Running*).
+   - **Si `nutrisport-frontend` se para:** haz clic en él → pestaña **Logs** y copia el error. Si dice `network nutrisport-backend_default not found`, el backend no se ha levantado con el paso 1.
+
+**B · Rutas, cabeceras y proxy**
+
+```bash
 curl -sI http://localhost:4200/comidas | head -n 1
 curl -sI http://localhost:4200/ | grep -iE "content-security|x-frame|referrer"
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:4200/api/v1/cuenta    # 401
 ```
 
-Abre `http://localhost:4200`, inicia sesión, sube una foto (la URL prefirmada de MinIO debe cargarse sin errores de CSP en la consola) y mide el LCP del dashboard con Lighthouse (pendiente del paso 23).
+- **Esperado:** `HTTP/1.1 200 OK` (la SPA responde en cualquier ruta), las tres cabeceras de seguridad y `401` (el proxy de `/api` llega al backend).
+- **Si la última da `502`:** nginx no encuentra el backend; revisa `BACKEND_URL` en `docker-compose.yml`.
+
+**C · En el navegador**
+
+1. Abre `http://localhost:4200`, inicia sesión y abre DevTools → **Console**.
+2. Sube una foto (`/comidas/foto`) y abre su resultado.
+   - **Esperado:** la foto se ve y la consola **no** muestra errores `Refused to load the image … Content Security Policy`.
+3. En **Network**, haz clic en un fichero `.js` → **Headers**: `Cache-Control: public, max-age=31536000, immutable`. En el documento (`localhost`), `Cache-Control: no-cache`.
+
+**D · LCP (pendiente del paso 23)**
+
+1. Abre `/inicio` → DevTools → **Lighthouse** → **Navigation**, **Mobile**, **Performance** → **Analyze page load**.
+2. Apunta el **Largest Contentful Paint** en `docs/revision_accesibilidad.md`.
+
+**E · Parar**
+
+1. Cuando termines: `docker compose down` en el frontend (y en el backend si quieres).
 
 ### Commit, push y pull request
 
@@ -3548,12 +4267,30 @@ Lee solo docs/PROJECT_PROPOSAL.md §10 (historias de usuario del MVP) y §11.2 (
 
 ### Comprobación
 
-Ejecuta todos los casos de `docs/pruebas_manuales_frontend.md` con un usuario nuevo y con el administrador, sobre el frontend en Docker. Anota los resultados.
+**Antes de empezar:** todo levantado en Docker (paso 24), Mailpit abierto y `docs/pruebas_manuales_frontend.md` abierto en VS Code con la vista previa (`Ctrl+Shift+V`).
 
-```bash
-npm run build
-npm test
-```
+**A · Pruebas manuales**
+
+1. Crea un usuario **nuevo** en `http://localhost:4200/registro`.
+2. Sigue cada caso de la tabla en orden (PM-01, PM-02…): haz los **pasos**, compara con el **resultado esperado** y escribe `OK` o `KO` en la columna **Resultado** (y el motivo en **Observaciones** si es KO).
+3. Repite los casos de **Administración** entrando con el administrador.
+4. Para los casos de error:
+   - **503 de la IA:** para el backend en Docker Desktop (**Containers** → botón **■ Stop** del backend) mientras se analiza una foto y vuelve a pulsar **▶ Start** después.
+   - **Sesión caducada:** DevTools → **Application → Cookies** → borra `ns_refresh` y espera 15 minutos (o recarga).
+5. Guarda el fichero (`Ctrl+S`). Si hay algún KO, corrígelo antes de la PR.
+
+**B · Pruebas de los flujos**
+
+1. `npm test`
+   - **Esperado:** en verde, incluidas `src/app/flujos/sesion.spec.ts`, `registro-comida.spec.ts` y `analisis.spec.ts`.
+
+**C · README**
+
+1. Abre `README.md` con la vista previa (`Ctrl+Shift+V`) y sigue el apartado de arranque como si fueras otra persona: cada comando debe funcionar tal cual.
+
+**D · Compilación**
+
+1. `npm run build` → sin `ERROR`.
 
 > **Hito: MVP del frontend completo.** A partir de aquí, la Ampliación en el mismo orden que el backend (A1 → A5 y después el resto).
 
@@ -3681,12 +4418,41 @@ Pruebas del servicio (cabecera de proveedor no disponible) y del store (línea c
 
 ### Comprobación
 
-Busca "yogur griego": primero salen los del catálogo; pulsa "Buscar en productos comerciales" y abre uno. Añádelo a la merienda. Busca un código de barras conocido en `/productos` (por ejemplo, el de un producto que tengas en casa). Comprueba en *Network* que al escribir **no** se llama a `/productos`.
+**Antes de empezar:** el backend en marcha (con conexión a internet para Open Food Facts), `npm start` y un usuario con perfil.
 
-```bash
-npm run build
-npm test
-```
+**A · Catálogo primero, productos solo al pulsar**
+
+1. Sidebar → **Productos** (`/productos`). Abre DevTools → **Network** → **Fetch/XHR** → pulsa **⊘** para vaciar.
+2. Escribe `yogur griego`.
+   - **Esperado:** el bloque «En tu catálogo» con resultados, y en **Network** solo peticiones `alimentos?q=…`; **ninguna** a `productos`.
+3. Pulsa **Buscar en productos comerciales**.
+   - **Esperado:** ahora sí, una petición `productos?q=…` y la lista con imagen, marca, kcal y el badge **Open Food Facts**.
+4. Pulsa **Más resultados**: se añade la página siguiente.
+
+**B · Ficha y atribución**
+
+1. Pulsa un producto: se abre la ficha (panel derecho en escritorio).
+   - **Esperado:** tabla nutricional, código de barras y, abajo, «Datos de Open Food Facts (ODbL)» con su enlace.
+2. Si un producto tiene «Información nutricional incompleta», no tiene botón de añadir y sí **Crear alimento propio**.
+
+**C · Añadirlo a una comida**
+
+1. En un producto completo, elige la cantidad (o «1 ración»), el tipo **Merienda** y la fecha → pulsa **Añadir**.
+   - **Esperado:** toast; en `/comidas`, la merienda con ese producto.
+
+**D · Buscar por código de barras**
+
+1. En `/productos`, escribe el código de barras de un producto que tengas en casa (8–14 dígitos) y búscalo.
+   - **Esperado:** la ficha del producto. Con un código de 5 dígitos, error de validación sin llamar al servidor.
+
+**E · Pestaña en el registro de comidas**
+
+1. Abre `/comidas/nueva` → pestaña **Productos** → busca y añade uno a la comida en construcción → **Guardar comida**.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -3803,12 +4569,43 @@ Activa "Escanear código" en el bottom sheet del botón central y un acceso "Có
 
 ### Comprobación
 
-Desde el móvil en la misma red no tendrás HTTPS (la cámara exige un contexto seguro): prueba en el ordenador con una webcam en `http://localhost:4200/escaner` enseñando un código de barras, o usa la introducción manual. Deniega el permiso de cámara y comprueba la alternativa.
+**Antes de empezar:** el backend en marcha, `npm start`, un usuario con perfil, una **webcam** en el ordenador y un producto con código de barras a mano.
 
-```bash
-npm run build
-npm test
-```
+> Desde el móvil en la misma red no tendrás HTTPS y la cámara exige un contexto seguro: prueba en el ordenador en `http://localhost:4200` (localhost cuenta como seguro).
+
+**A · Escanear con la webcam**
+
+1. Abre `http://localhost:4200/escaner`.
+2. Chrome muestra arriba a la izquierda «localhost:4200 quiere usar tu cámara» → pulsa **Permitir** (o **Permitir esta vez**).
+3. Enseña el código de barras a la cámara, dentro del marco.
+   - **Esperado:** «Buscando producto…» y después la ficha compacta con **Añadir a {comida}**. El resultado se anuncia (`aria-live`).
+4. Pulsa **Añadir a {comida}** → toast.
+5. Pulsa **Escanear otro** para repetir.
+
+**B · Introducción manual**
+
+1. Pulsa **Introducir código**, escribe los dígitos y busca → la misma ficha.
+2. Prueba un código que no exista (p. ej. `00000000`) → «No encontramos este producto» con **Escanear otro**, **Buscar por nombre** y **Crear alimento**.
+
+**C · Permiso denegado**
+
+1. Pulsa el icono de la **cámara** (o del candado) a la izquierda de la barra de direcciones → en **Cámara**, elige **Bloquear** → recarga (`F5`).
+   - **Esperado:** solo la introducción manual, con la explicación de por qué.
+2. Vuelve a poner **Permitir** en ese mismo menú cuando termines.
+
+**D · La cámara se apaga al salir**
+
+1. Con el escáner en marcha, pulsa **Inicio** en la sidebar: el piloto de la webcam se apaga.
+
+**E · Accesos**
+
+1. En `/comidas/nueva`, pulsa **Código de barras** → lleva al escáner.
+2. A 375 px (`Ctrl+Shift+M`), el botón central de la barra inferior muestra **Escanear código**.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -3933,12 +4730,43 @@ Activa "Recetas" en navegacion.ts (grupo Principal).
 
 ### Comprobación
 
-Busca "chicken", filtra por la categoría "Pollo" y por "≤ 600 kcal", abre una receta de TheMealDB (se importa) y márcala como favorita. Recarga con los filtros en la URL.
+**Antes de empezar:** el backend en marcha (con internet para TheMealDB), `npm start` y un usuario con perfil.
 
-```bash
-npm run build
-npm test
-```
+**A · Buscar y filtrar**
+
+1. Sidebar → **Recetas** (`/recetas`), pestaña **Explorar**.
+2. Escribe `chicken` en el buscador.
+   - **Esperado:** la rejilla de recetas y, en la primera página, el bloque «De TheMealDB».
+3. En la fila de categorías, pulsa **Pollo**.
+4. En los filtros, pon «≤ 600 kcal/ración».
+   - **Esperado:** la URL lleva todos los filtros (`?q=chicken&categoria=…&maxKcal=600`).
+
+**B · Abrir una receta de TheMealDB**
+
+1. Pulsa una tarjeta del bloque «De TheMealDB».
+   - **Esperado:** un spinner en la tarjeta mientras se importa y después `/recetas/{id}`.
+2. Vuelve atrás con el botón **←** del navegador.
+
+**C · Favoritas**
+
+1. En una tarjeta, pulsa el botón de **favorita** (estrella o corazón): cambia al momento.
+2. Pestaña **Favoritas**: la receta aparece.
+3. Quítala desde ahí: desaparece.
+
+**D · Filtros en la URL**
+
+1. Vuelve a **Explorar** con filtros y recarga (`F5`).
+   - **Esperado:** los mismos filtros y resultados.
+
+**E · Atribución y móvil**
+
+1. Al pie de la página: «Recetas e imágenes de TheMealDB».
+2. A 375 px (`Ctrl+Shift+M`): una columna y los filtros en un bottom sheet.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -4055,12 +4883,42 @@ Crea RegistrarRecetaDialogComponent: raciones (decimales permitidos, > 0 y ≤ 1
 
 ### Comprobación
 
-Abre una receta con cálculo completo, cambia a 2 raciones, mira "Ver cómo se calcula" y regístrala como comida (aparece en el historial con origen Receta). Abre una con cálculo incompleto y comprueba los botones desactivados con su motivo.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con perfil.
 
-```bash
-npm run build
-npm test
-```
+**A · Raciones y desglose**
+
+1. En `/recetas`, abre una receta con estado de cálculo **Completo**.
+2. En **Ingredientes**, cambia las raciones a `2` con **+**/**−**.
+   - **Esperado:** la URL lleva `?raciones=2`, se recargan los gramos de la tabla y la nutrición por ración.
+3. Marca la casilla de un ingrediente: se tacha.
+4. Pulsa **Ver cómo se calcula**: el diálogo con cada ingrediente, sus gramos, la conversión y la fuente. Ciérralo.
+
+**B · Registrar como comida**
+
+1. Pulsa **Registrar como comida**.
+2. Elige `1` ración, fecha de hoy y el tipo de comida → pulsa **Guardar**.
+   - **Esperado:** toast «Comida guardada · N kcal» con **Deshacer**.
+3. Abre `/comidas`: la comida aparece con el badge **Receta**.
+
+**C · Receta con cálculo incompleto**
+
+1. Busca una receta con estado **Incompleto** (suelen ser de TheMealDB con ingredientes sin emparejar).
+   - **Esperado:** **Registrar como comida** y **Añadir al plan** desactivados y, junto a ellos, el **motivo escrito** (no solo un tooltip).
+
+**D · Otras secciones**
+
+1. Si es de TheMealDB: el aviso «Receta original en inglés» y la atribución.
+2. Abajo, 3 recetas relacionadas.
+3. A 375 px (`Ctrl+Shift+M`): pestañas **Ingredientes · Pasos · Nutrición**.
+
+**E · Pestaña Recetas en el registro**
+
+1. En `/comidas/nueva`, pestaña **Recetas** → busca una → se abre el mismo diálogo de registrar.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -4188,12 +5046,43 @@ Activa "Planificador" en navegacion.ts y "Plan" en la barra inferior móvil (DES
 
 ### Comprobación
 
-Genera un menú semanal desde el próximo lunes: compara un día con `GET /menus/{id}` en Swagger (las cifras deben coincidir). Planifica un entrenamiento en uno de esos días y regenera desde Swagger: el día aparece como día de entreno. Mira la vista por día a 375 px.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con perfil.
 
-```bash
-npm run build
-npm test
-```
+**A · Generar un menú semanal**
+
+1. Sidebar → **Planificador** (`/planificador`).
+   - **Esperado:** «No tienes menú para esta semana» con **Generar menú**.
+2. Pulsa **Generar menú** → tipo **Semanal**; la fecha de inicio sugerida es el **próximo lunes**; marca **Pedir una explicación breve** → pulsa **Generar**.
+   - **Esperado:** el planificador pasa a esa semana y muestra la rejilla de 7 días con sus comidas y el resumen (media de kcal, % de ajuste, proteína media).
+
+**B · Las cifras coinciden con el backend**
+
+1. En **Network**, abre la petición `generar` → **Response** y copia el `id` del menú.
+2. En Swagger (autenticado), despliega **GET /api/v1/menus/{id}** → **Try it out** → pega el `id` → **Execute**.
+3. Compara las kcal planificadas de un día de la respuesta con las de su cabecera en la rejilla: deben ser iguales.
+
+**C · Día de entreno**
+
+1. En `/actividad`, planifica un entrenamiento en uno de los días del menú.
+2. En Swagger, despliega **POST /api/v1/menus/{id}/regenerar** → **Try it out** → `id` → **Execute**.
+3. Vuelve a `/planificador` y recarga (`F5`).
+   - **Esperado:** ese día muestra el icono de actividad (día de entreno).
+
+**D · Acciones del menú**
+
+1. Abre el menú de acciones de la cabecera → **Renombrar** → cambia el nombre → **Guardar**.
+2. **Duplicar en otra semana** → elige una fecha → se crea una copia.
+3. Usa **‹** y **›** para cambiar de semana y el selector de menú.
+
+**E · Vista por día en móvil**
+
+1. DevTools → `Ctrl+Shift+M` → ancho `375`.
+   - **Esperado:** la tira de fechas de la semana y la lista vertical del día; en la barra inferior, **Plan**.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -4318,12 +5207,44 @@ Lee solo docs/DESIGN.md §7.10 y §7.23 (mira #file:docs/design/mockups/png/13-p
 
 ### Comprobación
 
-En un menú: añade una receta a una franja vacía, sustituye otra por una alternativa, arrastra una comida a otro día, bloquea dos y regenera (siguen ahí). Pide una sugerencia IA y aplícala. Registra una comida de hoy desde el planificador y desde el dashboard.
+**Antes de empezar:** el backend en marcha, `npm start`, un usuario **verificado** con perfil y un menú de la semana actual (paso 30) que incluya **hoy**.
 
-```bash
-npm run build
-npm test
-```
+**A · Añadir y sustituir**
+
+1. En `/planificador`, pulsa una franja **vacía** → se abre el drawer con «faltan ≈ N kcal».
+2. Busca una receta, elige las raciones y pulsa **Añadir** → aparece en la franja.
+3. En otra comida, abre su menú de acciones (pasa el ratón o pulsa **Tab** hasta ella) → **Sustituir** → elige una de las alternativas.
+   - **Esperado:** la comida cambia y se ven los deltas de kcal y proteína.
+
+**B · Mover y bloquear**
+
+1. Arrastra una comida con el ratón a otro día y suéltala.
+   - **Esperado:** se mueve; en **Network**, un `PUT …/comidas/{comidaId}` con la nueva fecha.
+2. Haz lo mismo con el teclado: menú de acciones → **Mover a…** → día y franja → **Mover**.
+3. Bloquea dos comidas (**Bloquear**) → aparece el badge **Bloqueada**.
+4. Pulsa **Regenerar** en la cabecera → confirma.
+   - **Esperado:** cambian las demás, pero las dos bloqueadas siguen en su sitio.
+
+**C · Sugerencia IA**
+
+1. En una comida, menú de acciones → **Pedir sugerencia IA** → escribe una preferencia opcional → envía.
+   - **Esperado:** la tarjeta con el badge **Sugerencia IA**, el texto y «≈ +N g de proteína y +N kcal por ración».
+2. Pulsa **Aplicar** → el menú se actualiza.
+
+**D · Registrar como consumida**
+
+1. En una comida de **hoy**, menú de acciones → **Registrar como consumida** → hora opcional → **Registrar**.
+   - **Esperado:** toast «Comida registrada» y el badge **Consumida** (ya solo permite **Ver receta**).
+2. Abre `/inicio`: en su franja, «Del plan: {receta} · N kcal». Pulsa **Marcar comida** en otra comida planificada de hoy → el resumen se recarga.
+
+**E · Desde mi plan (móvil)**
+
+1. A 375 px, pulsa el botón central de la barra inferior → **Desde mi plan** → se abre el día de hoy del planificador.
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -4449,12 +5370,42 @@ Activa "Lista de la compra" en navegacion.ts.
 
 ### Comprobación
 
-Genera la lista del menú de la semana, expande un producto con desglose, marca tres como comprados (se van al final), añade "Servilletas" a mano y los ingredientes de una receta. Usa la lista en 375 px.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con un menú semanal (paso 30).
 
-```bash
-npm run build
-npm test
-```
+**A · Generar la lista**
+
+1. En `/planificador`, pulsa **Lista de la compra** → elige **todo el menú** → **Generar**.
+   - **Esperado:** se abre `/compra/{id}` con los productos agrupados por sección del supermercado y el progreso «0 / N comprados».
+
+**B · Desglose y comprados**
+
+1. Pulsa un producto con varios usos para **expandirlo**: «lun. 23 · 200 g · mié. 25 · 150 g».
+2. Marca tres casillas.
+   - **Esperado:** se tachan y bajan al final de su sección **al momento**; el progreso sube.
+3. Activa el switch **Ocultar comprados**: desaparecen. Desactívalo.
+
+**C · Productos manuales y de receta**
+
+1. Pulsa **Añadir producto** → nombre «Servilletas», cantidad `1`, sin sección → **Añadir**.
+   - **Esperado:** aparece en **Otros** con el badge **Manual**.
+2. Abre una receta (`/recetas/{id}`) → **Añadir ingredientes a la lista** → elige esta lista y las raciones → **Añadir**.
+3. Vuelve a la lista: los ingredientes se han sumado.
+
+**D · Editar y completar**
+
+1. Cambia la cantidad de un producto en línea y quita otro.
+2. Pulsa **Completar lista** → en `/compra`, la tarjeta muestra el badge **Completada**.
+
+**E · Móvil**
+
+1. DevTools → `Ctrl+Shift+M` → ancho `375`.
+   - **Esperado:** elementos de 56 px, botón flotante **Añadir** y secciones que se pliegan.
+2. Pulsa **Compartir**: abre el menú de compartir del sistema o copia el texto (pégalo en un editor para verlo).
+
+**F · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -4576,12 +5527,40 @@ Crea features/admin/ingredientes/MapeosIngredientesComponent (/admin/ingrediente
 
 ### Comprobación
 
-Crea una receta propia con tres ingredientes, publícala y búscala desde el panel "Añadir receta" del planificador. En la cola de ingredientes, empareja uno pendiente y comprueba que la receta de TheMealDB que lo usa cambia su estado nutricional.
+**Antes de empezar:** el backend en marcha, `npm start` y sesión con el administrador.
 
-```bash
-npm run build
-npm test
-```
+**A · Crear y publicar una receta**
+
+1. Sidebar → **Catálogo** → pestaña **Recetas** → **Nueva receta**: se abre el drawer.
+2. Rellena nombre, categoría, raciones `2`, franjas aptas (p. ej. **Comida** y **Cena**), dos pasos y **tres ingredientes**: busca cada uno en el combobox de alimentos y pon sus gramos.
+3. Pulsa **Guardar**.
+   - **Esperado:** se abre directamente el diálogo de publicación.
+4. Activa **Publicada**, revisa raciones y franjas y pulsa **Guardar**.
+   - **Esperado:** toast y la receta en la lista «Creadas en esta sesión».
+
+**B · El deportista la ve**
+
+1. En una **ventana de incógnito**, entra como deportista → `/planificador` → pulsa una franja vacía de **Comida**.
+2. En el drawer, busca la receta por su nombre.
+   - **Esperado:** aparece.
+
+**C · Eliminar una receta planificada**
+
+1. Si la añadiste a un menú, vuelve a la ventana del administrador y pulsa **Eliminar** en ella.
+   - **Esperado:** «Está en algún menú: despublícala». Despublícala con **Publicar o despublicar**.
+
+**D · Emparejar un ingrediente**
+
+1. Sidebar → **Ingredientes** (`/admin/ingredientes`), filtro **Pendientes**.
+2. Anota el nombre de uno pendiente y, en `/recetas` (como deportista), busca una receta de TheMealDB que lo use y apunta su estado nutricional.
+3. De vuelta en la cola, pulsa el ingrediente → elige un alimento en el combobox → **Guardar**.
+   - **Esperado:** toast «Emparejado · N recetas recalculadas» y el ingrediente pasa a **Revisados**.
+4. Recarga la receta de TheMealDB: su estado nutricional ha cambiado (p. ej. de **Incompleto** a **Aproximado** o **Completo**).
+
+**E · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde.
 
 ### Commit, push y pull request
 
@@ -4709,12 +5688,46 @@ En el dashboard, añade la tarjeta "Patrón detectado" (4 columnas, junto al ent
 
 ### Comprobación
 
-Con al menos dos semanas de comidas (puedes registrar días pasados): recorre los periodos, activa la comparación y revisa que las cifras coinciden con las de Swagger. Desactiva los insights en Configuración y comprueba que desaparecen.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario con **al menos dos semanas de comidas** (registra días pasados con el campo **Fecha** de `/comidas/nueva` o con **Duplicar** del historial) y algún peso.
 
-```bash
-npm run build
-npm test
-```
+**A · Periodos**
+
+1. Sidebar → **Estadísticas** (`/estadisticas`).
+2. Pulsa en el segmentado **7 días**, después **4 semanas** y **3 meses**.
+   - **Esperado:** los KPIs y los gráficos cambian y la URL guarda el periodo.
+3. Elige **Personalizado** y un rango de más de 366 días → error de validación.
+
+**B · Comparar con el periodo anterior**
+
+1. Activa **Comparar con el periodo anterior**.
+   - **Esperado:** la línea discontinua gris en el gráfico de energía y los deltas en los KPIs.
+
+**C · Las cifras coinciden con el backend**
+
+1. En **Network**, abre la petición `estadisticas?desde=…&hasta=…` y copia `desde` y `hasta`.
+2. En Swagger (autenticado), **GET /api/v1/seguimiento/estadisticas** → **Try it out** → los mismos `desde`, `hasta` y agrupación → **Execute**.
+3. Compara la media de kcal y la proteína media con los KPIs de la pantalla: iguales.
+
+**D · Gráficos y tablas**
+
+1. Baja por la página: los gráficos se cargan al llegar a ellos (en **Network** aparecen al hacer scroll).
+2. Revisa **Entreno frente a descanso** y **Alimentos más consumidos**.
+
+**E · Insights**
+
+1. Si hay insights, comprueba sus tarjetas y, en `/inicio`, la tarjeta **Patrón detectado**.
+2. Ve a **Configuración → Cuenta**, desactiva **Recibir patrones detectados (insights)** y pulsa **Guardar cambios**.
+3. Vuelve a `/estadisticas` y a `/inicio`.
+   - **Esperado:** sin insights y con un enlace a Configuración.
+
+**F · Estado vacío**
+
+1. Con un usuario con menos de 2 días registrados → estado vacío.
+
+**G · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (las funciones de `opciones-graficos.ts`).
 
 ### Commit, push y pull request
 
@@ -4841,12 +5854,46 @@ Conecta "Preguntar al asistente" de InsightCardComponent: abre /asistente con un
 
 ### Comprobación
 
-Pregunta "¿Cuánta proteína llevo hoy?" y "¿Qué ceno si mañana entreno?": comprueba los chips de datos consultados (en modo simulado las respuestas son de ejemplo). Valora una respuesta, renombra y archiva la conversación. Prueba una pregunta sobre dosis de un suplemento: el backend devuelve una respuesta segura.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario **verificado** con perfil y comidas de hoy.
 
-```bash
-npm run build
-npm test
-```
+**A · Primera conversación**
+
+1. Sidebar → **Asistente IA** (`/asistente`).
+   - **Esperado:** las sugerencias en chips encima del cuadro de texto.
+2. Escribe `¿Cuánta proteína llevo hoy?` y pulsa **Enter**.
+   - **Esperado:** tu mensaje a la derecha al momento, «Escribiendo…» y la respuesta a la izquierda con el chip «Datos consultados: …». En modo simulado la respuesta es de ejemplo.
+3. Escribe `¿Qué ceno si mañana entreno?`, pulsa **Mayús+Enter** para saltar de línea y **Enter** para enviar.
+4. En la lista de la izquierda, la conversación ya tiene un título (lo pone el backend).
+
+**B · Valorar y copiar**
+
+1. Pulsa **👍** en una respuesta: queda marcado (`aria-pressed`). Pulsa **Copiar** y pégalo en un editor.
+
+**C · Renombrar, archivar y eliminar**
+
+1. Abre el menú de la conversación → **Renombrar** → nuevo nombre → **Guardar**.
+2. Menú → **Archivar** → pasa a la pestaña **Archivadas**. Desarchívala.
+3. Crea otra con **Nueva conversación** y bórrala con **Eliminar** (confirma).
+
+**D · Respuesta segura**
+
+1. Pregunta por la dosis de un suplemento (p. ej. `¿Cuánta creatina debo tomar al día?`).
+   - **Esperado:** una respuesta prudente que remite a un profesional, y el aviso orientativo bajo el cuadro de texto.
+
+**E · Usuario sin verificar y errores**
+
+1. Con un usuario sin verificar → el cuadro de texto desactivado con «Verifica tu email» y **Reenviar**.
+2. Para el backend un momento y envía un mensaje → error con **Reintentar**. Arráncalo y pulsa **Reintentar**.
+
+**F · Lectores de pantalla y móvil**
+
+1. Clic derecho en la zona de mensajes → **Inspeccionar**: hay una región `aria-live="polite"`.
+2. A 375 px: la lista de conversaciones va en un drawer y el cuadro de texto queda fijo abajo.
+
+**G · Compilación y pruebas**
+
+1. `npm run build` → sin `ERROR`.
+2. `npm test` → en verde (mensaje optimista, respuesta y error 503).
 
 ### Commit, push y pull request
 
@@ -4968,13 +6015,35 @@ Nota: un error con responseType 'blob' llega como Blob: adapta aApiError para le
 
 ### Comprobación
 
-Exporta tus datos y abre el JSON. Ejecuta los casos nuevos de `docs/pruebas_manuales_frontend.md` sobre el frontend en Docker (paso 24) con un usuario nuevo y con el administrador.
+**Antes de empezar:** el backend en marcha, `npm start` y un usuario verificado con datos.
+
+**A · Exportar los datos**
+
+1. **Configuración → Privacidad** → **Exportar mis datos**.
+   - **Esperado:** el botón muestra *loading* y Chrome descarga un `.json` (icono de descargas arriba a la derecha, o `Ctrl+J`).
+2. Abre el fichero en VS Code (**File → Open File…**) y pulsa **Shift+Alt+F** para formatearlo.
+   - **Esperado:** cuenta, perfil, comidas, entrenamientos, menús, listas… y **ninguna** contraseña ni token (busca `password` y `token` con `Ctrl+F`).
+3. Con un usuario sin verificar: el aviso con **Reenviar** en lugar de la exportación.
+4. Revoca el consentimiento (paso 13) y exporta de nuevo: sigue funcionando.
+
+**B · Pruebas manuales de la Ampliación (en Docker)**
+
+1. Para `npm start` (**Ctrl+C**) y levanta todo como en el paso 24.
+2. Abre `docs/pruebas_manuales_frontend.md` con la vista previa (`Ctrl+Shift+V`) y ejecuta los bloques nuevos con un usuario nuevo y con el administrador, marcando `OK`/`KO` como en el paso 25.
+
+**C · Atribuciones**
+
+1. Revisa `/productos`, `/escaner`, `/recetas` y el detalle de una receta de TheMealDB: todas muestran su atribución. Comprueba que el README lista dónde.
+
+**D · Compilación, pruebas y Docker**
 
 ```bash
 npm run build:prod
 npm test
 docker compose up -d --build
 ```
+
+- **Esperado:** el build sin `ERROR`, las pruebas en verde y el contenedor `nutrisport-frontend` en *Running* en Docker Desktop.
 
 > **Hito: frontend completo (MVP y Ampliación).** Prepara la defensa con `docs/pruebas_manuales_frontend.md` como guion de la demostración.
 

@@ -1,6 +1,7 @@
 // Textos que muestra la interfaz para cada valor de los enumerados (NutriSport_API.md §10).
 // Los valores viajan en MAYÚSCULAS; aquí solo se traducen para pantalla.
 import type { EstadoEntrenamiento, Intensidad } from './actividad';
+import type { MetodoMapeo } from './admin';
 import type { EstadoAnalisis } from './analisis';
 import type { OrigenComida } from './comidas';
 import type { UnidadCompra } from './compra';
@@ -175,6 +176,11 @@ export const ETIQUETAS_UNIDAD_COMPRA: Record<UnidadCompra, string> = {
   ML: 'ml',
   L: 'l',
   UD: 'ud.',
+};
+
+export const ETIQUETAS_METODO_MAPEO: Record<MetodoMapeo, string> = {
+  AUTOMATICO: 'Automático',
+  MANUAL: 'Manual',
 };
 
 export const ETIQUETAS_ROL: Record<Rol, string> = {

@@ -6,15 +6,16 @@ import { filter, map, startWith } from 'rxjs';
 import type { NsOpcion } from '@shared/ui/form/control-valor';
 import { NsTabPanelDirective, NsTabsComponent } from '@shared/ui/nav/tabs.component';
 
-type PestanaCatalogo = 'alimentos' | 'categorias';
+type PestanaCatalogo = 'alimentos' | 'categorias' | 'recetas';
 
 const PESTANAS: NsOpcion<PestanaCatalogo>[] = [
   { valor: 'alimentos', etiqueta: 'Alimentos' },
   { valor: 'categorias', etiqueta: 'Categorías' },
+  { valor: 'recetas', etiqueta: 'Recetas' },
 ];
 
 /**
- * Catálogo (/admin/catalogo, DESIGN.md §7.17): pestañas Alimentos · Categorías, cada una con su
+ * Catálogo (/admin/catalogo, DESIGN.md §7.17): pestañas Alimentos · Categorías · Recetas, cada una con su
  * ruta hija (/admin/catalogo/alimentos, /admin/catalogo/categorias). La pestaña activa sale de la
  * URL y cambiar de pestaña navega; así cada una se puede enlazar y conserva sus filtros en la URL.
  */
@@ -24,7 +25,9 @@ const PESTANAS: NsOpcion<PestanaCatalogo>[] = [
   template: `
     <header class="ns-catalogo__cabecera">
       <h2 class="ns-text-h3 ns-catalogo__titulo">Catálogo</h2>
-      <p class="ns-catalogo__ayuda">Alimentos públicos y de usuarios, revisión de alérgenos y categorías.</p>
+      <p class="ns-catalogo__ayuda">
+        Alimentos públicos y de usuarios, revisión de alérgenos, categorías y recetas públicas.
+      </p>
     </header>
     <ns-tabs
       [pestanas]="pestanas"
@@ -74,7 +77,7 @@ export class CatalogoAdminComponent {
   /** Pestaña de la URL (/admin/catalogo/categorias?… → 'categorias'); por defecto Alimentos. */
   protected readonly activa = computed<PestanaCatalogo>(() => {
     const segmento = this.url().split('?')[0].split('/').pop();
-    return segmento === 'categorias' ? 'categorias' : 'alimentos';
+    return segmento === 'categorias' || segmento === 'recetas' ? segmento : 'alimentos';
   });
 
   protected ir(pestana: string | null): void {

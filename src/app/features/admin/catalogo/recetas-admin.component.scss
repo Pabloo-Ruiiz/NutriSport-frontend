@@ -1,0 +1,118 @@
+// Recetas del catálogo (administración). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.ns-radm__barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ns-space-3);
+}
+
+.ns-radm__buscar {
+  flex: 1;
+  min-width: 220px;
+  max-width: 420px;
+}
+
+.ns-radm__sesion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-4);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+}
+
+.ns-radm__titulo {
+  margin: 0;
+}
+
+.ns-radm__lista {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-radm__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-2);
+  padding: var(--ns-space-2) 0;
+  border-top: 1px solid var(--ns-border);
+
+  &:first-child {
+    border-top: 0;
+  }
+}
+
+.ns-radm__item-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+  min-width: 0;
+}
+
+.ns-radm__badges,
+.ns-radm__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-1);
+}
+
+.ns-radm__acciones {
+  justify-content: flex-end;
+}
+
+.ns-radm__nombre {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.ns-radm__nota {
+  display: block;
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+}
+
+.ns-radm__estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  color: var(--ns-text-secondary);
+  white-space: nowrap;
+}
+
+.ns-radm__estado--incompleto {
+  color: var(--ns-warning);
+}
+
+.ns-radm__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+}
+
+.ns-radm__total {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.875rem;
+}
+
+@include bp.down(md) {
+  .ns-radm__acciones {
+    justify-content: flex-start;
+  }
+}
