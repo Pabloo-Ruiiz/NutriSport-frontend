@@ -1,3 +1,4 @@
+import { ProductosComercialesComponent } from '../productos/productos-comerciales.component';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -15,7 +16,7 @@ import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Observable, map } from 'rxjs';
 
-import type { AlimentoResumenResponse } from '@core/models';
+import type { AlimentoResumenResponse, ProductoResponse } from '@core/models';
 import { AlimentosService, MIN_CARACTERES_BUSQUEDA } from '@core/services/alimentos.service';
 import { aApiError } from '@core/util/api-error';
 import { formatearNumero } from '@shared/pipes/formato';
@@ -32,7 +33,7 @@ import type { NsOpcion } from '@shared/ui/form/control-valor';
 import { NsTabPanelDirective, NsTabsComponent } from '@shared/ui/nav/tabs.component';
 
 export type ModoBuscador = 'lista' | 'combobox';
-type Pestana = 'resultados' | 'recientes' | 'frecuentes' | 'mis';
+type Pestana = 'resultados' | 'recientes' | 'frecuentes' | 'mis' | 'productos';
 type ListaRapida = 'recientes' | 'frecuentes';
 
 interface ListaCargada {
@@ -64,6 +65,7 @@ const PESTANAS: NsOpcion<Pestana>[] = [
   selector: 'app-buscador-alimentos',
   imports: [
     NgTemplateOutlet,
+    ProductosComercialesComponent,
     RouterLink,
     LucideDynamicIcon,
     NsComboboxComponent,
@@ -82,6 +84,8 @@ export class BuscadorAlimentosComponent {
   readonly modo = input<ModoBuscador>('lista');
   readonly etiqueta = input('Buscar alimento');
   readonly elegido = output<AlimentoResumenResponse>();
+  readonly conProductos = input(false);
+  readonly productoElegido = output<ProductoResponse>();
 
   private readonly alimentos = inject(AlimentosService);
 
@@ -93,7 +97,9 @@ export class BuscadorAlimentosComponent {
   protected readonly minCaracteres = MIN_CARACTERES_BUSQUEDA;
 
   // ---- Modo lista
-  protected readonly pestanas = PESTANAS;
+  protected readonly pestanas = computed(() =>
+    this.conProductos() ? [...PESTANAS, { valor: 'productos', etiqueta: 'Productos' }] : PESTANAS,
+  );
   protected readonly pestana = signal<string | null>('resultados');
   protected readonly idCampo = idUnico('ns-buscador');
   protected readonly listasRapidas: readonly ListaRapida[] = ['recientes', 'frecuentes'];
@@ -120,7 +126,8 @@ export class BuscadorAlimentosComponent {
     const texto = (evento.target as HTMLInputElement).value;
     this.busqueda.escribir(texto);
     // Al escribir se ven los resultados (salvo si se está buscando en "Mis alimentos").
-    if (texto.trim().length >= MIN_CARACTERES_BUSQUEDA && this.pestana() !== 'mis') this.pestana.set('resultados');
+    if (texto.trim().length >= MIN_CARACTERES_BUSQUEDA && this.pestana() !== 'mis' && this.pestana() !== 'productos')
+      this.pestana.set('resultados');
   }
 
   protected datosDe(clave: ListaRapida): ListaCargada {

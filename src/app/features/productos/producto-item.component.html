@@ -1,0 +1,24 @@
+<button type="button" (click)="elegido.emit(producto())">
+  @if (producto().imagenUrl) {
+    <img
+      [src]="producto().imagenUrl"
+      alt=""
+      width="48"
+      height="48"
+      loading="lazy"
+      (error)="imagen.hidden = true"
+      #imagen
+    />
+  } @else {
+    <span class="icono" aria-hidden="true">▤</span>
+  }
+  <span
+    ><strong>{{ producto().nombre }}</strong
+    ><span>{{ producto().marca }} · {{ numero(producto().kcal100) }} kcal/100 g</span
+    ><ns-source-badge fuente="OPEN_FOOD_FACTS" />
+    @if (!producto().nutricionCompleta) {
+      <span class="aviso">Información nutricional incompleta</span>
+    }
+  </span>
+</button>
+<ns-attribution [fuente]="producto().fuente" />

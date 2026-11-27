@@ -150,9 +150,11 @@ describe('ShellComponent', () => {
       await harness.fixture.whenStable();
       const drawer = document.querySelector('.ns-drawer') as HTMLElement;
       expect(drawer.classList).toContain('ns-drawer--izquierda');
-      expect(textos('.ns-nav__etiqueta', drawer)).toEqual(['Mis alimentos', 'Configuración']);
+      expect(textos('.ns-nav__etiqueta', drawer)).toEqual(['Mis alimentos', 'Productos', 'Configuración']);
+      expect(drawer.querySelector('a[href="/productos"]')).not.toBeNull();
 
       (drawer.querySelector('.ns-shell__cerrar-sesion') as HTMLButtonElement).click();
+      await harness.fixture.whenStable();
       expect(auth.logout).toHaveBeenCalled();
     });
   });

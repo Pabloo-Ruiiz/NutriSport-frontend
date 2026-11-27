@@ -1,0 +1,15 @@
+:host {
+  display: grid;
+  gap: var(--ns-space-3);
+  min-width: 0;
+}
+h2,
+h3,
+p {
+  margin: 0;
+}
+.imagen {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}

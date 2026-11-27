@@ -44,7 +44,7 @@ export const MAX_NOTAS = 500;
       />
     } @else {
       <ul class="ns-cec__lineas" role="list" aria-label="Alimentos de la comida">
-        @for (linea of editor.lineas(); track linea.alimento.id; let i = $index) {
+        @for (linea of editor.lineas(); track linea.alimento.id ?? linea.codigoBarras; let i = $index) {
           <li>
             <app-linea-alimento
               [linea]="linea"

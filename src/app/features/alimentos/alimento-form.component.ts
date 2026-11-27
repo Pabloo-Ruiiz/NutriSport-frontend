@@ -78,6 +78,7 @@ export class AlimentoFormComponent implements OnInit {
   /** Alimento que se edita; sin él, se crea uno nuevo. Se lee al crear el componente. */
   readonly alimento = input<AlimentoResponse | null>(null);
   readonly guardado = output<AlimentoResponse>();
+  readonly valoresIniciales = input<{ nombre: string; marca: string | null } | null>(null);
   /** 'admin': endpoints de administración y, al crear, fuente y referencia externa. */
   readonly modo = input<'usuario' | 'admin'>('usuario');
 
@@ -135,6 +136,8 @@ export class AlimentoFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = crearFormularioAlimento(this.alimento());
+    if (!this.alimento() && this.valoresIniciales())
+      this.form.patchValue({ nombre: this.valoresIniciales()!.nombre, marca: this.valoresIniciales()!.marca ?? '' });
     this.valor.set(this.form.getRawValue());
     this.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))

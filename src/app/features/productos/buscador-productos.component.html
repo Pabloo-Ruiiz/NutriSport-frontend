@@ -1,0 +1,56 @@
+<h1>Buscar alimento o producto</h1>
+<p>Primero buscamos en tu catálogo. Los productos comerciales se consultan en Open Food Facts cuando lo pides.</p>
+<div class="columnas">
+  <section class="panel">
+    <label for="buscar-productos">Buscar alimento o producto</label
+    ><input
+      nsInput
+      id="buscar-productos"
+      type="search"
+      maxlength="60"
+      [value]="catalogo.texto()"
+      (input)="escribir($event)"
+    />
+    <div aria-live="polite">
+      <h2>En tu catálogo</h2>
+      @if (catalogo.estado() === 'cargando') {
+        <p>Buscando en tu catálogo…</p>
+      }
+      @if (catalogo.estado() === 'vacia') {
+        <p>No hay resultados en tu catálogo.</p>
+      }
+      @if (catalogo.estado() === 'error') {
+        <ns-alert type="error">No hemos podido consultar tu catálogo.</ns-alert
+        ><button nsButton variant="secondary" (click)="catalogo.reintentar()">Reintentar</button>
+      }
+      @for (a of catalogo.resultados(); track a.id) {
+        <a class="alimento" routerLink="/comidas/nueva" [queryParams]="parametros(a)"
+          ><strong>{{ a.nombre }}</strong
+          ><span>{{ a.marca }} · {{ numero(a.kcal100) }} kcal/100 g</span><ns-source-badge [fuente]="a.fuente"
+        /></a>
+      }
+    </div>
+    <app-productos-comerciales [consultaBusqueda]="catalogo.texto()" (elegido)="elegir($event)" />
+  </section>
+  @if (!movil()) {
+    <aside class="panel" aria-label="Ficha del producto">
+      @if (seleccionado()) {
+        <ng-container *ngTemplateOutlet="ficha" />
+      } @else {
+        <p>Elige un producto para ver su ficha.</p>
+      }
+    </aside>
+  }
+</div>
+@if (movil()) {
+  <ns-drawer [(abierto)]="abierto" [inferior]="true" titulo="Ficha del producto" ancho="100vw"
+    ><ng-container *ngTemplateOutlet="ficha"
+  /></ns-drawer>
+}
+<ng-template #ficha>
+  @if (seleccionado(); as p) {
+    @for (producto of [p]; track producto.codigoBarras) {
+      <app-ficha-producto [producto]="producto" />
+    }
+  }
+</ng-template>

@@ -1,0 +1,24 @@
+<h2>Productos comerciales</h2>
+<button nsButton variant="secondary" [disabled]="!consultaBusqueda().trim()" [loading]="cargando()" (click)="buscar()">
+  Buscar en productos comerciales
+</button>
+<p>Las búsquedas en Open Food Facts tienen un límite compartido. Solo consultamos al pulsar el botón.</p>
+<div aria-live="polite" [attr.aria-busy]="cargando() || cargandoFicha()">
+  @if (error()) {
+    <ns-alert [type]="tipoError()">{{ error() }}</ns-alert>
+  }
+  @if (!disponible()) {
+    <ns-alert type="info">Productos comerciales no disponibles ahora mismo. Puedes seguir usando tu catálogo.</ns-alert>
+  } @else if (buscado() && !resultados().length) {
+    <p>No hay productos comerciales para esta búsqueda.</p>
+  }
+  @if (cargandoFicha()) {
+    <p>Cargando ficha del producto…</p>
+  }
+  @for (producto of resultados(); track producto.codigoBarras) {
+    <app-producto-item [producto]="producto" (elegido)="elegir($event)" />
+  }
+</div>
+@if (mas()) {
+  <button nsButton variant="secondary" [loading]="cargando()" (click)="buscar(true)">Más resultados</button>
+}

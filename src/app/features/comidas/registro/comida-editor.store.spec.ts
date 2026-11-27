@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import type { AlimentoResponse, RegistroComidaResponse } from '@core/models';
+import type { AlimentoResponse, ProductoResponse, RegistroComidaResponse } from '@core/models';
 import { hoyLocal } from '@core/util/fechas';
 import { ComidaEditorStore, MAX_LINEAS, gramosDe, tipoPorHora, unidadesDe } from './comida-editor.store';
 
@@ -284,5 +284,69 @@ describe('cargarDesde', () => {
     expect(store.lineas()).toEqual([{ alimento: ARROZ, cantidad: 1, unidad: 'plato' }]);
     expect(store.noEditables()).toEqual(['Galletas X']);
     expect(store.estimacion()).toMatchObject({ kcal: 465, esEstimacion: false });
+  });
+});
+
+function producto(codigoBarras = '12345678', cambios: Partial<ProductoResponse> = {}): ProductoResponse {
+  return {
+    id: null,
+    codigoBarras,
+    nombre: 'Yogur',
+    marca: 'Marca',
+    imagenUrl: null,
+    unidadBase: 'G',
+    por100: {
+      kcal: 60,
+      proteinas: 4,
+      carbohidratos: 5,
+      grasas: 3,
+      azucares: null,
+      saturadas: null,
+      fibra: null,
+      sal: null,
+    },
+    racion: { gramos: 125, descripcion: 'Un envase' },
+    ingredientesTexto: null,
+    alergenosContiene: [],
+    alergenosTrazas: [],
+    alergenosRevisados: false,
+    nutricionCompleta: true,
+    fuente: {
+      proveedor: 'Open Food Facts',
+      licencia: 'ODbL',
+      url: 'https://world.openfoodfacts.org',
+      atribucion: 'Datos de la comunidad',
+    },
+    ...cambios,
+  };
+}
+describe('productos en la comida en construcción', () => {
+  it('conserva el código en la línea y lo envía sin alimentoId', () => {
+    expect(store.anadirProducto(producto())).toBe(true);
+    expect(store.lineas()[0].codigoBarras).toBe('12345678');
+    expect(store.aRequest().alimentos).toEqual([{ codigoBarras: '12345678', cantidad: 100, unidad: 'g' }]);
+    expect(store.estimacion()).toMatchObject({ kcal: 60, esEstimacion: true });
+    store.cambiarUnidad(0, 'ración');
+    expect(store.aRequest().alimentos[0]).toEqual({ codigoBarras: '12345678', cantidad: 100, unidad: 'g' });
+  });
+  it('prefiere el id del catálogo cuando existe', () => {
+    store.anadirProducto(producto('12345678', { id: 'yogur' }));
+    expect(store.aRequest().alimentos).toEqual([{ alimentoId: 'yogur', cantidad: 100, unidad: 'g' }]);
+  });
+  it('agrupa el mismo código y mantiene separados dos productos sin id', () => {
+    store.anadirProducto(producto());
+    store.anadirProducto(producto());
+    store.anadirProducto(producto('87654321'));
+    expect(store.aRequest().alimentos).toEqual([
+      { codigoBarras: '12345678', cantidad: 200, unidad: 'g' },
+      { codigoBarras: '87654321', cantidad: 100, unidad: 'g' },
+    ]);
+  });
+  it('no añade productos incompletos ni supera las 40 líneas', () => {
+    expect(store.anadirProducto(producto('12345678', { nutricionCompleta: false }))).toBe(false);
+    expect(store.vacia()).toBe(true);
+    for (let i = 0; i < MAX_LINEAS; i++) store.anadir(alimento(`a-${i}`));
+    expect(store.anadirProducto(producto())).toBe(false);
+    expect(store.lineas()).toHaveLength(MAX_LINEAS);
   });
 });

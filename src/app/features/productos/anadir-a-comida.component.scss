@@ -1,0 +1,11 @@
+form {
+  display: grid;
+  gap: var(--ns-space-3);
+}
+label {
+  display: grid;
+  gap: var(--ns-space-2);
+}
+select {
+  min-height: 44px;
+}

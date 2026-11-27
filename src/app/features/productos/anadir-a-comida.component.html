@@ -1,0 +1,43 @@
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <label
+    >Cantidad
+    <input
+      nsInput
+      type="number"
+      formControlName="cantidad"
+      min="0.01"
+      max="5000"
+      step="any"
+      [readOnly]="form.controls.unidad.value === 'racion'"
+  /></label>
+  <label
+    >Unidad
+    <select nsInput formControlName="unidad" (change)="cambiarUnidad()">
+      <option value="base">{{ producto().unidadBase === 'ML' ? 'ml' : 'g' }}</option>
+      @if (producto().racion?.gramos; as gramos) {
+        <option value="racion">1 ración ({{ gramos }} g)</option>
+      }
+    </select></label
+  >
+  <label
+    >Tipo de comida
+    <select nsInput formControlName="tipoComida">
+      @for (tipo of tipos; track tipo[0]) {
+        <option [value]="tipo[0]">{{ tipo[1] }}</option>
+      }
+    </select></label
+  >
+  <label>Fecha <input nsInput type="date" formControlName="fecha" [max]="fechaMaxima" /></label>
+  @if (form.controls.cantidad.touched && form.controls.cantidad.invalid) {
+    <ns-alert type="error">{{
+      form.controls.cantidad.errors?.['servidor'] || 'Introduce una cantidad entre 0,01 y 5.000.'
+    }}</ns-alert>
+  }
+  @if (form.controls.fecha.touched && form.controls.fecha.invalid) {
+    <ns-alert type="error">Elige una fecha hasta mañana.</ns-alert>
+  }
+  @if (error()) {
+    <ns-alert type="error">{{ error() }}</ns-alert>
+  }
+  <button nsButton type="submit" [loading]="enviando()">Añadir a la comida</button>
+</form>

@@ -157,6 +157,12 @@ export const routes: Routes = [
             canDeactivate: [cambiosSinGuardarGuard],
           },
           {
+            path: 'productos',
+            title: 'Buscar productos',
+            loadComponent: () =>
+              import('@features/productos/buscador-productos.component').then((m) => m.BuscadorProductosComponent),
+          },
+          {
             path: 'mis-alimentos',
             title: 'Mis alimentos',
             loadComponent: () =>

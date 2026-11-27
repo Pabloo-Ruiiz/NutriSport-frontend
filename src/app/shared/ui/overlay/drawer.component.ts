@@ -48,6 +48,7 @@ import { idUnico } from '../form/control-campo';
     <ng-template #plantilla>
       <div
         class="ns-drawer"
+        [class.ns-drawer--inferior]="inferior()"
         [class.ns-drawer--izquierda]="lado() === 'izquierda'"
         [class.ns-drawer--oscuro]="variante() === 'oscuro'"
         role="dialog"
@@ -72,6 +73,7 @@ import { idUnico } from '../form/control-campo';
 export class NsDrawerComponent {
   /** Abierto o cerrado; admite [(abierto)]. */
   readonly abierto = model(false);
+  readonly inferior = input(false);
   readonly titulo = input.required<string>();
   /** Ancho en px (número) o cualquier medida CSS. 560 px por defecto. */
   readonly ancho = input<number | string>(560);
