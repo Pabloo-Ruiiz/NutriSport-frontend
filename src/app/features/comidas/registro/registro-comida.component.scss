@@ -143,3 +143,16 @@
   font-size: 0.8125rem;
   text-decoration: underline;
 }
+
+/* Pestañas Alimentos · Recetas */
+.ns-registro__panel {
+  padding-top: var(--ns-space-3);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.ns-registro__ayuda-recetas {
+  margin: 0 0 var(--ns-space-3);
+}

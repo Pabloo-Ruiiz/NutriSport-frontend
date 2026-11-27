@@ -20,7 +20,7 @@ export function estadoCalculo(estado: string | null | undefined): NsEstadoCalcul
 
 /**
  * Estado del cálculo nutricional de una receta (DESIGN.md §5.16): `info` "Calculado", `warning`
- * "Aproximado · 90 % de ingredientes", `neutral` "Cálculo incompleto" o "Cálculo pendiente" (no
+ * "Aproximado · 97 % de la masa", `neutral` "Cálculo incompleto" o "Cálculo pendiente" (no
  * importada). Siempre con icono y texto, nunca solo color. La completitud se añade si llega y el
  * cálculo no es completo.
  *
@@ -40,7 +40,7 @@ export function estadoCalculo(estado: string | null | undefined): NsEstadoCalcul
 export class NsCalcStatusComponent {
   /** COMPLETO, APROXIMADO, INCOMPLETO; cualquier otro valor (PENDIENTE, null) es "pendiente". */
   readonly estado = input<string | null>(null);
-  /** Porcentaje de ingredientes calculados, 0–100. */
+  /** Completitud del cálculo, 0–100: porcentaje de la masa de los ingredientes con nutrientes. */
   readonly completitud = input<number | null>(null);
 
   protected readonly info = computed(() => ESTADOS[estadoCalculo(this.estado())]);
@@ -48,6 +48,6 @@ export class NsCalcStatusComponent {
     const estado = estadoCalculo(this.estado());
     const pct = this.completitud();
     const conPct = (estado === 'APROXIMADO' || estado === 'INCOMPLETO') && pct !== null && Number.isFinite(pct);
-    return conPct ? `${this.info().texto} · ${Math.round(pct)} % de ingredientes` : this.info().texto;
+    return conPct ? `${this.info().texto} · ${Math.round(pct)} % de la masa` : this.info().texto;
   });
 }

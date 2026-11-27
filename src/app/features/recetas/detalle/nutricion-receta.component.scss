@@ -1,0 +1,104 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ns-space-4);
+
+  > button {
+    align-self: flex-start;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ns-space-2);
+
+  p {
+    margin-top: 2px;
+  }
+}
+
+.cifras {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cifra {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--ns-space-3) var(--ns-space-2);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  text-align: center;
+
+  &__valor {
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  &__etiqueta {
+    color: var(--ns-text-secondary);
+  }
+
+  &--kcal .cifra__valor {
+    color: var(--ns-text);
+  }
+
+  &--protein .cifra__valor {
+    color: var(--ns-data-protein-text);
+  }
+
+  &--carbs .cifra__valor {
+    color: var(--ns-data-carbs-text);
+  }
+
+  &--fat .cifra__valor {
+    color: var(--ns-data-fat-text);
+  }
+}
+
+.sin-cifras {
+  padding: var(--ns-space-3);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface-muted);
+  color: var(--ns-text-secondary);
+}
+
+.completitud {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+
+  &__fila {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--ns-space-2);
+  }
+}
+
+@media (max-width: 479.98px) {
+  .cifras {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -60,7 +60,7 @@ describe('NsCalcStatusComponent', () => {
 
     fixture.componentInstance.estado.set('APROXIMADO');
     fixture.componentInstance.completitud.set(90);
-    expect(await texto()).toEqual(['Aproximado · 90 % de ingredientes', expect.stringContaining('warning')]);
+    expect(await texto()).toEqual(['Aproximado · 90 % de la masa', expect.stringContaining('warning')]);
 
     fixture.componentInstance.estado.set('INCOMPLETO');
     fixture.componentInstance.completitud.set(null);

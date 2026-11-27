@@ -7,6 +7,7 @@ import type {
   AlimentoRegistradoRequest,
   ComidasDiaResponse,
   DuplicarComidaRequest,
+  RegistrarRecetaRequest,
   RegistroComidaRequest,
   RegistroComidaResponse,
   TipoComida,
@@ -30,6 +31,21 @@ export class ComidasService {
   /** POST /comidas (201). Hasta 40 alimentos; fechas pasadas y hasta mañana. */
   registrar(req: RegistroComidaRequest): Observable<RegistroComidaResponse> {
     return this.http.post<RegistroComidaResponse>(this.url, cuerpoComida(req));
+  }
+
+  /**
+   * POST /comidas/desde-receta (201): comida con origen RECETA a partir de las raciones de una
+   * receta (> 0 y ≤ 10, admite decimales). 422 NUTRICION_INCOMPLETA si la receta no tiene cálculo
+   * suficiente.
+   */
+  registrarReceta(req: RegistrarRecetaRequest): Observable<RegistroComidaResponse> {
+    const cuerpo: RegistrarRecetaRequest = {
+      recetaId: req.recetaId,
+      raciones: req.raciones,
+      fecha: req.fecha,
+      tipoComida: req.tipoComida,
+    };
+    return this.http.post<RegistroComidaResponse>(`${this.url}/desde-receta`, cuerpo);
   }
 
   /** GET /comidas/{id}: con sus alimentos, totales y avisos. */

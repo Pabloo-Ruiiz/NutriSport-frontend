@@ -136,7 +136,7 @@ export class RecetasComponent {
   });
   protected readonly opcionesCategoria = computed<NsOpcion<string>[]>(() => [
     { valor: TODAS, etiqueta: 'Todas' },
-    ...this.categorias().map((c) => ({ valor: c.nombre, etiqueta: c.nombre })),
+    ...this.categorias().map((c) => ({ valor: c.id, etiqueta: c.nombre })),
   ]);
   protected readonly categoriaChip = computed(() => this.consulta().categoria ?? TODAS);
 
@@ -316,24 +316,21 @@ export class RecetasComponent {
     this.marcarGuardando(clave, true);
     this.actualizar(clave, { favorita });
 
-    this.servicio
-      .abrir(receta)
-      .pipe(
+    this.servicio.cambiarFavorita(receta, favorita).subscribe({
+      next: (id) => {
         // Si se acaba de importar, la receta ya tiene id propio.
-        tap((id) => this.actualizar(clave, { id })),
-        switchMap((id) => (favorita ? this.servicio.marcarFavorita(id) : this.servicio.quitarFavorita(id))),
-      )
-      .subscribe({
-        complete: () => this.marcarGuardando(clave, false),
-        error: (e: unknown) => {
-          this.marcarGuardando(clave, false);
-          this.actualizar(clave, { favorita: !favorita });
-          this.toasts.error(
-            favorita ? 'No hemos podido guardarla en favoritas' : 'No hemos podido quitarla de favoritas',
-            aApiError(e).detalle,
-          );
-        },
-      });
+        this.marcarGuardando(clave, false);
+        this.actualizar(clave, { id });
+      },
+      error: (e: unknown) => {
+        this.marcarGuardando(clave, false);
+        this.actualizar(clave, { favorita: !favorita });
+        this.toasts.error(
+          favorita ? 'No hemos podido guardarla en favoritas' : 'No hemos podido quitarla de favoritas',
+          aApiError(e).detalle,
+        );
+      },
+    });
   }
 
   /** Aplica cambios a la receta en todas las listas donde aparezca. */

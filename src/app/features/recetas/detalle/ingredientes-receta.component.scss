@@ -1,0 +1,139 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ns-space-3);
+
+  p {
+    margin: 2px 0 0;
+  }
+}
+
+.raciones {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+
+  ns-quantity-input {
+    width: 9rem;
+  }
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+  margin-inline: calc(-1 * var(--ns-space-5));
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  transition: opacity var(--ns-duration-fast) var(--ns-ease-out);
+
+  &--actualizando {
+    opacity: 0.6;
+  }
+
+  th {
+    padding: var(--ns-space-2) var(--ns-space-3);
+    background: var(--ns-surface-muted);
+    color: var(--ns-text-secondary);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: var(--ns-space-3);
+    border-top: 1px solid var(--ns-border);
+    vertical-align: middle;
+  }
+
+  th:first-child,
+  td:first-child {
+    padding-inline-start: var(--ns-space-5);
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-inline-end: var(--ns-space-5);
+  }
+
+  .num {
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  .check {
+    width: 1px;
+  }
+}
+
+.sin-datos td {
+  background: var(--ns-warning-bg);
+}
+
+.nombre {
+  display: block;
+  font-weight: 500;
+}
+
+.original {
+  display: block;
+}
+
+.tachado {
+  .nombre,
+  .original {
+    color: var(--ns-text-tertiary);
+    text-decoration: line-through;
+  }
+}
+
+.conversion {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+
+  &--EXACTA {
+    color: var(--ns-success);
+  }
+
+  &--ESTIMADA {
+    color: var(--ns-warning);
+  }
+
+  &--DESPRECIABLE {
+    color: var(--ns-text-secondary);
+  }
+
+  &--SIN_DATOS {
+    color: var(--ns-error);
+  }
+}
+
+.nota {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-1);
+  margin: 0;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabla {
+    transition: none;
+  }
+}

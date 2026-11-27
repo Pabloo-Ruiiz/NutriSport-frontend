@@ -1,0 +1,241 @@
+<nav class="migas ns-text-body-sm" aria-label="Ruta de navegación">
+  <a routerLink="/recetas">Recetas</a>
+  @if (receta(); as r) {
+    <svg lucideIcon="chevron-right" [size]="14" aria-hidden="true"></svg>
+    <span aria-current="page">{{ r.nombre }}</span>
+  }
+</nav>
+
+@switch (estado()) {
+  @case ('cargando') {
+    <div class="cargando" aria-busy="true" aria-label="Cargando la receta">
+      <ns-skeleton shape="rect" height="320px" />
+      <ns-skeleton shape="rect" height="480px" />
+    </div>
+  }
+  @case ('no-encontrada') {
+    <ns-empty-state
+      icon="search"
+      titulo="No encontramos esta receta"
+      descripcion="Puede que se haya despublicado o que el enlace no sea correcto."
+      [nivelTitulo]="1"
+    >
+      <a nsButton routerLink="/recetas" variant="secondary">Ver recetas</a>
+    </ns-empty-state>
+  }
+  @case ('error') {
+    <h1 class="ns-sr-only">Receta</h1>
+    <ns-alert type="error" titulo="No hemos podido cargar la receta">
+      {{ error() }}
+      <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+        Reintentar
+      </button>
+    </ns-alert>
+  }
+  @default {
+    @if (receta(); as r) {
+      <!-- Cabecera -->
+      <header class="tarjeta cabecera">
+        <div class="cabecera__media">
+          @if (r.imagenUrl) {
+            <img [src]="r.imagenUrl" [alt]="r.nombre" />
+          } @else {
+            <div class="cabecera__sin-imagen"><svg lucideIcon="utensils" [size]="40" aria-hidden="true"></svg></div>
+          }
+        </div>
+
+        <div class="cabecera__info">
+          <div class="badges">
+            <ns-source-badge [fuente]="r.origen" />
+            @if (enIngles()) {
+              <ns-badge variant="info" icon="info">Receta original en inglés</ns-badge>
+            }
+          </div>
+          <h1 class="ns-text-h1 titulo">{{ r.nombre }}</h1>
+          @if (meta() || r.descripcion) {
+            <p class="ns-text-secondary">
+              {{ meta() }}
+              @if (meta() && r.descripcion) {
+                ·
+              }
+              {{ r.descripcion }}
+            </p>
+          }
+
+          <ul class="datos ns-text-body-sm" role="list">
+            @if (resumen(); as s) {
+              <li class="ns-tnum">
+                <strong class="kcal">{{ s.kcal }}</strong> kcal/ración
+              </li>
+              <li class="ns-tnum proteina">{{ s.proteina }} g proteína</li>
+            }
+            <li class="ns-text-secondary">{{ textoRaciones() }}</li>
+            @if (r.tiempoPreparacionMin) {
+              <li class="ns-text-secondary">
+                <svg lucideIcon="clock" [size]="14" aria-hidden="true"></svg>
+                <span class="ns-sr-only">Tiempo: </span>{{ r.tiempoPreparacionMin }} min
+              </li>
+            }
+            @if (dificultad(); as d) {
+              <li class="ns-text-secondary"><span class="ns-sr-only">Dificultad: </span>{{ d }}</li>
+            }
+          </ul>
+
+          @if (r.etiquetas.length) {
+            <ul class="badges" role="list" aria-label="Etiquetas">
+              @for (e of r.etiquetas; track e) {
+                <li>
+                  <ns-badge>{{ e }}</ns-badge>
+                </li>
+              }
+            </ul>
+          }
+
+          <div class="acciones">
+            <button
+              nsButton
+              type="button"
+              icon="plus"
+              [disabled]="!!motivoBloqueo()"
+              [attr.aria-describedby]="motivoBloqueo() ? 'motivo-bloqueo' : null"
+              aria-haspopup="dialog"
+              (click)="registrar()"
+            >
+              Registrar como comida
+            </button>
+            <button
+              nsButton
+              type="button"
+              variant="secondary"
+              icon="calendar"
+              [disabled]="!!motivoBloqueo()"
+              [attr.aria-describedby]="motivoBloqueo() ? 'motivo-bloqueo' : null"
+              (click)="planificar()"
+            >
+              Añadir al plan
+            </button>
+            <button
+              nsButton
+              type="button"
+              variant="secondary"
+              icon="heart"
+              class="favorita"
+              [class.favorita--activa]="r.favorita"
+              [attr.aria-pressed]="r.favorita"
+              [disabled]="guardandoFavorita()"
+              (click)="alternarFavorita()"
+            >
+              Favorita
+            </button>
+          </div>
+          @if (motivoBloqueo(); as motivo) {
+            <ns-alert type="warning" id="motivo-bloqueo">{{ motivo }}</ns-alert>
+          }
+        </div>
+      </header>
+
+      <!-- Contenido -->
+      @if (movil()) {
+        <ns-tabs [pestanas]="pestanas" [(seleccionada)]="pestana" etiqueta="Detalle de la receta">
+          <section nsTabPanel="ingredientes" class="tarjeta">
+            <ng-container *ngTemplateOutlet="ingredientes" />
+          </section>
+          <section nsTabPanel="pasos" class="tarjeta">
+            <ng-container *ngTemplateOutlet="pasos" />
+          </section>
+          <section nsTabPanel="nutricion" class="tarjeta">
+            <ng-container *ngTemplateOutlet="nutricion" />
+          </section>
+        </ns-tabs>
+        <ng-container *ngTemplateOutlet="relacionadasTpl" />
+      } @else {
+        <div class="columnas">
+          <div class="columna">
+            <section class="tarjeta"><ng-container *ngTemplateOutlet="ingredientes" /></section>
+            <section class="tarjeta"><ng-container *ngTemplateOutlet="pasos" /></section>
+          </div>
+          <div class="columna">
+            <section class="tarjeta"><ng-container *ngTemplateOutlet="nutricion" /></section>
+          </div>
+        </div>
+        <ng-container *ngTemplateOutlet="relacionadasTpl" />
+      }
+
+      @if (deTheMealDb()) {
+        <p class="atribucion ns-text-caption ns-text-secondary">
+          <svg lucideIcon="info" [size]="14" aria-hidden="true"></svg>
+          <span>
+            Receta e imagen:
+            <a [href]="r.fuente?.url || 'https://www.themealdb.com'" target="_blank" rel="noopener"
+              >TheMealDB<span class="ns-sr-only"> (se abre en una pestaña nueva)</span></a
+            >.
+            @if (r.racionesSupuestas) {
+              Raciones supuestas hasta que se fijen.
+            }
+          </span>
+        </p>
+      }
+
+      <ng-template #ingredientes>
+        <app-ingredientes-receta
+          [receta]="r"
+          [actualizando]="actualizando()"
+          (racionesCambiadas)="cambiarRaciones($event)"
+        />
+      </ng-template>
+
+      <ng-template #pasos>
+        <div class="pasos">
+          <header class="pasos__cabecera">
+            <div>
+              <h2 class="ns-text-card-title">Instrucciones</h2>
+              @if (enIngles()) {
+                <p class="ns-text-body-sm ns-text-secondary">Texto original de la receta (en inglés)</p>
+              }
+            </div>
+            @if (enIngles()) {
+              <ns-badge><abbr title="Inglés">EN</abbr></ns-badge>
+            }
+          </header>
+          @if (r.instrucciones.length) {
+            <ol class="pasos__lista" [attr.lang]="enIngles() ? 'en' : null">
+              @for (p of r.instrucciones; track p.orden) {
+                <li>
+                  <span class="pasos__numero" aria-hidden="true">{{ $index + 1 }}</span>
+                  <p>{{ p.texto }}</p>
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="ns-text-secondary">Esta receta no tiene instrucciones.</p>
+          }
+        </div>
+      </ng-template>
+
+      <ng-template #nutricion>
+        <app-nutricion-receta [receta]="r" />
+      </ng-template>
+    }
+  }
+}
+
+<ng-template #relacionadasTpl>
+  @if (relacionadas().length) {
+    <section class="relacionadas" aria-labelledby="titulo-relacionadas">
+      <h2 id="titulo-relacionadas" class="ns-text-h4">Recetas relacionadas</h2>
+      <ul class="rejilla" role="list">
+        @for (rel of relacionadas(); track clave(rel)) {
+          <li>
+            <ns-recipe-card
+              [receta]="rel"
+              [abriendo]="abriendo() === clave(rel)"
+              [guardandoFavorita]="guardandoRelacionada() === clave(rel)"
+              (abrir)="abrirRelacionada(rel)"
+              (favoritaCambiada)="alternarFavoritaRelacionada(rel, $event)"
+            />
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</ng-template>

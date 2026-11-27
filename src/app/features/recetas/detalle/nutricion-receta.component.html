@@ -1,0 +1,85 @@
+@let r = receta();
+<section class="bloque" aria-labelledby="titulo-nutricion">
+  <header class="cabecera">
+    <div>
+      <div id="titulo-nutricion" role="heading" [attr.aria-level]="nivelTitulo()" class="ns-text-card-title">
+        Nutrición calculada
+      </div>
+      <p class="ns-text-body-sm ns-text-secondary">{{ subtitulo() }}</p>
+    </div>
+    <ns-calc-status [estado]="r.estadoNutricional" [completitud]="completitud()" />
+  </header>
+
+  @if (cifras(); as lista) {
+    <ul class="cifras" role="list">
+      @for (c of lista; track c.clave) {
+        <li [class]="'cifra cifra--' + c.clave">
+          <span class="cifra__valor ns-tnum">{{ c.valor }}</span>
+          <span class="cifra__etiqueta ns-text-caption">{{ c.etiqueta }}</span>
+        </li>
+      }
+    </ul>
+    @if (aproximado()) {
+      <p class="ns-sr-only">Las cifras son aproximadas.</p>
+    }
+  } @else {
+    <p class="sin-cifras ns-text-body-sm">
+      Sin totales por ración: faltan datos de algunos ingredientes. No se puede registrar ni añadir al plan.
+    </p>
+  }
+
+  @if (completitud() !== null) {
+    <div class="completitud">
+      <div class="completitud__fila ns-text-body-sm">
+        <span>Completitud del cálculo</span>
+        <strong class="ns-tnum">{{ completitud() }} % de la masa</strong>
+      </div>
+      <ns-progress-bar
+        [value]="completitud() ?? 0"
+        [max]="100"
+        [color]="r.estadoNutricional === 'COMPLETO' ? 'success' : 'warning'"
+        etiqueta="Completitud del cálculo"
+        unidad="%"
+      />
+      <p class="ns-text-caption ns-text-secondary">{{ resueltos() }}</p>
+    </div>
+  }
+
+  <div class="compatibilidad">
+    @if (r.compatible) {
+      <ns-badge variant="success" icon="shield-check">Compatible con tus restricciones</ns-badge>
+    } @else {
+      <ns-badge variant="warning" icon="shield-check">No compatible con tus restricciones</ns-badge>
+    }
+  </div>
+
+  <ns-disclaimer context="receta" />
+
+  <button
+    nsButton
+    type="button"
+    variant="secondary"
+    size="sm"
+    icon="list"
+    aria-haspopup="dialog"
+    (click)="verDesglose()"
+  >
+    Ver cómo se calcula
+  </button>
+</section>
+
+<section class="bloque" aria-labelledby="titulo-alergenos">
+  <div>
+    <div id="titulo-alergenos" role="heading" [attr.aria-level]="nivelTitulo()" class="ns-text-card-title">
+      Alérgenos
+    </div>
+    <p class="ns-text-body-sm ns-text-secondary">Derivados de los ingredientes emparejados</p>
+  </div>
+  <ns-allergen-list [contiene]="alergenos()" [revisados]="true" />
+  @if (!r.alergenosVerificados) {
+    <ns-alert type="warning" titulo="Alérgenos sin verificar">
+      Algún ingrediente no está emparejado con el catálogo, así que la lista puede estar incompleta. Si tienes alergias
+      estrictas, revisa los ingredientes.
+    </ns-alert>
+  }
+</section>

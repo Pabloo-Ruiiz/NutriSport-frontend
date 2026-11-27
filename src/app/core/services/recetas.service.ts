@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, shareReplay, throwError } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, switchMap, throwError } from 'rxjs';
 
 import { environment } from '@env/environment';
 import type {
@@ -18,6 +18,7 @@ export type OrigenFiltroReceta = 'todas' | 'propia' | 'themealdb';
 export interface FiltrosRecetas {
   q?: string | null;
   ingrediente?: string | null;
+  /** UUID obtenido de GET /recetas/categorias, no el nombre visible de la categoría. */
   categoria?: string | null;
   area?: string | null;
   /** 'todas' es el valor por defecto: no se envía. */
@@ -121,6 +122,19 @@ export class RecetasService {
    */
   importarTheMealDb(idMeal: string): Observable<RecetaResponse> {
     return this.http.get<RecetaResponse>(`${this.url}/externas/themealdb/${encodeURIComponent(idMeal)}`);
+  }
+
+  /**
+   * Marca o quita una favorita a partir de un resumen: si aún no está importada, la importa antes.
+   * Devuelve el id propio de la receta.
+   */
+  cambiarFavorita(
+    resumen: Pick<RecetaResumenResponse, 'id' | 'referenciaExterna'>,
+    favorita: boolean,
+  ): Observable<string> {
+    return this.abrir(resumen).pipe(
+      switchMap((id) => (favorita ? this.marcarFavorita(id) : this.quitarFavorita(id)).pipe(map(() => id))),
+    );
   }
 
   /** Id propio de la receta; si aún no está importada, la importa con su referenciaExterna. */

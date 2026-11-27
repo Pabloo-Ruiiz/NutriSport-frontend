@@ -141,13 +141,13 @@ describe('lectura de la URL de recetas', () => {
 
 describe('RecetasComponent', () => {
   it('lleva los filtros de la URL a la búsqueda', async () => {
-    await harness.navigateByUrl('/recetas?q=curry&categoria=Pollo&origen=themealdb&franja=CENA&maxKcal=700&page=1');
+    await harness.navigateByUrl('/recetas?q=curry&categoria=c1&origen=themealdb&franja=CENA&maxKcal=700&page=1');
     http.expectOne(`${URL_RECETAS}/categorias`).flush(CATEGORIAS);
     const req = buscarReq();
     const p = req.request.params;
     expect([p.get('q'), p.get('categoria'), p.get('origen'), p.get('franja'), p.get('maxKcal')]).toEqual([
       'curry',
-      'Pollo',
+      'c1',
       'themealdb',
       'CENA',
       '700',
@@ -185,8 +185,10 @@ describe('RecetasComponent', () => {
     )!;
     chip.click();
     await esperar();
-    expect(url()).toBe('/recetas?categoria=Pollo');
-    buscarReq().flush(busqueda([]));
+    expect(url()).toBe('/recetas?categoria=c1');
+    const req = buscarReq();
+    expect(req.request.params.get('categoria')).toBe('c1');
+    req.flush(busqueda([]));
     await esperar();
   });
 
