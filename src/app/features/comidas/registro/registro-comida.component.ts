@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, Injector, OnInit, computed, inject, input, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, switchMap } from 'rxjs';
 
 import type { ConCambiosSinGuardar } from '@core/guards/cambios-sin-guardar.guard';
 import {
@@ -9,10 +10,17 @@ import {
   esConsentimientoRevocado,
 } from '@core/layout/consentimiento-revocado.component';
 import { LayoutService } from '@core/layout/layout.service';
-import type { AlimentoResumenResponse, ProductoResponse, RegistroComidaResponse, TipoComida } from '@core/models';
+import type {
+  AlimentoResumenResponse,
+  ProductoResponse,
+  RecetaResumenResponse,
+  RegistroComidaResponse,
+  TipoComida,
+} from '@core/models';
 import { ETIQUETAS_TIPO_COMIDA } from '@core/models/etiquetas';
 import { AlimentosService } from '@core/services/alimentos.service';
 import { ComidasService } from '@core/services/comidas.service';
+import { RecetasService } from '@core/services/recetas.service';
 import { type ApiError, aApiError } from '@core/util/api-error';
 import { hoyLocal, sumarDias } from '@core/util/fechas';
 import { formatearNumero } from '@shared/pipes/formato';
@@ -24,9 +32,16 @@ import type { NsOpcion } from '@shared/ui/form/control-valor';
 import { NsFormFieldComponent } from '@shared/ui/form/form-field.component';
 import { NsInputDirective } from '@shared/ui/form/input.directive';
 import { NsSelectComponent } from '@shared/ui/form/select.component';
+import { NS_TABS } from '@shared/ui/nav/tabs.component';
 import { NsDialogService } from '@shared/ui/overlay/dialog.service';
 import { BuscadorAlimentosComponent } from '../../alimentos/buscador-alimentos.component';
+import { claveReceta } from '../../recetas/recetas-url';
 import { destinoInterno } from '../../auth/login/login.component';
+import {
+  RegistrarRecetaDialogComponent,
+  type RegistrarRecetaData,
+} from '../componentes/registrar-receta-dialog.component';
+import { BuscadorRecetasComponent } from './buscador-recetas.component';
 import { ComidaEditorStore } from './comida-editor.store';
 import { ComidaEnConstruccionComponent } from './comida-en-construccion.component';
 import { ComidaSheetComponent, type ResultadoComidaSheet } from './comida-sheet.component';
@@ -42,6 +57,8 @@ type Estado = 'cargando' | 'error' | 'listo' | 'revocado';
  *
  * - Izquierda: fecha (como mucho mañana), hora, tipo (los 8), "Foto del plato", "Copiar comida
  *   anterior" y el buscador en modo lista; al elegir un alimento se pide su detalle (porciones).
+ *   Al crear, pestañas Alimentos · Recetas: una receta se registra aparte con
+ *   RegistrarRecetaDialogComponent (POST /comidas/desde-receta).
  * - Derecha: "Tu comida" (líneas, totales con "Estimación" y notas) y "Guardar comida".
  * - Móvil: buscador arriba y resumen fijo abajo que abre la comida en un bottom sheet.
  *
@@ -53,6 +70,7 @@ type Estado = 'cargando' | 'error' | 'listo' | 'revocado';
   selector: 'app-registro-comida',
   imports: [
     FormsModule,
+    NgTemplateOutlet,
     RouterLink,
     ConsentimientoRevocadoComponent,
     NsAlertComponent,
@@ -61,7 +79,9 @@ type Estado = 'cargando' | 'error' | 'listo' | 'revocado';
     NsInputDirective,
     NsSelectComponent,
     NsSkeletonComponent,
+    NS_TABS,
     BuscadorAlimentosComponent,
+    BuscadorRecetasComponent,
     ComidaEnConstruccionComponent,
   ],
   providers: [ComidaEditorStore],
@@ -83,6 +103,7 @@ export class RegistroComidaComponent implements OnInit, ConCambiosSinGuardar {
   protected readonly layout = inject(LayoutService);
   private readonly comidas = inject(ComidasService);
   private readonly alimentos = inject(AlimentosService);
+  private readonly recetas = inject(RecetasService);
   private readonly dialogos = inject(NsDialogService);
   private readonly toasts = inject(NsToastService);
   private readonly router = inject(Router);
@@ -98,6 +119,15 @@ export class RegistroComidaComponent implements OnInit, ConCambiosSinGuardar {
   protected readonly anadiendo = signal<string | null>(null);
   /** Anuncio para lectores de pantalla ("Avena añadida"). */
   protected readonly anuncio = signal('');
+
+  // ---- Pestañas del buscador: alimentos sueltos o una receta (solo al crear)
+  protected readonly pestanas: NsOpcion<string>[] = [
+    { valor: 'alimentos', etiqueta: 'Alimentos' },
+    { valor: 'recetas', etiqueta: 'Recetas' },
+  ];
+  protected readonly pestana = signal<string | null>('alimentos');
+  /** Receta (claveReceta) que se importa o se carga antes de abrir el diálogo. */
+  protected readonly preparandoReceta = signal<string | null>(null);
 
   protected readonly fechaMaxima = sumarDias(hoyLocal(), 1);
   protected readonly tipos: NsOpcion<TipoComida>[] = TIPOS.map((valor) => ({
@@ -204,6 +234,47 @@ export class RegistroComidaComponent implements OnInit, ConCambiosSinGuardar {
     } finally {
       this.anadiendo.set(null);
     }
+  }
+
+  /**
+   * Pestaña "Recetas": importa la receta si es de TheMealDB, pide su detalle (nutrición y estado) y
+   * abre RegistrarRecetaDialogComponent con la fecha y el tipo del formulario. La comida de la receta
+   * se guarda aparte; si la comida manual está vacía, se sale como al guardar.
+   */
+  protected elegirReceta(resumen: RecetaResumenResponse): void {
+    if (this.preparandoReceta()) return;
+    this.preparandoReceta.set(claveReceta(resumen));
+    this.recetas
+      .abrir(resumen)
+      .pipe(switchMap((id) => this.recetas.detalle(id)))
+      .subscribe({
+        next: (receta) => {
+          this.preparandoReceta.set(null);
+          const ref = this.dialogos.open<RegistrarRecetaDialogComponent, RegistroComidaResponse, RegistrarRecetaData>(
+            RegistrarRecetaDialogComponent,
+            {
+              titulo: 'Registrar como comida',
+              size: 'sm',
+              data: { receta, fecha: this.editor.fecha(), tipoComida: this.editor.tipoComida() },
+            },
+          );
+          ref.closed.subscribe((comida) => {
+            if (!comida || !this.editor.vacia()) return;
+            this.guardada = true;
+            void this.router.navigateByUrl(destinoInterno(this.volver()) ?? '/inicio');
+          });
+        },
+        error: (e: unknown) => {
+          this.preparandoReceta.set(null);
+          const error = aApiError(e);
+          if (error.status === 503)
+            this.toasts.error(
+              'TheMealDB no está disponible ahora',
+              'No hemos podido traer la receta. Inténtalo de nuevo en unos minutos.',
+            );
+          else this.toasts.error('No hemos podido abrir la receta', error.detalle);
+        },
+      });
   }
 
   protected copiarComidaAnterior(): void {

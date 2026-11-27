@@ -166,3 +166,24 @@ La denegación simulada no sustituye la comprobación del permiso en un navegado
 Durante `npm ci` de Docker aparece un aviso de motor: `@zxing/library@0.23.0` declara
 Node >=24 y la imagen usa Node 22. La instalación y la compilación terminaron con código 0;
 queda registrada la discrepancia de versiones.
+
+## Comprobación A2–A3 · Recetas · 27/11/2026
+
+Prueba sobre el frontend de producción actualizado en Docker, con administrador local.
+
+| Caso | Resultado | Evidencia |
+|---|---|---|
+| Buscar chicken y seleccionar Pollo | OK tras corrección | La API rechazaba `categoria=Pollo`: requiere UUID. Se cambió el valor del chip de `nombre` a `id`, conservando la etiqueta visible. Tests verifican ID en la URL y en la petición. |
+| ≤ 600 kcal y recarga con filtros | OK | `/recetas?q=chicken&categoria=c0000000-0000-0000-0001-000000000007&maxKcal=600` conserva texto, Pollo seleccionado y 600 al recargar. Respuesta sin resultados; no error 400. |
+| Importar una de TheMealDB y marcar favorita | OK sin filtro calórico | Chicken Handi (TheMealDB 52795) pasa de cálculo pendiente a detalle local `c0a8e001-a21b-1f4d-81a2-1c2309f80013`. Favorita permanece activa tras recargar y volver al listado. No se pudo hacer esta secuencia manteniendo ≤600: las recetas externas pendientes no tienen nutrición para cumplir el filtro. |
+| Cálculo incompleto y motivo de acciones desactivadas | OK | Chicken Handi muestra 82 % de la masa, 12 de 16 ingredientes resueltos. Registrar como comida y Añadir al plan están deshabilitados y enlazados por `aria-describedby` al motivo visible. |
+| Ver cómo se calcula | OK en receta incompleta | Abre diálogo con gramos, conversión y fuente por ingrediente. No se consideran validados los totales de una receta completa. |
+| Cambiar a 2 raciones | OK en receta propia incompleta | Pollo a la plancha con arroz y brócoli cambia pollo 150→300 g, arroz 180→360 g, brócoli 150→300 g y aceite 10→20 g. Sigue incompleta. |
+| Receta completa, registro y origen Receta en historial | OK con receta sintética autorizada | Creada mediante API local tras autorización explícita: Comprobacion A3 platano 20261127 (`c0a8e001-a21b-1f4d-81a2-1c27fcc0002e`), 100 g de plátano y una ración base, estado COMPLETO y 100 %. En navegador: 2 raciones muestran 200 g, desglose con fuente ADMIN y 88 kcal/ración. En el diálogo se seleccionan también 2 raciones y Merienda; el historial muestra origen Receta y 175 kcal. |
+| `npm run build` mediante `npm.cmd` | OK con aviso | Tras la corrección, código 0; inicial 519,38 kB, 19,38 kB sobre presupuesto de aviso. Imagen Docker reconstruida y arrancada correctamente. |
+| `npm test -- --watch=false` mediante `npm.cmd` | OK | Suite tras corregir categoría: 670 tests aprobados en 86 archivos, código 0; 94,30 s. |
+
+La receta propia examinada muestra cuatro ingredientes resueltos pero completitud de masa
+0 % y estado incompleto. Se registra como incidencia de datos/cálculo del entorno, sin
+forzar su estado a completo ni modificar el backend. Los tests con API simulada cubren el
+registro con origen de receta. El caso real se completó después con la receta sintética autorizada.

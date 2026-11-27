@@ -406,3 +406,66 @@ describe('pestaña Productos del registro', () => {
     await esperar();
   });
 });
+
+describe('pestaña Recetas del registro', () => {
+  it('busca una receta, la prepara y abre el diálogo de registro con la fecha y el tipo del formulario', async () => {
+    await harness.navigateByUrl('/comidas/nueva?tipoComida=CENA');
+    await esperar();
+    const pestana = [...raiz().querySelectorAll<HTMLButtonElement>('[role=tab]')].find(
+      (b) => b.textContent?.trim() === 'Recetas',
+    )!;
+    pestana.click();
+    await esperar();
+    http.expectOne('/api/v1/recetas/favoritas').flush([]);
+    await esperar();
+
+    vi.useFakeTimers();
+    const input = raiz().querySelector<HTMLInputElement>('app-buscador-recetas input[type=search]')!;
+    expect(input.maxLength).toBe(60);
+    input.value = 'curry';
+    input.dispatchEvent(new Event('input'));
+    vi.advanceTimersByTime(400);
+    http
+      .expectOne((r) => r.url === '/api/v1/recetas' && r.params.get('q') === 'curry')
+      .flush({
+        catalogo: { content: [], page: 0, size: 10, totalElements: 0, totalPages: 0 },
+        themealdb: [
+          {
+            id: null,
+            referenciaExterna: '52795',
+            origen: 'THEMEALDB',
+            nombre: 'Chicken Curry',
+            categoria: 'Pollo',
+            area: null,
+            imagenUrl: null,
+            nutricionRacion: null,
+            estadoNutricional: 'PENDIENTE',
+            alergenosVerificados: false,
+            compatible: true,
+            favorita: false,
+            fuente: null,
+          },
+        ],
+        themealdbDisponible: true,
+      });
+    vi.useRealTimers();
+    await esperar();
+
+    raiz().querySelector<HTMLButtonElement>('app-buscador-recetas .fila')!.click();
+    http.expectOne('/api/v1/recetas/externas/themealdb/52795').flush({ id: 'r9' });
+    http.expectOne('/api/v1/recetas/r9').flush({
+      id: 'r9',
+      nombre: 'Chicken Curry',
+      nutricionRacion: { kcal: 500, proteinas: 30, carbohidratos: 40, grasas: 20 },
+      estadoNutricional: 'COMPLETO',
+      racionesSupuestas: true,
+    });
+    await esperar();
+
+    const dialogo = document.querySelector('app-registrar-receta-dialog') as HTMLElement;
+    expect(dialogo.textContent).toContain('Chicken Curry');
+    expect(dialogo.querySelector<HTMLSelectElement>('ns-select select')!.selectedOptions[0].textContent?.trim()).toBe(
+      'Cena',
+    );
+  });
+});

@@ -173,6 +173,12 @@ export const routes: Routes = [
             loadComponent: () => import('@features/recetas/recetas.component').then((m) => m.RecetasComponent),
           },
           {
+            path: 'recetas/:id',
+            title: 'Receta',
+            loadComponent: () =>
+              import('@features/recetas/detalle/detalle-receta.component').then((m) => m.DetalleRecetaComponent),
+          },
+          {
             path: 'mis-alimentos',
             title: 'Mis alimentos',
             loadComponent: () =>

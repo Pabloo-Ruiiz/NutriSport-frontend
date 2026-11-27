@@ -76,13 +76,33 @@
           </button>
         </div>
 
-        <app-buscador-alimentos
-          modo="lista"
-          etiqueta="Buscar alimento"
-          [conProductos]="true"
-          (elegido)="anadir($event)"
-          (productoElegido)="anadirProducto($event)"
-        />
+        @if (editando()) {
+          <ng-container *ngTemplateOutlet="buscadorAlimentos" />
+        } @else {
+          <ns-tabs [pestanas]="pestanas" [(seleccionada)]="pestana" etiqueta="Qué añadir">
+            <div nsTabPanel="alimentos" class="ns-registro__panel">
+              <ng-container *ngTemplateOutlet="buscadorAlimentos" />
+            </div>
+            <div nsTabPanel="recetas" class="ns-registro__panel">
+              <p class="ns-text-body-sm ns-text-secondary ns-registro__ayuda-recetas">
+                Una receta se guarda como una comida aparte, con las raciones que elijas.
+              </p>
+              <!-- Solo se monta al abrir la pestaña: pide las favoritas al crearse. -->
+              @if (pestana() === 'recetas') {
+                <app-buscador-recetas [preparando]="preparandoReceta()" (elegida)="elegirReceta($event)" />
+              }
+            </div>
+          </ns-tabs>
+        }
+        <ng-template #buscadorAlimentos>
+          <app-buscador-alimentos
+            modo="lista"
+            etiqueta="Buscar alimento"
+            [conProductos]="true"
+            (elegido)="anadir($event)"
+            (productoElegido)="anadirProducto($event)"
+          />
+        </ng-template>
       </section>
 
       @if (!layout.esMovil()) {

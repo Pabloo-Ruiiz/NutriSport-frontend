@@ -1,0 +1,251 @@
+// Detalle de receta (DESIGN.md §7.22). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+}
+
+.migas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-1);
+  color: var(--ns-text-secondary);
+
+  a {
+    color: inherit;
+  }
+
+  [aria-current] {
+    color: var(--ns-text);
+    font-weight: 500;
+  }
+}
+
+.cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.tarjeta {
+  min-width: 0;
+  padding: var(--ns-space-5);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-xl);
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-xs);
+}
+
+/* Cabecera */
+.cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ns-space-5);
+
+  @include bp.up(md) {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+
+  &__media {
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--ns-radius-xl);
+    background: var(--ns-surface-muted);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__sin-imagen {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    color: var(--ns-text-tertiary);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ns-space-3);
+    min-width: 0;
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.titulo {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.datos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ns-space-1) var(--ns-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ns-space-1);
+  }
+
+  .kcal {
+    font-size: 1.25rem;
+  }
+
+  .proteina {
+    color: var(--ns-data-protein-text);
+  }
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-2);
+}
+
+.favorita--activa {
+  color: var(--ns-error);
+
+  ::ng-deep svg {
+    fill: currentColor;
+  }
+}
+
+/* Contenido en dos columnas (≥ 1024 px) */
+.columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--ns-space-5);
+  align-items: start;
+}
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-5);
+  min-width: 0;
+}
+
+ns-tabs .tarjeta {
+  margin-top: var(--ns-space-4);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+/* Instrucciones */
+.pasos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+
+  &__cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ns-space-2);
+
+    h2,
+    p {
+      margin: 0;
+    }
+
+    p {
+      margin-top: 2px;
+    }
+  }
+
+  &__lista {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      gap: var(--ns-space-3);
+      padding: var(--ns-space-3) 0;
+      border-top: 1px solid var(--ns-border);
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
+  &__numero {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--ns-radius-full);
+    background: var(--ns-surface-inverse);
+    color: var(--ns-text-inverse);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+/* Relacionadas */
+.relacionadas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ns-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include bp.up(md) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.atribucion {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-1);
+  margin: 0;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}

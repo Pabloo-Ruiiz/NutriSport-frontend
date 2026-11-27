@@ -1,0 +1,77 @@
+@let r = receta();
+<header class="cabecera">
+  <div>
+    <div role="heading" [attr.aria-level]="nivelTitulo()" class="ns-text-card-title">Ingredientes y cantidades</div>
+    <p class="ns-text-body-sm ns-text-secondary">Medida original de la receta y su conversión a gramos</p>
+  </div>
+  <div class="raciones">
+    <label class="ns-text-label" for="raciones-receta">Raciones</label>
+    <ns-quantity-input
+      id="raciones-receta"
+      etiqueta="Raciones"
+      [min]="min"
+      [max]="max"
+      [step]="1"
+      [ngModel]="raciones()"
+      (ngModelChange)="cambiarRaciones($event)"
+    />
+    @if (r.racionesSupuestas) {
+      <ns-badge variant="warning">Supuestas</ns-badge>
+    }
+  </div>
+</header>
+
+<div class="tabla-scroll" [attr.aria-busy]="actualizando()">
+  <table class="tabla" [class.tabla--actualizando]="actualizando()">
+    <caption class="ns-sr-only">
+      Ingredientes para
+      {{
+        r.raciones
+      }}
+      {{
+        r.raciones === 1 ? 'ración' : 'raciones'
+      }}
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col"><span class="ns-sr-only">Tachar</span></th>
+        <th scope="col">Ingrediente</th>
+        <th scope="col">Medida original</th>
+        <th scope="col" class="num">Gramos</th>
+        <th scope="col">Conversión</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (i of r.ingredientes; track $index) {
+        @let tachado = tachados().has($index);
+        <tr [class.sin-datos]="i.estadoConversion === 'SIN_DATOS'" [class.tachado]="tachado">
+          <td class="check">
+            <ns-checkbox [ngModel]="tachado" (ngModelChange)="alternar($index)"
+              ><span class="ns-sr-only">Tachar {{ i.nombre }}</span></ns-checkbox
+            >
+          </td>
+          <td>
+            <span class="nombre">{{ i.nombre }}</span>
+            @if (subtitulo(i); as sub) {
+              <span class="original ns-text-caption ns-text-secondary">{{ sub }}</span>
+            }
+          </td>
+          <td>{{ i.medidaOriginal ?? '—' }}</td>
+          <td class="num ns-tnum">{{ textoGramos(i) }}</td>
+          <td>
+            <span [class]="'conversion conversion--' + i.estadoConversion">
+              {{ etiquetaConversion(i.estadoConversion) }}
+            </span>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (hayOriginales()) {
+  <p class="nota ns-text-caption ns-text-secondary">
+    <svg lucideIcon="info" [size]="14" aria-hidden="true"></svg>
+    Los nombres en español salen del catálogo; el original de la receta aparece debajo.
+  </p>
+}

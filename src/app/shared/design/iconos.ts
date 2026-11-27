@@ -173,6 +173,19 @@ export const ICONOS_APP = [
       },
     ],
   ]),
+  // Detalle de receta: tiempo y desglose del cálculo
+  lucideLegacyIcon('clock', [
+    ['circle', { cx: '12', cy: '12', r: '10' }],
+    ['path', { d: 'M12 6v6l4 2' }],
+  ]),
+  lucideLegacyIcon('list', [
+    ['path', { d: 'M3 12h.01' }],
+    ['path', { d: 'M3 18h.01' }],
+    ['path', { d: 'M3 6h.01' }],
+    ['path', { d: 'M8 12h13' }],
+    ['path', { d: 'M8 18h13' }],
+    ['path', { d: 'M8 6h13' }],
+  ]),
   // Recetas favoritas (ns-recipe-card)
   lucideLegacyIcon('heart', [
     [

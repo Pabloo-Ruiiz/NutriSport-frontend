@@ -1,6 +1,7 @@
 import type {
   Alergeno,
   Dieta,
+  Dificultad,
   EstadoAnalisis,
   EstadoConversion,
   EstadoEntrenamiento,
@@ -74,6 +75,7 @@ const VALORES: Record<TipoEtiqueta, readonly string[]> = {
     'CONFIRMADO',
     'DESCARTADO',
   ] satisfies EstadoAnalisis[],
+  dificultad: ['FACIL', 'MEDIA', 'DIFICIL'] satisfies Dificultad[],
   origenReceta: ['PROPIA', 'THEMEALDB'] satisfies OrigenReceta[],
   estadoNutricional: ['COMPLETO', 'APROXIMADO', 'INCOMPLETO'] satisfies EstadoNutricional[],
   estadoConversion: ['EXACTA', 'ESTIMADA', 'DESPRECIABLE', 'SIN_DATOS'] satisfies EstadoConversion[],
