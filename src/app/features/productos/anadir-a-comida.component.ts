@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import type { ProductoResponse, TipoComida } from '@core/models';
@@ -22,6 +23,7 @@ import { NsToastService } from '@shared/ui/feedback/toast.service';
 })
 export class AnadirAComidaComponent {
   readonly producto = input.required<ProductoResponse>();
+  readonly personalizarComida = input(false);
   private readonly comidas = inject(ComidasService);
   private readonly router = inject(Router);
   private readonly ruta = inject(ActivatedRoute);
@@ -46,6 +48,10 @@ export class AnadirAComidaComponent {
     }),
     tipoComida: new FormControl<TipoComida>(this.tipoInicial(), { nonNullable: true, validators: Validators.required }),
   });
+  protected readonly tipoSeleccionado = toSignal(this.form.controls.tipoComida.valueChanges, {
+    initialValue: this.form.controls.tipoComida.value,
+  });
+  protected readonly etiquetasTipo = ETIQUETAS_TIPO_COMIDA;
   private tipoInicial(): TipoComida {
     const tipo = this.ruta.snapshot.queryParamMap.get('tipoComida');
     return tipo && tipo in ETIQUETAS_TIPO_COMIDA ? (tipo as TipoComida) : tipoPorHora(aHoraApi(new Date()));

@@ -19,9 +19,11 @@ import { AnadirAComidaComponent } from './anadir-a-comida.component';
   templateUrl: './ficha-producto.component.html',
   styleUrl: './ficha-producto.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.compacta]': 'compacta()' },
 })
 export class FichaProductoComponent {
   readonly producto = input.required<ProductoResponse>();
+  readonly compacta = input(false);
   protected readonly creando = signal(false);
   protected readonly creado = signal(false);
   protected readonly valores = computed(() => {

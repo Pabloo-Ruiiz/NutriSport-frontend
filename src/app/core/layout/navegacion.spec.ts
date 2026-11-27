@@ -26,7 +26,7 @@ describe('navegacion', () => {
   it('la barra inferior del MVP es Inicio · Comidas · [Registrar] · Actividad · Perfil', () => {
     expect(BARRA_INFERIOR.izquierda.map((e) => e.etiqueta)).toEqual(['Inicio', 'Comidas']);
     expect(BARRA_INFERIOR.derecha.map((e) => e.etiqueta)).toEqual(['Actividad', 'Perfil']);
-    expect(ACCIONES_REGISTRO.map((a) => a.etiqueta)).toEqual(['Foto del plato', 'Buscar alimento']);
+    expect(ACCIONES_REGISTRO.map((a) => a.etiqueta)).toEqual(['Foto del plato', 'Buscar alimento', 'Escanear código']);
   });
 
   it('el drawer lleva lo que no está en la barra inferior', () => {

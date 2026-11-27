@@ -1,0 +1,22 @@
+<form (submit)="buscar(); $event.preventDefault()">
+  <label [for]="id">Código de barras (8 a 14 dígitos)</label>
+  <input
+    nsInput
+    [id]="id"
+    type="text"
+    inputmode="numeric"
+    autocomplete="off"
+    maxlength="14"
+    [formControl]="codigo"
+    [attr.aria-invalid]="codigo.touched && codigo.invalid"
+    [attr.aria-describedby]="id + '-ayuda'"
+  />
+  <p [id]="id + '-ayuda'">
+    {{
+      codigo.touched && codigo.invalid
+        ? 'Introduce entre 8 y 14 dígitos, sin espacios ni letras.'
+        : 'Copia el código que aparece en el envase.'
+    }}
+  </p>
+  <button nsButton type="submit" [loading]="buscando()">Buscar producto</button>
+</form>

@@ -141,7 +141,12 @@ describe('ShellComponent', () => {
       await harness.fixture.whenStable();
       const sheet = document.querySelector('ns-registrar-sheet') as HTMLElement;
       expect(sheet).not.toBeNull();
-      expect(textos('.ns-registrar__etiqueta', sheet)).toEqual(['Foto del plato', 'Buscar alimento']);
+      expect(textos('.ns-registrar__etiqueta', sheet)).toEqual([
+        'Foto del plato',
+        'Buscar alimento',
+        'Escanear código',
+      ]);
+      expect(sheet.querySelector('a[href="/escaner"]')).not.toBeNull();
     });
 
     it('el avatar ("Más") abre el drawer con el resto de secciones y Cerrar sesión', async () => {

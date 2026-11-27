@@ -117,7 +117,12 @@ export const ACCIONES_REGISTRO: readonly AccionRegistro[] = [
     icono: 'search',
   },
   // Ampliación:
-  // { etiqueta: 'Escanear código', descripcion: 'Lee el código de barras del envase', ruta: '/escaner', icono: 'scan-barcode' },
+  {
+    etiqueta: 'Escanear código',
+    descripcion: 'Lee el código de barras del envase',
+    ruta: '/escaner',
+    icono: 'scan-barcode',
+  },
   // { etiqueta: 'Desde mi plan', descripcion: 'Marca una comida planificada para hoy', ruta: '/planificador', icono: 'calendar' },
 ];
 

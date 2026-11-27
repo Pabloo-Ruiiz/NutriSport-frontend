@@ -146,3 +146,23 @@ Se repitió fuera del sandbox: compiló y ejecutó los 620 tests, inicialmente c
 expectativa del menú (619 OK y 1 KO). Tras corregir `shell.spec.ts`, la suite completa pasa.
 No se modificó el código de la aplicación para ocultar el fallo. Las comprobaciones manuales
 pendientes de navegador siguen pendientes.
+
+## Comprobación del escáner · 27/11/2026
+
+Frontend reconstruido con `docker compose up -d --build` y backend local mediante
+`BACKEND_URL=http://host.docker.internal:8080`. La imagen anterior no reconocía `/escaner`;
+la reconstruida abre la ruta después del login con la cuenta administradora de pruebas.
+
+| Comprobación | Resultado | Evidencia |
+|---|---|---|
+| `npm run build` mediante `npm.cmd` | OK con aviso | Código 0; paquete inicial 518,36 kB, 18,36 kB sobre el presupuesto de aviso. La imagen de producción también compila. |
+| `npm test -- --watch=false` mediante `npm.cmd` | OK tras corrección | 629 tests en 81 archivos aprobados; código 0, duración 97,41 s. |
+| Menú móvil de registro | Corregido | La primera suite tuvo 628 OK y 1 KO: esperaba dos opciones y faltaba Escanear código. Se actualizó `shell.spec.ts` y se comprobó el enlace `/escaner`. |
+| Introducción manual en `/escaner` | OK en navegador | Introducir código retira el visor y muestra formulario. `123` muestra el error de 8–14 dígitos; `3017624010701` devuelve Nutella, 539 kcal/100 g, con ficha, alérgenos y formulario para añadir a comida. No se guardó ninguna comida en esta comprobación. |
+| Permiso denegado | OK automatizado / PENDIENTE real | Tests simulan `NotAllowedError`, comprueban permiso-denegado, retirada del lector, aviso y formulario manual. No se pudo accionar el aviso real de permiso desde el navegador integrado. |
+| Webcam con código físico | No ejecutado | Se eligió la alternativa manual autorizada. El visor del navegador integrado no reprodujo vídeo; no se considera evidencia de lectura física. |
+
+La denegación simulada no sustituye la comprobación del permiso en un navegador real.
+Durante `npm ci` de Docker aparece un aviso de motor: `@zxing/library@0.23.0` declara
+Node >=24 y la imagen usa Node 22. La instalación y la compilación terminaron con código 0;
+queda registrada la discrepancia de versiones.
