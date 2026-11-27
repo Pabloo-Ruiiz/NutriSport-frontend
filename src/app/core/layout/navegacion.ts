@@ -25,6 +25,7 @@ export interface GrupoNav {
 export const INICIO: ElementoNav = { etiqueta: 'Inicio', ruta: '/inicio', icono: 'house' };
 export const COMIDAS: ElementoNav = { etiqueta: 'Comidas', ruta: '/comidas', icono: 'utensils' };
 export const MIS_ALIMENTOS: ElementoNav = { etiqueta: 'Mis alimentos', ruta: '/mis-alimentos', icono: 'apple' };
+export const PRODUCTOS: ElementoNav = { etiqueta: 'Productos', ruta: '/productos', icono: 'scan-barcode' };
 export const ACTIVIDAD: ElementoNav = { etiqueta: 'Actividad', ruta: '/actividad', icono: 'activity' };
 export const MI_PERFIL: ElementoNav = { etiqueta: 'Mi perfil', ruta: '/perfil', icono: 'user' };
 export const CONFIGURACION: ElementoNav = { etiqueta: 'Configuración', ruta: '/configuracion', icono: 'settings' };
@@ -44,6 +45,7 @@ export const NAVEGACION: readonly GrupoNav[] = [
       INICIO,
       COMIDAS,
       MIS_ALIMENTOS,
+      PRODUCTOS,
       // PLANIFICADOR,
       // COMPRA,
       // RECETAS,

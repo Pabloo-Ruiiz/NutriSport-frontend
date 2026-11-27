@@ -73,7 +73,13 @@
           </button>
         </div>
 
-        <app-buscador-alimentos modo="lista" etiqueta="Buscar alimento" (elegido)="anadir($event)" />
+        <app-buscador-alimentos
+          modo="lista"
+          etiqueta="Buscar alimento"
+          [conProductos]="true"
+          (elegido)="anadir($event)"
+          (productoElegido)="anadirProducto($event)"
+        />
       </section>
 
       @if (!layout.esMovil()) {

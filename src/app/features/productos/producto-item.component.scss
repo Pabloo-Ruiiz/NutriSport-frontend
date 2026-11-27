@@ -1,0 +1,32 @@
+button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  text-align: left;
+  padding: var(--ns-space-3);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  cursor: pointer;
+}
+button:focus-visible {
+  outline: 2px solid var(--ns-text-link);
+}
+img,
+.icono {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+span span {
+  display: block;
+}
+.aviso {
+  color: var(--ns-warning);
+}
+ns-attribution {
+  margin: var(--ns-space-2) 0 var(--ns-space-4);
+}

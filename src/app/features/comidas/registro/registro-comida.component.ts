@@ -9,7 +9,7 @@ import {
   esConsentimientoRevocado,
 } from '@core/layout/consentimiento-revocado.component';
 import { LayoutService } from '@core/layout/layout.service';
-import type { AlimentoResumenResponse, RegistroComidaResponse, TipoComida } from '@core/models';
+import type { AlimentoResumenResponse, ProductoResponse, RegistroComidaResponse, TipoComida } from '@core/models';
 import { ETIQUETAS_TIPO_COMIDA } from '@core/models/etiquetas';
 import { AlimentosService } from '@core/services/alimentos.service';
 import { ComidasService } from '@core/services/comidas.service';
@@ -77,6 +77,7 @@ export class RegistroComidaComponent implements OnInit, ConCambiosSinGuardar {
   readonly tipoComida = input<string>();
   readonly fecha = input<string>();
   readonly volver = input<string>();
+  readonly alimentoId = input<string>();
 
   protected readonly editor = inject(ComidaEditorStore);
   protected readonly layout = inject(LayoutService);
@@ -124,6 +125,14 @@ export class RegistroComidaComponent implements OnInit, ConCambiosSinGuardar {
       if (fecha && FECHA.test(fecha) && fecha <= this.fechaMaxima) this.editor.cambiarFecha(fecha);
       const tipo = this.tipoComida();
       if (tipo && (TIPOS as string[]).includes(tipo)) this.editor.cambiarTipo(tipo as TipoComida);
+      const alimentoId = this.alimentoId();
+      if (alimentoId) {
+        try {
+          this.editor.anadir(await firstValueFrom(this.alimentos.detalle(alimentoId)));
+        } catch (e) {
+          this.toasts.error('No se ha podido cargar el alimento', aApiError(e).detalle);
+        }
+      }
       this.firmaInicial.set(this.firma());
     }
   }
@@ -164,6 +173,21 @@ export class RegistroComidaComponent implements OnInit, ConCambiosSinGuardar {
   }
 
   // ---- Alimentos
+
+  protected anadirProducto(producto: ProductoResponse): void {
+    if (!producto.nutricionCompleta) {
+      this.toasts.info(
+        'Información nutricional incompleta',
+        'Crea un alimento propio desde Productos para completar sus datos.',
+      );
+      return;
+    }
+    if (!this.editor.anadirProducto(producto)) {
+      this.toasts.error('La comida ya tiene 40 alimentos', 'Guárdala y registra el resto en otra comida.');
+      return;
+    }
+    this.anuncio.set(`${producto.nombre} añadido a la comida`);
+  }
 
   protected async anadir(resumen: AlimentoResumenResponse): Promise<void> {
     if (this.editor.llena()) {

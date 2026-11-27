@@ -126,3 +126,12 @@
     animation: none;
   }
 }
+
+.ns-drawer--inferior {
+  animation-name: ns-drawer-entrada-inferior;
+}
+@keyframes ns-drawer-entrada-inferior {
+  from {
+    transform: translateY(100%);
+  }
+}

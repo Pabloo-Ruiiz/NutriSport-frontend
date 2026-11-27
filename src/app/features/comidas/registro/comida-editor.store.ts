@@ -3,6 +3,8 @@ import { firstValueFrom } from 'rxjs';
 
 import type {
   AlimentoResponse,
+  ProductoResponse,
+  FuenteResponse,
   ErrorCampo,
   Nutrientes,
   RegistroComidaRequest,
@@ -19,8 +21,16 @@ export const MAX_CANTIDAD = 5000;
 /** Lo que se suma al añadir un alimento que ya está, y la cantidad inicial de uno nuevo. */
 export const CANTIDAD_INICIAL = 100;
 
+/** Datos de presentación de una línea; los DTO de la API conservan sus tipos originales. */
+export type AlimentoLinea = Pick<
+  AlimentoResponse,
+  'nombre' | 'marca' | 'unidadBase' | 'porciones' | 'kcal100' | 'proteinas100' | 'carbohidratos100' | 'grasas100'
+> & { id: string | null };
+
 export interface LineaComida {
-  alimento: AlimentoResponse;
+  alimento: AlimentoLinea;
+  codigoBarras?: string;
+  fuente?: FuenteResponse;
   cantidad: number;
   /** "g", "kg", "ml", "l" o el nombre de una porción casera del alimento. */
   unidad: string;
@@ -51,12 +61,12 @@ export function tipoPorHora(hora: string): TipoComida {
 }
 
 /** Unidad básica del alimento: "g" o "ml". */
-export function unidadBasica(alimento: AlimentoResponse): 'g' | 'ml' {
+export function unidadBasica(alimento: AlimentoLinea): 'g' | 'ml' {
   return alimento.unidadBase === 'ML' ? 'ml' : 'g';
 }
 
 /** Unidades que se pueden elegir para un alimento: g y kg (o ml y l) y sus porciones caseras. */
-export function unidadesDe(alimento: AlimentoResponse): string[] {
+export function unidadesDe(alimento: AlimentoLinea): string[] {
   const basicas = alimento.unidadBase === 'ML' ? ['ml', 'l'] : ['g', 'kg'];
   return [...basicas, ...alimento.porciones.map((p) => p.nombre)];
 }
@@ -65,7 +75,7 @@ export function unidadesDe(alimento: AlimentoResponse): string[] {
  * Gramos de una cantidad en una unidad: g, kg, ml (1 ml ≈ 1 g), l o una porción del alimento.
  * null si la unidad no es ninguna de esas.
  */
-export function gramosDe(alimento: AlimentoResponse, cantidad: number, unidad: string): number | null {
+export function gramosDe(alimento: AlimentoLinea, cantidad: number, unidad: string): number | null {
   const porcion = alimento.porciones.find((p) => p.nombre === unidad);
   if (porcion) return cantidad * porcion.gramos;
   const factor = GRAMOS_POR_UNIDAD[unidad.toLowerCase()];
@@ -90,7 +100,7 @@ function horaActual(): string {
  *   no lo elija), notas y líneas { alimento, cantidad, unidad }.
  * - `estimacion`: kcal y macros calculados con los valores por 100 g, marcados como estimación;
  *   tras guardar (o al cargar una comida) son los totales del servidor hasta que se cambie algo.
- * - aRequest(): RegistroComidaRequest con solo alimentoId, cantidad y unidad (hasta 40 líneas).
+ * - aRequest(): RegistroComidaRequest con alimentoId o codigoBarras, cantidad y unidad (hasta 40 líneas).
  */
 @Injectable()
 export class ComidaEditorStore {
@@ -179,11 +189,45 @@ export class ComidaEditorStore {
    * 5000 por alimento. Devuelve false si no se pudo añadir (comida llena).
    */
   anadir(alimento: AlimentoResponse): boolean {
+    return this.anadirLinea({ alimento, cantidad: CANTIDAD_INICIAL, unidad: unidadBasica(alimento) });
+  }
+
+  anadirProducto(producto: ProductoResponse): boolean {
+    if (!producto.nutricionCompleta || (!producto.id && !/^\d{8,14}$/.test(producto.codigoBarras))) return false;
+    const p = producto.por100;
+    const alimento: AlimentoLinea = {
+      id: producto.id,
+      nombre: producto.nombre,
+      marca: producto.marca,
+      unidadBase: producto.unidadBase,
+      kcal100: p.kcal,
+      proteinas100: p.proteinas,
+      carbohidratos100: p.carbohidratos,
+      grasas100: p.grasas,
+      porciones:
+        producto.racion?.gramos && producto.racion.gramos > 0
+          ? [{ nombre: 'ración', gramos: producto.racion.gramos }]
+          : [],
+    };
+    return this.anadirLinea({
+      alimento,
+      codigoBarras: producto.codigoBarras,
+      fuente: producto.fuente,
+      cantidad: CANTIDAD_INICIAL,
+      unidad: unidadBasica(alimento),
+    });
+  }
+
+  private anadirLinea(nueva: LineaComida): boolean {
+    const alimento = nueva.alimento;
     const lineas = this.lineas();
-    const i = lineas.findIndex((l) => l.alimento.id === alimento.id);
+    const i = lineas.findIndex(
+      (l) =>
+        (alimento.id && l.alimento.id === alimento.id) || (nueva.codigoBarras && l.codigoBarras === nueva.codigoBarras),
+    );
     if (i === -1) {
       if (lineas.length >= MAX_LINEAS) return false;
-      this.cambiarLineas([...lineas, { alimento, cantidad: CANTIDAD_INICIAL, unidad: unidadBasica(alimento) }]);
+      this.cambiarLineas([...lineas, nueva]);
       return true;
     }
 
@@ -302,7 +346,7 @@ export class ComidaEditorStore {
   }
 
   /**
-   * RegistroComidaRequest: hora "HH:mm:ss", notas solo si hay, y cada alimento con solo alimentoId,
+   * RegistroComidaRequest: hora "HH:mm:ss", notas solo si hay, y cada alimento con alimentoId o codigoBarras,
    * cantidad y unidad. Las líneas sin cantidad válida (0) no se envían; como mucho 40.
    */
   aRequest(): RegistroComidaRequest {
@@ -311,7 +355,13 @@ export class ComidaEditorStore {
       tipoComida: this.tipoComida(),
       alimentos: this.indicesEnviados().map((i) => {
         const l = this.lineas()[i];
-        return { alimentoId: l.alimento.id, cantidad: l.cantidad, unidad: l.unidad };
+        // La ración externa no es una porción del catálogo: se envían sus gramos.
+        const racionProducto = !!l.codigoBarras && l.alimento.porciones.some((p) => p.nombre === l.unidad);
+        return {
+          ...(l.alimento.id ? { alimentoId: l.alimento.id } : { codigoBarras: l.codigoBarras }),
+          cantidad: racionProducto ? gramosDe(l.alimento, l.cantidad, l.unidad)! : l.cantidad,
+          unidad: racionProducto ? 'g' : l.unidad,
+        };
       }),
     };
     if (/^\d{2}:\d{2}$/.test(this.hora())) req.hora = `${this.hora()}:00`;

@@ -9,7 +9,7 @@ import { provideLucideIcons } from '@lucide/angular';
 
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { LayoutService } from '@core/layout/layout.service';
-import type { AlimentoResponse, AlimentoResumenResponse, RegistroComidaResponse } from '@core/models';
+import type { AlimentoResponse, AlimentoResumenResponse, ProductoResponse, RegistroComidaResponse } from '@core/models';
 import { hoyLocal, sumarDias } from '@core/util/fechas';
 import { ICONOS_APP } from '@shared/design/iconos';
 import { NsToastService } from '@shared/ui/feedback/toast.service';
@@ -327,5 +327,82 @@ describe('RegistroComidaComponent', () => {
       await esperar();
       expect(url()).toBe('/inicio');
     });
+  });
+});
+
+describe('pestaña Productos del registro', () => {
+  it('consulta bajo demanda y añade al borrador sin registrar otra comida', async () => {
+    await harness.navigateByUrl('/comidas/nueva');
+    await anadirArroz();
+    boton('Productos').click();
+    await esperar();
+    vi.useFakeTimers();
+    const input = raiz().querySelector<HTMLInputElement>('app-buscador-alimentos input[type=search]')!;
+    input.value = 'yogur';
+    input.dispatchEvent(new Event('input'));
+    vi.advanceTimersByTime(250);
+    http
+      .expectOne((r) => r.url === '/api/v1/alimentos' && r.params.get('q') === 'yogur')
+      .flush({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 });
+    http.expectNone((r) => r.url === '/api/v1/productos');
+    vi.useRealTimers();
+    await esperar();
+    const fuente = {
+      proveedor: 'Open Food Facts',
+      licencia: 'ODbL',
+      url: 'https://world.openfoodfacts.org',
+      atribucion: 'Datos de la comunidad',
+    };
+    boton('Buscar en productos comerciales').click();
+    http.expectOne('/api/v1/productos?q=yogur&page=0').flush([
+      {
+        id: null,
+        codigoBarras: '12345678',
+        nombre: 'Yogur',
+        marca: null,
+        imagenUrl: null,
+        kcal100: 60,
+        nutricionCompleta: true,
+        fuente,
+      },
+    ]);
+    await esperar();
+    raiz().querySelector<HTMLButtonElement>('app-producto-item button')!.click();
+    http.expectOne('/api/v1/productos/12345678').flush({
+      id: null,
+      codigoBarras: '12345678',
+      nombre: 'Yogur',
+      marca: null,
+      imagenUrl: null,
+      unidadBase: 'G',
+      por100: {
+        kcal: 60,
+        proteinas: 4,
+        carbohidratos: 5,
+        grasas: 3,
+        azucares: null,
+        saturadas: null,
+        fibra: null,
+        sal: null,
+      },
+      racion: null,
+      ingredientesTexto: null,
+      alergenosContiene: [],
+      alergenosTrazas: [],
+      alergenosRevisados: false,
+      nutricionCompleta: true,
+      fuente,
+    } satisfies ProductoResponse);
+    await esperar();
+    expect(raiz().querySelectorAll('app-linea-alimento')).toHaveLength(2);
+    http.expectNone('/api/v1/comidas');
+    boton('Guardar comida').click();
+    const peticion = http.expectOne('/api/v1/comidas');
+    expect(peticion.request.body.alimentos).toEqual([
+      { alimentoId: 'arroz', cantidad: 100, unidad: 'g' },
+      { codigoBarras: '12345678', cantidad: 100, unidad: 'g' },
+    ]);
+    peticion.flush(respuesta());
+    await esperar();
   });
 });

@@ -9,6 +9,7 @@ describe('navegacion', () => {
       '/inicio',
       '/comidas',
       '/mis-alimentos',
+      '/productos',
       '/actividad',
       '/perfil',
       '/configuracion',
@@ -29,9 +30,10 @@ describe('navegacion', () => {
   });
 
   it('el drawer lleva lo que no está en la barra inferior', () => {
-    expect(rutas(gruposDrawer(false))).toEqual(['/mis-alimentos', '/configuracion']);
+    expect(rutas(gruposDrawer(false))).toEqual(['/mis-alimentos', '/productos', '/configuracion']);
     expect(rutas(gruposDrawer(true))).toEqual([
       '/mis-alimentos',
+      '/productos',
       '/configuracion',
       '/admin/usuarios',
       '/admin/catalogo',

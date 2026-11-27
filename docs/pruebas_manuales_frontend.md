@@ -123,3 +123,26 @@ en el mismo orden que el backend; esta comprobación no inicia su implementació
 | PM-35 | HU-01 · Registro de cuenta / HU-06 · Registro manual de comida | Recorre los formularios de registro y comida usando solo el teclado. Comprueba etiquetas de campos, orden de foco y foco visible. | Puedes completar las acciones sin ratón; cada campo tiene etiqueta y el foco es visible. | OK | Registro duplicado y comida de Plátano completados con Tab, Espacio y Enter. Campos etiquetados; orden de foco comprobado; botones Crear cuenta/Guardar comida con outline verde sólido 2 px. |
 | PM-36 | HU-07 · Registro por fotografía | Inicia un análisis y observa con lector de pantalla o inspección del árbol de accesibilidad los estados de carga, resultado y error. | Los resultados asíncronos y sus cambios se anuncian de forma accesible; los errores son comprensibles y accionables. | OK | Árbol accesible de carga y resultado inspeccionado; foco al título de resultado; cambio de alimento anunciado. Error 503 anunciado en aria-live polite con texto accionable y enlace manual. Sin lector de pantalla real. |
 | PM-37 | HU-10 · Dashboard diario / Navegación | Revisa la app en una ventana de 360 px de ancho y después en escritorio. Comprueba navegación, contraste y controles táctiles. | No hay desbordamiento horizontal; en móvil aparece la barra inferior y en escritorio la barra lateral. El texto y los objetivos táctiles respetan los mínimos de accesibilidad del proyecto. | PARCIAL | Observado móvil a 619 px con barra inferior y escritorio a 1280 con sidebar, sin desbordamiento. El control de viewport no aplicó los 360 px solicitados (innerWidth seguía 619/1280); falta 360 px y auditoría completa de contraste/tamaño táctil. |
+
+## Comprobación A1 · Productos comerciales · 27/11/2026
+
+Ejecución independiente de la comprobación MVP anterior, sobre los cambios actuales del
+workspace. No se da por aprobada la comprobación manual: el control de Chrome se detuvo
+porque no pudo determinar con suficiente confianza la URL actual. No se añadieron comidas
+durante esta ejecución ni se obtuvo una captura del panel Network.
+
+| Caso solicitado | Estado | Evidencia y límites |
+|---|---|---|
+| Buscar «yogur griego», mostrar primero catálogo y abrir un producto comercial mediante el botón | PENDIENTE manual | La plantilla y el componente consultan alimentos al escribir y productos al pulsar. La suite automatizada comprueba esta separación con el texto «yogur» y API simulada; no prueba resultados reales para «yogur griego». |
+| Añadir el producto a la merienda | PENDIENTE manual | Los tests de registro por `alimentoId` y por `codigoBarras` pasan, pero no se ha guardado ni comprobado una merienda real desde el navegador. |
+| Buscar un código conocido en `/productos` | PENDIENTE manual | No se ha consultado un código real. No se considera evidencia el código ficticio `12345678` de los tests. |
+| Verificar en Network que escribir no consulta `/productos` | PENDIENTE Network / OK automatizado | `productos.spec.ts` exige ausencia de petición a `/api/v1/productos` al escribir y su presencia solo tras pulsar el botón. No se pudo inspeccionar Network en Chrome. |
+| `npm run build` mediante `npm.cmd` | OK con aviso | Código 0; paquete inicial 518,24 kB (18,24 kB sobre el presupuesto de aviso de 500 kB). |
+| `npm test -- --watch=false` mediante `npm.cmd` | OK tras corrección | 620 tests aprobados en 79 archivos, código 0, duración 73,78 s. Se actualizó la expectativa del menú móvil para incluir «Productos», se comprobó su enlace a `/productos` y se esperó a estabilizar el cierre de sesión. No aparece NG0953 en esta ejecución. |
+
+La primera ejecución de tests dentro del sandbox falló en la compilación por rutas de
+fuentes inválidas que combinaban el directorio virtual del sandbox y la ruta absoluta `D:`.
+Se repitió fuera del sandbox: compiló y ejecutó los 620 tests, inicialmente con un fallo de
+expectativa del menú (619 OK y 1 KO). Tras corregir `shell.spec.ts`, la suite completa pasa.
+No se modificó el código de la aplicación para ocultar el fallo. Las comprobaciones manuales
+pendientes de navegador siguen pendientes.

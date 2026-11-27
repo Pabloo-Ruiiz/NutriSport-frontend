@@ -1,3 +1,4 @@
+import { NsAttributionComponent } from '@shared/ui/data/attribution.component';
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -16,7 +17,7 @@ import { type LineaComida, MAX_CANTIDAD, gramosDe, unidadesDe } from './comida-e
  */
 @Component({
   selector: 'app-linea-alimento',
-  imports: [FormsModule, LucideDynamicIcon, NsQuantityInputComponent, NsSelectComponent],
+  imports: [NsAttributionComponent, FormsModule, LucideDynamicIcon, NsQuantityInputComponent, NsSelectComponent],
   template: `
     @let l = linea();
     <div class="ns-linea" [class.ns-linea--error]="!!error()" role="group" [attr.aria-labelledby]="idNombre">
@@ -58,6 +59,9 @@ import { type LineaComida, MAX_CANTIDAD, gramosDe, unidadesDe } from './comida-e
           <span class="ns-linea__gramos ns-tnum">{{ g }}</span>
         }
       </div>
+      @if (l.fuente; as fuente) {
+        <ns-attribution [fuente]="fuente" />
+      }
       @if (error(); as mensaje) {
         <p class="ns-linea__error" role="alert" [id]="idError">
           <svg lucideIcon="circle-exclamation-point" [size]="14" aria-hidden="true"></svg>
