@@ -5,6 +5,8 @@ export * from './ring.component';
 export * from './allergen-list.component';
 export * from './nutrition-facts.component';
 export * from './source-badge.component';
+export * from './calc-status.component';
+export * from './recipe-card.component';
 export * from './chart.component';
 export * from './confidence-badge.component';
 export * from './table-cell.directive';

@@ -1,0 +1,72 @@
+@let f = filtros();
+<div class="filtros">
+  <ns-form-field label="Ingrediente principal">
+    <input
+      nsInput
+      type="search"
+      autocomplete="off"
+      placeholder="Pollo, garbanzos…"
+      [attr.maxlength]="maxTexto"
+      [value]="f.ingrediente ?? ''"
+      (change)="cambiarTexto('ingrediente', $event)"
+    />
+  </ns-form-field>
+  <ns-form-field label="Cocina">
+    <input
+      nsInput
+      type="search"
+      autocomplete="off"
+      placeholder="Italiana, mexicana…"
+      [attr.maxlength]="maxTexto"
+      [value]="f.area ?? ''"
+      (change)="cambiarTexto('area', $event)"
+    />
+  </ns-form-field>
+  <ns-form-field label="Origen">
+    <ns-select [opciones]="opcionesOrigen" [ngModel]="f.origen" (ngModelChange)="cambiarOrigen($event)" />
+  </ns-form-field>
+  <ns-form-field label="Franja">
+    <ns-select [opciones]="opcionesFranja" [ngModel]="f.franja" (ngModelChange)="cambiarFranja($event)" />
+  </ns-form-field>
+</div>
+
+<fieldset class="nutricion" aria-describedby="nota-filtros-nutricionales">
+  <legend class="ns-text-label">Por ración</legend>
+  <div class="filtros">
+    <ns-form-field label="≤ X kcal/ración">
+      <input
+        nsInput
+        type="number"
+        inputmode="numeric"
+        placeholder="700"
+        [min]="kcal.min"
+        [max]="kcal.max"
+        step="10"
+        [value]="f.maxKcal ?? ''"
+        (change)="cambiarNumero('maxKcal', $event)"
+      />
+    </ns-form-field>
+    <ns-form-field label="≥ X g de proteína">
+      <input
+        nsInput
+        type="number"
+        inputmode="numeric"
+        placeholder="30"
+        [min]="proteina.min"
+        [max]="proteina.max"
+        step="1"
+        [value]="f.minProteina ?? ''"
+        (change)="cambiarNumero('minProteina', $event)"
+      />
+    </ns-form-field>
+  </div>
+  <p id="nota-filtros-nutricionales" class="nota ns-text-caption ns-text-secondary">
+    Solo recetas con cálculo nutricional.
+  </p>
+</fieldset>
+
+@if (activos() > 0) {
+  <button nsButton type="button" variant="ghost" size="sm" icon="x" class="limpiar" (click)="limpiar()">
+    Quitar filtros
+  </button>
+}

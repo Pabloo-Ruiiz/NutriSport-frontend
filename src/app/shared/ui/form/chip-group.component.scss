@@ -12,6 +12,20 @@
   gap: var(--ns-space-2);
 }
 
+// Una fila con scroll horizontal; el relleno vertical deja ver el anillo de foco.
+:host(.ns-chip-group--desplazable) .ns-chip-group__lista {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-block: 3px;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+
+  .ns-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
 .ns-chip {
   position: relative;
   display: inline-flex;

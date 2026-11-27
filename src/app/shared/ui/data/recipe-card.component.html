@@ -1,0 +1,81 @@
+@let r = receta();
+<article class="ns-recipe-card" [attr.aria-busy]="abriendo() || null">
+  <div class="ns-recipe-card__media">
+    @if (r.imagenUrl) {
+      <img class="ns-recipe-card__imagen" [src]="r.imagenUrl" [alt]="r.nombre" loading="lazy" decoding="async" />
+    } @else {
+      <div class="ns-recipe-card__sin-imagen">
+        <svg lucideIcon="utensils" [size]="32" aria-hidden="true"></svg>
+      </div>
+    }
+    @if (abriendo()) {
+      <div class="ns-recipe-card__abriendo">
+        <ns-spinner [size]="24" etiqueta="Abriendo la receta" />
+      </div>
+    }
+    <button
+      type="button"
+      class="ns-recipe-card__favorita"
+      [class.ns-recipe-card__favorita--activa]="r.favorita"
+      [attr.aria-pressed]="r.favorita"
+      [attr.aria-label]="'Favorita: ' + r.nombre"
+      [attr.title]="r.favorita ? 'Quitar de favoritas' : 'Añadir a favoritas'"
+      [disabled]="guardandoFavorita()"
+      (click)="alternarFavorita($event)"
+    >
+      <svg lucideIcon="heart" [size]="18" aria-hidden="true"></svg>
+    </button>
+  </div>
+
+  <div class="ns-recipe-card__cuerpo">
+    <div role="heading" [attr.aria-level]="nivelTitulo()" class="ns-recipe-card__titulo ns-text-card-title">
+      <button type="button" class="ns-recipe-card__abrir" [disabled]="abriendo()" (click)="abrir.emit()">
+        {{ r.nombre }}
+      </button>
+    </div>
+    @if (meta()) {
+      <p class="ns-recipe-card__meta ns-text-body-sm ns-text-secondary">{{ meta() }}</p>
+    }
+
+    <div class="ns-recipe-card__badges">
+      <ns-source-badge [fuente]="r.origen" />
+      <ns-calc-status [estado]="r.estadoNutricional" />
+      @if (r.compatible) {
+        <ns-badge variant="success" icon="shield-check">Compatible</ns-badge>
+      } @else {
+        <ns-badge variant="warning" icon="shield-check">No compatible con tus restricciones</ns-badge>
+      }
+    </div>
+
+    <div class="ns-recipe-card__pie">
+      @if (cifras(); as c) {
+        <p class="ns-recipe-card__cifras ns-tnum">
+          <span class="ns-recipe-card__kcal">
+            @if (aproximado()) {
+              <span aria-hidden="true">≈ </span><span class="ns-sr-only">aproximadamente </span>
+            }
+            {{ c.kcal }} kcal
+          </span>
+          <span class="ns-recipe-card__separador" aria-hidden="true">·</span>
+          <span class="ns-recipe-card__proteina">
+            @if (aproximado()) {
+              <span aria-hidden="true">≈ </span><span class="ns-sr-only">aproximadamente </span>
+            }
+            {{ c.proteina }} g <abbr title="proteína">P</abbr>
+          </span>
+        </p>
+        <span class="ns-recipe-card__racion ns-text-caption ns-text-secondary">
+          por ración
+          @if (deTheMealDb()) {
+            <span aria-hidden="true">*</span><span class="ns-sr-only"> (raciones supuestas)</span>
+          }
+        </span>
+      } @else if (estado() === 'INCOMPLETO') {
+        <p class="ns-text-body-sm ns-text-secondary">Sin cifras por ración</p>
+      } @else {
+        <p class="ns-text-body-sm ns-text-secondary">Cálculo pendiente · se calcula al abrir la receta</p>
+        <svg lucideIcon="chevron-right" [size]="16" aria-hidden="true"></svg>
+      }
+    </div>
+  </div>
+</article>

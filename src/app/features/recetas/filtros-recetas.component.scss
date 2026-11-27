@@ -1,0 +1,34 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--ns-space-3);
+}
+
+.nutricion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  margin-bottom: var(--ns-space-2);
+  padding: 0;
+}
+
+.nota {
+  margin: 0;
+}
+
+.limpiar {
+  align-self: flex-start;
+}

@@ -1,0 +1,206 @@
+<header class="cabecera">
+  <h1 class="ns-text-h2">Recetas</h1>
+  <p class="ns-text-secondary">
+    Recetas propias y de TheMealDB. Los nutrientes se calculan a partir de los ingredientes.
+  </p>
+</header>
+
+<ns-tabs
+  [pestanas]="pestanas()"
+  [seleccionada]="vistaActiva()"
+  (seleccionadaChange)="cambiarVista($event)"
+  etiqueta="Recetas"
+>
+  <!-- Explorar -->
+  <section nsTabPanel="explorar" class="panel">
+    <div class="buscador" role="search">
+      <label class="ns-sr-only" for="buscar-recetas">Buscar receta por nombre</label>
+      <input
+        nsInput
+        id="buscar-recetas"
+        type="search"
+        autocomplete="off"
+        placeholder="Buscar receta por nombre"
+        [attr.maxlength]="maxTexto"
+        [value]="texto()"
+        (input)="alEscribir($event)"
+      />
+      @if (movil()) {
+        <button
+          nsButton
+          type="button"
+          variant="secondary"
+          icon="funnel"
+          aria-haspopup="dialog"
+          (click)="filtrosAbiertos.set(true)"
+        >
+          Filtros
+          @if (filtrosActivos() > 0) {
+            <span class="contador" aria-hidden="true">{{ filtrosActivos() }}</span>
+            <span class="ns-sr-only">({{ filtrosActivos() }} activos)</span>
+          }
+        </button>
+      }
+    </div>
+
+    @if (opcionesCategoria().length > 1) {
+      <ns-chip-group
+        class="categorias"
+        etiqueta="Categoría"
+        desplazable
+        [opciones]="opcionesCategoria()"
+        [ngModel]="categoriaChip()"
+        (ngModelChange)="cambiarCategoria($event)"
+      />
+    }
+
+    @if (!movil()) {
+      <div class="filtros">
+        <ng-container *ngTemplateOutlet="filtros" />
+      </div>
+    }
+
+    @if (themealdbCaido()) {
+      <ns-alert type="info">TheMealDB no está disponible ahora: mostramos solo nuestras recetas.</ns-alert>
+    }
+
+    <div aria-live="polite" [attr.aria-busy]="estado() === 'cargando'">
+      @switch (estado()) {
+        @case ('cargando') {
+          @if (busqueda()) {
+            <ng-container *ngTemplateOutlet="resultados" />
+          } @else {
+            <ng-container *ngTemplateOutlet="esqueleto" />
+          }
+        }
+        @case ('error') {
+          <ns-alert type="error" titulo="No hemos podido cargar las recetas">
+            {{ error() }}
+            <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+              Reintentar
+            </button>
+          </ns-alert>
+        }
+        @default {
+          <ng-container *ngTemplateOutlet="resultados" />
+        }
+      }
+    </div>
+  </section>
+
+  <!-- Favoritas -->
+  <section nsTabPanel="favoritas" class="panel">
+    @switch (estadoFavoritas()) {
+      @case ('cargando') {
+        @if (favoritas(); as lista) {
+          <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: lista }" />
+        } @else {
+          <ng-container *ngTemplateOutlet="esqueleto" />
+        }
+      }
+      @case ('error') {
+        <ns-alert type="error" titulo="No hemos podido cargar tus favoritas">
+          {{ errorFavoritas() }}
+          <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentarFavoritas()">
+            Reintentar
+          </button>
+        </ns-alert>
+      }
+      @default {
+        @if (favoritas()?.length) {
+          <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: favoritas() }" />
+        } @else {
+          <ns-empty-state
+            icon="heart"
+            titulo="Aún no tienes recetas favoritas"
+            descripcion="Pulsa el corazón de una receta para guardarla aquí."
+          >
+            <button nsButton type="button" variant="secondary" (click)="cambiarVista('explorar')">
+              Explorar recetas
+            </button>
+          </ns-empty-state>
+        }
+      }
+    }
+  </section>
+</ns-tabs>
+
+<p class="atribucion ns-text-caption ns-text-secondary">
+  <svg lucideIcon="info" [size]="14" aria-hidden="true"></svg>
+  <span>
+    Recetas e imágenes de
+    <a href="https://www.themealdb.com" target="_blank" rel="noopener"
+      >TheMealDB<span class="ns-sr-only"> (se abre en una pestaña nueva)</span></a
+    >. * Raciones supuestas (4) en las recetas de TheMealDB hasta que se fijen.
+  </span>
+</p>
+
+@if (movil()) {
+  <ns-drawer [(abierto)]="filtrosAbiertos" [inferior]="true" titulo="Filtros" ancho="100vw">
+    <ng-container *ngTemplateOutlet="filtros" />
+    <button nsDrawerAcciones nsButton type="button" (click)="filtrosAbiertos.set(false)">Ver recetas</button>
+  </ns-drawer>
+}
+
+<ng-template #filtros>
+  <app-filtros-recetas [filtros]="avanzados()" (cambio)="aplicarFiltros($event)" />
+</ng-template>
+
+<ng-template #resultados>
+  @if (sinResultados()) {
+    <ns-empty-state
+      icon="search"
+      titulo="No hay recetas con estos filtros"
+      descripcion="Busca por otro nombre o cambia el ingrediente principal."
+    >
+      @if (hayFiltros()) {
+        <button nsButton type="button" variant="secondary" (click)="limpiarFiltros()">Quitar filtros</button>
+      }
+    </ns-empty-state>
+  } @else {
+    @if (catalogo().length) {
+      <section class="bloque" aria-labelledby="titulo-catalogo">
+        <h2 id="titulo-catalogo" class="ns-text-overline ns-text-secondary">
+          Nuestro catálogo · {{ totalCatalogo() }}
+        </h2>
+        <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: catalogo() }" />
+        <ns-paginator
+          etiqueta="Páginas de recetas"
+          [page]="busqueda()?.catalogo?.page ?? 0"
+          [totalPages]="busqueda()?.catalogo?.totalPages ?? 0"
+          (pageChange)="irAPagina($event)"
+        />
+      </section>
+    }
+    @if (deTheMealDb().length) {
+      <section class="bloque" aria-labelledby="titulo-themealdb">
+        <h2 id="titulo-themealdb" class="ns-text-overline ns-text-secondary">De TheMealDB</h2>
+        <ng-container *ngTemplateOutlet="rejilla; context: { $implicit: deTheMealDb() }" />
+      </section>
+    }
+  }
+</ng-template>
+
+<ng-template #rejilla let-lista>
+  <ul class="rejilla" role="list">
+    @for (r of $any(lista); track clave(r)) {
+      <li>
+        <ns-recipe-card
+          [receta]="r"
+          [abriendo]="abriendo() === clave(r)"
+          [guardandoFavorita]="guardando().has(clave(r))"
+          (abrir)="abrir(r)"
+          (favoritaCambiada)="alternarFavorita(r, $event)"
+        />
+      </li>
+    }
+  </ul>
+</ng-template>
+
+<ng-template #esqueleto>
+  <ul class="rejilla" role="list" aria-label="Cargando recetas">
+    @for (i of esqueletos; track i) {
+      <li><ns-skeleton shape="rect" height="300px" /></li>
+    }
+  </ul>
+</ng-template>

@@ -155,6 +155,33 @@ export const ICONOS_APP = [
     ['circle', { cx: '9', cy: '9', r: '2' }],
     ['path', { d: 'm21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21' }],
   ]),
+  // Recetas (navegación y filtros del catálogo)
+  lucideLegacyIcon('chef-hat', [
+    [
+      'path',
+      {
+        d: 'M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z',
+      },
+    ],
+    ['path', { d: 'M6 17h12' }],
+  ]),
+  lucideLegacyIcon('funnel', [
+    [
+      'path',
+      {
+        d: 'M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z',
+      },
+    ],
+  ]),
+  // Recetas favoritas (ns-recipe-card)
+  lucideLegacyIcon('heart', [
+    [
+      'path',
+      {
+        d: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z',
+      },
+    ],
+  ]),
   // Ordenación de columnas (ns-table, DESIGN.md §5.9)
   lucideLegacyIcon('arrow-up-down', [
     ['path', { d: 'm21 16-4 4-4-4' }],
