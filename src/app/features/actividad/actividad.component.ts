@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -23,6 +24,7 @@ import { calcularKpis, cargaPorDia, domingoDe, etiquetaSemana, fechaLocalDeIso, 
 import { CargaSemanaComponent } from './componentes/carga-semana.component';
 import { EntrenamientoItemComponent } from './componentes/entrenamiento-item.component';
 import { KpisSemanaComponent } from './componentes/kpis-semana.component';
+import { EntrenoDescansoComponent } from '../estadisticas/componentes/entreno-descanso.component';
 import { abrirEntrenamientoForm } from './entrenamiento-form.component';
 
 type Estado = 'cargando' | 'error' | 'listo';
@@ -41,6 +43,7 @@ export const AVISO_OBJETIVO_HOY = 'Tu objetivo de hoy se ha actualizado';
   imports: [
     CargaSemanaComponent,
     EntrenamientoItemComponent,
+    EntrenoDescansoComponent,
     FormsModule,
     KpisSemanaComponent,
     LucideDynamicIcon,
@@ -103,6 +106,14 @@ export class ActividadComponent {
       .reverse(),
   );
   protected readonly omitidos = computed(() => this.filtrados().filter((e) => e.estado === 'OMITIDO'));
+
+  /**
+   * "Alimentación y actividad": días de entreno frente a descanso en las últimas 4 semanas
+   * (GET /entrenamientos/relacion-nutricion). Si falla, la tarjeta no se muestra.
+   */
+  protected readonly relacion = rxResource({
+    stream: () => this.entrenamientos.relacionNutricion(sumarDias(hoyLocal(), -27), hoyLocal()),
+  });
 
   constructor() {
     this.cargar();

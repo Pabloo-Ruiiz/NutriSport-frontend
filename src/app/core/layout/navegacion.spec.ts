@@ -14,6 +14,7 @@ describe('navegacion', () => {
       '/compra',
       '/recetas',
       '/actividad',
+      '/estadisticas',
       '/perfil',
       '/configuracion',
       '/admin/usuarios',
@@ -45,6 +46,7 @@ describe('navegacion', () => {
       '/productos',
       '/compra',
       '/recetas',
+      '/estadisticas',
       '/perfil',
       '/configuracion',
     ]);
@@ -53,13 +55,14 @@ describe('navegacion', () => {
       '/productos',
       '/compra',
       '/recetas',
+      '/estadisticas',
       '/perfil',
       '/configuracion',
       '/admin/usuarios',
       '/admin/catalogo',
       '/admin/ingredientes',
     ]);
-    expect(gruposDrawer(false).map((g) => g.titulo)).toEqual(['Principal', 'Cuenta']);
+    expect(gruposDrawer(false).map((g) => g.titulo)).toEqual(['Principal', 'Rendimiento', 'Cuenta']);
   });
 
   it('iniciales', () => {

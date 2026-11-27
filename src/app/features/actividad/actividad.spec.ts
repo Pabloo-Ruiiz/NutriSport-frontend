@@ -7,7 +7,7 @@ import { Router, provideRouter } from '@angular/router';
 import { provideLucideIcons } from '@lucide/angular';
 
 import { LayoutService } from '@core/layout/layout.service';
-import type { EntrenamientoResponse } from '@core/models';
+import type { EntrenamientoResponse, RelacionNutricionResponse } from '@core/models';
 import { hoyLocal, lunesDeLaSemana, sumarDias } from '@core/util/fechas';
 import { environment } from '@env/environment';
 import { ICONOS_APP } from '@shared/design/iconos';
@@ -27,6 +27,18 @@ class InteractivityCheckerJsdom {
 const URL = `${environment.apiUrl}/entrenamientos`;
 const HOY = hoyLocal();
 const LUNES = lunesDeLaSemana(HOY);
+const RELACION: RelacionNutricionResponse = {
+  desde: sumarDias(HOY, -27),
+  hasta: HOY,
+  mediaEntreno: { kcal: 2500, proteina: 140, carbohidratos: 290, grasa: 80 },
+  objetivoEntreno: { kcal: 2650, proteina: 150, carbohidratos: 340, grasa: 80 },
+  mediaDescanso: { kcal: 1900, proteina: 120, carbohidratos: 210, grasa: 70 },
+  objetivoDescanso: { kcal: 2000, proteina: 150, carbohidratos: 240, grasa: 75 },
+  diasEntreno: 8,
+  diasDescanso: 12,
+  sesionesConProteinaPost: 5,
+  sesiones: 6,
+};
 
 /** ISO con la zona local para el día y la hora indicados. */
 const iso = (fecha: string, hora: string) => aIsoConZona(`${fecha}T${hora}`)!;
@@ -118,9 +130,13 @@ describe('ActividadComponent', () => {
     expect(req.request.params.get('desde')).toBe(LUNES);
     expect(req.request.params.get('hasta')).toBe(sumarDias(LUNES, 6));
     req.flush(lista);
+    relacionNutricion().forEach((r) => r.flush(RELACION));
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
   }
+
+  /** "Alimentación y actividad" (últimas 4 semanas): se pide una vez al abrir la pantalla. */
+  const relacionNutricion = () => http.match((r) => r.url === `${URL}/relacion-nutricion`);
 
   const texto = (el: HTMLElement) => el.textContent!.replace(/\s+/g, ' ');
   const botones = (el: HTMLElement, t: string) =>
@@ -218,5 +234,20 @@ describe('ActividadComponent', () => {
         { status: 422, statusText: 'Unprocessable Entity' },
       );
     expect(navegar).toHaveBeenCalledWith(['/bienvenida']);
+  });
+
+  it('"Alimentación y actividad" con la relación de las últimas 4 semanas', async () => {
+    fixture = TestBed.createComponent(ActividadComponent);
+    fixture.detectChanges();
+    const [relacion] = relacionNutricion();
+    expect(relacion.request.params.get('desde')).toBe(sumarDias(HOY, -27));
+    expect(relacion.request.params.get('hasta')).toBe(HOY);
+    relacion.flush(RELACION);
+    semana().flush([]);
+    await fixture.whenStable();
+    const t = texto(fixture.nativeElement as HTMLElement);
+    expect(t).toContain('Alimentación y actividad');
+    expect(t).toContain('Media diaria · 8 días de entreno, 12 días de descanso');
+    expect(t).toContain('5 de 6 sesiones');
   });
 });

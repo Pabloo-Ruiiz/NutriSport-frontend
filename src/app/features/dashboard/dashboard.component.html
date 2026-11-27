@@ -66,14 +66,17 @@
           (marcar)="marcarPlanificada($event)"
         />
 
-        <app-entrenamiento-hoy
-          class="ns-dash__entreno"
-          [entrenamientos]="r.entrenamientos"
-          [esHoy]="esHoy()"
-          [marcando]="marcando()"
-          (realizar)="marcarRealizado($event)"
-          (registrar)="registrarEntrenamiento()"
-        />
+        <!-- Columna de 4: entrenamiento y, debajo, el patrón detectado (solo si hay alguno). -->
+        <div class="ns-dash__entreno">
+          <app-entrenamiento-hoy
+            [entrenamientos]="r.entrenamientos"
+            [esHoy]="esHoy()"
+            [marcando]="marcando()"
+            (realizar)="marcarRealizado($event)"
+            (registrar)="registrarEntrenamiento()"
+          />
+          <app-patron-detectado />
+        </div>
 
         <!--
           Debajo del pliegue: su código (y la petición de la serie de peso) espera a que se vean.

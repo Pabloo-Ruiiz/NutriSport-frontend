@@ -1,0 +1,106 @@
+<header class="ns-est__cabecera">
+  <div>
+    <h2 class="ns-text-h2 ns-est__titulo">Tu progreso</h2>
+    <p class="ns-est__subtitulo" aria-live="polite">{{ subtitulo() }}</p>
+  </div>
+  <app-filtros-periodo class="ns-est__filtros" [filtros]="filtros()" [hoy]="hoy" (cambiar)="cambiarFiltros($event)" />
+</header>
+
+@if (error()) {
+  <ns-alert type="error" titulo="No hemos podido cargar tus estadísticas">
+    {{ error() }}
+    <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
+      Reintentar
+    </button>
+  </ns-alert>
+} @else if (!actual()) {
+  <div class="ns-est__cargando" aria-busy="true" aria-label="Cargando tus estadísticas">
+    <ns-skeleton shape="rect" height="120px" />
+    <ns-skeleton shape="rect" height="380px" />
+    <ns-skeleton shape="rect" height="320px" />
+  </div>
+} @else if (sinDatos()) {
+  <ns-empty-state
+    icon="chart-column"
+    titulo="Aún no hay suficientes datos"
+    [descripcion]="
+      'Registra tus comidas al menos ' +
+      minDias +
+      ' días en este periodo para ver tus estadísticas, o elige otro periodo.'
+    "
+  >
+    <a nsButton routerLink="/comidas/nueva" icon="plus">Registrar comida</a>
+  </ns-empty-state>
+} @else if (actual(); as d) {
+  <div class="ns-est__contenido" [attr.aria-busy]="datos.isLoading() || null">
+    @if (kpis(); as k) {
+      <section aria-labelledby="ns-est-kpis">
+        <h3 class="ns-sr-only" id="ns-est-kpis">Resumen del periodo</h3>
+        <app-kpis-periodo [kpis]="k" [contexto]="contextoDelta()" />
+      </section>
+    }
+
+    <div class="ns-est__rejilla">
+      <app-grafico-energia class="ns-est__ancho-8" [estadisticas]="d.estadisticas" [mediaAnterior]="mediaAnterior()" />
+      <app-reparto-macros class="ns-est__ancho-4" [estadisticas]="d.estadisticas" />
+
+      @defer (on viewport; prefetch on idle) {
+        <app-grafico-macros class="ns-est__ancho-8" [estadisticas]="d.estadisticas" />
+      } @placeholder {
+        <ns-skeleton class="ns-est__ancho-8" shape="rect" height="360px" />
+      }
+      @defer (on viewport; prefetch on idle) {
+        <app-reparto-comidas class="ns-est__ancho-4" [estadisticas]="d.estadisticas" />
+      } @placeholder {
+        <ns-skeleton class="ns-est__ancho-4" shape="rect" height="360px" />
+      }
+
+      @defer (on viewport; prefetch on idle) {
+        <app-grafico-peso class="ns-est__ancho-4" [serie]="d.peso ?? { puntos: [], variacion: null }" />
+      } @placeholder {
+        <ns-skeleton class="ns-est__ancho-4" shape="rect" height="320px" />
+      }
+      @defer (on viewport; prefetch on idle) {
+        <app-mapa-adherencia class="ns-est__ancho-4" [estadisticas]="d.estadisticas" />
+      } @placeholder {
+        <ns-skeleton class="ns-est__ancho-4" shape="rect" height="320px" />
+      }
+      @defer (on viewport; prefetch on idle) {
+        <app-entreno-descanso class="ns-est__ancho-4" [relacion]="d.relacion" />
+      } @placeholder {
+        <ns-skeleton class="ns-est__ancho-4" shape="rect" height="320px" />
+      }
+
+      <ns-card variant="ai" class="ns-est__ancho-6">
+        <h3 nsCardTitulo>Patrones detectados</h3>
+        <p nsCardSubtitulo>Calculados con tus registros · redactados por el asistente</p>
+        @if (!insightsActivos()) {
+          <p class="ns-est__nota">
+            Tienes desactivados los patrones detectados.
+            <a routerLink="/configuracion/cuenta">Actívalos en Configuración</a> para verlos aquí.
+          </p>
+        } @else if (insights.isLoading()) {
+          <ns-skeleton shape="rect" height="96px" />
+        } @else if (insights.error()) {
+          <p class="ns-est__nota">No hemos podido cargar los patrones detectados.</p>
+        } @else if (insights.hasValue() && insights.value().length) {
+          <ul class="ns-est__insights" role="list">
+            @for (i of insights.value(); track i.id) {
+              <li><ns-insight-card [insight]="i" [nivelTitulo]="4" [asistenteDisponible]="asistenteDisponible()" /></li>
+            }
+          </ul>
+        } @else {
+          <p class="ns-est__nota">
+            Aún no hay patrones. Se calculan cada noche con tus registros de los últimos 28 días.
+          </p>
+        }
+      </ns-card>
+
+      @defer (on viewport; prefetch on idle) {
+        <app-top-alimentos class="ns-est__ancho-6" [alimentos]="d.estadisticas.top" />
+      } @placeholder {
+        <ns-skeleton class="ns-est__ancho-6" shape="rect" height="360px" />
+      }
+    </div>
+  </div>
+}

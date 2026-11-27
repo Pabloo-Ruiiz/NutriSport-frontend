@@ -1,0 +1,106 @@
+// Estadísticas (DESIGN.md §7.14). Solo tokens --ns-*.
+// lg: rejilla de 12 columnas (energía 8 + reparto 4; macros 8 + comidas 4; peso, adherencia y
+// entreno 4 + 4 + 4; insights 6 + alimentos 6). md: 2 columnas. xs: una columna a ancho completo.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  max-width: 1280px;
+}
+
+.ns-est__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
+}
+
+.ns-est__titulo,
+.ns-est__subtitulo {
+  margin: 0;
+}
+
+.ns-est__subtitulo {
+  margin-top: var(--ns-space-1);
+  color: var(--ns-text-secondary);
+}
+
+.ns-est__filtros {
+  @include bp.down(md) {
+    width: 100%;
+  }
+}
+
+.ns-est__cargando,
+.ns-est__contenido {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
+
+.ns-est__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ns-space-4);
+
+  > * {
+    min-width: 0;
+  }
+}
+
+@include bp.up(md) {
+  .ns-est__rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ns-est__ancho-8,
+  .ns-est__ancho-6 {
+    grid-column: 1 / -1;
+  }
+}
+
+@include bp.up(lg) {
+  .ns-est__rejilla {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .ns-est__ancho-8 {
+    grid-column: span 8;
+  }
+
+  .ns-est__ancho-6 {
+    grid-column: span 6;
+  }
+
+  .ns-est__ancho-4 {
+    grid-column: span 4;
+  }
+}
+
+.ns-est__nota {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+.ns-est__insights {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    padding-block: var(--ns-space-4);
+  }
+
+  > li + li {
+    border-top: 1px solid var(--ns-border);
+  }
+
+  > li:first-child {
+    padding-top: 0;
+  }
+}

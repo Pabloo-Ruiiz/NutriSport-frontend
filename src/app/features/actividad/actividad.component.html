@@ -51,6 +51,13 @@
       <app-carga-semana [dias]="carga()" />
     </ns-card>
 
+    <!-- Alimentación y actividad (DESIGN.md §7.13): últimas 4 semanas, independiente de la semana que se ve. -->
+    @if (relacion.hasValue()) {
+      <app-entreno-descanso titulo="Alimentación y actividad" [relacion]="relacion.value()" />
+    } @else if (relacion.isLoading()) {
+      <ns-skeleton shape="rect" height="240px" />
+    }
+
     @if (filtrados().length === 0) {
       <ns-empty-state
         icon="activity"

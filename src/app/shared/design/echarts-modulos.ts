@@ -3,8 +3,16 @@
 //
 // Si un gráfico nuevo usa otro tipo de serie o componente (pie, heatmap, dataZoom, visualMap…),
 // hay que añadirlo aquí: si no, ECharts avisa en la consola y no lo pinta.
-import { BarChart, LineChart, ScatterChart } from 'echarts/charts';
-import { AriaComponent, GridComponent, LegendComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
+import { BarChart, HeatmapChart, LineChart, PieChart, ScatterChart } from 'echarts/charts';
+import {
+  AriaComponent,
+  CalendarComponent,
+  GridComponent,
+  LegendComponent,
+  MarkLineComponent,
+  TooltipComponent,
+  VisualMapPiecewiseComponent,
+} from 'echarts/components';
 import * as echarts from 'echarts/core';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -14,11 +22,16 @@ echarts.use([
   BarChart,
   ScatterChart,
   LineChart,
+  // Estadísticas: reparto de macros (anillo) y mapa de adherencia (heatmap en un calendario).
+  PieChart,
+  HeatmapChart,
   // Componentes
   GridComponent,
   TooltipComponent,
   LegendComponent,
   MarkLineComponent,
+  CalendarComponent,
+  VisualMapPiecewiseComponent,
   // Descripción accesible generada por ECharts (aria.enabled en ns-chart).
   AriaComponent,
   // hideOverlap de las etiquetas del eje de fechas.

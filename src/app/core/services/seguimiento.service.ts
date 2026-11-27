@@ -3,15 +3,30 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
 import { environment } from '@env/environment';
-import type { PesoRequest, PesoResponse, ResumenDiarioResponse, SeriePesoResponse } from '../models';
+import type {
+  Agrupacion,
+  ComparativaResponse,
+  EstadisticasResponse,
+  InsightResponse,
+  PesoRequest,
+  PesoResponse,
+  ResumenDiarioResponse,
+  SeriePesoResponse,
+} from '../models';
 import { diasEntre } from '../util/fechas';
 
 /** Días que puede abarcar GET /seguimiento/peso (desde y hasta incluidos). */
 export const MAX_DIAS_SERIE_PESO = 366;
 
+/** Días que puede abarcar GET /seguimiento/estadisticas (desde y hasta incluidos). */
+export const MAX_DIAS_ESTADISTICAS = 366;
+
+/** Periodos de GET /seguimiento/comparativa: semana (de lunes a hoy) o mes (del día 1 a hoy). */
+export type PeriodoComparativa = Extract<Agrupacion, 'SEMANA' | 'MES'>;
+
 /**
- * Seguimiento (NutriSport_API.md §6 Seguimiento): resumen diario y peso. Los insights y las
- * estadísticas llegan en sus pasos.
+ * Seguimiento (NutriSport_API.md §6 Seguimiento): resumen diario, peso, estadísticas de un periodo,
+ * comparativa con el periodo anterior e insights.
  */
 @Injectable({ providedIn: 'root' })
 export class SeguimientoService {
@@ -57,5 +72,39 @@ export class SeguimientoService {
     }
     const params = new HttpParams().set('desde', desde).set('hasta', hasta);
     return this.http.get<SeriePesoResponse>(`${this.url}/peso`, { params });
+  }
+
+  /**
+   * GET /seguimiento/estadisticas: serie de energía y macros (media diaria de cada periodo) frente al
+   * objetivo, agrupada por día (por defecto), semana ISO o mes; medias, adherencia, reparto de macros,
+   * kcal por tipo de comida y los 10 alimentos más consumidos. Como mucho 366 días: un rango mayor o
+   * al revés no llega a pedirse y falla con RangeError.
+   */
+  estadisticas(desde: string, hasta: string, agrupacion?: Agrupacion | null): Observable<EstadisticasResponse> {
+    const dias = diasEntre(desde, hasta) + 1;
+    if (dias < 1 || dias > MAX_DIAS_ESTADISTICAS) {
+      return throwError(
+        () => new RangeError(`Las estadísticas deben abarcar de 1 a ${MAX_DIAS_ESTADISTICAS} días (son ${dias}).`),
+      );
+    }
+    let params = new HttpParams().set('desde', desde).set('hasta', hasta);
+    if (agrupacion) params = params.set('agrupacion', agrupacion);
+    return this.http.get<EstadisticasResponse>(`${this.url}/estadisticas`, { params });
+  }
+
+  /**
+   * GET /seguimiento/comparativa: periodo actual frente al anterior. SEMANA (por defecto): de lunes a
+   * hoy frente a la semana anterior completa; MES: del día 1 a hoy frente al mes anterior completo.
+   * Estadísticas sin serie, variación de la media diaria en % (nula sin datos anteriores) y de la
+   * adherencia en puntos.
+   */
+  comparativa(periodo?: PeriodoComparativa | null): Observable<ComparativaResponse> {
+    const params = periodo ? new HttpParams().set('periodo', periodo) : undefined;
+    return this.http.get<ComparativaResponse>(`${this.url}/comparativa`, { params });
+  }
+
+  /** GET /seguimiento/insights: insights vigentes, los más recientes primero (vacía si están desactivados). */
+  insights(): Observable<InsightResponse[]> {
+    return this.http.get<InsightResponse[]>(`${this.url}/insights`);
   }
 }

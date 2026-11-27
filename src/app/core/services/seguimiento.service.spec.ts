@@ -50,6 +50,49 @@ describe('SeguimientoService (peso)', () => {
   });
 });
 
+describe('SeguimientoService (estadísticas, comparativa e insights)', () => {
+  it('estadisticas() pide desde, hasta y la agrupación', () => {
+    servicio.estadisticas('2026-11-01', '2026-11-27', 'SEMANA').subscribe();
+    const peticion = http.expectOne((req) => req.url === '/api/v1/seguimiento/estadisticas');
+    expect(peticion.request.method).toBe('GET');
+    expect(peticion.request.params.get('desde')).toBe('2026-11-01');
+    expect(peticion.request.params.get('hasta')).toBe('2026-11-27');
+    expect(peticion.request.params.get('agrupacion')).toBe('SEMANA');
+  });
+
+  it('estadisticas() sin agrupación no la envía (el backend usa DIA)', () => {
+    servicio.estadisticas('2026-11-01', '2026-11-07').subscribe();
+    const peticion = http.expectOne((req) => req.url === '/api/v1/seguimiento/estadisticas');
+    expect(peticion.request.params.has('agrupacion')).toBe(false);
+  });
+
+  it('estadisticas() admite 366 días y rechaza más (o un rango al revés) sin llamar', async () => {
+    servicio.estadisticas('2027-01-01', '2028-01-01').subscribe(); // 366 días
+    http.expectOne((req) => req.url === '/api/v1/seguimiento/estadisticas');
+
+    await expect(firstValueFrom(servicio.estadisticas('2027-01-01', '2028-01-02'))).rejects.toBeInstanceOf(RangeError);
+    await expect(firstValueFrom(servicio.estadisticas('2026-02-01', '2026-01-31'))).rejects.toBeInstanceOf(RangeError);
+    http.expectNone((req) => req.url === '/api/v1/seguimiento/estadisticas');
+  });
+
+  it('comparativa() envía el periodo solo si se indica', () => {
+    servicio.comparativa('MES').subscribe();
+    expect(http.expectOne((req) => req.url === '/api/v1/seguimiento/comparativa').request.params.get('periodo')).toBe(
+      'MES',
+    );
+    servicio.comparativa().subscribe();
+    expect(http.expectOne((req) => req.url === '/api/v1/seguimiento/comparativa').request.params.has('periodo')).toBe(
+      false,
+    );
+  });
+
+  it('insights() hace GET /seguimiento/insights', async () => {
+    const respuesta = firstValueFrom(servicio.insights());
+    http.expectOne({ method: 'GET', url: '/api/v1/seguimiento/insights' }).flush([]);
+    expect(await respuesta).toEqual([]);
+  });
+});
+
 describe('fechaNoFutura', () => {
   const validar = (valor: string) => fechaNoFutura(() => '2026-11-26')(new FormControl(valor));
 

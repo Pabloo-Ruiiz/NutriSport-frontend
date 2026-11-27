@@ -33,9 +33,9 @@ export const RECETAS: ElementoNav = { etiqueta: 'Recetas', ruta: '/recetas', ico
 export const PLANIFICADOR: ElementoNav = { etiqueta: 'Planificador', ruta: '/planificador', icono: 'calendar' };
 
 export const COMPRA: ElementoNav = { etiqueta: 'Lista de la compra', ruta: '/compra', icono: 'shopping-basket' };
+export const ESTADISTICAS: ElementoNav = { etiqueta: 'Estadísticas', ruta: '/estadisticas', icono: 'chart-column' };
 
 // Ampliación:
-// export const ESTADISTICAS: ElementoNav = { etiqueta: 'Estadísticas', ruta: '/estadisticas', icono: 'chart-column' };
 // export const ASISTENTE: ElementoNav = { etiqueta: 'Asistente IA', ruta: '/asistente', icono: 'sparkles' };
 
 /** Grupos de la sidebar, en orden. */
@@ -46,10 +46,7 @@ export const NAVEGACION: readonly GrupoNav[] = [
   },
   {
     titulo: 'Rendimiento',
-    elementos: [
-      ACTIVIDAD,
-      // ESTADISTICAS,
-    ],
+    elementos: [ACTIVIDAD, ESTADISTICAS],
   },
   // Ampliación:
   // { titulo: 'Inteligencia', elementos: [ASISTENTE] },
