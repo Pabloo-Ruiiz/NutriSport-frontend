@@ -1,24 +1,33 @@
-<button type="button" (click)="elegido.emit(producto())">
-  @if (producto().imagenUrl) {
-    <img
-      [src]="producto().imagenUrl"
-      alt=""
-      width="48"
-      height="48"
-      loading="lazy"
-      (error)="imagen.hidden = true"
-      #imagen
-    />
-  } @else {
-    <span class="icono" aria-hidden="true">▤</span>
-  }
-  <span
-    ><strong>{{ producto().nombre }}</strong
-    ><span>{{ producto().marca }} · {{ numero(producto().kcal100) }} kcal/100 g</span
-    ><ns-source-badge fuente="OPEN_FOOD_FACTS" />
-    @if (!producto().nutricionCompleta) {
-      <span class="aviso">Información nutricional incompleta</span>
+<button
+  type="button"
+  class="ns-pi"
+  [class.ns-pi--seleccionado]="seleccionado()"
+  [class.ns-pi--incompleto]="!producto().nutricionCompleta"
+  [attr.aria-current]="seleccionado() ? 'true' : null"
+  (click)="elegido.emit(producto())"
+>
+  <span class="ns-pi__miniatura" aria-hidden="true">
+    @if (producto().imagenUrl && !sinImagen()) {
+      <img [src]="producto().imagenUrl" alt="" width="48" height="48" loading="lazy" (error)="sinImagen.set(true)" />
+    } @else {
+      <svg lucideIcon="scan-barcode" [size]="20"></svg>
     }
   </span>
+  <span class="ns-pi__datos">
+    <span class="ns-pi__nombre">{{ producto().nombre }}</span>
+    <span class="ns-pi__detalle">
+      {{ producto().marca || 'Sin marca' }}
+      @if (producto().nutricionCompleta) {
+        · {{ numero(producto().kcal100) }} kcal por 100 g
+      }
+    </span>
+  </span>
+  @if (producto().nutricionCompleta) {
+    <ns-source-badge class="ns-pi__fuente" fuente="OPEN_FOOD_FACTS" />
+  } @else {
+    <ns-badge class="ns-pi__aviso" variant="warning" icon="triangle-exclamation-point">
+      Información nutricional incompleta
+    </ns-badge>
+  }
+  <svg class="ns-pi__chevron" lucideIcon="chevron-right" [size]="18" aria-hidden="true"></svg>
 </button>
-<ns-attribution [fuente]="producto().fuente" />

@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { RouterLink } from '@angular/router';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-import type { RegistroComidaResponse } from '@core/models';
+import type { ComidaPendienteResponse, RegistroComidaResponse, TipoComida } from '@core/models';
+import { KcalPipe } from '@shared/pipes/kcal.pipe';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NS_CARD } from '@shared/ui/card/card.component';
 import { NsEmptyStateComponent } from '@shared/ui/feedback/empty-state.component';
@@ -14,11 +15,21 @@ import { franjasDelDia } from '../dashboard';
  * `meal`; las franjas fijas vacías llevan "Añadir" (al registro con el tipo y la fecha). Arriba,
  * "Registrar con foto" (ai) y "Buscar alimento" (secondary). Sin comidas, el estado vacío.
  *
- * Las comidas del plan pendientes (comidasPlanificadasPendientes) llegarán en el paso 31.
+ * Las comidas del plan pendientes (resumen.comidasPlanificadasPendientes) van en su franja como
+ * "Del plan: {receta} · {kcal} kcal" con "Marcar comida" (emite `marcar`; el dashboard hace el POST
+ * …/registrar y recarga el resumen). Sin menuId no se pueden marcar.
  */
 @Component({
   selector: 'app-comidas-hoy',
-  imports: [LucideDynamicIcon, MealCardComponent, NS_CARD, NsButtonComponent, NsEmptyStateComponent, RouterLink],
+  imports: [
+    KcalPipe,
+    LucideDynamicIcon,
+    MealCardComponent,
+    NS_CARD,
+    NsButtonComponent,
+    NsEmptyStateComponent,
+    RouterLink,
+  ],
   template: `
     <ns-card>
       <h3 nsCardTitulo>{{ titulo() }}</h3>
@@ -34,7 +45,7 @@ import { franjasDelDia } from '../dashboard';
         >
       </div>
 
-      @if (comidas().length === 0) {
+      @if (comidas().length === 0 && pendientes().length === 0) {
         <ns-empty-state
           [nivelTitulo]="4"
           icon="utensils"
@@ -59,6 +70,31 @@ import { franjasDelDia } from '../dashboard';
                   <span class="ns-ch__franja-hora ns-tnum">{{ f.hora }}</span>
                 }
               </div>
+              @if (pendientesPorTipo().get(f.tipo); as plan) {
+                <ul class="ns-ch__plan" role="list">
+                  @for (p of plan; track p.id) {
+                    <li class="ns-ch__pendiente">
+                      <svg class="ns-ch__plan-icono" lucideIcon="calendar" [size]="16" aria-hidden="true"></svg>
+                      <span class="ns-ch__plan-texto">
+                        Del plan: <strong>{{ p.receta.nombre }}</strong> · {{ p.nutrientes.kcal | kcal }}
+                      </span>
+                      <button
+                        nsButton
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        icon="check"
+                        [disabled]="!p.menuId"
+                        [loading]="marcando() === p.id"
+                        [attr.aria-label]="'Marcar comida: ' + p.receta.nombre"
+                        (click)="marcar.emit(p)"
+                      >
+                        Marcar comida
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
               @if (f.comidas.length) {
                 <ul class="ns-ch__comidas" role="list">
                   @for (c of f.comidas; track c.id) {
@@ -73,7 +109,7 @@ import { franjasDelDia } from '../dashboard';
                     </li>
                   }
                 </ul>
-              } @else {
+              } @else if (!pendientesPorTipo().has(f.tipo)) {
                 <a class="ns-ch__anadir" routerLink="/comidas/nueva" [queryParams]="params(f.tipo)">
                   <svg lucideIcon="plus" [size]="16" aria-hidden="true"></svg>
                   Añadir {{ f.etiqueta.toLowerCase() }}
@@ -144,6 +180,39 @@ import { franjasDelDia } from '../dashboard';
       padding: 0;
       list-style: none;
     }
+    .ns-ch__plan {
+      display: flex;
+      flex-direction: column;
+      gap: var(--ns-space-2);
+      margin: 0 0 var(--ns-space-2);
+      padding: 0;
+      list-style: none;
+    }
+    .ns-ch__pendiente {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--ns-space-2);
+      padding: var(--ns-space-2) var(--ns-space-3);
+      border: 1px dashed var(--ns-border-strong);
+      border-radius: var(--ns-radius-lg);
+      background: var(--ns-surface-muted);
+    }
+    .ns-ch__plan-icono {
+      flex-shrink: 0;
+      color: var(--ns-text-secondary);
+    }
+    .ns-ch__plan-texto {
+      flex: 1;
+      min-width: 0;
+      color: var(--ns-text-secondary);
+      font-size: 0.8125rem;
+      overflow-wrap: anywhere;
+      strong {
+        color: var(--ns-text);
+        font-weight: 600;
+      }
+    }
     .ns-ch__anadir {
       display: flex;
       align-items: center;
@@ -169,6 +238,10 @@ import { franjasDelDia } from '../dashboard';
 })
 export class ComidasHoyComponent {
   readonly comidas = input.required<RegistroComidaResponse[]>();
+  /** Comidas del plan del día aún sin registrar (resumen.comidasPlanificadasPendientes). */
+  readonly pendientes = input<readonly ComidaPendienteResponse[]>([]);
+  /** Id de la comida planificada que se está marcando (botón con spinner). */
+  readonly marcando = input<string | null>(null);
   /** Día que se muestra ("AAAA-MM-DD"). */
   readonly fecha = input.required<string>();
   readonly esHoy = input(true);
@@ -179,9 +252,19 @@ export class ComidasHoyComponent {
   readonly editar = output<RegistroComidaResponse>();
   readonly duplicar = output<RegistroComidaResponse>();
   readonly eliminar = output<RegistroComidaResponse>();
+  /** "Marcar comida" en una comida del plan. */
+  readonly marcar = output<ComidaPendienteResponse>();
 
   protected readonly titulo = computed(() => (this.esHoy() ? 'Comidas de hoy' : 'Comidas del día'));
-  protected readonly franjas = computed(() => franjasDelDia(this.comidas()));
+  protected readonly pendientesPorTipo = computed(() => {
+    const porTipo = new Map<TipoComida, ComidaPendienteResponse[]>();
+    for (const p of this.pendientes()) {
+      const tipo = p.tipoComida ?? 'OTRO';
+      porTipo.set(tipo, [...(porTipo.get(tipo) ?? []), p]);
+    }
+    return porTipo;
+  });
+  protected readonly franjas = computed(() => franjasDelDia(this.comidas(), [...this.pendientesPorTipo().keys()]));
 
   /** Parámetros del registro: fecha, vuelta y, si se indica, el tipo de comida. */
   protected params(tipoComida?: string): Record<string, string> {

@@ -1,52 +1,140 @@
-<h1>Buscar alimento o producto</h1>
-<p>Primero buscamos en tu catálogo. Los productos comerciales se consultan en Open Food Facts cuando lo pides.</p>
-<div class="columnas">
-  <section class="panel">
-    <label for="buscar-productos">Buscar alimento o producto</label
-    ><input
-      nsInput
-      id="buscar-productos"
-      type="search"
-      maxlength="60"
-      [value]="catalogo.texto()"
-      (input)="escribir($event)"
-    />
-    <div aria-live="polite">
-      <h2>En tu catálogo</h2>
-      @if (catalogo.estado() === 'cargando') {
-        <p>Buscando en tu catálogo…</p>
-      }
-      @if (catalogo.estado() === 'vacia') {
-        <p>No hay resultados en tu catálogo.</p>
-      }
-      @if (catalogo.estado() === 'error') {
-        <ns-alert type="error">No hemos podido consultar tu catálogo.</ns-alert
-        ><button nsButton variant="secondary" (click)="catalogo.reintentar()">Reintentar</button>
-      }
-      @for (a of catalogo.resultados(); track a.id) {
-        <a class="alimento" routerLink="/comidas/nueva" [queryParams]="parametros(a)"
-          ><strong>{{ a.nombre }}</strong
-          ><span>{{ a.marca }} · {{ numero(a.kcal100) }} kcal/100 g</span><ns-source-badge [fuente]="a.fuente"
-        /></a>
+<header class="ns-bp__cabecera">
+  <div class="ns-bp__titulos">
+    <h1 class="ns-bp__titulo">Buscar alimento o producto</h1>
+    <p class="ns-bp__subtitulo">
+      Primero buscamos en tu catálogo. Los productos comerciales se consultan en Open Food Facts cuando lo pides.
+    </p>
+  </div>
+  <a nsButton variant="secondary" icon="scan-barcode" routerLink="/escaner" [queryParamsHandling]="'preserve'">
+    Escanear código
+  </a>
+</header>
+
+<div class="ns-bp__columnas">
+  <section class="ns-bp__panel" aria-labelledby="ns-bp-catalogo">
+    <div class="ns-bp__buscador" role="search">
+      <label class="ns-sr-only" for="buscar-productos">Buscar alimento o producto</label>
+      <svg class="ns-bp__lupa" lucideIcon="search" [size]="18" aria-hidden="true"></svg>
+      <input
+        #campo
+        id="buscar-productos"
+        class="ns-bp__campo"
+        type="search"
+        maxlength="60"
+        autocomplete="off"
+        placeholder="Ej.: yogur natural sin lactosa"
+        [value]="catalogo.texto()"
+        (input)="escribir($event)"
+      />
+      @if (catalogo.texto()) {
+        <button type="button" class="ns-bp__borrar" aria-label="Borrar búsqueda" (click)="borrar(campo)">
+          <svg lucideIcon="x" [size]="16" aria-hidden="true"></svg>
+        </button>
       }
     </div>
-    <app-productos-comerciales [consultaBusqueda]="catalogo.texto()" (elegido)="elegir($event)" />
+
+    <div class="ns-bp__bloque" aria-live="polite">
+      <h2 class="ns-bp__seccion" id="ns-bp-catalogo">
+        <span class="ns-text-overline">En tu catálogo</span>
+        @if (catalogo.estado() === 'resultados') {
+          <span class="ns-bp__contador">
+            · {{ catalogo.resultados().length }}
+            {{ catalogo.resultados().length === 1 ? 'resultado' : 'resultados' }}
+          </span>
+        }
+      </h2>
+
+      @switch (catalogo.estado()) {
+        @case ('inactiva') {
+          <p class="ns-bp__nota">Escribe al menos 2 letras para buscar en tus alimentos y productos guardados.</p>
+        }
+        @case ('cargando') {
+          <div class="ns-bp__lista" aria-busy="true" aria-label="Buscando en tu catálogo">
+            <ns-skeleton shape="rect" height="72px" />
+            <ns-skeleton shape="rect" height="72px" />
+          </div>
+        }
+        @case ('vacia') {
+          <p class="ns-bp__nota">
+            No hay resultados en tu catálogo para «{{ catalogo.texto().trim() }}». Prueba en productos comerciales.
+          </p>
+        }
+        @case ('error') {
+          <ns-alert type="error">
+            No hemos podido consultar tu catálogo.
+            <button
+              nsAlertAcciones
+              nsButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              (click)="catalogo.reintentar()"
+            >
+              Reintentar
+            </button>
+          </ns-alert>
+        }
+      }
+
+      @if (catalogo.resultados().length) {
+        <ul class="ns-bp__lista" role="list">
+          @for (a of catalogo.resultados(); track a.id) {
+            <li>
+              <a class="ns-bp__item" routerLink="/comidas/nueva" [queryParams]="parametros(a)">
+                <span class="ns-bp__miniatura" aria-hidden="true">
+                  <svg lucideIcon="database" [size]="20"></svg>
+                </span>
+                <span class="ns-bp__datos">
+                  <span class="ns-bp__nombre">{{ a.nombre }}</span>
+                  <span class="ns-bp__detalle">
+                    {{ a.marca || 'Genérico' }} · {{ numero(a.kcal100) }} kcal · <abbr title="Proteínas">P</abbr>
+                    {{ numero(a.proteinas100, 1) }} · <abbr title="Hidratos de carbono">HC</abbr>
+                    {{ numero(a.carbohidratos100, 1) }} · <abbr title="Grasas">G</abbr> {{ numero(a.grasas100, 1) }} por
+                    100 g
+                  </span>
+                </span>
+                <ns-source-badge class="ns-bp__fuente" [fuente]="a.fuente" />
+                <svg class="ns-bp__chevron" lucideIcon="chevron-right" [size]="18" aria-hidden="true"></svg>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <app-productos-comerciales
+      class="ns-bp__bloque"
+      [consultaBusqueda]="catalogo.texto()"
+      [seleccionado]="seleccionado()?.codigoBarras ?? null"
+      (elegido)="elegir($event)"
+    />
   </section>
+
   @if (!movil()) {
-    <aside class="panel" aria-label="Ficha del producto">
+    <aside class="ns-bp__panel ns-bp__panel--ficha" aria-label="Ficha del producto">
       @if (seleccionado()) {
         <ng-container *ngTemplateOutlet="ficha" />
       } @else {
-        <p>Elige un producto para ver su ficha.</p>
+        <div class="ns-bp__sin-ficha">
+          <span class="ns-bp__sin-ficha-icono" aria-hidden="true">
+            <svg lucideIcon="scan-barcode" [size]="24"></svg>
+          </span>
+          <p class="ns-bp__sin-ficha-titulo">Elige un producto para ver su ficha</p>
+          <p class="ns-bp__nota">
+            Verás su información nutricional, ingredientes y alérgenos, y podrás añadirlo a una comida.
+          </p>
+        </div>
       }
     </aside>
   }
 </div>
+
 @if (movil()) {
-  <ns-drawer [(abierto)]="abierto" [inferior]="true" titulo="Ficha del producto" ancho="100vw"
-    ><ng-container *ngTemplateOutlet="ficha"
-  /></ns-drawer>
+  <ns-drawer [(abierto)]="abierto" [inferior]="true" titulo="Ficha del producto" ancho="100vw">
+    <ng-container *ngTemplateOutlet="ficha" />
+  </ns-drawer>
 }
+
 <ng-template #ficha>
   @if (seleccionado(); as p) {
     @for (producto of [p]; track producto.codigoBarras) {

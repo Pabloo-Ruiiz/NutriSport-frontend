@@ -145,8 +145,10 @@ describe('ShellComponent', () => {
         'Foto del plato',
         'Buscar alimento',
         'Escanear código',
+        'Desde mi plan',
       ]);
       expect(sheet.querySelector('a[href="/escaner"]')).not.toBeNull();
+      expect(sheet.querySelector('a[href="/planificador"]')).not.toBeNull();
     });
 
     it('el avatar ("Más") abre el drawer con el resto de secciones y Cerrar sesión', async () => {

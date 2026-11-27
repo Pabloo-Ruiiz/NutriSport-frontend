@@ -1,32 +1,111 @@
-button {
-  width: 100%;
+// Resultado de producto comercial (DESIGN.md §7.19): imagen de 48 px o icono, nombre, marca,
+// kcal/100 g y procedencia, o el aviso de información incompleta. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.ns-pi {
   display: flex;
   align-items: center;
   gap: var(--ns-space-3);
-  text-align: left;
+  width: 100%;
+  min-height: 72px;
   padding: var(--ns-space-3);
   border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius-lg);
   background: var(--ns-surface);
   color: var(--ns-text);
+  font: inherit;
+  text-align: left;
   cursor: pointer;
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    box-shadow var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    border-color: var(--ns-border-strong);
+    box-shadow: var(--ns-shadow-sm);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 2px;
+  }
 }
-button:focus-visible {
-  outline: 2px solid var(--ns-text-link);
+
+.ns-pi--seleccionado {
+  border-color: var(--ns-action-primary);
+  box-shadow: 0 0 0 1px var(--ns-action-primary);
+
+  &:hover {
+    border-color: var(--ns-action-primary);
+  }
 }
-img,
-.icono {
+
+.ns-pi--incompleto {
+  background: var(--ns-surface-muted);
+}
+
+.ns-pi__miniatura {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
   width: 48px;
   height: 48px;
-  object-fit: contain;
+  overflow: hidden;
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface-muted);
+  color: var(--ns-text-secondary);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--ns-surface);
+  }
+}
+
+.ns-pi__datos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ns-pi__nombre {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.ns-pi__detalle {
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ns-pi__fuente,
+.ns-pi__aviso {
   flex-shrink: 0;
 }
-span span {
-  display: block;
+
+.ns-pi__fuente {
+  @include bp.down(sm) {
+    display: none;
+  }
 }
-.aviso {
-  color: var(--ns-warning);
+
+.ns-pi__aviso {
+  @include bp.down(sm) {
+    max-width: 120px;
+  }
 }
-ns-attribution {
-  margin: var(--ns-space-2) 0 var(--ns-space-4);
+
+.ns-pi__chevron {
+  flex-shrink: 0;
+  color: var(--ns-text-tertiary);
 }

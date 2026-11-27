@@ -1,35 +1,280 @@
-.columnas {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: var(--ns-space-5);
-  align-items: start;
-}
-.panel {
-  padding: var(--ns-space-5);
-  background: var(--ns-surface);
-  border: 1px solid var(--ns-border);
-  border-radius: var(--ns-radius-lg);
+// Buscador de alimentos y productos (DESIGN.md §7.19): layout 7 + 5. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use '../../shared/ui/form/campo' as campo;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
   min-width: 0;
 }
-label {
-  display: block;
-  margin-bottom: var(--ns-space-2);
+
+// ---- Cabecera
+
+.ns-bp__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
 }
-.alimento {
+
+.ns-bp__titulos {
+  display: flex;
+  flex: 1 1 320px;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+  min-width: 0;
+}
+
+.ns-bp__titulo {
+  margin: 0;
+  font: 700 1.75rem/2.25rem var(--ns-font-display, var(--ns-font-body));
+  letter-spacing: -0.01em;
+
+  @include bp.down(md) {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+  }
+}
+
+.ns-bp__subtitulo {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+// ---- Columnas y paneles
+
+.ns-bp__columnas {
   display: grid;
-  gap: var(--ns-space-2);
-  padding: var(--ns-space-3);
-  margin-bottom: var(--ns-space-2);
-  border: 1px solid var(--ns-border);
-  border-radius: var(--ns-radius-lg);
-  color: var(--ns-text);
-  min-height: 44px;
-}
-@media (max-width: 767px) {
-  .columnas {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: start;
+  gap: var(--ns-space-6);
+
+  @include bp.down(lg) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--ns-space-4);
+  }
+  @include bp.down(md) {
     grid-template-columns: minmax(0, 1fr);
   }
-  .panel {
-    padding: var(--ns-space-3);
+}
+
+.ns-bp__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  min-width: 0;
+  padding: var(--ns-space-5);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-xl);
+  background: var(--ns-surface);
+  box-shadow: var(--ns-shadow-xs);
+
+  @include bp.down(md) {
+    padding: var(--ns-space-4);
   }
+}
+
+// La ficha acompaña al scroll en escritorio.
+.ns-bp__panel--ficha {
+  position: sticky;
+  top: calc(var(--ns-topbar-height, 64px) + var(--ns-space-4));
+}
+
+// ---- Buscador
+
+.ns-bp__buscador {
+  position: relative;
+}
+
+.ns-bp__campo {
+  @include campo.caja;
+
+  height: 44px;
+  padding-inline: calc(var(--ns-space-3) + 26px) calc(var(--ns-space-3) + 28px);
+  font-size: 0.9375rem;
+
+  // Sin la "x" nativa de type="search": ya hay un botón propio.
+  &::-webkit-search-cancel-button {
+    appearance: none;
+  }
+}
+
+.ns-bp__lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--ns-space-3);
+  color: var(--ns-text-tertiary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ns-bp__borrar {
+  position: absolute;
+  top: 50%;
+  right: var(--ns-space-2);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ns-radius-sm);
+  background: transparent;
+  color: var(--ns-text-secondary);
+  cursor: pointer;
+  transform: translateY(-50%);
+
+  &:hover {
+    background: var(--ns-surface-muted);
+    color: var(--ns-text);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 1px;
+  }
+}
+
+// ---- Bloques de resultados (también el de productos comerciales)
+
+.ns-bp__bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  min-width: 0;
+}
+
+.ns-bp__seccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ns-space-1);
+  margin: 0;
+  font: inherit;
+}
+
+.ns-bp__contador {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+}
+
+.ns-bp__nota {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.ns-bp__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-bp__item {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  min-height: 72px;
+  padding: var(--ns-space-3);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  text-decoration: none;
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    box-shadow var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    border-color: var(--ns-border-strong);
+    box-shadow: var(--ns-shadow-sm);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.ns-bp__miniatura {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface-muted);
+  color: var(--ns-text-secondary);
+}
+
+.ns-bp__datos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ns-bp__nombre {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.ns-bp__detalle {
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  font-variant-numeric: tabular-nums;
+
+  abbr {
+    text-decoration: none;
+  }
+}
+
+.ns-bp__fuente {
+  flex-shrink: 0;
+
+  @include bp.down(sm) {
+    display: none;
+  }
+}
+
+.ns-bp__chevron {
+  flex-shrink: 0;
+  color: var(--ns-text-tertiary);
+}
+
+// ---- Ficha vacía
+
+.ns-bp__sin-ficha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ns-space-2);
+  padding: var(--ns-space-10) var(--ns-space-4);
+  text-align: center;
+}
+
+.ns-bp__sin-ficha-icono {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--ns-space-2);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface-muted);
+  color: var(--ns-text-secondary);
+}
+
+.ns-bp__sin-ficha-titulo {
+  margin: 0;
+  font-weight: 600;
 }

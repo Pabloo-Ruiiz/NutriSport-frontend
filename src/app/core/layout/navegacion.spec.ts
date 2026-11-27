@@ -29,7 +29,12 @@ describe('navegacion', () => {
     expect(BARRA_INFERIOR.izquierda.map((e) => e.etiqueta)).toEqual(['Inicio', 'Comidas']);
     expect(BARRA_INFERIOR.derecha.map((e) => e.etiqueta)).toEqual(['Plan', 'Actividad']);
     expect(BARRA_INFERIOR.derecha[0].ruta).toBe('/planificador');
-    expect(ACCIONES_REGISTRO.map((a) => a.etiqueta)).toEqual(['Foto del plato', 'Buscar alimento', 'Escanear código']);
+    expect(ACCIONES_REGISTRO.map((a) => a.etiqueta)).toEqual([
+      'Foto del plato',
+      'Buscar alimento',
+      'Escanear código',
+      'Desde mi plan',
+    ]);
   });
 
   it('el drawer lleva lo que no está en la barra inferior', () => {

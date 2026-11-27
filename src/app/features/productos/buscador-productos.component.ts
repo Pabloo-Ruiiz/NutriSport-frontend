@@ -7,20 +7,29 @@ import { map } from 'rxjs';
 import type { ProductoResponse, AlimentoResumenResponse } from '@core/models';
 import { AlimentosService } from '@core/services/alimentos.service';
 import { BusquedaReactiva } from '@shared/ui/form/busqueda';
-import { NsInputDirective } from '@shared/ui/form/input.directive';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
+import { NsSkeletonComponent } from '@shared/ui/feedback/skeleton.component';
 import { NsSourceBadgeComponent } from '@shared/ui/data/source-badge.component';
 import { NsDrawerComponent } from '@shared/ui/overlay/drawer.component';
 import { formatearNumero } from '@shared/pipes/formato';
 import { ProductosComercialesComponent } from './productos-comerciales.component';
 import { FichaProductoComponent } from './ficha-producto.component';
+/**
+ * Buscador de alimentos y productos (/productos, DESIGN.md §7.19), layout 7 + 5:
+ *
+ * - Izquierda: buscador y dos bloques. "En tu catálogo" busca al escribir (debounce, mínimo 2
+ *   letras); "Productos comerciales" consulta Open Food Facts solo al pulsar el botón.
+ * - Derecha: la ficha del producto elegido. En móvil se abre como bottom sheet.
+ */
 @Component({
   selector: 'app-buscador-productos',
   imports: [
     NgTemplateOutlet,
     RouterLink,
-    NsInputDirective,
+    LucideDynamicIcon,
+    NsSkeletonComponent,
     NsButtonComponent,
     NsAlertComponent,
     NsSourceBadgeComponent,
@@ -49,6 +58,12 @@ export class BuscadorProductosComponent {
   protected readonly numero = formatearNumero;
   protected escribir(evento: Event): void {
     this.catalogo.escribir((evento.target as HTMLInputElement).value);
+  }
+  /** Vacía el buscador y le devuelve el foco. */
+  protected borrar(campo: HTMLInputElement): void {
+    campo.value = '';
+    this.catalogo.escribir('');
+    campo.focus();
   }
   protected elegir(producto: ProductoResponse): void {
     this.seleccionado.set(producto);

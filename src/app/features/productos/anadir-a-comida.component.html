@@ -1,33 +1,40 @@
-<form [formGroup]="form" (ngSubmit)="guardar()">
-  <label
-    >Cantidad
-    <input
-      nsInput
-      type="number"
-      formControlName="cantidad"
-      min="0.01"
-      max="5000"
-      step="any"
-      [readOnly]="form.controls.unidad.value === 'racion'"
-  /></label>
-  <label
-    >Unidad
-    <select nsInput formControlName="unidad" (change)="cambiarUnidad()">
-      <option value="base">{{ producto().unidadBase === 'ML' ? 'ml' : 'g' }}</option>
-      @if (producto().racion?.gramos; as gramos) {
-        <option value="racion">1 ración ({{ gramos }} g)</option>
-      }
-    </select></label
-  >
-  <label
-    >Tipo de comida
-    <select nsInput formControlName="tipoComida">
-      @for (tipo of tipos; track tipo[0]) {
-        <option [value]="tipo[0]">{{ tipo[1] }}</option>
-      }
-    </select></label
-  >
-  <label>Fecha <input nsInput type="date" formControlName="fecha" [max]="fechaMaxima" /></label>
+<form class="ns-ac" [formGroup]="form" (ngSubmit)="guardar()">
+  <div class="ns-ac__fila">
+    <label class="ns-ac__campo"
+      ><span class="ns-ac__etiqueta">Cantidad</span>
+      <input
+        nsInput
+        type="number"
+        formControlName="cantidad"
+        min="0.01"
+        max="5000"
+        step="any"
+        [readOnly]="form.controls.unidad.value === 'racion'"
+    /></label>
+    <label class="ns-ac__campo"
+      ><span class="ns-ac__etiqueta">Unidad</span>
+      <select nsInput formControlName="unidad" (change)="cambiarUnidad()">
+        <option value="base">{{ producto().unidadBase === 'ML' ? 'ml' : 'g' }}</option>
+        @if (producto().racion?.gramos; as gramos) {
+          <option value="racion">1 ración ({{ gramos }} g)</option>
+        }
+      </select></label
+    >
+  </div>
+  <div class="ns-ac__fila">
+    <label class="ns-ac__campo"
+      ><span class="ns-ac__etiqueta">Tipo de comida</span>
+      <select nsInput formControlName="tipoComida">
+        @for (tipo of tipos; track tipo[0]) {
+          <option [value]="tipo[0]">{{ tipo[1] }}</option>
+        }
+      </select></label
+    >
+    <label class="ns-ac__campo"
+      ><span class="ns-ac__etiqueta">Fecha</span>
+      <input nsInput type="date" formControlName="fecha" [max]="fechaMaxima"
+    /></label>
+  </div>
   @if (form.controls.cantidad.touched && form.controls.cantidad.invalid) {
     <ns-alert type="error">{{
       form.controls.cantidad.errors?.['servidor'] || 'Introduce una cantidad entre 0,01 y 5.000.'
@@ -39,7 +46,7 @@
   @if (error()) {
     <ns-alert type="error">{{ error() }}</ns-alert>
   }
-  <button nsButton type="submit" [loading]="enviando()">
+  <button nsButton type="submit" size="lg" icon="plus" fullWidth [loading]="enviando()">
     {{
       personalizarComida()
         ? 'Añadir a ' + etiquetasTipo[tipoSeleccionado()].toLocaleLowerCase('es-ES')
