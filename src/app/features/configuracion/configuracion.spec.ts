@@ -258,9 +258,103 @@ describe('PrivacidadComponent', () => {
     expect(auth.consentimientoVigente()).toBe(true);
   });
 
-  it('la zona de peligro tiene el borde de error y "Exportar" está desactivado', () => {
+  it('la zona de peligro tiene el borde de error', () => {
     expect(raiz().querySelector('.ns-bloque--peligro')).not.toBeNull();
-    expect(boton('Exportar mis datos').disabled).toBe(true);
+  });
+
+  describe('Exportar mis datos', () => {
+    const originales = { crear: URL.createObjectURL, revocar: URL.revokeObjectURL };
+    let click: ReturnType<typeof vi.spyOn>;
+    let descargado: HTMLAnchorElement | null;
+
+    beforeEach(() => {
+      descargado = null;
+      URL.createObjectURL = vi.fn(() => 'blob:exportacion');
+      URL.revokeObjectURL = vi.fn();
+      click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+        descargado = this;
+      });
+    });
+
+    afterEach(() => {
+      URL.createObjectURL = originales.crear;
+      URL.revokeObjectURL = originales.revocar;
+      click.mockRestore();
+    });
+
+    it('explica qué incluye y que nunca lleva la contraseña ni los tokens', () => {
+      const texto = raiz().querySelector('[aria-labelledby="ns-exportar-titulo"]')!.textContent!;
+      for (const parte of ['consentimientos', 'preferencias', 'objetivos', 'pesajes', 'favoritas', 'conversaciones']) {
+        expect(texto).toContain(parte);
+      }
+      expect(texto).toContain('sin las imágenes');
+      expect(texto).toContain('Nunca incluye tu contraseña ni tus tokens');
+    });
+
+    it('descarga el JSON con el nombre de Content-Disposition (con loading mientras tanto)', async () => {
+      boton('Exportar mis datos').click();
+      await esperar();
+      expect(boton('Exportar mis datos').getAttribute('aria-busy')).toBe('true');
+
+      const peticion = http.expectOne({ method: 'GET', url: '/api/v1/cuenta/exportacion' });
+      expect(peticion.request.responseType).toBe('blob');
+      peticion.flush(new Blob(['{}'], { type: 'application/json' }), {
+        headers: { 'Content-Disposition': 'attachment; filename="nutrisport-datos-20261127.json"' },
+      });
+      await esperar();
+
+      expect(click).toHaveBeenCalledOnce();
+      expect(descargado!.download).toBe('nutrisport-datos-20261127.json');
+      expect(titulosToast()).toContain('Datos exportados');
+      expect(boton('Exportar mis datos').getAttribute('aria-busy')).not.toBe('true');
+    });
+
+    it('funciona con el consentimiento revocado', async () => {
+      auth.actualizarCuenta({ ...CUENTA, consentimientoSaludVigente: false });
+      await esperar();
+      expect(boton('Exportar mis datos').disabled).toBe(false);
+      boton('Exportar mis datos').click();
+      await esperar();
+      http.expectOne('/api/v1/cuenta/exportacion').flush(new Blob(['{}']));
+      await esperar();
+      expect(descargado!.download).toBe('nutrisport-datos.json');
+    });
+
+    it('sin el email verificado muestra el aviso con "Reenviar" y no deja exportar', async () => {
+      auth.actualizarCuenta({ ...CUENTA, emailVerificado: false });
+      await esperar();
+      expect(raiz().textContent).toContain('Verifica tu email');
+      expect(boton('Exportar mis datos').disabled).toBe(true);
+
+      boton('Reenviar').click();
+      await esperar();
+      http.expectOne('/api/v1/auth/reenviar-verificacion').flush({ mensaje: 'ok' }, { status: 202, statusText: '' });
+      await esperar();
+    });
+
+    it('un 403 EMAIL_NO_VERIFICADO (Blob) marca la cuenta y muestra el aviso', async () => {
+      boton('Exportar mis datos').click();
+      await esperar();
+      const cuerpo = { status: 403, codigo: 'EMAIL_NO_VERIFICADO', title: 'Email', detail: 'Verifica tu email' };
+      http
+        .expectOne('/api/v1/cuenta/exportacion')
+        .flush(new Blob([JSON.stringify(cuerpo)]), { status: 403, statusText: 'Forbidden' });
+      await esperar();
+      expect(auth.emailVerificado()).toBe(false);
+      expect(boton('Reenviar')).toBeTruthy();
+      expect(click).not.toHaveBeenCalled();
+    });
+
+    it('otro error se muestra con el detalle del Problem Details', async () => {
+      boton('Exportar mis datos').click();
+      await esperar();
+      const cuerpo = { status: 503, codigo: 'SERVICIO_NO_DISPONIBLE', title: 'x', detail: 'Inténtalo más tarde' };
+      http
+        .expectOne('/api/v1/cuenta/exportacion')
+        .flush(new Blob([JSON.stringify(cuerpo)]), { status: 503, statusText: 'Unavailable' });
+      await esperar();
+      expect(raiz().querySelector('ns-alert.ns-alert--error')?.textContent).toContain('Inténtalo más tarde');
+    });
   });
 
   it('eliminar la cuenta pide la contraseña, envía inmediata y va a /login', async () => {

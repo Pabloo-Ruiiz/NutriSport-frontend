@@ -1,9 +1,9 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { type Observable, catchError, from, of, switchMap, throwError } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
-import { aApiError } from '../util/api-error';
+import { type ApiError, aApiError, aApiErrorAsync, tieneCuerpoBlob } from '../util/api-error';
 
 /**
  * Convierte cualquier HttpErrorResponse en ApiError (core/util/api-error.ts), así las pantallas y
@@ -14,6 +14,9 @@ import { aApiError } from '../util/api-error';
  * consentimientoSaludVigente = false, para que el layout muestre el aviso global (NutriSport_API.md
  * §3.1: "Banner global → Configuración › Privacidad").
  *
+ * Con responseType 'blob' (GET /cuenta/exportacion) el cuerpo del error es un Blob: se lee su
+ * texto antes de convertirlo (aApiErrorAsync).
+ *
  * Los errores que no son HTTP (o que ya son ApiError) pasan tal cual.
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
@@ -23,14 +26,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((e: unknown) => {
       if (!(e instanceof HttpErrorResponse)) return throwError(() => e);
 
-      const error = aApiError(e);
-      if (error.status === 403 && error.esCodigo('CONSENTIMIENTO_REVOCADO')) {
-        const cuenta = auth.cuenta();
-        if (cuenta?.consentimientoSaludVigente) {
-          auth.actualizarCuenta({ ...cuenta, consentimientoSaludVigente: false });
-        }
-      }
-      return throwError(() => error);
+      // Sin Blob, of() mantiene la conversión síncrona.
+      const error$: Observable<ApiError> = tieneCuerpoBlob(e) ? from(aApiErrorAsync(e)) : of(aApiError(e));
+      return error$.pipe(
+        switchMap((error) => {
+          if (error.status === 403 && error.esCodigo('CONSENTIMIENTO_REVOCADO')) {
+            const cuenta = auth.cuenta();
+            if (cuenta?.consentimientoSaludVigente) {
+              auth.actualizarCuenta({ ...cuenta, consentimientoSaludVigente: false });
+            }
+          }
+          return throwError(() => error);
+        }),
+      );
     }),
   );
 };

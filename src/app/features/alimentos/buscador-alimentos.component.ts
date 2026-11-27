@@ -21,6 +21,7 @@ import { AlimentosService, MIN_CARACTERES_BUSQUEDA } from '@core/services/alimen
 import { aApiError } from '@core/util/api-error';
 import { formatearNumero } from '@shared/pipes/formato';
 import { NsSourceBadgeComponent } from '@shared/ui/data/source-badge.component';
+import { NsSourcesNoteComponent } from '@shared/ui/data/sources-note.component';
 import { NsSkeletonComponent } from '@shared/ui/feedback/skeleton.component';
 import { BusquedaReactiva } from '@shared/ui/form/busqueda';
 import {
@@ -73,6 +74,7 @@ const PESTANAS: NsOpcion<Pestana>[] = [
     NsResaltadoComponent,
     NsSkeletonComponent,
     NsSourceBadgeComponent,
+    NsSourcesNoteComponent,
     NsTabsComponent,
     NsTabPanelDirective,
   ],
@@ -94,6 +96,7 @@ export class BuscadorAlimentosComponent {
     this.alimentos.buscar(texto, { size: 20 }).pipe(map((pagina) => pagina.content));
   protected readonly nombreAlimento = (a: AlimentoResumenResponse) => (a.marca ? `${a.nombre} (${a.marca})` : a.nombre);
   protected readonly formatear = formatearNumero;
+  protected readonly fuentes = (alimentos: readonly AlimentoResumenResponse[]) => alimentos.map((a) => a.fuente);
   protected readonly minCaracteres = MIN_CARACTERES_BUSQUEDA;
 
   // ---- Modo lista

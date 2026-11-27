@@ -167,7 +167,7 @@ describe('DetalleRecetaComponent', () => {
     expect(req.request.params.get('raciones')).toBe('6');
 
     const texto = raiz().textContent!;
-    expect(raiz().querySelector('h1')?.textContent).toContain('Chicken Couscous');
+    expect(raiz().querySelector('h2')?.textContent).toContain('Chicken Couscous');
     for (const t of ['Receta original en inglés', 'TheMealDB', '40 min', 'Media', 'Alto en proteína', 'Supuestas'])
       expect(texto).toContain(t);
     expect(raiz().querySelector('.cabecera__media img')?.getAttribute('alt')).toBe('Chicken Couscous');

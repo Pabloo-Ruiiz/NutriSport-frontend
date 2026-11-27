@@ -13,6 +13,7 @@ import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsCeldaDirective } from '@shared/ui/data/table-cell.directive';
 import { NsColumna, NsTableComponent } from '@shared/ui/data/table.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
+import { NsSourcesNoteComponent } from '@shared/ui/data/sources-note.component';
 import { NsBadgeComponent } from '@shared/ui/feedback/badge.component';
 import { NsToastService } from '@shared/ui/feedback/toast.service';
 import type { NsOpcion } from '@shared/ui/form/control-valor';
@@ -58,6 +59,7 @@ export function textoEmparejado(recalculadas: number): string {
     NsCeldaDirective,
     NsPaginatorComponent,
     NsSegmentedComponent,
+    NsSourcesNoteComponent,
     NsTableComponent,
   ],
   template: `
@@ -133,6 +135,7 @@ export function textoEmparejado(recalculadas: number): string {
           </button>
         </ng-template>
       </ns-table>
+      <ns-sources-note [fuentes]="fuentesIngredientes" />
 
       @if (pagina(); as p) {
         <footer class="ns-map__pie">
@@ -194,6 +197,8 @@ export function textoEmparejado(recalculadas: number): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapeosIngredientesComponent {
+  /** Los ingredientes vienen de las recetas de TheMealDB. */
+  protected readonly fuentesIngredientes = ['THEMEALDB'];
   private readonly adminRecetas = inject(AdminRecetasService);
   private readonly dialogos = inject(NsDialogService);
   private readonly toasts = inject(NsToastService);

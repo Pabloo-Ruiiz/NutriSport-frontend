@@ -18,13 +18,12 @@
       icon="search"
       titulo="No encontramos esta receta"
       descripcion="Puede que se haya despublicado o que el enlace no sea correcto."
-      [nivelTitulo]="1"
+      [nivelTitulo]="2"
     >
       <a nsButton routerLink="/recetas" variant="secondary">Ver recetas</a>
     </ns-empty-state>
   }
   @case ('error') {
-    <h1 class="ns-sr-only">Receta</h1>
     <ns-alert type="error" titulo="No hemos podido cargar la receta">
       {{ error() }}
       <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="reintentar()">
@@ -51,7 +50,7 @@
               <ns-badge variant="info" icon="info">Receta original en inglés</ns-badge>
             }
           </div>
-          <h1 class="ns-text-h1 titulo">{{ r.nombre }}</h1>
+          <h2 class="ns-text-h1 titulo">{{ r.nombre }}</h2>
           @if (meta() || r.descripcion) {
             <p class="ns-text-secondary">
               {{ meta() }}
@@ -198,7 +197,7 @@
         <div class="pasos">
           <header class="pasos__cabecera">
             <div>
-              <h2 class="ns-text-card-title">Instrucciones</h2>
+              <h3 class="ns-text-card-title">Instrucciones</h3>
               @if (enIngles()) {
                 <p class="ns-text-body-sm ns-text-secondary">Texto original de la receta (en inglés)</p>
               }
@@ -232,12 +231,13 @@
 <ng-template #relacionadasTpl>
   @if (relacionadas().length) {
     <section class="relacionadas" aria-labelledby="titulo-relacionadas">
-      <h2 id="titulo-relacionadas" class="ns-text-h4">Recetas relacionadas</h2>
+      <h3 id="titulo-relacionadas" class="ns-text-h4">Recetas relacionadas</h3>
       <ul class="rejilla" role="list">
         @for (rel of relacionadas(); track clave(rel)) {
           <li>
             <ns-recipe-card
               [receta]="rel"
+              [nivelTitulo]="4"
               [abriendo]="abriendo() === clave(rel)"
               [guardandoFavorita]="guardandoRelacionada() === clave(rel)"
               (abrir)="abrirRelacionada(rel)"

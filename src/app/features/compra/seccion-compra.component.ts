@@ -14,7 +14,7 @@ let siguienteId = 0;
   selector: 'app-seccion-compra',
   imports: [LucideDynamicIcon, ProductoCompraItemComponent],
   template: `
-    <h2 class="cabecera">
+    <h3 class="cabecera">
       <button
         type="button"
         class="cabecera__boton"
@@ -30,7 +30,7 @@ let siguienteId = 0;
         </span>
         <svg lucideIcon="chevron-down" [size]="20" [class.girado]="!abierta()" aria-hidden="true"></svg>
       </button>
-    </h2>
+    </h3>
     <div class="productos" [id]="idLista" [hidden]="!abierta()" role="list">
       @for (p of seccion().productos; track p.id) {
         <app-producto-compra-item

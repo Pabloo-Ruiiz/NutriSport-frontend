@@ -1,4 +1,4 @@
-<h1>Escanear código</h1>
+<h2 class="ns-text-h2">Escanear código</h2>
 <div class="escaner">
   @if (estado() === 'listo' && !manual()) {
     <ns-barcode-scanner (detectado)="buscar($event)" (error)="errorCamara($event)" />

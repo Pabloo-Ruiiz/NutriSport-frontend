@@ -57,7 +57,7 @@ export class IngredientesRecetaComponent {
   /** true mientras se recalculan las cantidades. */
   readonly actualizando = input(false);
   /** Nivel del título según la jerarquía de la página. */
-  readonly nivelTitulo = input<2 | 3>(2);
+  readonly nivelTitulo = input<3 | 4>(3);
   readonly racionesCambiadas = output<number>();
 
   protected readonly min = RACIONES_MIN;

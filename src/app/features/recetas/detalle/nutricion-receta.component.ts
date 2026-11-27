@@ -44,7 +44,7 @@ export class NutricionRecetaComponent {
 
   readonly receta = input.required<RecetaResponse>();
   /** Nivel de los títulos según la jerarquía de la página. */
-  readonly nivelTitulo = input<2 | 3>(2);
+  readonly nivelTitulo = input<3 | 4>(3);
 
   protected readonly aproximado = computed(() => this.receta().estadoNutricional === 'APROXIMADO');
   protected readonly incompleto = computed(() => this.receta().estadoNutricional === 'INCOMPLETO');

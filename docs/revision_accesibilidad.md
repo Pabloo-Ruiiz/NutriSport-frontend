@@ -77,3 +77,63 @@ para elementos gráficos.
 | Todas | axe DevTools / Lighthouse | No se ha pasado un análisis automático en navegador. | Pasarlo en las pantallas principales y en móvil. | Pendiente |
 | Todas | Navegador (zoom) | DESIGN.md §10 pide texto al 200 % y reflujo a una columna al 400 %; revisado solo en el código. | Probarlo en escritorio. | Pendiente |
 | Bundle inicial | Build | 518 kB sin comprimir (101,9 kB comprimido), por encima del presupuesto de 500 kB. Ya lo superaba antes de esta revisión (506 kB, 98,1 kB comprimido); casi todo el aumento es el runtime de `@defer`. | Revisar qué entra en `main`, o ajustar el presupuesto. | Pendiente |
+
+## Ampliación · Revisión del paso 36 · 27/11/2026
+
+Se han revisado las pantallas de la Ampliación con los mismos criterios y herramientas que en la
+revisión del paso 23. Es una revisión de código, con tests y build: no se ha usado un navegador
+real, un lector de pantalla ni axe. Pantallas revisadas:
+
+- Productos (`/productos`) y Escáner (`/escaner`).
+- Recetas (`/recetas`) y su detalle (`/recetas/:id`), con el buscador de recetas de Registrar comida.
+- Planificador (`/planificador`), con el drawer de añadir receta y la sugerencia IA.
+- Lista de la compra (`/compra` y `/compra/:id`).
+- Administración: Recetas (`/admin/catalogo/recetas`) e Ingredientes (`/admin/ingredientes`).
+- Estadísticas (`/estadisticas`) y Asistente (`/asistente`).
+- Privacidad › Exportar mis datos.
+
+### Problemas y correcciones
+
+| Pantalla | Herramienta | Problema | Corrección | Estado |
+|---|---|---|---|---|
+| Productos, Escáner, Recetas, Detalle de receta, Mis listas, Detalle de lista | Revisión de código · test | Las seis pantallas tenían su propio `<h1>` dentro del shell, que ya tiene el `<h1>` de la topbar. Es el mismo problema que el paso 23 corrigió en el MVP. Detalle de receta y Detalle de lista añadían además un `<h1>` oculto en el estado de error. | El título de la página pasa a `h2` y los niveles de debajo bajan uno: secciones en `h3`, tarjetas de receta en 4, Ingredientes y Nutrición en 3, secciones de la lista en `h3` y estados vacíos en 2 o 3. Se quitan los `h1` ocultos, porque la topbar ya nombra la página. Productos y Escáner solo cambian el título: la ficha y «Productos comerciales» también aparecen en Registrar comida, donde `h2` es el nivel correcto. Tests actualizados: `lista-compra.spec.ts` y `detalle-receta.spec.ts`. | Corregido |
+| Registrar comida › Recetas, drawer del planificador, Admin · Recetas, Admin · Ingredientes, buscador y ficha de alimentos, Admin · Alimentos, Estadísticas (alimentos más consumidos) | Revisión de código · test | Datos de TheMealDB, USDA u Open Food Facts mostrados solo con el badge de fuente, sin atribución ni enlace al proveedor (RNF-20). | Nuevo `ns-sources-note`: una sola nota al pie de la lista con las fuentes externas presentes, enlazadas y con el aviso «(se abre en una pestaña nueva)» para lectores de pantalla. Si en la lista no hay ninguna fuente externa, no se pinta. Test: `sources-note.component.spec.ts`. | Corregido |
+| Privacidad · Exportar | Revisión de código · test | Un error de la exportación (`responseType: 'blob'`) llegaba como un Blob y se mostraba el texto genérico, sin el motivo real (por ejemplo, el email sin verificar). | `aApiErrorAsync` lee el Problem Details del Blob. Sin el email verificado, sale el aviso con «Reenviar» y el botón se desactiva; mientras exporta, el botón tiene `aria-busy`. Tests: `api-error.spec.ts`, `interceptors.spec.ts` y `configuracion.spec.ts`. | Corregido |
+
+### Comprobado sin problemas
+
+- **Iconos:** todos los `<svg>` llevan `aria-hidden` o están dentro de un contenedor con
+  `aria-hidden`: miniaturas de productos, avatar del asistente y ficha sin imagen.
+- **Imágenes:** las de productos son decorativas (`alt=""` dentro de un contenedor oculto) porque
+  el nombre va al lado. Las de recetas llevan el nombre en `alt`; ver «Pendiente».
+- **Regiones con scroll:** la rejilla semanal del planificador, el mapa de adherencia, los mensajes
+  del chat y los KPIs de Estadísticas en móvil son enfocables (`tabindex="0"`), con nombre y anillo
+  de foco.
+- **Alternativa al arrastre:** cada comida del planificador tiene «Mover a…» en su menú (teclado y
+  táctil). El arrastre con CDK es un atajo.
+- **Anuncios:** semana del planificador, resultados de recetas, subtítulo del periodo de
+  Estadísticas, estado de «Productos comerciales», resultado del escáner y respuesta del asistente
+  (solo la nueva, no el historial), todos en regiones `aria-live="polite"`. Los recuentos de
+  Admin · Recetas e Ingredientes van en `role="status"`.
+- **Acciones desactivadas:** «Registrar como comida» y «Añadir al plan» (receta incompleta) y las
+  filas del buscador de recetas tienen el motivo visible, enlazado con `aria-describedby`.
+- **Gráficos:** los de Estadísticas usan `ns-chart` (sin animación con `prefers-reduced-motion`),
+  llevan resumen en `aria-label` y la tabla alternativa `app-tabla-grafico`.
+- **Movimiento:** las transiciones CSS quedan bajo la regla global de `_reset.scss`. Los puntos de
+  «Escribiendo…» del asistente se detienen con `prefers-reduced-motion`.
+- **Estados:** todas las pantallas revisadas tienen skeleton o spinner de carga, un estado vacío con
+  acción (Recetas, Favoritas, Mis listas, Planificador, Estadísticas, Ingredientes) y un error con
+  «Reintentar».
+- **Enlaces externos:** las atribuciones de TheMealDB y de `ns-sources-note` avisan de que se abren
+  en una pestaña nueva y usan `rel="noopener"`.
+- **Responsive (§7):** el detalle de receta pasa a pestañas por debajo de 1024 px. El buscador de
+  productos abre la ficha como bottom sheet en móvil. El planificador cambia a la vista por día por
+  debajo de 768 px. Las filas de la lista de la compra miden 56 px.
+
+### Pendiente
+
+| Pantalla | Herramienta | Problema | Corrección | Estado |
+|---|---|---|---|---|
+| Recetas, Detalle de receta | Revisión de código | Las imágenes de receta llevan el nombre en `alt` y el nombre también se ve justo al lado: un lector de pantalla lo lee dos veces. Los tests (`recipe-card.component.spec.ts` y `detalle-receta.spec.ts`) exigen ese `alt`, así que se ha dejado como está. | Decidir si se pasa a `alt=""`, como el isotipo del logo (criterio del paso 23), y cambiar los tests. | Pendiente (decisión) |
+| Todas las de la Ampliación | NVDA / VoiceOver · axe · zoom | Lo mismo que en el MVP: nada de esto se ha probado en un navegador real. | Incluirlo en la ejecución de PM-38 a PM-73. | Pendiente |
+| Bundle inicial | Build | 536,65 kB sin comprimir (518 kB en el paso 23), por encima del presupuesto de 500 kB. Además, `buscador-productos.component.scss` mide 5,01 kB, por encima de su presupuesto de 4 kB. | Revisar qué entra en `main` o ajustar los presupuestos. | Pendiente |

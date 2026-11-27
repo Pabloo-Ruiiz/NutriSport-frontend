@@ -170,7 +170,7 @@ ns-tabs .tarjeta {
     justify-content: space-between;
     gap: var(--ns-space-2);
 
-    h2,
+    h3,
     p {
       margin: 0;
     }
@@ -220,7 +220,7 @@ ns-tabs .tarjeta {
   flex-direction: column;
   gap: var(--ns-space-3);
 
-  h2 {
+  h3 {
     margin: 0;
   }
 }

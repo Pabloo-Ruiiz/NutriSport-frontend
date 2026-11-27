@@ -83,6 +83,7 @@
                 </li>
               }
             </ul>
+            <ns-sources-note class="ns-buscador__atribucion" [fuentes]="fuentes(busqueda.resultados())" />
           }
         }
       </section>
@@ -119,6 +120,7 @@
                     </li>
                   }
                 </ul>
+                <ns-sources-note class="ns-buscador__atribucion" [fuentes]="fuentes(datos.alimentos)" />
               } @else {
                 <p class="ns-buscador__aviso">
                   {{

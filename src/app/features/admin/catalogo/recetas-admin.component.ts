@@ -25,6 +25,7 @@ import { NsButtonComponent } from '@shared/ui/button/button.component';
 import { NsCeldaDirective } from '@shared/ui/data/table-cell.directive';
 import { NsColumna, NsTableComponent } from '@shared/ui/data/table.component';
 import { NsAlertComponent } from '@shared/ui/feedback/alert.component';
+import { NsSourcesNoteComponent } from '@shared/ui/data/sources-note.component';
 import { NsBadgeComponent } from '@shared/ui/feedback/badge.component';
 import { NsToastService } from '@shared/ui/feedback/toast.service';
 import { NsFormFieldComponent } from '@shared/ui/form/form-field.component';
@@ -109,6 +110,7 @@ export class RecetasSesionAdmin {
     NsInputDirective,
     NsPaginatorComponent,
     NsTableComponent,
+    NsSourcesNoteComponent,
     RecetaAdminFormComponent,
   ],
   templateUrl: './recetas-admin.component.html',
@@ -134,6 +136,7 @@ export class RecetasAdminComponent {
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
+  protected readonly origenes = computed(() => this.filas().map((r) => r.origen));
   protected readonly filas = computed<RecetaResumenResponse[]>(() => {
     const r = this.resultado();
     if (!r) return [];

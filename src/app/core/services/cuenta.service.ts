@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, switchMap, tap } from 'rxjs';
+import { Observable, map, of, switchMap, tap } from 'rxjs';
 
 import { environment } from '@env/environment';
 import type {
@@ -11,7 +11,17 @@ import type {
   EliminarCuentaRequest,
   MensajeResponse,
 } from '../models';
+import { nombreDeContentDisposition } from '../util/descarga';
 import { AuthService } from './auth.service';
+
+/** Nombre del archivo de la exportación si la respuesta no trae Content-Disposition. */
+export const NOMBRE_EXPORTACION_POR_DEFECTO = 'nutrisport-datos.json';
+
+/** Archivo de la exportación de datos, listo para descargarBlob(). */
+export interface ExportacionDatos {
+  blob: Blob;
+  nombre: string;
+}
 
 /**
  * Cuenta del usuario autenticado (NutriSport_API.md §6 Cuenta y §4): datos, contraseña, email,
@@ -86,6 +96,22 @@ export class CuentaService {
    */
   revocarConsentimiento(): Observable<CuentaResponse> {
     return this.http.delete<void>(`${this.url}/consentimiento-salud`).pipe(switchMap(() => this.obtener()));
+  }
+
+  /**
+   * GET /cuenta/exportacion (§7.6): JSON con todos los datos de la cuenta. Se pide por HttpClient
+   * (lleva el token) como Blob; el nombre sale de Content-Disposition o, si falta,
+   * "nutrisport-datos.json". Funciona aunque el consentimiento de salud esté revocado (RGPD art.
+   * 20); sin el email verificado responde 403 EMAIL_NO_VERIFICADO.
+   */
+  exportar(): Observable<ExportacionDatos> {
+    return this.http.get(`${this.url}/exportacion`, { responseType: 'blob', observe: 'response' }).pipe(
+      map((respuesta) => ({
+        blob: respuesta.body ?? new Blob([], { type: 'application/json' }),
+        nombre:
+          nombreDeContentDisposition(respuesta.headers.get('Content-Disposition')) ?? NOMBRE_EXPORTACION_POR_DEFECTO,
+      })),
+    );
   }
 
   /**
