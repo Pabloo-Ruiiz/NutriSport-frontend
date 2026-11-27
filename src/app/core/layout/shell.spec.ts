@@ -84,7 +84,7 @@ const textos = (selector: string, en: ParentNode = raiz()) =>
 describe('ShellComponent', () => {
   it('pinta la sidebar con los grupos del deportista y el título de la página en la topbar', async () => {
     await harness.navigateByUrl('/inicio');
-    expect(textos('ns-sidebar .ns-nav__titulo')).toEqual(['Principal', 'Rendimiento', 'Cuenta']);
+    expect(textos('ns-sidebar .ns-nav__titulo')).toEqual(['Principal', 'Rendimiento', 'Inteligencia', 'Cuenta']);
     expect(textos('ns-topbar h1')).toEqual(['Inicio']);
     expect(raiz().querySelector('ns-topbar a[href="/comidas/nueva"]')?.textContent).toContain('Registrar comida');
     expect(raiz().querySelector('ns-bottom-nav')).toBeNull();
@@ -131,7 +131,7 @@ describe('ShellComponent', () => {
     it('cambia la sidebar por la barra inferior', async () => {
       await harness.navigateByUrl('/inicio');
       expect(raiz().querySelector('ns-sidebar')).toBeNull();
-      expect(textos('ns-bottom-nav a')).toEqual(['Inicio', 'Comidas', 'Plan', 'Actividad']);
+      expect(textos('ns-bottom-nav a')).toEqual(['Inicio', 'Comidas', 'Plan', 'Asistente']);
       expect(raiz().querySelector('ns-bottom-nav a[aria-current="page"]')?.textContent).toContain('Inicio');
     });
 
@@ -162,6 +162,7 @@ describe('ShellComponent', () => {
         'Productos',
         'Lista de la compra',
         'Recetas',
+        'Actividad',
         'Estadísticas',
         'Mi perfil',
         'Configuración',

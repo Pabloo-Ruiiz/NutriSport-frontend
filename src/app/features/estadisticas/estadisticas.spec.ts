@@ -206,6 +206,7 @@ describe('NsInsightCardComponent', () => {
   it('severidad con texto e icono, título por tipo, texto, periodo y botón deshabilitado sin asistente', () => {
     const f = TestBed.createComponent(NsInsightCardComponent);
     f.componentRef.setInput('insight', insight);
+    f.componentRef.setInput('asistenteDisponible', false);
     f.detectChanges();
     const el = f.nativeElement as HTMLElement;
     expect(el.querySelector('.ns-insight__severidad')!.textContent!.trim()).toBe('A revisar');
@@ -219,7 +220,6 @@ describe('NsInsightCardComponent', () => {
   it('con el asistente disponible emite el insight', () => {
     const f = TestBed.createComponent(NsInsightCardComponent);
     f.componentRef.setInput('insight', { ...insight, titulo: 'Te faltan carbohidratos' });
-    f.componentRef.setInput('asistenteDisponible', true);
     const emitidos: InsightResponse[] = [];
     f.componentInstance.preguntar.subscribe((i) => emitidos.push(i));
     f.detectChanges();

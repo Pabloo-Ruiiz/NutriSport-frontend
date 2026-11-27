@@ -1,0 +1,55 @@
+// Asistente IA (DESIGN.md §7.15): layout de chat (280 px lista + flexible + 300 px de contexto
+// desde xl). Ocupa el alto disponible bajo la topbar para que solo hagan scroll los mensajes y el
+// compositor quede fijo abajo. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ns-space-6);
+  height: calc(100dvh - var(--ns-topbar-height) - 2 * var(--ns-space-8));
+  min-height: 420px;
+
+  @include bp.down(lg) {
+    height: calc(100dvh - var(--ns-topbar-height) - 2 * var(--ns-space-6));
+  }
+
+  // Móvil: el contenido deja abajo el hueco de la barra inferior (64 px + safe-area).
+  @include bp.down(md) {
+    height: calc(
+      100dvh - var(--ns-topbar-height) - var(--ns-space-4) - 64px - var(--ns-space-6) - env(safe-area-inset-bottom)
+    );
+    min-height: 360px;
+  }
+
+  @include bp.up(lg) {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  @include bp.up(xl) {
+    grid-template-columns: 280px minmax(0, 1fr) 300px;
+  }
+}
+
+.ns-asis__lista,
+.ns-asis__contexto {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.ns-asis__lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.ns-asis__chat {
+  overflow: hidden;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-xl);
+  background: var(--ns-surface);
+}
+
+.ns-asis__contexto {
+  padding-left: var(--ns-space-6);
+  border-left: 1px solid var(--ns-border);
+}

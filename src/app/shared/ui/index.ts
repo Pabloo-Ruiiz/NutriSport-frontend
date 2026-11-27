@@ -9,3 +9,4 @@ export * from './feedback';
 export * from './form';
 export * from './nav';
 export * from './overlay';
+export * from './chat';

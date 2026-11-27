@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlSegment, type UrlMatchResult } from '@angular/router';
 
 import { adminGuard } from '@core/guards/admin.guard';
 import { autenticadoGuard } from '@core/guards/autenticado.guard';
@@ -23,6 +23,12 @@ const pendiente = (paso: number) => ({
   loadComponent: () => import('@features/errores/pagina-pendiente.component').then((m) => m.PaginaPendienteComponent),
   data: { paso },
 });
+
+/** /asistente (conversación nueva) y /asistente/:id con un solo Route. */
+export function rutaAsistente(segmentos: UrlSegment[]): UrlMatchResult | null {
+  if (segmentos[0]?.path !== 'asistente' || segmentos.length > 2) return null;
+  return { consumed: segmentos, posParams: segmentos[1] ? { id: segmentos[1] } : {} };
+}
 
 /**
  * Rutas de apoyo al desarrollo. En producción el array queda vacío, así que la ruta no existe
@@ -205,6 +211,13 @@ export const routes: Routes = [
             path: 'actividad',
             title: 'Actividad',
             loadComponent: () => import('@features/actividad/actividad.component').then((m) => m.ActividadComponent),
+          },
+          {
+            // /asistente y /asistente/:id son la misma ruta, así el componente (y su conversación) se
+            // reutiliza cuando la conversación nueva pasa a tener id.
+            matcher: rutaAsistente,
+            title: 'Asistente IA',
+            loadComponent: () => import('@features/asistente/asistente.component').then((m) => m.AsistenteComponent),
           },
           {
             path: 'estadisticas',

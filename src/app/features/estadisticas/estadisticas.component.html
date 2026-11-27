@@ -86,7 +86,7 @@
         } @else if (insights.hasValue() && insights.value().length) {
           <ul class="ns-est__insights" role="list">
             @for (i of insights.value(); track i.id) {
-              <li><ns-insight-card [insight]="i" [nivelTitulo]="4" [asistenteDisponible]="asistenteDisponible()" /></li>
+              <li><ns-insight-card [insight]="i" [nivelTitulo]="4" (preguntar)="preguntar($event)" /></li>
             }
           </ul>
         } @else {

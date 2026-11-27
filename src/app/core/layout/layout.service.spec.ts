@@ -16,6 +16,8 @@ class BreakpointObserverFalso {
         return ancho >= 768 && ancho < 1024;
       case CONSULTAS.escritorio:
         return ancho >= 1024;
+      case CONSULTAS.xl:
+        return ancho >= 1280;
       default:
         throw new Error(`Consulta no esperada: ${consulta}`);
     }
@@ -70,9 +72,17 @@ describe('LayoutService', () => {
     expect(estado()).toEqual([false, false, true]);
   });
 
+  it('esXl desde 1280 px (tercer panel)', () => {
+    observer.ancho.next(1279);
+    expect(servicio.esXl()).toBe(false);
+    observer.ancho.next(1280);
+    expect(servicio.esXl()).toBe(true);
+  });
+
   it('usa las mismas cifras que los mixins de SCSS', () => {
     expect(CONSULTAS.movil).toBe('(max-width: 767.98px)');
     expect(CONSULTAS.tablet).toBe('(min-width: 768px) and (max-width: 1023.98px)');
     expect(CONSULTAS.escritorio).toBe('(min-width: 1024px)');
+    expect(CONSULTAS.xl).toBe('(min-width: 1280px)');
   });
 });
