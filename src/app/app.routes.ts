@@ -157,6 +157,11 @@ export const routes: Routes = [
             canDeactivate: [cambiosSinGuardarGuard],
           },
           {
+            path: 'escaner',
+            title: 'Escanear código',
+            loadComponent: () => import('@features/productos/escaner.component').then((m) => m.EscanerComponent),
+          },
+          {
             path: 'productos',
             title: 'Buscar productos',
             loadComponent: () =>

@@ -17,7 +17,7 @@
 <p>Datos de alérgenos de la fuente, sin revisar por NutriSport.</p>
 <ns-attribution [fuente]="p.fuente" />
 @if (p.nutricionCompleta) {
-  <app-anadir-a-comida [producto]="p" />
+  <app-anadir-a-comida [producto]="p" [personalizarComida]="compacta()" />
 } @else {
   <ns-alert type="info">Información nutricional incompleta. Completa los datos creando un alimento propio.</ns-alert>
   @if (creado()) {

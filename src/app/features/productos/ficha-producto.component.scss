@@ -13,3 +13,10 @@ p {
   height: 96px;
   object-fit: contain;
 }
+:host(.compacta) {
+  gap: var(--ns-space-2);
+}
+:host(.compacta) .imagen {
+  width: 64px;
+  height: 64px;
+}

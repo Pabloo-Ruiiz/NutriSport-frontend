@@ -1,0 +1,11 @@
+<div class="camara">
+  <video #video autoplay muted playsinline aria-label="Vista de la cámara para escanear códigos de barras"></video>
+  <div class="guia" aria-hidden="true"><span></span></div>
+  <p>Coloca el código de barras dentro del marco.</p>
+  @if (conLinterna()) {
+    <button nsButton type="button" variant="secondary" [attr.aria-pressed]="linterna()" (click)="alternarLinterna()">
+      {{ linterna() ? 'Apagar linterna' : 'Encender linterna' }}
+    </button>
+  }
+  <span role="status">{{ avisoLinterna() }}</span>
+</div>

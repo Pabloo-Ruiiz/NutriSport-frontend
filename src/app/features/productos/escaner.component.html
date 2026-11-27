@@ -1,0 +1,61 @@
+<h1>Escanear código</h1>
+<div class="escaner">
+  @if (estado() === 'listo' && !manual()) {
+    <ns-barcode-scanner (detectado)="buscar($event)" (error)="errorCamara($event)" />
+  }
+  <button nsButton type="button" variant="secondary" (click)="manual.set(true)">Introducir código</button>
+  @if (avisoCamara()) {
+    <ns-alert type="info">{{ avisoCamara() }}</ns-alert>
+  }
+  @if (manual()) {
+    <app-codigo-manual [buscando]="estado() === 'buscando'" (detectado)="buscar($event)" />
+  }
+  <section
+    aria-live="polite"
+    aria-atomic="false"
+    [attr.aria-busy]="estado() === 'buscando'"
+    aria-label="Resultado del escaneo"
+  >
+    @switch (estado()) {
+      @case ('buscando') {
+        <p role="status">Buscando producto…</p>
+      }
+      @case ('encontrado') {
+        @if (producto(); as p) {
+          <app-ficha-producto [producto]="p" [compacta]="true" />
+        }
+      }
+      @case ('no-encontrado') {
+        <h2>No encontramos este producto</h2>
+        <p>
+          No está en tu catálogo ni en Open Food Facts. Puedes buscarlo por nombre o crear un alimento con los datos de
+          la etiqueta.
+        </p>
+      }
+      @case ('proveedor') {
+        <ns-alert type="info" titulo="Productos comerciales no disponibles">{{ mensaje() }}</ns-alert>
+      }
+      @case ('error') {
+        <ns-alert type="error">{{ mensaje() }}</ns-alert>
+      }
+    }
+  </section>
+  @if (estado() !== 'listo' && estado() !== 'buscando') {
+    <div class="acciones">
+      <button nsButton type="button" variant="secondary" (click)="escanearOtro()">Escanear otro</button>
+      <a nsButton variant="secondary" routerLink="/productos" [queryParams]="contexto">Buscar por nombre</a>
+      @if (estado() === 'no-encontrado') {
+        <button nsButton type="button" (click)="creando.set(true)">Crear alimento</button>
+      }
+    </div>
+  }
+  @if (creado()) {
+    <ns-alert type="success">Alimento propio creado.</ns-alert>
+  }
+  @if (creando()) {
+    <app-alimento-form #formulario (guardado)="creando.set(false); creado.set(true)" />
+    <button nsButton type="submit" [attr.form]="formulario.idFormulario" [loading]="formulario.enviando()">
+      Guardar alimento
+    </button>
+  }
+</div>

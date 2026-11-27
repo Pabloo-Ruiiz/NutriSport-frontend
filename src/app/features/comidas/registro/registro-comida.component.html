@@ -65,6 +65,9 @@
         <p class="ns-registro__error-fecha" id="ns-registro-error-fecha" [hidden]="!errorFecha()">{{ errorFecha() }}</p>
 
         <div class="ns-registro__accesos">
+          <a nsButton variant="secondary" icon="scan-barcode" routerLink="/escaner" [queryParams]="rutaFoto()"
+            >Código de barras</a
+          >
           <a nsButton variant="ai" icon="camera" routerLink="/comidas/foto" [queryParams]="rutaFoto()"
             >Foto del plato</a
           >

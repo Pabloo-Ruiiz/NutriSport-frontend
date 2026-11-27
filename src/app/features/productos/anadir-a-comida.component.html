@@ -39,5 +39,11 @@
   @if (error()) {
     <ns-alert type="error">{{ error() }}</ns-alert>
   }
-  <button nsButton type="submit" [loading]="enviando()">Añadir a la comida</button>
+  <button nsButton type="submit" [loading]="enviando()">
+    {{
+      personalizarComida()
+        ? 'Añadir a ' + etiquetasTipo[tipoSeleccionado()].toLocaleLowerCase('es-ES')
+        : 'Añadir a la comida'
+    }}
+  </button>
 </form>
