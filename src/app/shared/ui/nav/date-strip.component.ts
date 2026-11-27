@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, model } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-import { desdeFechaApi, diasEntre, hoyLocal, sumarDias } from '@core/util/fechas';
+import { desdeFechaApi, diasEntre, hoyLocal, lunesDeLaSemana, sumarDias } from '@core/util/fechas';
 
 interface DiaTira {
   fecha: string;
@@ -82,15 +82,25 @@ export class NsDateStripComponent {
   /** Fecha de hoy; se puede fijar en pruebas. */
   readonly hoy = input(hoyLocal());
   readonly etiqueta = input('Elegir día');
+  /**
+   * Qué 7 días muestra: 'centrado' (por defecto) → 3 antes y 3 después del día central;
+   * 'semana' → de lunes a domingo de la semana del día central (planificador).
+   */
+  readonly modo = input<'centrado' | 'semana'>('centrado');
 
   /** Día central de la tira: sigue a la selección y las flechas lo mueven de 7 en 7. */
   protected readonly centro = linkedSignal(() => this.selected());
 
+  /** Primer día de la tira. */
+  private readonly inicio = computed(() =>
+    this.modo() === 'semana' ? lunesDeLaSemana(this.centro()) : sumarDias(this.centro(), -3),
+  );
+
   protected readonly dias = computed<DiaTira[]>(() => {
     const marcados = new Set(this.markedDates());
     const max = this.max();
-    return [-3, -2, -1, 0, 1, 2, 3].map((desplazamiento) => {
-      const fecha = sumarDias(this.centro(), desplazamiento);
+    return [0, 1, 2, 3, 4, 5, 6].map((desplazamiento) => {
+      const fecha = sumarDias(this.inicio(), desplazamiento);
       const fechaDate = desdeFechaApi(fecha);
       const marcado = marcados.has(fecha);
       const hoy = fecha === this.hoy();
@@ -113,7 +123,7 @@ export class NsDateStripComponent {
   /** Sin días elegibles en la semana siguiente. */
   protected readonly siguienteDeshabilitada = computed(() => {
     const max = this.max();
-    return max !== undefined && diasEntre(max, sumarDias(this.centro(), 4)) > 0;
+    return max !== undefined && diasEntre(max, sumarDias(this.inicio(), 7)) > 0;
   });
 
   /** Mueve la tira una semana adelante (1) o atrás (-1). */

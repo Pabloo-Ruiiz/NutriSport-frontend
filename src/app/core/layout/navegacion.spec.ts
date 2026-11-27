@@ -10,6 +10,7 @@ describe('navegacion', () => {
       '/comidas',
       '/mis-alimentos',
       '/productos',
+      '/planificador',
       '/recetas',
       '/actividad',
       '/perfil',
@@ -24,18 +25,26 @@ describe('navegacion', () => {
     expect(gruposVisibles(true).map((g) => g.titulo)).toContain('Administración');
   });
 
-  it('la barra inferior del MVP es Inicio · Comidas · [Registrar] · Actividad · Perfil', () => {
+  it('la barra inferior con la Ampliación es Inicio · Comidas · [Registrar] · Plan · Actividad', () => {
     expect(BARRA_INFERIOR.izquierda.map((e) => e.etiqueta)).toEqual(['Inicio', 'Comidas']);
-    expect(BARRA_INFERIOR.derecha.map((e) => e.etiqueta)).toEqual(['Actividad', 'Perfil']);
+    expect(BARRA_INFERIOR.derecha.map((e) => e.etiqueta)).toEqual(['Plan', 'Actividad']);
+    expect(BARRA_INFERIOR.derecha[0].ruta).toBe('/planificador');
     expect(ACCIONES_REGISTRO.map((a) => a.etiqueta)).toEqual(['Foto del plato', 'Buscar alimento', 'Escanear código']);
   });
 
   it('el drawer lleva lo que no está en la barra inferior', () => {
-    expect(rutas(gruposDrawer(false))).toEqual(['/mis-alimentos', '/productos', '/recetas', '/configuracion']);
+    expect(rutas(gruposDrawer(false))).toEqual([
+      '/mis-alimentos',
+      '/productos',
+      '/recetas',
+      '/perfil',
+      '/configuracion',
+    ]);
     expect(rutas(gruposDrawer(true))).toEqual([
       '/mis-alimentos',
       '/productos',
       '/recetas',
+      '/perfil',
       '/configuracion',
       '/admin/usuarios',
       '/admin/catalogo',

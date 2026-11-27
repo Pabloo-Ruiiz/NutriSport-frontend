@@ -179,6 +179,12 @@ export const routes: Routes = [
               import('@features/recetas/detalle/detalle-receta.component').then((m) => m.DetalleRecetaComponent),
           },
           {
+            path: 'planificador',
+            title: 'Planificador',
+            loadComponent: () =>
+              import('@features/planificador/planificador.component').then((m) => m.PlanificadorComponent),
+          },
+          {
             path: 'mis-alimentos',
             title: 'Mis alimentos',
             loadComponent: () =>

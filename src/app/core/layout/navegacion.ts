@@ -30,9 +30,9 @@ export const ACTIVIDAD: ElementoNav = { etiqueta: 'Actividad', ruta: '/actividad
 export const MI_PERFIL: ElementoNav = { etiqueta: 'Mi perfil', ruta: '/perfil', icono: 'user' };
 export const CONFIGURACION: ElementoNav = { etiqueta: 'Configuración', ruta: '/configuracion', icono: 'settings' };
 export const RECETAS: ElementoNav = { etiqueta: 'Recetas', ruta: '/recetas', icono: 'chef-hat' };
+export const PLANIFICADOR: ElementoNav = { etiqueta: 'Planificador', ruta: '/planificador', icono: 'calendar' };
 
 // Ampliación:
-// export const PLANIFICADOR: ElementoNav = { etiqueta: 'Planificador', ruta: '/planificador', icono: 'calendar' };
 // export const COMPRA: ElementoNav = { etiqueta: 'Lista de la compra', ruta: '/compra', icono: 'shopping-basket' };
 // export const ESTADISTICAS: ElementoNav = { etiqueta: 'Estadísticas', ruta: '/estadisticas', icono: 'chart-column' };
 // export const ASISTENTE: ElementoNav = { etiqueta: 'Asistente IA', ruta: '/asistente', icono: 'sparkles' };
@@ -46,7 +46,7 @@ export const NAVEGACION: readonly GrupoNav[] = [
       COMIDAS,
       MIS_ALIMENTOS,
       PRODUCTOS,
-      // PLANIFICADOR,
+      PLANIFICADOR,
       // COMPRA,
       RECETAS,
     ],
@@ -80,10 +80,13 @@ export function gruposVisibles(esAdmin: boolean, grupos: readonly GrupoNav[] = N
  * Barra inferior en móvil (§6.4), a los lados del botón central "Registrar".
  * MVP: Inicio · Comidas · [Registrar] · Actividad · Perfil.
  * Ampliación: Inicio · Comidas · [Registrar] · Plan · Asistente (Actividad y Perfil pasan al drawer).
+ *
+ * Mientras no exista el Asistente, su hueco lo ocupa Actividad; Perfil ya pasa al drawer (también se
+ * llega desde el avatar).
  */
 export const BARRA_INFERIOR: { izquierda: ElementoNav[]; derecha: ElementoNav[] } = {
   izquierda: [INICIO, COMIDAS],
-  derecha: [ACTIVIDAD, { ...MI_PERFIL, etiqueta: 'Perfil' }],
+  derecha: [{ ...PLANIFICADOR, etiqueta: 'Plan' }, ACTIVIDAD],
   // derecha: [{ ...PLANIFICADOR, etiqueta: 'Plan' }, { ...ASISTENTE, etiqueta: 'Asistente' }],
 };
 
