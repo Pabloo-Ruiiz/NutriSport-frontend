@@ -131,7 +131,7 @@ describe('ShellComponent', () => {
     it('cambia la sidebar por la barra inferior', async () => {
       await harness.navigateByUrl('/inicio');
       expect(raiz().querySelector('ns-sidebar')).toBeNull();
-      expect(textos('ns-bottom-nav a')).toEqual(['Inicio', 'Comidas', 'Actividad', 'Perfil']);
+      expect(textos('ns-bottom-nav a')).toEqual(['Inicio', 'Comidas', 'Plan', 'Actividad']);
       expect(raiz().querySelector('ns-bottom-nav a[aria-current="page"]')?.textContent).toContain('Inicio');
     });
 
@@ -155,7 +155,13 @@ describe('ShellComponent', () => {
       await harness.fixture.whenStable();
       const drawer = document.querySelector('.ns-drawer') as HTMLElement;
       expect(drawer.classList).toContain('ns-drawer--izquierda');
-      expect(textos('.ns-nav__etiqueta', drawer)).toEqual(['Mis alimentos', 'Productos', 'Recetas', 'Configuración']);
+      expect(textos('.ns-nav__etiqueta', drawer)).toEqual([
+        'Mis alimentos',
+        'Productos',
+        'Recetas',
+        'Mi perfil',
+        'Configuración',
+      ]);
       expect(drawer.querySelector('a[href="/productos"]')).not.toBeNull();
 
       (drawer.querySelector('.ns-shell__cerrar-sesion') as HTMLButtonElement).click();

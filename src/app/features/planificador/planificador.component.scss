@@ -1,0 +1,97 @@
+// Planificador semanal (DESIGN.md §7.10): ancho completo (§6.6). Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'components/menu';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  min-width: 0;
+}
+
+.ns-plan__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-3);
+}
+
+.ns-plan__semana {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+}
+
+.ns-plan__etiqueta {
+  min-width: 12ch;
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ns-plan__flecha,
+.ns-plan__mas {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface);
+  color: var(--ns-text);
+  cursor: pointer;
+
+  @include bp.down(md) {
+    width: 44px;
+    height: 44px;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--ns-surface-muted);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ns-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.ns-plan__selector {
+  flex: 1 1 220px;
+  max-width: 360px;
+}
+
+.ns-plan__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ns-space-2);
+  margin-left: auto;
+
+  @include bp.down(md) {
+    width: 100%;
+    margin-left: 0;
+
+    > [nsButton] {
+      flex: 1;
+    }
+  }
+}
+
+.ns-plan__contenido {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-6);
+  min-width: 0;
+}
+
+.ns-plan__cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+}
