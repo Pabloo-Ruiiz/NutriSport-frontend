@@ -32,8 +32,9 @@ export const CONFIGURACION: ElementoNav = { etiqueta: 'Configuración', ruta: '/
 export const RECETAS: ElementoNav = { etiqueta: 'Recetas', ruta: '/recetas', icono: 'chef-hat' };
 export const PLANIFICADOR: ElementoNav = { etiqueta: 'Planificador', ruta: '/planificador', icono: 'calendar' };
 
+export const COMPRA: ElementoNav = { etiqueta: 'Lista de la compra', ruta: '/compra', icono: 'shopping-basket' };
+
 // Ampliación:
-// export const COMPRA: ElementoNav = { etiqueta: 'Lista de la compra', ruta: '/compra', icono: 'shopping-basket' };
 // export const ESTADISTICAS: ElementoNav = { etiqueta: 'Estadísticas', ruta: '/estadisticas', icono: 'chart-column' };
 // export const ASISTENTE: ElementoNav = { etiqueta: 'Asistente IA', ruta: '/asistente', icono: 'sparkles' };
 
@@ -41,15 +42,7 @@ export const PLANIFICADOR: ElementoNav = { etiqueta: 'Planificador', ruta: '/pla
 export const NAVEGACION: readonly GrupoNav[] = [
   {
     titulo: 'Principal',
-    elementos: [
-      INICIO,
-      COMIDAS,
-      MIS_ALIMENTOS,
-      PRODUCTOS,
-      PLANIFICADOR,
-      // COMPRA,
-      RECETAS,
-    ],
+    elementos: [INICIO, COMIDAS, MIS_ALIMENTOS, PRODUCTOS, PLANIFICADOR, COMPRA, RECETAS],
   },
   {
     titulo: 'Rendimiento',

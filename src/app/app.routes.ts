@@ -185,6 +185,17 @@ export const routes: Routes = [
               import('@features/planificador/planificador.component').then((m) => m.PlanificadorComponent),
           },
           {
+            path: 'compra',
+            title: 'Lista de la compra',
+            loadComponent: () =>
+              import('@features/compra/listas-compra.component').then((m) => m.ListasCompraComponent),
+          },
+          {
+            path: 'compra/:id',
+            title: 'Lista de la compra',
+            loadComponent: () => import('@features/compra/lista-compra.component').then((m) => m.ListaCompraComponent),
+          },
+          {
             path: 'mis-alimentos',
             title: 'Mis alimentos',
             loadComponent: () =>

@@ -11,6 +11,7 @@ describe('navegacion', () => {
       '/mis-alimentos',
       '/productos',
       '/planificador',
+      '/compra',
       '/recetas',
       '/actividad',
       '/perfil',
@@ -41,6 +42,7 @@ describe('navegacion', () => {
     expect(rutas(gruposDrawer(false))).toEqual([
       '/mis-alimentos',
       '/productos',
+      '/compra',
       '/recetas',
       '/perfil',
       '/configuracion',
@@ -48,6 +50,7 @@ describe('navegacion', () => {
     expect(rutas(gruposDrawer(true))).toEqual([
       '/mis-alimentos',
       '/productos',
+      '/compra',
       '/recetas',
       '/perfil',
       '/configuracion',

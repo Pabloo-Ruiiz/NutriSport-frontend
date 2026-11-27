@@ -1,0 +1,119 @@
+<header class="cabecera">
+  <h1 class="ns-text-h2">Lista de la compra</h1>
+  <p class="ns-text-secondary">
+    Listas generadas desde tus menús, con las cantidades sumadas y agrupadas por sección del supermercado.
+  </p>
+</header>
+
+<div aria-live="polite" [attr.aria-busy]="estado() === 'cargando'">
+  @switch (estado()) {
+    @case ('cargando') {
+      <div class="rejilla" aria-label="Cargando las listas">
+        @for (n of esqueletos; track n) {
+          <ns-skeleton shape="rect" height="148px" />
+        }
+      </div>
+    }
+    @case ('error') {
+      <ns-alert type="error" titulo="No hemos podido cargar tus listas">
+        {{ error() }}
+        <button nsAlertAcciones nsButton type="button" variant="secondary" size="sm" (click)="cargar()">
+          Reintentar
+        </button>
+      </ns-alert>
+    }
+    @default {
+      @if (pagina(); as p) {
+        @if (p.content.length === 0) {
+          <ns-empty-state
+            icon="shopping-basket"
+            titulo="Aún no tienes listas de la compra"
+            descripcion="Genera una desde un menú del planificador: sumamos los ingredientes y los ordenamos por sección."
+          >
+            <a nsButton routerLink="/planificador" icon="calendar">Ir al planificador</a>
+          </ns-empty-state>
+        } @else {
+          <ul class="rejilla" role="list">
+            @for (lista of p.content; track lista.id) {
+              <li>
+                <ns-card class="tarjeta" [class.tarjeta--completada]="lista.estado === 'COMPLETADA'">
+                  <h2 nsCardTitulo>
+                    <a class="tarjeta__enlace" [routerLink]="['/compra', lista.id]">{{ lista.nombre }}</a>
+                  </h2>
+                  <p nsCardSubtitulo>
+                    @if (rango(lista.fechaDesde, lista.fechaHasta); as r) {
+                      <svg lucideIcon="calendar" [size]="14" aria-hidden="true"></svg>
+                      {{ r }}
+                    } @else {
+                      Sin menú de origen
+                    }
+                  </p>
+                  <button
+                    nsCardAcciones
+                    type="button"
+                    class="tarjeta__mas"
+                    [attr.aria-label]="'Acciones de ' + lista.nombre"
+                    [disabled]="ocupada() === lista.id"
+                    [cdkMenuTriggerFor]="acciones"
+                  >
+                    <svg lucideIcon="ellipsis" [size]="20" aria-hidden="true"></svg>
+                  </button>
+
+                  <ng-template #acciones>
+                    <div class="ns-menu" cdkMenu>
+                      <button type="button" class="ns-menu__item" cdkMenuItem (cdkMenuItemTriggered)="abrir(lista)">
+                        <svg lucideIcon="shopping-basket" [size]="18" aria-hidden="true"></svg>
+                        Abrir
+                      </button>
+                      <button type="button" class="ns-menu__item" cdkMenuItem (cdkMenuItemTriggered)="renombrar(lista)">
+                        <svg lucideIcon="pencil" [size]="18" aria-hidden="true"></svg>
+                        Renombrar
+                      </button>
+                      <hr class="ns-menu__separador" />
+                      <button
+                        type="button"
+                        class="ns-menu__item ns-menu__item--peligro"
+                        cdkMenuItem
+                        (cdkMenuItemTriggered)="eliminar(lista)"
+                      >
+                        <svg lucideIcon="trash" [size]="18" aria-hidden="true"></svg>
+                        Eliminar
+                      </button>
+                    </div>
+                  </ng-template>
+
+                  <div class="tarjeta__progreso">
+                    <ns-progress-bar
+                      [value]="lista.comprados"
+                      [max]="lista.total"
+                      [color]="
+                        lista.estado === 'COMPLETADA' || (lista.total > 0 && lista.comprados >= lista.total)
+                          ? 'success'
+                          : 'kcal'
+                      "
+                      unidad="comprados"
+                      [etiqueta]="'Progreso de ' + lista.nombre"
+                      showLabel
+                    />
+                    @if (lista.estado === 'COMPLETADA') {
+                      <ns-badge variant="success" icon="circle-check">Completada</ns-badge>
+                    } @else if (lista.total === 0) {
+                      <span class="tarjeta__vacia ns-text-body-sm ns-text-tertiary">Sin productos</span>
+                    }
+                  </div>
+                </ns-card>
+              </li>
+            }
+          </ul>
+
+          <ns-paginator
+            etiqueta="Páginas de listas"
+            [page]="p.page"
+            [totalPages]="p.totalPages"
+            (pageChange)="irAPagina($event)"
+          />
+        }
+      }
+    }
+  }
+</div>

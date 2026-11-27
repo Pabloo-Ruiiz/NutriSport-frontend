@@ -26,6 +26,11 @@ import {
   RegistrarRecetaDialogComponent,
   type RegistrarRecetaData,
 } from '@features/comidas/componentes/registrar-receta-dialog.component';
+import {
+  AnadirRecetaListaDialogComponent,
+  type AnadirRecetaListaData,
+  type AnadirRecetaListaResultado,
+} from '@features/compra/anadir-receta-lista-dialog.component';
 import { claveReceta } from '../recetas-url';
 import { IngredientesRecetaComponent, leerRaciones } from './ingredientes-receta.component';
 import { NutricionRecetaComponent } from './nutricion-receta.component';
@@ -234,6 +239,29 @@ export class DetalleRecetaComponent {
     const r = this.receta();
     if (!r || this.motivoBloqueo()) return;
     void this.router.navigate(['/planificador'], { queryParams: { receta: r.id } });
+  }
+
+  /** Ingredientes a una lista de la compra, con las raciones que se están viendo. */
+  protected anadirALista(): void {
+    const r = this.receta();
+    if (!r) return;
+    this.dialogos
+      .open<AnadirRecetaListaDialogComponent, AnadirRecetaListaResultado, AnadirRecetaListaData>(
+        AnadirRecetaListaDialogComponent,
+        {
+          titulo: 'Añadir a la lista de la compra',
+          size: 'sm',
+          data: { receta: { id: r.id, nombre: r.nombre }, raciones: leerRaciones(this.raciones()) ?? r.raciones },
+        },
+      )
+      .closed.subscribe((resultado) => {
+        if (!resultado) return;
+        const { lista } = resultado;
+        this.toasts.exito('Ingredientes añadidos', lista.nombre, {
+          texto: 'Ver lista',
+          ejecutar: () => void this.router.navigate(['/compra', lista.id]),
+        });
+      });
   }
 
   // ---- Relacionadas

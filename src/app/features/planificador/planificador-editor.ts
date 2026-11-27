@@ -15,6 +15,11 @@ import type { AnadirComidaRequest, ComidaPlanificadaResponse, MenuResponse, Tipo
 import { ETIQUETAS_TIPO_COMIDA } from '@core/models/etiquetas';
 import { MenusService } from '@core/services/menus.service';
 import { aApiError } from '@core/util/api-error';
+import {
+  AnadirRecetaListaDialogComponent,
+  type AnadirRecetaListaData,
+  type AnadirRecetaListaResultado,
+} from '@features/compra/anadir-receta-lista-dialog.component';
 import { NsToastService } from '@shared/ui/feedback/toast.service';
 import { NsConfirmService } from '@shared/ui/overlay/confirm.service';
 import { NsDialogService } from '@shared/ui/overlay/dialog.service';
@@ -266,9 +271,30 @@ export class PlanificadorEditor {
     if (comida.receta.id) void this.router.navigate(['/recetas', comida.receta.id]);
   }
 
-  /** Se conecta con la lista de la compra en el paso 32. */
-  anadirALista(): void {
-    this.toast.info('La lista de la compra estará disponible pronto');
+  /**
+   * "Añadir ingredientes a la lista": elige una lista activa (o crea una con este menú) y las
+   * raciones de la comida → POST /listas-compra/{id}/productos/desde-receta.
+   */
+  anadirALista(comida: ComidaPlanificadaResponse): void {
+    const menu = this.store.menu();
+    if (!comida.receta.id) return;
+    this.dialogos
+      .open<AnadirRecetaListaDialogComponent, AnadirRecetaListaResultado, AnadirRecetaListaData>(
+        AnadirRecetaListaDialogComponent,
+        {
+          titulo: 'Añadir a la lista de la compra',
+          size: 'sm',
+          data: { receta: { id: comida.receta.id, nombre: comida.receta.nombre }, raciones: comida.raciones, menu },
+        },
+      )
+      .closed.subscribe((resultado) => {
+        if (!resultado) return;
+        const { lista, nueva } = resultado;
+        this.toast.exito(nueva ? 'Lista de la compra creada' : 'Ingredientes añadidos', lista.nombre, {
+          texto: 'Ver lista',
+          ejecutar: () => void this.router.navigate(['/compra', lista.id]),
+        });
+      });
   }
 
   /** "Mover a…": diálogo de día y franja (la alternativa accesible al drag & drop). */

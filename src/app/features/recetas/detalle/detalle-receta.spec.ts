@@ -232,6 +232,53 @@ describe('DetalleRecetaComponent', () => {
     expect(url()).toBe('/planificador?receta=r1');
   });
 
+  it('"Añadir a la lista" abre el diálogo con las listas activas y añade los ingredientes', async () => {
+    await abrir('/recetas/r1?raciones=3');
+    boton('Añadir a la lista').click();
+    await esperar();
+    http
+      .expectOne((r) => r.url === '/api/v1/listas-compra' && r.method === 'GET')
+      .flush({
+        content: [
+          {
+            id: 'l1',
+            nombre: 'Compra semana',
+            estado: 'ACTIVA',
+            menuId: null,
+            fechaDesde: null,
+            fechaHasta: null,
+            comprados: 0,
+            total: 0,
+            creadoEn: '2026-11-22T10:00:00+01:00',
+          },
+        ],
+        page: 0,
+        size: 50,
+        totalElements: 1,
+        totalPages: 1,
+      });
+    await esperar();
+    const dialogo = document.querySelector('app-anadir-receta-lista-dialog') as HTMLElement;
+    expect(dialogo.textContent).toContain('Compra semana');
+    boton('Añadir a la lista', dialogo).click();
+    await esperar();
+    const req = http.expectOne('/api/v1/listas-compra/l1/productos/desde-receta');
+    expect(req.request.body).toEqual({ recetaId: 'r1', raciones: 3 });
+    req.flush({
+      id: 'l1',
+      nombre: 'Compra semana',
+      estado: 'ACTIVA',
+      menuId: null,
+      fechaDesde: null,
+      fechaHasta: null,
+      comprados: 0,
+      total: 4,
+      secciones: [],
+    });
+    await esperar();
+    expect(document.querySelector('app-anadir-receta-lista-dialog')).toBeNull();
+  });
+
   it('"Registrar como comida" abre el diálogo de registro', async () => {
     await abrir('/recetas/r1', receta({ estadoNutricional: 'COMPLETO' }));
     boton('Registrar como comida').click();
