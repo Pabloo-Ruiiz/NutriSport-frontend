@@ -24,6 +24,7 @@ const MENSAJES: Record<string, (detalle: unknown) => string> = {
   fechaNoValida: () => 'Escribe una fecha válida.',
   fechaFutura: () => 'La fecha no puede ser posterior a hoy.',
   edadMinima: (e) => `Debes tener al menos ${(e as Detalle)['minima']} años.`,
+  franjasComida: (e) => mensajeFranjas(e as Detalle),
   // Texto que devuelve el backend (p. ej. "Ya existe una cuenta con este correo").
   servidor: (texto) => textoServidor(texto),
 };
@@ -40,6 +41,13 @@ const MENSAJES_CONTRASENA: Record<string, string> = {
 function limite(valor: number): string {
   const decimales = Number.isInteger(valor) ? 0 : Math.min(2, String(valor).split('.')[1]?.length ?? 0);
   return formatearNumero(valor, decimales);
+}
+
+/** Franjas de comida elegidas frente a las comidas al día (perfil). */
+function mensajeFranjas({ requeridas, elegidas }: Detalle): string {
+  const plural = (n: number) => (n === 1 ? '1 comida' : `${n} comidas`);
+  if (elegidas < requeridas) return `Elige ${plural(requeridas - elegidas)} más: tienen que ser ${requeridas}.`;
+  return `Quita ${plural(elegidas - requeridas)}: solo puedes elegir ${requeridas}.`;
 }
 
 const MENSAJE_GENERICO = 'El valor no es válido.';

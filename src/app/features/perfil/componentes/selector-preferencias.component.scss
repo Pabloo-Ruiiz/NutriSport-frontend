@@ -9,36 +9,266 @@
 .ns-preferencias__grupos {
   display: flex;
   flex-direction: column;
-  gap: var(--ns-space-6);
+  gap: var(--ns-space-3);
 }
 
+// Cada apartado, en su tarjeta; con algo marcado, borde e icono en verde.
 .ns-preferencias__grupo {
   display: flex;
   flex-direction: column;
-  gap: var(--ns-space-2);
+  gap: var(--ns-space-4);
+  min-width: 0;
+  padding: var(--ns-space-5);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  transition: border-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:has(input:checked, .ns-preferencias__rechazo) {
+    border-color: var(--ns-brand-border);
+  }
+
+  @include bp.down(sm) {
+    padding: var(--ns-space-4);
+  }
+}
+
+.ns-preferencias__cabecera {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+}
+
+.ns-preferencias__icono {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface-sunken);
+  color: var(--ns-text-secondary);
+}
+
+.ns-preferencias__grupo:has(input:checked, .ns-preferencias__rechazo) .ns-preferencias__icono {
+  border-color: var(--ns-brand-border);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+}
+
+.ns-preferencias__textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .ns-preferencias__titulo {
   margin: 0;
-  font: 600 0.875rem/1.25rem var(--ns-font-body);
+  font: 700 0.9375rem/1.375rem var(--ns-font-display);
 }
 
-.ns-preferencias__ayuda,
-.ns-preferencias__nota {
+.ns-preferencias__ayuda {
   margin: 0;
   color: var(--ns-text-secondary);
   font-size: 0.8125rem;
   line-height: 1.125rem;
 }
 
+// Cuántas hay marcadas: gris sin ninguna, verde con alguna.
+.ns-preferencias__cuenta {
+  flex-shrink: 0;
+  padding: 2px var(--ns-space-2);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-full);
+  color: var(--ns-text-tertiary);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  white-space: nowrap;
+}
+
+.ns-preferencias__cuenta--activa {
+  border-color: var(--ns-brand-border);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+}
+
 .ns-preferencias__nota {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-2);
+  margin: 0;
+  padding: var(--ns-space-2) var(--ns-space-3);
+  border-radius: var(--ns-radius-md);
+  background: var(--ns-surface-muted);
   color: var(--ns-text-tertiary);
   font-size: 0.75rem;
+  line-height: 1rem;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
 }
 
 .ns-preferencias__nota--destacada {
+  background: var(--ns-warning-bg);
   color: var(--ns-warning);
   font-weight: 500;
+}
+
+/* Tarjetas de opción: nombre, descripción y casilla; marcada en verde corporativo */
+.ns-opciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: var(--ns-space-2);
+}
+
+.ns-opcion {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+  min-height: 64px;
+  padding: var(--ns-space-3) var(--ns-space-8) var(--ns-space-3) var(--ns-space-3);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface-muted);
+  color: var(--ns-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    background-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover:not(:has(input:disabled)):not(:disabled) {
+    border-color: var(--ns-brand-border);
+    background: var(--ns-surface-sunken);
+  }
+
+  &:has(input:checked) {
+    border-color: var(--ns-brand);
+    background: var(--ns-brand-bg);
+    box-shadow: inset 0 0 0 1px var(--ns-brand);
+  }
+
+  &:has(input:focus-visible),
+  &:is(button):focus-visible {
+    @include m.focus-ring;
+  }
+
+  &:has(input:disabled),
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ns-opcion__nativo {
+  @include m.sr-only;
+}
+
+.ns-opcion__textos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ns-opcion__nombre {
+  font: 600 0.875rem/1.25rem var(--ns-font-body);
+}
+
+.ns-opcion__descripcion {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.ns-opcion:has(input:checked) .ns-opcion__descripcion {
+  color: var(--ns-text-secondary);
+}
+
+// Casilla de la esquina: vacía en reposo; verde con check al marcar.
+.ns-opcion__check {
+  position: absolute;
+  top: var(--ns-space-3);
+  right: var(--ns-space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-sm);
+  color: transparent;
+}
+
+.ns-opcion:has(input:checked) .ns-opcion__check {
+  border-color: var(--ns-brand);
+  background: var(--ns-brand);
+  color: var(--ns-text-on-accent);
+}
+
+// «Otras…»: abre un panel; borde discontinuo para distinguirlo de una opción.
+.ns-opcion--mas {
+  border-style: dashed;
+  background: transparent;
+}
+
+.ns-opcion--abierta {
+  border-style: solid;
+  border-color: var(--ns-brand-border);
+}
+
+.ns-opcion__chevron {
+  position: absolute;
+  top: var(--ns-space-3);
+  right: var(--ns-space-3);
+  color: var(--ns-text-tertiary);
+  transition: transform var(--ns-duration-fast) var(--ns-ease-out);
+}
+
+.ns-opcion--abierta .ns-opcion__chevron {
+  transform: rotate(180deg);
+}
+
+/* Panel de «Otras»: alérgenos restantes y texto propio */
+.ns-otras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-4);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface-muted);
+}
+
+.ns-otras__titulo {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ns-propia {
+  display: flex;
+  gap: var(--ns-space-2);
+
+  input {
+    flex: 1;
+  }
+}
+
+@include m.reduced-motion {
+  .ns-opcion,
+  .ns-opcion__chevron {
+    transition: none;
+  }
 }
 
 .ns-preferencias__severidades {

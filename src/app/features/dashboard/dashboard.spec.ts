@@ -330,6 +330,17 @@ describe('DashboardComponent', () => {
     recarga.flush(resumen({ comidas: [comida('reg-1', 'PRE_ENTRENO', '17:00:00')] }));
   });
 
+  it('franjas: con las del perfil, solo esas y las que tengan comidas', () => {
+    expect(franjasDelDia([], [], ['DESAYUNO', 'COMIDA', 'CENA']).map((f) => f.tipo)).toEqual([
+      'DESAYUNO',
+      'COMIDA',
+      'CENA',
+    ]);
+    expect(
+      franjasDelDia([comida('reg-1', 'MERIENDA', '17:30:00')], [], ['DESAYUNO', 'COMIDA', 'CENA']).map((f) => f.tipo),
+    ).toEqual(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA']);
+  });
+
   it('franjas: incluye las de las comidas del plan', () => {
     expect(franjasDelDia([], ['POST_ENTRENO']).map((f) => f.tipo)).toEqual([
       'DESAYUNO',

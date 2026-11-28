@@ -58,7 +58,7 @@ export function opcionesSemana(dias: readonly DiaSemanaKcal[], hoy: string): ECh
           `{${valor === 'Hoy' ? 'hoy' : 'dia'}|${valor}}\n{${dias[i]?.entreno ? 'entreno' : 'sin'}|●}`,
         rich: {
           dia: { fontSize: 12, color: TOKENS.textTertiary, lineHeight: 18 },
-          hoy: { fontSize: 12, color: TOKENS.ink950, fontWeight: 600, lineHeight: 18 },
+          hoy: { fontSize: 12, color: TOKENS.texto, fontWeight: 600, lineHeight: 18 },
           entreno: { fontSize: 12, color: TOKENS.actividad, lineHeight: 14 },
           sin: { fontSize: 12, color: 'transparent', lineHeight: 14 },
         },
@@ -78,7 +78,7 @@ export function opcionesSemana(dias: readonly DiaSemanaKcal[], hoy: string): ECh
         type: 'scatter',
         symbol: 'rect',
         symbolSize: [34, 3],
-        itemStyle: { color: TOKENS.ink700 },
+        itemStyle: { color: TOKENS.linea },
         z: 3,
         data: dias.map((d) => (d.objetivo === null ? null : Math.round(d.objetivo))),
       },

@@ -1,36 +1,224 @@
 <div class="ns-preferencias__grupos" [id]="idControl()" [attr.aria-describedby]="describedBy()">
+  <!-- Alergias -->
   <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-alergias">
-    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-alergias">Alergias</h3>
-    <p class="ns-preferencias__ayuda">Marca los alérgenos que debes evitar.</p>
-    <ns-chip-group
-      [opciones]="opcionesAlergenos"
-      multiple
-      etiqueta="Alergias"
-      [ngModel]="alergenos()"
-      [ngModelOptions]="{ standalone: true }"
-      (ngModelChange)="cambiarAlergenos($event)"
-    />
+    <header class="ns-preferencias__cabecera">
+      <span class="ns-preferencias__icono" aria-hidden="true"><svg lucideIcon="wheat-off" [size]="18"></svg></span>
+      <div class="ns-preferencias__textos">
+        <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-alergias">Alergias alimentarias</h3>
+        <p class="ns-preferencias__ayuda">Marca los alimentos que te provocan alergia.</p>
+      </div>
+      <span class="ns-preferencias__cuenta" [class.ns-preferencias__cuenta--activa]="numAlergias()">
+        {{ numAlergias() === 1 ? '1 marcada' : numAlergias() ? numAlergias() + ' marcadas' : 'Ninguna' }}
+      </span>
+    </header>
+
+    <div class="ns-opciones">
+      @for (o of opcionesAlergia; track o.id) {
+        <label class="ns-opcion">
+          <input
+            class="ns-opcion__nativo"
+            type="checkbox"
+            [checked]="alergiaMarcada(o)"
+            [disabled]="deshabilitado()"
+            (change)="alternarAlergia(o)"
+          />
+          <span class="ns-opcion__textos">
+            <span class="ns-opcion__nombre">{{ o.nombre }}</span>
+            <span class="ns-opcion__descripcion">{{ o.ejemplos }}</span>
+          </span>
+          <span class="ns-opcion__check" aria-hidden="true"
+            ><svg lucideIcon="check" [size]="12" [strokeWidth]="3"></svg
+          ></span>
+        </label>
+      }
+      <button
+        type="button"
+        class="ns-opcion ns-opcion--mas"
+        [class.ns-opcion--abierta]="mostrarOtras()"
+        [attr.aria-expanded]="mostrarOtras()"
+        [attr.aria-controls]="idControl() + '-otras-alergias'"
+        [disabled]="deshabilitado()"
+        (click)="otrasAbiertas.set(!otrasAbiertas())"
+      >
+        <span class="ns-opcion__textos">
+          <span class="ns-opcion__nombre">Otras alergias</span>
+          <span class="ns-opcion__descripcion">Escribe la tuya</span>
+        </span>
+        <svg class="ns-opcion__chevron" lucideIcon="chevron-down" [size]="16" aria-hidden="true"></svg>
+      </button>
+    </div>
+
+    @if (mostrarOtras()) {
+      <div class="ns-otras" [id]="idControl() + '-otras-alergias'">
+        <div class="ns-propia">
+          <input
+            #alergiaPropia
+            nsInput
+            type="text"
+            [attr.maxlength]="maxDetalle"
+            [disabled]="deshabilitado()"
+            placeholder="Escribe otra alergia, p. ej. «kiwi»"
+            aria-label="Otra alergia"
+            (keydown.enter)="$event.preventDefault(); anadirPropia('ALERGIA', alergiaPropia)"
+          />
+          <button
+            nsButton
+            type="button"
+            variant="secondary"
+            icon="plus"
+            [disabled]="deshabilitado()"
+            (click)="anadirPropia('ALERGIA', alergiaPropia)"
+          >
+            Añadir
+          </button>
+        </div>
+        @if (alergiasPropias().length) {
+          <ul class="ns-preferencias__rechazos" role="list" aria-label="Alergias añadidas">
+            @for (d of alergiasPropias(); track d) {
+              <li class="ns-preferencias__rechazo">
+                {{ d }}
+                <button
+                  type="button"
+                  class="ns-preferencias__quitar"
+                  [attr.aria-label]="'Quitar ' + d"
+                  [disabled]="deshabilitado()"
+                  (click)="quitarPropia('ALERGIA', d)"
+                >
+                  <svg lucideIcon="x" [size]="14" aria-hidden="true"></svg>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+    <p class="ns-preferencias__nota">
+      <svg lucideIcon="info" [size]="14" aria-hidden="true"></svg>
+      <span
+        >Filtramos los alérgenos de la lista con los datos de los alimentos y las recetas. Frutas y las alergias que
+        escribas se guardan en tu perfil, pero no se filtran automáticamente: revisa tú las etiquetas.</span
+      >
+    </p>
   </section>
 
+  <!-- Intolerancias -->
   <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-intolerancias">
-    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-intolerancias">Intolerancias</h3>
-    <ns-chip-group
-      [opciones]="opcionesLactosa"
-      multiple
-      etiqueta="Intolerancias"
-      [ngModel]="lactosa()"
-      [ngModelOptions]="{ standalone: true }"
-      (ngModelChange)="cambiarLactosa($event)"
-    />
+    <header class="ns-preferencias__cabecera">
+      <span class="ns-preferencias__icono" aria-hidden="true"><svg lucideIcon="milk-off" [size]="18"></svg></span>
+      <div class="ns-preferencias__textos">
+        <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-intolerancias">
+          Intolerancias y otras restricciones
+        </h3>
+        <p class="ns-preferencias__ayuda">Lo que te sienta mal aunque no sea una alergia.</p>
+      </div>
+      <span class="ns-preferencias__cuenta" [class.ns-preferencias__cuenta--activa]="numIntolerancias()">
+        {{ numIntolerancias() === 1 ? '1 marcada' : numIntolerancias() ? numIntolerancias() + ' marcadas' : 'Ninguna' }}
+      </span>
+    </header>
+
+    <div class="ns-opciones">
+      @for (o of opcionesIntolerancia; track o.valor) {
+        <label class="ns-opcion">
+          <input
+            class="ns-opcion__nativo"
+            type="checkbox"
+            [checked]="intolerancias().has(o.valor)"
+            [disabled]="deshabilitado()"
+            (change)="alternarIntolerancia(o.valor)"
+          />
+          <span class="ns-opcion__textos">
+            <span class="ns-opcion__nombre">{{ o.nombre }}</span>
+            <span class="ns-opcion__descripcion">{{ o.descripcion }}</span>
+          </span>
+          <span class="ns-opcion__check" aria-hidden="true"
+            ><svg lucideIcon="check" [size]="12" [strokeWidth]="3"></svg
+          ></span>
+        </label>
+      }
+      <button
+        type="button"
+        class="ns-opcion ns-opcion--mas"
+        [class.ns-opcion--abierta]="mostrarOtrasIntolerancias()"
+        [attr.aria-expanded]="mostrarOtrasIntolerancias()"
+        [attr.aria-controls]="idControl() + '-otras-intolerancias'"
+        [disabled]="deshabilitado()"
+        (click)="otrasIntoleranciasAbiertas.set(!otrasIntoleranciasAbiertas())"
+      >
+        <span class="ns-opcion__textos">
+          <span class="ns-opcion__nombre">Otras</span>
+          <span class="ns-opcion__descripcion">Escribe la tuya</span>
+        </span>
+        <svg class="ns-opcion__chevron" lucideIcon="chevron-down" [size]="16" aria-hidden="true"></svg>
+      </button>
+    </div>
+
+    @if (mostrarOtrasIntolerancias()) {
+      <div class="ns-otras" [id]="idControl() + '-otras-intolerancias'">
+        <div class="ns-propia">
+          <input
+            #intoleranciaPropia
+            nsInput
+            type="text"
+            [attr.maxlength]="maxDetalle"
+            [disabled]="deshabilitado()"
+            placeholder="Escribe otra intolerancia, p. ej. «cafeína»"
+            aria-label="Otra intolerancia"
+            (keydown.enter)="$event.preventDefault(); anadirPropia('INTOLERANCIA', intoleranciaPropia)"
+          />
+          <button
+            nsButton
+            type="button"
+            variant="secondary"
+            icon="plus"
+            [disabled]="deshabilitado()"
+            (click)="anadirPropia('INTOLERANCIA', intoleranciaPropia)"
+          >
+            Añadir
+          </button>
+        </div>
+        @if (intoleranciasPropias().length) {
+          <ul class="ns-preferencias__rechazos" role="list" aria-label="Intolerancias añadidas">
+            @for (d of intoleranciasPropias(); track d) {
+              <li class="ns-preferencias__rechazo">
+                {{ d }}
+                <button
+                  type="button"
+                  class="ns-preferencias__quitar"
+                  [attr.aria-label]="'Quitar ' + d"
+                  [disabled]="deshabilitado()"
+                  (click)="quitarPropia('INTOLERANCIA', d)"
+                >
+                  <svg lucideIcon="x" [size]="14" aria-hidden="true"></svg>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+    <p class="ns-preferencias__nota">
+      <svg lucideIcon="info" [size]="14" aria-hidden="true"></svg>
+      <span
+        >Filtramos la lactosa y el gluten. Fructosa, sorbitol, histamina y las que escribas se guardan como aviso para
+        ti, pero no se filtran automáticamente.</span
+      >
+    </p>
   </section>
 
   @if (restricciones().length) {
     <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-severidad">
-      <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-severidad">¿Cómo las tratamos?</h3>
-      <p class="ns-preferencias__ayuda">
-        <strong>Estricta:</strong> te avisamos y la evitamos en las sugerencias. <strong>Preferencia:</strong> solo te
-        avisamos.
-      </p>
+      <header class="ns-preferencias__cabecera">
+        <span class="ns-preferencias__icono" aria-hidden="true"
+          ><svg lucideIcon="sliders-horizontal" [size]="18"></svg
+        ></span>
+        <div class="ns-preferencias__textos">
+          <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-severidad">¿Cómo las tratamos?</h3>
+          <p class="ns-preferencias__ayuda">
+            <strong>Estricta:</strong> te avisamos y la evitamos en las sugerencias. <strong>Preferencia:</strong> solo
+            te avisamos.
+          </p>
+        </div>
+      </header>
       <ul class="ns-preferencias__severidades" role="list">
         @for (r of restricciones(); track r.nombre) {
           <li class="ns-preferencias__severidad">
@@ -48,25 +236,77 @@
     </section>
   }
 
+  <!-- Dieta -->
   <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-dietas">
-    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-dietas">Dieta</h3>
-    <ns-chip-group
-      [opciones]="opcionesDietas"
-      multiple
-      etiqueta="Dieta"
-      [ngModel]="dietas()"
-      [ngModelOptions]="{ standalone: true }"
-      (ngModelChange)="cambiarDietas($event)"
-    />
+    <header class="ns-preferencias__cabecera">
+      <span class="ns-preferencias__icono" aria-hidden="true"><svg lucideIcon="leaf" [size]="18"></svg></span>
+      <div class="ns-preferencias__textos">
+        <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-dietas">Tipo de dieta</h3>
+        <p class="ns-preferencias__ayuda">Elige tu estilo de alimentación; puedes combinar varias.</p>
+      </div>
+      <span class="ns-preferencias__cuenta" [class.ns-preferencias__cuenta--activa]="dietas().size">
+        {{ dietas().size === 1 ? '1 elegida' : dietas().size ? dietas().size + ' elegidas' : 'Sin restricciones' }}
+      </span>
+    </header>
+
+    <div class="ns-opciones">
+      @for (o of opcionesDieta; track o.nombre) {
+        <label class="ns-opcion">
+          <input
+            class="ns-opcion__nativo"
+            type="checkbox"
+            [checked]="dietaMarcada(o.valor)"
+            [disabled]="deshabilitado()"
+            (change)="alternarDieta(o.valor)"
+          />
+          <span class="ns-opcion__textos">
+            <span class="ns-opcion__nombre">{{ o.nombre }}</span>
+            <span class="ns-opcion__descripcion">{{ o.descripcion }}</span>
+          </span>
+          <span class="ns-opcion__check" aria-hidden="true"
+            ><svg lucideIcon="check" [size]="12" [strokeWidth]="3"></svg
+          ></span>
+        </label>
+      }
+    </div>
+
+    @if (dietas().has('PERSONALIZADA')) {
+      <div class="ns-otras">
+        <label class="ns-otras__titulo" [for]="idControl() + '-dieta-propia'">Describe tu dieta</label>
+        <input
+          nsInput
+          type="text"
+          [id]="idControl() + '-dieta-propia'"
+          [attr.maxlength]="maxDetalle"
+          [disabled]="deshabilitado()"
+          [value]="detalleDieta()"
+          placeholder="P. ej. «sin azúcar añadido y poca sal»"
+          (input)="cambiarDetalleDieta($any($event.target).value)"
+        />
+      </div>
+    }
+
     <p class="ns-preferencias__nota" [class.ns-preferencias__nota--destacada]="hayDietaSinFiltro()">
-      * Halal y kosher se guardan en tu perfil, pero no se filtran automáticamente: revisa tú los alimentos y las
-      recetas.
+      <svg lucideIcon="info" [size]="14" aria-hidden="true"></svg>
+      <span
+        >Filtramos automáticamente las recetas vegetarianas, veganas y pescetarianas. El resto de dietas se guardan en
+        tu perfil, pero no se filtran automáticamente: revisa tú los alimentos y las recetas.</span
+      >
     </p>
   </section>
 
+  <!-- Alimentos que no te gustan -->
   <section class="ns-preferencias__grupo" aria-labelledby="{{ idControl() }}-rechazos">
-    <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-rechazos">Alimentos que no te gustan</h3>
-    <p class="ns-preferencias__ayuda">Busca un alimento y elígelo para no recibirlo en las sugerencias.</p>
+    <header class="ns-preferencias__cabecera">
+      <span class="ns-preferencias__icono" aria-hidden="true"><svg lucideIcon="thumbs-down" [size]="18"></svg></span>
+      <div class="ns-preferencias__textos">
+        <h3 class="ns-preferencias__titulo" id="{{ idControl() }}-rechazos">Alimentos que no te gustan</h3>
+        <p class="ns-preferencias__ayuda">Búscalos para no recibirlos en las sugerencias.</p>
+      </div>
+      <span class="ns-preferencias__cuenta" [class.ns-preferencias__cuenta--activa]="rechazos().length">
+        {{ rechazos().length === 1 ? '1 elegido' : rechazos().length ? rechazos().length + ' elegidos' : 'Ninguno' }}
+      </span>
+    </header>
 
     <ns-combobox
       [id]="idCombo"

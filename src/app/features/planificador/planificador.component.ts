@@ -19,6 +19,7 @@ import { LayoutService } from '@core/layout/layout.service';
 import type { ListaCompraResponse, MenuResponse } from '@core/models';
 import { ETIQUETAS_ESTADO_MENU } from '@core/models/etiquetas';
 import { MenusService } from '@core/services/menus.service';
+import { PerfilService } from '@core/services/perfil.service';
 import { aApiError } from '@core/util/api-error';
 import { hoyLocal, lunesDeLaSemana } from '@core/util/fechas';
 import { GenerarListaDialogComponent, type GenerarListaData } from '@features/compra/generar-lista-dialog.component';
@@ -88,6 +89,9 @@ export class PlanificadorComponent {
   protected readonly store = inject(PlanificadorStore);
   protected readonly editor = inject(PlanificadorEditor);
   private readonly menusService = inject(MenusService);
+  private readonly perfilService = inject(PerfilService);
+  /** Franjas del perfil: filas del planificador (el backend genera los menús con ellas). */
+  protected readonly tiposComida = this.perfilService.tiposComida;
   private readonly dialogos = inject(NsDialogService);
   private readonly confirmacion = inject(NsConfirmService);
   private readonly toast = inject(NsToastService);
@@ -123,6 +127,7 @@ export class PlanificadorComponent {
   protected readonly ocupado = signal(false);
 
   constructor() {
+    this.perfilService.cargarTiposComida();
     // La semana sale de la URL (?semana=): así se conserva al recargar y al volver atrás. La primera
     // vez fija la semana y carga; después, cada cambio de la URL lleva a esa semana.
     let primeraVez = true;

@@ -70,7 +70,7 @@ import { ACCIONES_REGISTRO } from './navegacion';
       height: 40px;
       border-radius: var(--ns-radius-md);
       background: var(--ns-data-kcal-bg);
-      color: var(--ns-action-primary);
+      color: var(--ns-accent);
     }
     .ns-registrar__textos {
       display: flex;

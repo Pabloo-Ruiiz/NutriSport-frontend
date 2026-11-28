@@ -3,7 +3,7 @@
  * perfil, fechas de la lista, búsqueda y el borrador de "Preguntar al asistente".
  */
 import type { ConversacionResumenResponse, InsightResponse, PreferenciaDto } from '@core/models';
-import { ETIQUETAS_ALERGENO, ETIQUETAS_DIETA } from '@core/models/etiquetas';
+import { ETIQUETAS_ALERGENO, ETIQUETAS_DIETA, ETIQUETAS_INTOLERANCIA } from '@core/models/etiquetas';
 import { MAX_CARACTERES_MENSAJE } from '@core/services/asistente.service';
 import { aFechaApi, diasEntre } from '@core/util/fechas';
 import { formatearFecha } from '@shared/pipes/formato';
@@ -37,8 +37,8 @@ export function restriccionesActivas(preferencias: readonly PreferenciaDto[]): s
   const textos: string[] = [];
   for (const p of preferencias) {
     if (p.tipo === 'ALERGIA' && p.alergeno) textos.push(`Alergia: ${ETIQUETAS_ALERGENO[p.alergeno] ?? p.alergeno}`);
-    else if (p.tipo === 'INTOLERANCIA')
-      textos.push(p.intolerancia === 'LACTOSA' ? 'Intolerancia a la lactosa' : 'Intolerancia');
+    else if (p.tipo === 'INTOLERANCIA' && p.intolerancia)
+      textos.push(`Intolerancia: ${ETIQUETAS_INTOLERANCIA[p.intolerancia] ?? p.intolerancia}`);
     else if (p.tipo === 'DIETA' && p.dieta) textos.push(`Dieta ${(ETIQUETAS_DIETA[p.dieta] ?? p.dieta).toLowerCase()}`);
   }
   return [...new Set(textos)];

@@ -5,7 +5,7 @@ import { ETIQUETAS, TipoEtiqueta } from '@core/models/etiquetas';
 import { SIN_DATO } from './formato';
 
 /**
- * {{ comida.tipoComida | etiqueta: 'tipoComida' }} → "Media mañana".
+ * {{ comida.tipoComida | etiqueta: 'tipoComida' }} → "Almuerzo".
  * Si el valor no tiene etiqueta, se devuelve tal cual. Sin dato → "—".
  */
 @Pipe({ name: 'etiqueta' })

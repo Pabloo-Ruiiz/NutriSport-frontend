@@ -54,6 +54,7 @@
         <app-comidas-hoy
           class="ns-dash__comidas"
           [comidas]="r.comidas"
+          [tiposComida]="tiposComida()"
           [pendientes]="r.comidasPlanificadasPendientes"
           [marcando]="marcandoPlan()"
           [fecha]="dia()"

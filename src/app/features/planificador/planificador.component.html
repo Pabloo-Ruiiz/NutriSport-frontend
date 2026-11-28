@@ -113,9 +113,15 @@
     <h2 class="ns-sr-only" id="ns-plan-nombre">{{ m.nombre }}</h2>
     <app-resumen-semana [menu]="m" />
     @if (esMovil()) {
-      <app-dia-planificador [menu]="m" [fecha]="fechaDia()" (fechaChange)="elegirDia($event)" [hoy]="hoy" />
+      <app-dia-planificador
+        [menu]="m"
+        [fecha]="fechaDia()"
+        (fechaChange)="elegirDia($event)"
+        [hoy]="hoy"
+        [fijas]="tiposComida()"
+      />
     } @else {
-      <app-week-planner [menu]="m" [semana]="store.semana()" [hoy]="hoy" />
+      <app-week-planner [menu]="m" [semana]="store.semana()" [hoy]="hoy" [fijas]="tiposComida()" />
     }
   </section>
 } @else if (store.cargando()) {

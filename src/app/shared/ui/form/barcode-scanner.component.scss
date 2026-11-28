@@ -10,8 +10,8 @@
   align-items: center;
   padding: var(--ns-space-4);
   gap: var(--ns-space-3);
-  background: var(--ns-surface-inverse);
-  color: var(--ns-text-inverse);
+  background: var(--ns-bg);
+  color: var(--ns-text);
   overflow: hidden;
   border-radius: var(--ns-radius-lg);
 }
@@ -37,7 +37,7 @@ video {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--ns-action-primary);
+  background: var(--ns-accent);
 }
 p,
 button,

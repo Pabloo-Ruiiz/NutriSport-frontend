@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ns-space-2);
-  margin-bottom: var(--ns-space-8);
+  margin-bottom: clamp(var(--ns-space-4), 3.5vh, var(--ns-space-8));
 }
 
 .ns-auth-form__titulo {
@@ -22,7 +22,7 @@
 .ns-auth-form__campos {
   display: flex;
   flex-direction: column;
-  gap: var(--ns-space-5);
+  gap: clamp(var(--ns-space-3), 2.2vh, var(--ns-space-5));
 }
 
 .ns-auth-form__casillas {
@@ -59,7 +59,8 @@
 .ns-auth-form__fila {
   display: flex;
   justify-content: flex-end;
-  margin-top: calc(-1 * var(--ns-space-2));
+  margin: calc(-1 * var(--ns-space-2)) 0 0;
+  font-size: 0.875rem;
 }
 
 .ns-auth-form__enlace,
@@ -67,10 +68,12 @@
   color: var(--ns-text-link);
   font-weight: 600;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-color: var(--ns-brand-border);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--ns-duration-fast) var(--ns-ease-out);
 
   &:hover {
-    text-decoration-thickness: 2px;
+    text-decoration-color: currentColor;
   }
 
   &:focus-visible {
@@ -95,7 +98,9 @@
 }
 
 .ns-auth-form__pie {
-  margin: var(--ns-space-6) 0 0;
+  margin: clamp(var(--ns-space-4), 3.5vh, var(--ns-space-8)) 0 0;
+  padding-top: clamp(var(--ns-space-3), 2.5vh, var(--ns-space-6));
+  border-top: 1px solid var(--ns-border);
   color: var(--ns-text-secondary);
   text-align: center;
 }

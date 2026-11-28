@@ -18,8 +18,10 @@
   max-height: inherit;
 }
 
-// Fondo oscuro de diálogos y drawer (DESIGN.md §6.4) en la capa overlay (§6.9).
+// Fondo de diálogos y drawer: velo translúcido con desenfoque (DESIGN.md «Elevation»: la
+// profundidad se consigue con translucidez y backdrop-filter, no con sombras).
 .cdk-overlay-dark-backdrop {
   z-index: var(--ns-z-overlay);
-  background: color-mix(in srgb, var(--ns-ink-950) 48%, transparent);
+  background: var(--ns-surface-overlay);
+  backdrop-filter: var(--ns-blur);
 }

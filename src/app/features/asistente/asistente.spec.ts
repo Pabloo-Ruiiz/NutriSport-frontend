@@ -65,7 +65,7 @@ describe('lógica del asistente', () => {
         { tipo: 'RECHAZO', alimentoId: 'a', severidad: 'PREFERENCIA' },
         { tipo: 'FAVORITO', alimentoId: 'b', severidad: 'PREFERENCIA' },
       ]),
-    ).toEqual(['Alergia: Cacahuetes', 'Intolerancia a la lactosa', 'Dieta vegetariana']);
+    ).toEqual(['Alergia: Cacahuetes', 'Intolerancia: Lactosa', 'Dieta vegetariana']);
   });
 
   it('fecha de la lista: hora hoy, "Ayer" y día y mes', () => {

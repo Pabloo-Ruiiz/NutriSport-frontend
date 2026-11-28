@@ -106,10 +106,10 @@
 }
 
 .ns-date-strip__punto--visible {
-  background: var(--ns-green-500);
+  background: var(--ns-accent);
 }
 
 // Sobre el fondo oscuro, el punto en verde claro (contraste).
 .ns-date-strip__dia--seleccionado .ns-date-strip__punto--visible {
-  background: var(--ns-green-400);
+  background: var(--ns-accent);
 }

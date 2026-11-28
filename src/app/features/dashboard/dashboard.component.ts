@@ -13,6 +13,7 @@ import type {
 import { ComidasService } from '@core/services/comidas.service';
 import { EntrenamientosService } from '@core/services/entrenamientos.service';
 import { MenusService } from '@core/services/menus.service';
+import { PerfilService } from '@core/services/perfil.service';
 import { SeguimientoService } from '@core/services/seguimiento.service';
 import { type ApiError, aApiError } from '@core/util/api-error';
 import { hoyLocal, lunesDeLaSemana, rangoDias, sumarDias } from '@core/util/fechas';
@@ -90,6 +91,7 @@ export class DashboardComponent {
   private readonly toasts = inject(NsToastService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly perfilService = inject(PerfilService);
   /** En móvil las macros son un carrusel: se hace enfocable para desplazarlo con el teclado. */
   protected readonly layout = inject(LayoutService);
 
@@ -130,6 +132,7 @@ export class DashboardComponent {
   protected readonly estado = signal<Estado>('cargando');
   protected readonly error = signal<string | null>(null);
   protected readonly resumen = signal<ResumenDiarioResponse | null>(null);
+  protected readonly tiposComida = this.perfilService.tiposComida;
   protected readonly marcando = signal<string | null>(null);
   /** Comida del plan que se está marcando como consumida. */
   protected readonly marcandoPlan = signal<string | null>(null);
@@ -158,6 +161,8 @@ export class DashboardComponent {
   });
 
   constructor() {
+    // Franjas de «Comidas de hoy»: las del perfil (normalmente ya en caché por perfilGuard).
+    this.perfilService.cargarTiposComida();
     effect(() => {
       const dia = this.dia();
       untracked(() => this.cargar(dia));

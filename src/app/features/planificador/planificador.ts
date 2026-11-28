@@ -1,7 +1,7 @@
 // Funciones puras del planificador (DESIGN.md §7.10): no calculan nutrientes, solo ordenan y
 // agrupan lo que devuelve el servidor.
 import type { ComidaPlanificadaResponse, DiaMenuResponse, MenuResponse, TipoComida } from '@core/models';
-import { ORDEN_TIPOS_COMIDA } from '@core/models/etiquetas';
+import { FRANJAS_ELEGIBLES } from '@core/util/franjas';
 import { desdeFechaApi, lunesDeLaSemana, rangoDias, sumarDias } from '@core/util/fechas';
 import { formatearNumero } from '@shared/pipes/formato';
 
@@ -47,13 +47,20 @@ export function franjaDe(comida: Pick<ComidaPlanificadaResponse, 'tipoComida'>):
   return comida.tipoComida ?? 'OTRO';
 }
 
+/** Orden de las filas: el del día, como el reparto del backend (pre/post-entreno antes de la cena). */
+const ORDEN_FILAS: readonly TipoComida[] = [...FRANJAS_ELEGIBLES, 'OTRO'];
+
 /**
- * Filas de la rejilla, en el orden de ORDEN_TIPOS_COMIDA: Desayuno, Comida, Merienda y Cena
- * siempre; Media mañana, Pre/Post-entreno y Otro solo si algún día de `dias` tiene comidas de ese tipo.
+ * Filas de la rejilla, en el orden del día (ORDEN_FILAS): las franjas del perfil del usuario (o, si
+ * no se conocen, Desayuno, Comida, Merienda y Cena) siempre; las demás solo si algún día de `dias`
+ * tiene comidas de ese tipo (p. ej. de antes de cambiar las franjas).
  */
-export function franjasVisibles(dias: readonly (DiaMenuResponse | null)[]): TipoComida[] {
+export function franjasVisibles(
+  dias: readonly (DiaMenuResponse | null)[],
+  fijas: readonly TipoComida[] = FRANJAS_FIJAS,
+): TipoComida[] {
   const conComidas = new Set(dias.flatMap((d) => d?.comidas.map(franjaDe) ?? []));
-  return ORDEN_TIPOS_COMIDA.filter((t) => FRANJAS_FIJAS.includes(t) || conComidas.has(t));
+  return ORDEN_FILAS.filter((t) => fijas.includes(t) || conComidas.has(t));
 }
 
 /** Comidas de una franja en un día, en el orden del servidor. */

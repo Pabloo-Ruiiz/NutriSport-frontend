@@ -39,20 +39,21 @@ export interface Franja {
 const horaDe = (c: RegistroComidaResponse) => c.hora?.slice(0, 5) ?? HORA_FRANJA[c.tipoComida ?? 'OTRO'];
 
 /**
- * Timeline del día: las franjas fijas más las que tienen comidas (o, en `tiposExtra`, comidas del
+ * Timeline del día: las franjas fijas (las del perfil del usuario o, si no se conocen, FRANJAS_FIJAS) más las que tienen comidas (o, en `tiposExtra`, comidas del
  * plan pendientes), en el orden del día (por la hora de su primera comida o, vacías, por su hora
  * orientativa). Cada franja con sus comidas por hora.
  */
 export function franjasDelDia(
   comidas: readonly RegistroComidaResponse[],
   tiposExtra: readonly TipoComida[] = [],
+  fijas: readonly TipoComida[] = FRANJAS_FIJAS,
 ): Franja[] {
   const porTipo = new Map<TipoComida, RegistroComidaResponse[]>();
   for (const c of comidas) {
     const tipo = c.tipoComida ?? 'OTRO';
     porTipo.set(tipo, [...(porTipo.get(tipo) ?? []), c]);
   }
-  const tipos = new Set<TipoComida>([...FRANJAS_FIJAS, ...porTipo.keys(), ...tiposExtra]);
+  const tipos = new Set<TipoComida>([...fijas, ...porTipo.keys(), ...tiposExtra]);
   return [...tipos]
     .map((tipo) => {
       const lista = [...(porTipo.get(tipo) ?? [])].sort((a, b) => horaDe(a).localeCompare(horaDe(b)));

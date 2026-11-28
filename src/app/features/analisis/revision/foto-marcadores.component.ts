@@ -116,7 +116,7 @@ export interface Marcador {
       justify-content: center;
       width: 32px;
       height: 32px;
-      border: 2px solid var(--ns-gray-0);
+      border: 2px solid var(--ns-text);
       border-radius: var(--ns-radius-full);
       background: var(--ns-action-ai);
       color: var(--ns-text-inverse);

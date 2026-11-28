@@ -1,0 +1,191 @@
+// Paso «Tu objetivo»: tarjetas de objetivo. Solo tokens --ns-*.
+// Estados: normal, hover, foco, seleccionada (verde corporativo + check) y deshabilitada.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+// 5 tarjetas equilibradas: 3 arriba y 2 abajo más anchas (6 columnas); 2 por fila en tableta, con la
+// última a todo el ancho; 1 en móvil.
+.ns-objetivos {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--ns-space-3);
+
+  > .ns-objetivo {
+    grid-column: span 2;
+  }
+
+  > .ns-objetivo:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+
+  @include bp.down(md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    > .ns-objetivo,
+    > .ns-objetivo:nth-child(n + 4) {
+      grid-column: span 1;
+    }
+
+    > .ns-objetivo:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @include bp.down(sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ns-objetivo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-2);
+  padding: var(--ns-space-4);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface-muted);
+  color: var(--ns-text);
+  cursor: pointer;
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    box-shadow var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    border-color: var(--ns-brand-border);
+    background: var(--ns-surface-sunken);
+  }
+
+  // Seleccionada: borde verde de 2 px, fondo verde suave y check (no solo color).
+  &:has(input:checked) {
+    border-color: var(--ns-brand);
+    background: var(--ns-brand-bg);
+    box-shadow: inset 0 0 0 1px var(--ns-brand);
+  }
+
+  &:has(input:focus-visible) {
+    @include m.focus-ring;
+  }
+
+  &:has(input:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ns-objetivo__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--ns-space-1);
+}
+
+.ns-objetivo__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface-sunken);
+  color: var(--ns-text-secondary);
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    color var(--ns-duration-fast) var(--ns-ease-out);
+}
+
+.ns-objetivo:hover .ns-objetivo__icono {
+  color: var(--ns-text);
+}
+
+.ns-objetivo:has(input:checked) .ns-objetivo__icono {
+  border-color: var(--ns-brand-border);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+}
+
+// Indicador tipo radio: aro vacío en reposo; verde relleno con check al seleccionar.
+.ns-objetivo__indicador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-full);
+  color: transparent;
+  transition:
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    border-color var(--ns-duration-fast) var(--ns-ease-out);
+}
+
+.ns-objetivo:has(input:checked) .ns-objetivo__indicador {
+  border-color: var(--ns-brand);
+  background: var(--ns-brand);
+  color: var(--ns-text-on-accent);
+}
+
+.ns-objetivo__titulo {
+  font: 700 1rem/1.375rem var(--ns-font-display);
+}
+
+.ns-objetivo__descripcion {
+  flex: 1;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+// Qué cambia en el plan: energía y proteína.
+.ns-objetivo__claves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ns-space-1);
+  margin-top: var(--ns-space-1);
+}
+
+.ns-objetivo__clave {
+  padding: 2px var(--ns-space-2);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-full);
+  color: var(--ns-text-secondary);
+  font: 500 0.75rem/1rem var(--ns-font-body);
+  white-space: nowrap;
+}
+
+.ns-objetivo:has(input:checked) .ns-objetivo__clave {
+  border-color: var(--ns-brand-border);
+  color: var(--ns-text);
+}
+
+// Fecha de la competición: en un panel destacado bajo las tarjetas.
+.ns-objetivo-fecha {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ns-space-3);
+  padding: var(--ns-space-4);
+  border: 1px solid var(--ns-brand-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-bg);
+
+  ns-form-field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.ns-objetivo-fecha__icono {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--ns-brand);
+}
+
+@include m.reduced-motion {
+  .ns-objetivo,
+  .ns-objetivo__icono,
+  .ns-objetivo__indicador {
+    transition: none;
+  }
+}

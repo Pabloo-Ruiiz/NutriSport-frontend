@@ -35,11 +35,11 @@
 }
 
 .ns-pi--seleccionado {
-  border-color: var(--ns-action-primary);
-  box-shadow: 0 0 0 1px var(--ns-action-primary);
+  border-color: var(--ns-accent);
+  box-shadow: 0 0 0 1px var(--ns-accent);
 
   &:hover {
-    border-color: var(--ns-action-primary);
+    border-color: var(--ns-accent);
   }
 }
 

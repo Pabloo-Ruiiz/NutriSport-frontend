@@ -90,7 +90,7 @@ import { BuscadorAlimentosComponent } from '../../alimentos/buscador-alimentos.c
       }
     }
     .ns-cambiar__opcion--elegida {
-      border-color: var(--ns-action-primary);
+      border-color: var(--ns-accent);
       background: var(--ns-success-bg);
       color: var(--ns-text-link);
       font-weight: 600;

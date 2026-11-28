@@ -231,7 +231,7 @@ export function abrirEntrenamientoForm(dialogos: NsDialogService, data: Entrenam
       width: 100%;
       min-height: 44px;
       margin: 0;
-      accent-color: var(--ns-green-600);
+      accent-color: var(--ns-accent);
       cursor: pointer;
       &:focus-visible {
         outline: 2px solid var(--ns-focus-ring);

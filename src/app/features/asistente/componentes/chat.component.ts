@@ -223,7 +223,7 @@ import { AsistenteStore, LIMITE_MENSAJES_DIA, type MensajeVista } from '../asist
       text-overflow: ellipsis;
     }
     .ns-chat__estado--escribiendo {
-      color: var(--ns-ai-600);
+      color: var(--ns-accent);
     }
     .ns-chat__punto {
       flex: none;
@@ -301,7 +301,7 @@ import { AsistenteStore, LIMITE_MENSAJES_DIA, type MensajeVista } from '../asist
       align-items: center;
       margin-top: var(--ns-space-3);
       padding-left: calc(32px + var(--ns-space-3));
-      color: var(--ns-ai-600);
+      color: var(--ns-accent);
       font: 500 0.8125rem/1.25rem var(--ns-font-body);
     }
     .ns-chat__puntos {

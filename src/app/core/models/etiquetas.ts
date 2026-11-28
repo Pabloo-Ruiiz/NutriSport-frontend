@@ -8,13 +8,21 @@ import type { UnidadCompra } from './compra';
 import type { Alergeno, Dificultad, EstadoUsuario, FuenteAlimento, Preparacion, Rol, TipoComida } from './comun';
 import type { Visibilidad } from './alimentos';
 import type { EstadoMenu } from './menus';
-import type { Dieta, NivelActividad, ObjetivoDeportivo, Severidad, Sexo, TipoPreferencia } from './perfil';
+import type {
+  Dieta,
+  Intolerancia,
+  NivelActividad,
+  ObjetivoDeportivo,
+  Severidad,
+  Sexo,
+  TipoPreferencia,
+} from './perfil';
 import type { EstadoConversion, EstadoNutricional, OrigenReceta } from './recetas';
 import type { SeveridadInsight } from './seguimiento';
 
 export const ETIQUETAS_TIPO_COMIDA: Record<TipoComida, string> = {
   DESAYUNO: 'Desayuno',
-  MEDIA_MANANA: 'Media mañana',
+  MEDIA_MANANA: 'Almuerzo', // a media mañana
   COMIDA: 'Comida',
   MERIENDA: 'Merienda',
   CENA: 'Cena',
@@ -83,13 +91,27 @@ export const ETIQUETAS_ALERGENO: Record<Alergeno, string> = {
   MOLUSCOS: 'Moluscos',
 };
 
-/** HALAL y KOSHER no se filtran automáticamente (§10). */
+/** Solo vegetariana, vegana y pescetariana se filtran automáticamente (§10). */
 export const ETIQUETAS_DIETA: Record<Dieta, string> = {
   VEGETARIANA: 'Vegetariana',
   VEGANA: 'Vegana',
   PESCETARIANA: 'Pescetariana',
   HALAL: 'Halal',
   KOSHER: 'Kosher',
+  MEDITERRANEA: 'Mediterránea',
+  OMNIVORA: 'Omnívora',
+  FLEXITARIANA: 'Flexitariana',
+  ALTA_PROTEINA: 'Alta en proteínas',
+  PALEO: 'Paleo',
+  PERSONALIZADA: 'Personalizada',
+};
+
+export const ETIQUETAS_INTOLERANCIA: Record<Intolerancia, string> = {
+  LACTOSA: 'Lactosa',
+  GLUTEN: 'Gluten / Celiaquía',
+  FRUCTOSA: 'Fructosa',
+  SORBITOL: 'Sorbitol',
+  HISTAMINA: 'Histamina',
 };
 
 export const ETIQUETAS_TIPO_PREFERENCIA: Record<TipoPreferencia, string> = {

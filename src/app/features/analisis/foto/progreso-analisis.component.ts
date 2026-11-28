@@ -90,7 +90,7 @@ export const TEXTOS_MOMENTO: Record<MomentoAnalisis, string> = {
     .ns-progreso__foto {
       position: relative;
       overflow: hidden;
-      border: 2px solid var(--ns-ai-500);
+      border: 2px solid var(--ns-accent);
       border-radius: var(--ns-radius-xl);
       background: var(--ns-surface-inverse);
       aspect-ratio: 4 / 3;
@@ -126,7 +126,7 @@ export const TEXTOS_MOMENTO: Record<MomentoAnalisis, string> = {
       right: 0;
       left: 0;
       height: 35%;
-      border-bottom: 2px solid var(--ns-ai-500);
+      border-bottom: 2px solid var(--ns-accent);
       background: linear-gradient(to bottom, transparent, rgb(99 102 241 / 0.35));
       animation: ns-escanear 2.4s ease-in-out infinite alternate;
       will-change: transform;
@@ -167,7 +167,7 @@ export const TEXTOS_MOMENTO: Record<MomentoAnalisis, string> = {
 
       svg {
         flex-shrink: 0;
-        color: var(--ns-ai-100);
+        color: var(--ns-accent);
       }
     }
     .ns-progreso__etiqueta-nombre {
@@ -176,7 +176,7 @@ export const TEXTOS_MOMENTO: Record<MomentoAnalisis, string> = {
       white-space: nowrap;
     }
     .ns-progreso__etiqueta-confianza {
-      color: var(--ns-ai-100);
+      color: var(--ns-accent);
       font-variant-numeric: tabular-nums;
     }
     @keyframes ns-aparecer {
@@ -198,7 +198,7 @@ export const TEXTOS_MOMENTO: Record<MomentoAnalisis, string> = {
       border-radius: var(--ns-radius-lg);
       background: var(--ns-surface);
       box-shadow: var(--ns-shadow-md);
-      color: var(--ns-action-ai);
+      color: var(--ns-accent);
     }
     .ns-progreso__texto {
       flex: 1;
@@ -213,7 +213,7 @@ export const TEXTOS_MOMENTO: Record<MomentoAnalisis, string> = {
       height: 4px;
       overflow: hidden;
       border-radius: var(--ns-radius-full);
-      background: var(--ns-ai-100);
+      background: var(--ns-accent);
     }
     .ns-progreso__avance-relleno {
       display: block;
@@ -318,8 +318,8 @@ export class ProgresoAnalisisComponent {
       color: var(--ns-success);
     }
     .ns-fases__fase--activa .ns-fases__marca {
-      background: var(--ns-ai-50);
-      color: var(--ns-action-ai);
+      background: var(--ns-ai-bg);
+      color: var(--ns-accent);
     }
     .ns-fases__textos {
       display: flex;
@@ -330,7 +330,7 @@ export class ProgresoAnalisisComponent {
       font-size: 0.9375rem;
     }
     .ns-fases__fase--activa .ns-fases__titulo {
-      color: var(--ns-action-ai);
+      color: var(--ns-accent);
     }
     .ns-fases__fase--pendiente .ns-fases__titulo {
       color: var(--ns-text-secondary);

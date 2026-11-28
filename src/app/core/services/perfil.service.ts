@@ -10,8 +10,10 @@ import type {
   PerfilResponse,
   PreferenciaDto,
   PreferenciasRequest,
+  TipoComida,
 } from '../models';
 import { estadoHttp } from '../util/api-error';
+import { franjasPorDefecto } from '../util/franjas';
 
 /**
  * Perfil deportivo, preferencias alimentarias y objetivos (NutriSport_API.md §4 y §6 Perfil).
@@ -38,6 +40,35 @@ export class PerfilService {
   /** true/false si ya se sabe si el perfil existe; null si no se ha comprobado. */
   readonly perfilExiste = this.existeCache.asReadonly();
 
+  /** Franjas de comida del perfil (Inicio y Planificador muestran solo estas); null si aún no se conocen. */
+  private readonly tiposCache = signal<TipoComida[] | null>(null);
+  readonly tiposComida = this.tiposCache.asReadonly();
+  private cargandoTipos = false;
+
+  /**
+   * Carga las franjas del perfil si aún no se conocen y se sabe que hay perfil (perfilGuard ya lo
+   * habrá pedido, así que normalmente no hace falta otra petición). Sin perfil o con error: null.
+   */
+  cargarTiposComida(): void {
+    if (this.tiposCache() !== null || this.cargandoTipos || this.existeCache() !== true) return;
+    this.cargandoTipos = true;
+    const generacion = this.generacion;
+    this.obtener().subscribe({
+      next: () => {
+        if (generacion === this.generacion) this.cargandoTipos = false;
+      },
+      error: () => (this.cargandoTipos = false),
+    });
+  }
+
+  /** Guarda las franjas de un perfil recibido (las de por defecto si no las trae). */
+  private recordar(perfil: PerfilResponse | null | undefined, generacion = this.generacion): void {
+    if (!perfil || generacion !== this.generacion) return;
+    this.tiposCache.set(
+      perfil.tiposComida?.length ? [...perfil.tiposComida] : franjasPorDefecto(Number(perfil.comidasPorDia) || 4),
+    );
+  }
+
   /**
    * ¿Tiene el usuario perfil deportivo? GET /perfil: 200 → true, 404 → false. Cualquier otro
    * error (403 CONSENTIMIENTO_REVOCADO, sin conexión…) se propaga y no se cachea.
@@ -50,7 +81,10 @@ export class PerfilService {
     const generacion = this.generacion;
     const comprobacion = firstValueFrom(this.http.get<PerfilResponse>(this.url))
       .then(
-        () => true,
+        (perfil) => {
+          this.recordar(perfil, generacion);
+          return true;
+        },
         (error: unknown) => {
           if (estadoHttp(error) === 404) return false;
           throw error;
@@ -71,7 +105,10 @@ export class PerfilService {
   obtener(): Observable<PerfilResponse> {
     return this.http.get<PerfilResponse>(this.url).pipe(
       tap({
-        next: () => this.existeCache.set(true),
+        next: (perfil) => {
+          this.existeCache.set(true);
+          this.recordar(perfil);
+        },
         error: (error: unknown) => {
           if (estadoHttp(error) === 404) this.existeCache.set(false);
         },
@@ -84,7 +121,12 @@ export class PerfilService {
    * recalcula. Marca el perfil como creado para perfilGuard.
    */
   guardar(req: PerfilRequest): Observable<PerfilResponse> {
-    return this.http.put<PerfilResponse>(this.url, cuerpoPerfil(req)).pipe(tap(() => this.marcarCreado()));
+    return this.http.put<PerfilResponse>(this.url, cuerpoPerfil(req)).pipe(
+      tap((perfil) => {
+        this.marcarCreado();
+        this.recordar(perfil);
+      }),
+    );
   }
 
   /** GET /perfil/preferencias: alergias, intolerancias, dietas, rechazos y favoritos. */
@@ -134,6 +176,8 @@ export class PerfilService {
     this.generacion++;
     this.comprobacion = null;
     this.existeCache.set(null);
+    this.tiposCache.set(null);
+    this.cargandoTipos = false;
   }
 }
 
@@ -155,6 +199,7 @@ function cuerpoPerfil(req: PerfilRequest): PerfilRequest {
   // fechaCompeticion solo tiene sentido (y es obligatoria) con el objetivo COMPETICION.
   if (req.objetivo === 'COMPETICION' && presente(req.fechaCompeticion)) cuerpo.fechaCompeticion = req.fechaCompeticion;
   if (presente(req.tiempoMaxCocinaMin)) cuerpo.tiempoMaxCocinaMin = req.tiempoMaxCocinaMin;
+  if (req.tiposComida?.length) cuerpo.tiposComida = [...req.tiposComida];
   return cuerpo;
 }
 

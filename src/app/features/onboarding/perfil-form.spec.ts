@@ -7,6 +7,7 @@ import {
   aPreferencias,
   aplicarErroresPerfil,
   crearFormularioPerfil,
+  franjasPorDefecto,
 } from './perfil-form';
 
 function valorCompleto(): ValorFormularioPerfil {
@@ -19,7 +20,12 @@ function valorCompleto(): ValorFormularioPerfil {
       nivelActividad: 'LIGERO',
     },
     objetivo: { objetivo: 'MANTENER', fechaCompeticion: '' },
-    alimentacion: { preferencias: [], comidasPorDia: 4, tiempoMaxCocinaMin: null },
+    alimentacion: {
+      preferencias: [],
+      comidasPorDia: 4,
+      tiposComida: ['CENA', 'DESAYUNO', 'MERIENDA', 'COMIDA'],
+      tiempoMaxCocinaMin: null,
+    },
   };
 }
 
@@ -36,6 +42,8 @@ describe('aPerfilRequest', () => {
       diasEntrenamientoSemana: 4,
       duracionMediaMin: 60,
       comidasPorDia: 4,
+      // En el orden del día, aunque se eligieran en otro.
+      tiposComida: ['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA'],
     });
   });
 
@@ -102,7 +110,10 @@ describe('crearFormularioPerfil', () => {
     const form = crearFormularioPerfil();
     const { sobreTi, deporte, objetivo, alimentacion } = form.controls;
     expect([sobreTi.valid, deporte.valid, objetivo.valid]).toEqual([false, false, false]);
-    expect(alimentacion.valid).toBe(true); // comidasPorDia empieza en 4
+    // comidasPorDia empieza en 4, pero hay que elegir cuáles.
+    expect(alimentacion.valid).toBe(false);
+    alimentacion.controls.tiposComida.setValue(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA']);
+    expect(alimentacion.valid).toBe(true);
 
     sobreTi.setValue({
       fechaNacimiento: '1995-04-12',
@@ -117,6 +128,22 @@ describe('crearFormularioPerfil', () => {
     expect(sobreTi.valid).toBe(false);
     sobreTi.controls.porcentajeGrasa.setValue(null);
     expect(sobreTi.valid).toBe(true);
+  });
+
+  it('exige tantas franjas como comidas al día y se revalida al cambiar el número', () => {
+    const { comidasPorDia, tiposComida } = crearFormularioPerfil().controls.alimentacion.controls;
+    comidasPorDia.setValue(3);
+    tiposComida.setValue(['DESAYUNO', 'COMIDA']);
+    expect(tiposComida.errors).toEqual({ franjasComida: { requeridas: 3, elegidas: 2 } });
+    tiposComida.setValue(['DESAYUNO', 'COMIDA', 'CENA']);
+    expect(tiposComida.errors).toBeNull();
+    comidasPorDia.setValue(4);
+    expect(tiposComida.errors).toEqual({ franjasComida: { requeridas: 4, elegidas: 3 } });
+  });
+
+  it('franjasPorDefecto: las mismas que el backend, en el orden del día', () => {
+    expect(franjasPorDefecto(3)).toEqual(['DESAYUNO', 'COMIDA', 'CENA']);
+    expect(franjasPorDefecto(6)).toEqual(['DESAYUNO', 'MEDIA_MANANA', 'COMIDA', 'MERIENDA', 'POST_ENTRENO', 'CENA']);
   });
 
   it('la fecha de competición solo es obligatoria con COMPETICION', () => {

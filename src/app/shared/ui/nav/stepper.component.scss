@@ -63,8 +63,8 @@
     flex-shrink: 0;
     padding: 6px;
     border-radius: var(--ns-radius-full);
-    background: var(--ns-action-primary);
-    color: var(--ns-text-inverse);
+    background: var(--ns-accent);
+    color: var(--ns-text-on-accent);
   }
 }
 
@@ -89,8 +89,8 @@
   }
 
   .ns-stepper__numero {
-    border-color: var(--ns-action-primary);
-    color: var(--ns-action-primary);
+    border-color: var(--ns-accent);
+    color: var(--ns-accent);
   }
 }
 
@@ -103,7 +103,7 @@
 }
 
 .ns-stepper__paso--completado .ns-stepper__linea {
-  background: var(--ns-action-primary);
+  background: var(--ns-accent);
 }
 
 /* Móvil: "Paso 2 de 4" con barra */
@@ -138,7 +138,7 @@
 .ns-stepper__barra-relleno {
   display: block;
   height: 100%;
-  background: var(--ns-action-primary);
+  background: var(--ns-accent);
   transform-origin: left center;
   transition: transform var(--ns-duration-slow) var(--ns-ease-out);
 }

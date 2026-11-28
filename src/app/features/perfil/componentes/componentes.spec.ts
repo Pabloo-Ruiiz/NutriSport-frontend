@@ -54,46 +54,92 @@ describe('SelectorPreferenciasComponent', () => {
   let fixture: ComponentFixture<Anfitrion>;
   const raiz = () => fixture.nativeElement as HTMLElement;
   const valor = () => fixture.componentInstance.control.value;
-  const chip = (texto: string) =>
-    [...raiz().querySelectorAll<HTMLButtonElement>('.ns-chip')].find((c) => c.textContent?.trim().startsWith(texto))!;
+  /** Casilla de la tarjeta de opción con ese nombre. */
+  const opcion = (nombre: string) =>
+    [...raiz().querySelectorAll<HTMLElement>('label.ns-opcion')]
+      .find((l) => (l.querySelector('.ns-opcion__nombre')?.textContent ?? l.textContent)?.trim() === nombre)!
+      .querySelector('input') as HTMLInputElement;
+  const boton = (texto: string) =>
+    [...raiz().querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.trim().startsWith(texto))!;
 
   beforeEach(async () => {
     fixture = TestBed.createComponent(Anfitrion);
     await fixture.whenStable();
   });
 
-  it('muestra los 14 alérgenos, la lactosa y las 5 dietas', () => {
-    expect(raiz().querySelectorAll('.ns-chip').length).toBe(14 + 1 + 5);
+  it('muestra 10 alergias, 5 intolerancias y 12 dietas en tarjetas, con «Sin restricciones» marcada', () => {
+    expect(raiz().querySelectorAll('label.ns-opcion').length).toBe(10 + 5 + 12);
+    expect(opcion('Sin restricciones').checked).toBe(true);
     expect(raiz().textContent).toContain('no se filtran automáticamente');
   });
 
-  it('un alérgeno es ALERGIA ESTRICTA y se puede pasar a PREFERENCIA', async () => {
-    chip('Gluten').click();
+  it('una alergia de la lista marca sus alérgenos (ESTRICTA, conmutable) y Marisco son dos', async () => {
+    opcion('Marisco').click();
     await fixture.whenStable();
-    expect(valor()).toEqual([{ tipo: 'ALERGIA', alergeno: 'GLUTEN', severidad: 'ESTRICTA' }]);
+    expect(valor()).toEqual([
+      { tipo: 'ALERGIA', alergeno: 'CRUSTACEOS', severidad: 'ESTRICTA' },
+      { tipo: 'ALERGIA', alergeno: 'MOLUSCOS', severidad: 'ESTRICTA' },
+    ]);
+    expect(raiz().querySelector('.ns-preferencias__cuenta--activa')?.textContent?.trim()).toBe('1 marcada');
 
     const preferencia = [...raiz().querySelectorAll<HTMLButtonElement>('[role=radio]')].find(
       (b) => b.textContent?.trim() === 'Preferencia',
     )!;
     preferencia.click();
     await fixture.whenStable();
-    expect(valor()).toEqual([{ tipo: 'ALERGIA', alergeno: 'GLUTEN', severidad: 'PREFERENCIA' }]);
+    expect(valor()[0]).toEqual({ tipo: 'ALERGIA', alergeno: 'CRUSTACEOS', severidad: 'PREFERENCIA' });
 
-    chip('Gluten').click();
+    opcion('Marisco').click();
     expect(valor()).toEqual([]);
   });
 
-  it('lactosa es INTOLERANCIA y las dietas son DIETA, cada una con su campo', async () => {
-    chip('Lactosa').click();
-    chip('Vegana').click();
-    chip('Halal').click();
+  it('Frutas y las alergias escritas van con detalle y como PREFERENCIA', async () => {
+    opcion('Frutas').click();
+    boton('Otras alergias').click();
+    await fixture.whenStable();
+    const campo = raiz().querySelector<HTMLInputElement>('input[aria-label="Otra alergia"]')!;
+    campo.value = '  Kiwi ';
+    boton('Añadir').click();
     await fixture.whenStable();
     expect(valor()).toEqual([
-      { tipo: 'INTOLERANCIA', intolerancia: 'LACTOSA', severidad: 'ESTRICTA' },
-      { tipo: 'DIETA', dieta: 'VEGANA', severidad: 'ESTRICTA' },
-      { tipo: 'DIETA', dieta: 'HALAL', severidad: 'ESTRICTA' },
+      { tipo: 'ALERGIA', detalle: 'Frutas', severidad: 'PREFERENCIA' },
+      { tipo: 'ALERGIA', detalle: 'Kiwi', severidad: 'PREFERENCIA' },
     ]);
+    expect(campo.value).toBe('');
+
+    raiz().querySelector<HTMLButtonElement>('[aria-label="Quitar Kiwi"]')!.click();
+    expect(valor().some((p) => p.detalle === 'Kiwi')).toBe(false);
+  });
+
+  it('intolerancias y dietas: ESTRICTAS solo las que se filtran; «Sin restricciones» las quita', async () => {
+    opcion('Gluten / Celiaquía').click();
+    opcion('Histamina').click();
+    opcion('Vegana').click();
+    opcion('Halal').click();
+    await fixture.whenStable();
+    expect(valor()).toEqual([
+      { tipo: 'INTOLERANCIA', intolerancia: 'GLUTEN', severidad: 'ESTRICTA' },
+      { tipo: 'INTOLERANCIA', intolerancia: 'HISTAMINA', severidad: 'PREFERENCIA' },
+      { tipo: 'DIETA', dieta: 'VEGANA', severidad: 'ESTRICTA' },
+      { tipo: 'DIETA', dieta: 'HALAL', severidad: 'PREFERENCIA' },
+    ]);
+    expect(opcion('Sin restricciones').checked).toBe(false);
     expect(raiz().querySelector('.ns-preferencias__nota--destacada')).not.toBeNull();
+
+    opcion('Sin restricciones').click();
+    await fixture.whenStable();
+    expect(valor().filter((p) => p.tipo === 'DIETA')).toEqual([]);
+  });
+
+  it('la dieta personalizada pide su descripción', async () => {
+    opcion('Personalizada').click();
+    await fixture.whenStable();
+    const campo = raiz().querySelector<HTMLInputElement>('input[placeholder^="P. ej."]')!;
+    campo.value = 'Sin azúcar añadido';
+    campo.dispatchEvent(new Event('input'));
+    expect(valor()).toEqual([
+      { tipo: 'DIETA', dieta: 'PERSONALIZADA', severidad: 'PREFERENCIA', detalle: 'Sin azúcar añadido' },
+    ]);
   });
 
   it('el combobox busca con debounce y añade un RECHAZO con alimentoId', async () => {
@@ -183,8 +229,8 @@ describe('SelectorPreferenciasComponent', () => {
     const favorito: PreferenciaDto = { tipo: 'FAVORITO', alimentoId: 'f-1', severidad: 'PREFERENCIA' };
     fixture.componentInstance.control.setValue([favorito]);
     await fixture.whenStable();
-    chip('Soja').click();
-    expect(valor()).toEqual([{ tipo: 'ALERGIA', alergeno: 'SOJA', severidad: 'ESTRICTA' }, favorito]);
+    opcion('Soja').click();
+    expect(valor()).toEqual([favorito, { tipo: 'ALERGIA', alergeno: 'SOJA', severidad: 'ESTRICTA' }]);
   });
 });
 

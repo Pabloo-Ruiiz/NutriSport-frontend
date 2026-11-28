@@ -35,12 +35,16 @@ class AuthServiceFalso {
 }
 
 let auth: AuthServiceFalso;
-let perfil: { existe: ReturnType<typeof vi.fn<() => Promise<boolean>>> };
+let perfil: {
+  existe: ReturnType<typeof vi.fn<() => Promise<boolean>>>;
+  cargarTiposComida: () => void;
+  tiposComida: () => null;
+};
 let harness: RouterTestingHarness;
 
 beforeEach(async () => {
   auth = new AuthServiceFalso();
-  perfil = { existe: vi.fn(async () => true) };
+  perfil = { existe: vi.fn(async () => true), cargarTiposComida: () => undefined, tiposComida: () => null };
   TestBed.configureTestingModule({
     providers: [
       provideRouter(routes, withComponentInputBinding()),

@@ -22,13 +22,13 @@
   }
 
   &:hover:not(:disabled) {
-    border-color: var(--ns-ink-700);
+    border-color: var(--ns-text-secondary);
   }
 
   &:focus,
   &:focus-visible {
     outline: none;
-    border-color: var(--ns-action-primary);
+    border-color: var(--ns-accent);
     box-shadow: var(--ns-shadow-focus);
   }
 

@@ -45,7 +45,7 @@
 
   // Activo: color, negrita y barra superior de 3 px.
   &.ns-bottom-nav__enlace--activo {
-    color: var(--ns-action-primary);
+    color: var(--ns-accent);
     font-weight: 700;
 
     &::before {

@@ -136,13 +136,13 @@ const MARGEN_OBJETIVO = 0.1;
       background: var(--ns-data-kcal);
     }
     .ns-energia__punto--objetivo {
-      background: var(--ns-ink-700);
+      background: var(--ns-text-secondary);
     }
     .ns-energia__punto--entreno {
       background: var(--ns-data-activity);
     }
     .ns-energia__punto--base {
-      border: 2px solid var(--ns-ink-400);
+      border: 2px solid var(--ns-text-secondary);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

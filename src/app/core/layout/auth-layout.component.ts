@@ -24,8 +24,9 @@ export const BENEFICIOS = [
 ] as const;
 
 /**
- * Pantallas públicas (DESIGN.md §7.1): split 50/50 con el panel de marca ink-950 a la izquierda
- * (logotipo negativo, eslogan y tres beneficios) y el formulario a la derecha (máx. 400 px).
+ * Pantallas públicas (DESIGN.md §7.1): split con el panel de marca a la izquierda (superficie verde
+ * oscura con degradado, isotipo como marca de agua, eslogan y tres beneficios) y el formulario a la derecha,
+ * en una tarjeta (máx. 440 px).
  * Por debajo de 1024 px el panel se reduce a una cabecera de 120 px con el logotipo.
  */
 @Component({
@@ -33,9 +34,16 @@ export const BENEFICIOS = [
   imports: [RouterOutlet, LucideDynamicIcon, LogoComponent],
   template: `
     <aside class="ns-auth__marca">
+      <img class="ns-auth__marca-agua" src="marca/logo-watermark.svg" alt="" aria-hidden="true" />
       <ns-logo negativo [tamano]="36" />
       <div class="ns-auth__mensaje">
-        <p class="ns-auth__eslogan">Tu nutrición deportiva, impulsada por inteligencia artificial</p>
+        <p class="ns-auth__etiqueta">
+          <svg lucideIcon="sparkles" [size]="14" aria-hidden="true"></svg>
+          Nutrición deportiva con IA
+        </p>
+        <p class="ns-auth__eslogan">
+          Tu nutrición deportiva, impulsada por <span class="ns-auth__eslogan-destacado">inteligencia artificial</span>
+        </p>
         <ul class="ns-auth__beneficios" role="list">
           @for (beneficio of beneficios; track beneficio.icono) {
             <li class="ns-auth__beneficio">
@@ -50,6 +58,7 @@ export const BENEFICIOS = [
           }
         </ul>
       </div>
+      <p class="ns-auth__pie">© NutriSport AI · Nutrición de precisión para deportistas</p>
     </aside>
     <main class="ns-auth__contenido" id="contenido">
       <div class="ns-auth__formulario">

@@ -2,10 +2,13 @@
 @use 'abstracts/breakpoints' as bp;
 
 :host {
+  // En escritorio todo cabe en la ventana, sin scroll: los espacios verticales se ajustan a su alto.
+  --ns-auth-pad-y: clamp(var(--ns-space-6), 5vh, var(--ns-space-12));
+
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   min-height: 100dvh;
-  background: var(--ns-surface);
+  background: var(--ns-bg);
 
   @include bp.down(lg) {
     grid-template-columns: 1fr;
@@ -13,14 +16,27 @@
   }
 }
 
+/* Panel de marca */
 .ns-auth__marca {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--ns-space-12);
-  padding: var(--ns-space-12) var(--ns-space-16);
+  gap: clamp(var(--ns-space-4), 4vh, var(--ns-space-12));
+  padding: var(--ns-auth-pad-y) var(--ns-space-16);
   padding-left: max(var(--ns-space-16), env(safe-area-inset-left));
-  background: var(--ns-surface-inverse);
-  color: var(--ns-text-inverse);
+  border-right: 1px solid var(--ns-brand-border);
+  background: var(--ns-gradient-brand);
+  color: var(--ns-text);
+
+  // Formularios largos (registro): el panel se queda fijo mientras se desplaza el formulario.
+  @include bp.up(lg) {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100dvh;
+  }
 
   // < 1024 px: cabecera de 120 px solo con el logotipo.
   @include bp.down(lg) {
@@ -28,6 +44,30 @@
     height: calc(120px + env(safe-area-inset-top));
     padding: env(safe-area-inset-top) var(--ns-space-6) 0;
     padding-left: max(var(--ns-space-6), env(safe-area-inset-left));
+    border-right: 0;
+    border-bottom: 1px solid var(--ns-brand-border);
+  }
+}
+
+// Isotipo grande y muy tenue: da identidad sin competir con el texto.
+.ns-auth__marca-agua {
+  position: absolute;
+  z-index: -1;
+  right: -14%;
+  bottom: -12%;
+  width: min(78%, 640px);
+  height: auto;
+  opacity: 0.07;
+  pointer-events: none;
+  user-select: none;
+
+  @include bp.down(lg) {
+    top: 50%;
+    right: -40px;
+    bottom: auto;
+    width: 220px;
+    transform: translateY(-50%);
+    opacity: 0.08;
   }
 }
 
@@ -36,7 +76,7 @@
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  gap: var(--ns-space-10);
+  gap: clamp(var(--ns-space-4), 3.5vh, var(--ns-space-8));
   max-width: 520px;
 
   @include bp.down(lg) {
@@ -44,28 +84,48 @@
   }
 }
 
-// Eslogan en `display` blanco (DESIGN.md §1.6 y §3.2).
-.ns-auth__eslogan {
+.ns-auth__etiqueta {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--ns-space-2);
   margin: 0;
+  padding: var(--ns-space-1) var(--ns-space-3);
+  border: 1px solid var(--ns-brand-border);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+// Eslogan en `display` blanco (DESIGN.md §1.6 y §3.2); la parte final en verde corporativo.
+.ns-auth__eslogan {
+  margin: calc(-1 * var(--ns-space-3)) 0 0;
   font-family: var(--ns-font-display);
-  font-size: 2.5rem;
-  line-height: 3rem;
+  font-size: clamp(1.75rem, 4.6vh, 2.5rem);
+  line-height: 1.2;
   font-weight: 800;
   letter-spacing: -0.02em;
   text-wrap: balance;
 
   @include bp.down(xl) {
-    font-size: 2rem;
-    line-height: 2.5rem;
+    font-size: clamp(1.75rem, 4vh, 2rem);
   }
+}
+
+.ns-auth__eslogan-destacado {
+  color: var(--ns-brand);
 }
 
 .ns-auth__beneficios {
   display: flex;
   flex-direction: column;
-  gap: var(--ns-space-5);
+  gap: clamp(var(--ns-space-3), 2.6vh, var(--ns-space-6));
   margin: 0;
-  padding: 0;
+  padding: clamp(var(--ns-space-4), 3vh, var(--ns-space-8)) 0 0;
+  border-top: 1px solid var(--ns-border);
   list-style: none;
 }
 
@@ -80,43 +140,87 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--ns-ink-800);
-  border-radius: var(--ns-radius-md);
-  background: var(--ns-ink-900);
-  color: var(--ns-green-400);
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--ns-brand-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
 }
 
 .ns-auth__beneficio-titulo {
   display: block;
+  margin-bottom: 2px;
   font-weight: 600;
 }
 
 .ns-auth__beneficio-texto {
   display: block;
-  color: var(--ns-ink-400);
+  color: var(--ns-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.375rem;
 }
 
+.ns-auth__pie {
+  margin: 0;
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+
+  @include bp.down(lg) {
+    display: none;
+  }
+}
+
+/* Formulario */
 .ns-auth__contenido {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--ns-space-12) var(--ns-space-8);
-  padding-bottom: max(var(--ns-space-12), env(safe-area-inset-bottom));
+  padding: var(--ns-auth-pad-y) var(--ns-space-8);
+  padding-bottom: max(var(--ns-auth-pad-y), env(safe-area-inset-bottom));
+  // Lienzo casi negro con un halo verde muy suave: evita el negro plano sin distraer.
+  background: radial-gradient(70% 50% at 100% 0%, rgba(11, 154, 93, 0.08) 0%, rgba(11, 154, 93, 0) 70%), var(--ns-bg);
 
   @include bp.down(lg) {
     align-items: flex-start;
-    padding: var(--ns-space-8) var(--ns-space-6);
+    padding: var(--ns-space-8) var(--ns-space-4);
     padding-bottom: max(var(--ns-space-8), env(safe-area-inset-bottom));
   }
 }
 
 .ns-auth__formulario {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
+  padding: clamp(var(--ns-space-6), 4.5vh, var(--ns-space-10)) var(--ns-space-10);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-surface);
 
   @include bp.down(lg) {
-    max-width: none;
+    max-width: 480px;
+    margin-inline: auto;
+  }
+
+  @include bp.down(sm) {
+    padding: var(--ns-space-6) var(--ns-space-4);
+  }
+}
+
+// Ventanas de escritorio bajas (portátiles de 768 px o menos de alto): se prescinde de lo
+// secundario para que la pantalla siga sin scroll.
+@media (min-width: 1024px) and (max-height: 760px) {
+  .ns-auth__beneficio-texto,
+  .ns-auth__pie {
+    display: none;
+  }
+
+  .ns-auth__beneficio {
+    align-items: center;
+  }
+
+  .ns-auth__beneficio-icono {
+    width: 36px;
+    height: 36px;
   }
 }

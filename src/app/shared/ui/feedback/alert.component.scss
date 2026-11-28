@@ -40,9 +40,9 @@
 }
 
 :host(.ns-alert--ai) {
-  --ns-alert-texto: var(--ns-action-ai);
-  --ns-alert-fondo: var(--ns-ai-50);
-  --ns-alert-borde: var(--ns-ai-100);
+  --ns-alert-texto: var(--ns-accent);
+  --ns-alert-fondo: var(--ns-ai-bg);
+  --ns-alert-borde: var(--ns-accent);
 }
 
 .ns-alert__icono {

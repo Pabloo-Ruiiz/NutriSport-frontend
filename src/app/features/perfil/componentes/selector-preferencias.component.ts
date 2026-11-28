@@ -3,10 +3,10 @@ import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Observable, map } from 'rxjs';
 
-import type { Alergeno, AlimentoResumenResponse, Dieta, PreferenciaDto, Severidad } from '@core/models';
-import { ETIQUETAS_ALERGENO, ETIQUETAS_DIETA, ETIQUETAS_SEVERIDAD } from '@core/models/etiquetas';
+import type { Alergeno, AlimentoResumenResponse, Dieta, Intolerancia, PreferenciaDto, Severidad } from '@core/models';
+import { ETIQUETAS_ALERGENO, ETIQUETAS_INTOLERANCIA, ETIQUETAS_SEVERIDAD } from '@core/models/etiquetas';
 import { AlimentosService } from '@core/services/alimentos.service';
-import { NsChipGroupComponent } from '@shared/ui/form/chip-group.component';
+import { NsButtonComponent } from '@shared/ui/button/button.component';
 import {
   NsComboboxComponent,
   NsComboboxOpcionDirective,
@@ -14,16 +14,28 @@ import {
 } from '@shared/ui/form/combobox.component';
 import { NsControlCampo, idUnico } from '@shared/ui/form/control-campo';
 import { NsControlValor, type NsOpcion } from '@shared/ui/form/control-valor';
+import { NsInputDirective } from '@shared/ui/form/input.directive';
 import { NsSegmentedComponent } from '@shared/ui/form/segmented.component';
+import {
+  DIETAS_FILTRABLES,
+  INTOLERANCIAS_FILTRABLES,
+  MAX_DETALLE,
+  OPCIONES_ALERGIA,
+  OPCIONES_DIETA,
+  OPCIONES_INTOLERANCIA,
+  type OpcionAlergia,
+} from './opciones-preferencias';
 
 /** Retraso de la búsqueda de alimentos mientras se escribe (el de ns-combobox). */
 export const DEBOUNCE_BUSQUEDA_MS = 250;
 
-const ALERGENOS = Object.keys(ETIQUETAS_ALERGENO) as Alergeno[];
-const DIETAS = Object.keys(ETIQUETAS_DIETA) as Dieta[];
-
 /** Dietas que se guardan pero no se filtran automáticamente (NutriSport_API.md §10). */
-export const DIETAS_SIN_FILTRO: readonly Dieta[] = ['HALAL', 'KOSHER'];
+export const DIETAS_SIN_FILTRO: readonly Dieta[] = OPCIONES_DIETA.map((o) => o.valor).filter(
+  (d): d is Dieta => !!d && !DIETAS_FILTRABLES.includes(d),
+);
+
+/** Severidad con la que se crea cada preferencia: ESTRICTA si se puede filtrar; si no, PREFERENCIA. */
+const severidadInicial = (filtrable: boolean): Severidad => (filtrable ? 'ESTRICTA' : 'PREFERENCIA');
 
 /** Alimento rechazado: el id va al DTO; el nombre solo se usa en pantalla. */
 interface Rechazo {
@@ -37,9 +49,14 @@ interface Rechazo {
  *
  *   <app-selector-preferencias formControlName="preferencias" />
  *
- * - Alérgenos (los 14): ALERGIA + alergeno, ESTRICTA por defecto y conmutable a PREFERENCIA.
- * - Intolerancia a la lactosa: INTOLERANCIA + intolerancia LACTOSA (también conmutable).
- * - Dietas: DIETA + dieta, ESTRICTA. Halal y kosher no se filtran automáticamente.
+ * - Alergias (opciones-preferencias.ts): cada tarjeta marca sus alérgenos del catálogo (ALERGIA +
+ *   alergeno, ESTRICTA y conmutable a PREFERENCIA); «Frutas» y las que se escriben a mano van como
+ *   ALERGIA + detalle (PREFERENCIA: no se pueden filtrar). «Otras alergias» permite
+ *   escribir las que no están en la lista.
+ * - Intolerancias: INTOLERANCIA + intolerancia (lactosa y gluten, ESTRICTAS y conmutables; el resto,
+ *   PREFERENCIA) o + detalle si se escriben a mano.
+ * - Dietas: DIETA + dieta (vegetariana, vegana y pescetariana, ESTRICTAS; el resto, PREFERENCIA);
+ *   PERSONALIZADA con su descripción en detalle. «Sin restricciones» = ninguna dieta.
  * - Alimentos que no le gustan: ns-combobox con AlimentosService.buscar (250 ms) → RECHAZO +
  *   alimentoId, PREFERENCIA.
  *
@@ -51,7 +68,8 @@ interface Rechazo {
   imports: [
     FormsModule,
     LucideDynamicIcon,
-    NsChipGroupComponent,
+    NsButtonComponent,
+    NsInputDirective,
     NsComboboxComponent,
     NsComboboxOpcionDirective,
     NsResaltadoComponent,
@@ -74,15 +92,10 @@ export class SelectorPreferenciasComponent extends NsControlValor<PreferenciaDto
 
   private readonly alimentos = inject(AlimentosService);
 
-  protected readonly opcionesAlergenos: NsOpcion<Alergeno>[] = ALERGENOS.map((valor) => ({
-    valor,
-    etiqueta: ETIQUETAS_ALERGENO[valor],
-  }));
-  protected readonly opcionesLactosa: NsOpcion<'LACTOSA'>[] = [{ valor: 'LACTOSA', etiqueta: 'Lactosa' }];
-  protected readonly opcionesDietas: NsOpcion<Dieta>[] = DIETAS.map((valor) => ({
-    valor,
-    etiqueta: ETIQUETAS_DIETA[valor] + (DIETAS_SIN_FILTRO.includes(valor) ? '*' : ''),
-  }));
+  protected readonly opcionesAlergia = OPCIONES_ALERGIA;
+  protected readonly opcionesIntolerancia = OPCIONES_INTOLERANCIA;
+  protected readonly opcionesDieta = OPCIONES_DIETA;
+  protected readonly maxDetalle = MAX_DETALLE;
   protected readonly opcionesSeveridad: NsOpcion<Severidad>[] = [
     { valor: 'ESTRICTA', etiqueta: ETIQUETAS_SEVERIDAD.ESTRICTA },
     { valor: 'PREFERENCIA', etiqueta: ETIQUETAS_SEVERIDAD.PREFERENCIA },
@@ -91,28 +104,50 @@ export class SelectorPreferenciasComponent extends NsControlValor<PreferenciaDto
   /** Lista actual (el valor del control). */
   protected readonly lista = computed(() => this.valor() ?? []);
 
-  protected readonly alergenos = computed(() =>
-    this.lista()
-      .filter((p) => p.tipo === 'ALERGIA' && p.alergeno)
-      .map((p) => p.alergeno!),
+  protected readonly alergenos = computed(
+    () => new Set(this.lista().flatMap((p) => (p.tipo === 'ALERGIA' && p.alergeno ? [p.alergeno] : []))),
   );
-  protected readonly lactosa = computed(() =>
-    this.lista().some((p) => p.tipo === 'INTOLERANCIA' && p.intolerancia === 'LACTOSA') ? ['LACTOSA' as const] : [],
+  protected readonly intolerancias = computed(
+    () => new Set(this.lista().flatMap((p) => (p.tipo === 'INTOLERANCIA' && p.intolerancia ? [p.intolerancia] : []))),
   );
-  protected readonly dietas = computed(() =>
-    this.lista()
-      .filter((p) => p.tipo === 'DIETA' && p.dieta)
-      .map((p) => p.dieta!),
+  protected readonly dietas = computed(
+    () => new Set(this.lista().flatMap((p) => (p.tipo === 'DIETA' && p.dieta ? [p.dieta] : []))),
   );
-  protected readonly hayDietaSinFiltro = computed(() => this.dietas().some((d) => DIETAS_SIN_FILTRO.includes(d)));
+  /** Textos propios (sin código) de alergias e intolerancias; «Frutas» tiene tarjeta y no sale aquí. */
+  protected readonly alergiasPropias = computed(() => this.detalles('ALERGIA').filter((d) => !esDetalleFijo(d)));
+  protected readonly intoleranciasPropias = computed(() => this.detalles('INTOLERANCIA'));
+  protected readonly detalleDieta = computed(
+    () => this.lista().find((p) => p.tipo === 'DIETA' && p.dieta === 'PERSONALIZADA')?.detalle ?? '',
+  );
 
-  /** Alergias e intolerancias marcadas, con su severidad, para los conmutadores. */
+  /** Contadores de cada apartado. */
+  protected readonly numAlergias = computed(
+    () => this.opcionesAlergia.filter((o) => this.alergiaMarcada(o)).length + this.alergiasPropias().length,
+  );
+  protected readonly numIntolerancias = computed(() => this.intolerancias().size + this.intoleranciasPropias().length);
+  protected readonly hayDietaSinFiltro = computed(() => [...this.dietas()].some((d) => DIETAS_SIN_FILTRO.includes(d)));
+
+  /** «Otras alergias» / «Otras» intolerancias abiertos: al pulsarlos o si ya hay algo en ellos. */
+  protected readonly otrasAbiertas = signal(false);
+  protected readonly mostrarOtras = computed(() => this.otrasAbiertas() || this.alergiasPropias().length > 0);
+  protected readonly otrasIntoleranciasAbiertas = signal(false);
+  protected readonly mostrarOtrasIntolerancias = computed(
+    () => this.otrasIntoleranciasAbiertas() || this.intoleranciasPropias().length > 0,
+  );
+
+  /** Alergias e intolerancias que se pueden filtrar, con su severidad, para los conmutadores. */
   protected readonly restricciones = computed(() =>
     this.lista()
-      .filter((p) => (p.tipo === 'ALERGIA' && p.alergeno) || (p.tipo === 'INTOLERANCIA' && p.intolerancia))
+      .filter(
+        (p) =>
+          (p.tipo === 'ALERGIA' && p.alergeno) ||
+          (p.tipo === 'INTOLERANCIA' && p.intolerancia && INTOLERANCIAS_FILTRABLES.includes(p.intolerancia)),
+      )
       .map((p) => ({
         preferencia: p,
-        nombre: p.alergeno ? ETIQUETAS_ALERGENO[p.alergeno] : 'Lactosa (intolerancia)',
+        nombre: p.alergeno
+          ? ETIQUETAS_ALERGENO[p.alergeno]
+          : `${ETIQUETAS_INTOLERANCIA[p.intolerancia as Intolerancia]} (intolerancia)`,
       })),
   );
 
@@ -140,40 +175,99 @@ export class SelectorPreferenciasComponent extends NsControlValor<PreferenciaDto
     super.writeValue(Array.isArray(valor) ? [...valor] : []);
   }
 
-  // ---- Cambios desde los chips y conmutadores
+  // ---- Alergias
 
-  protected cambiarAlergenos(seleccion: Alergeno[] | Alergeno | null): void {
-    const nuevos = new Set(Array.isArray(seleccion) ? seleccion : []);
-    const actuales = new Map(
-      this.lista()
-        .filter((p) => p.tipo === 'ALERGIA')
-        .map((p) => [p.alergeno, p]),
-    );
-    const resto = this.lista().filter((p) => p.tipo !== 'ALERGIA');
-    const alergias = ALERGENOS.filter((a) => nuevos.has(a)).map(
-      (a): PreferenciaDto => actuales.get(a) ?? { tipo: 'ALERGIA', alergeno: a, severidad: 'ESTRICTA' },
-    );
-    this.actualizar([...alergias, ...resto]);
+  protected alergiaMarcada(opcion: OpcionAlergia): boolean {
+    if (opcion.detalle) return this.detalles('ALERGIA').some((d) => igual(d, opcion.detalle!));
+    return opcion.alergenos.some((a) => this.alergenos().has(a));
   }
 
-  protected cambiarLactosa(seleccion: 'LACTOSA'[] | 'LACTOSA' | null): void {
-    const marcada = Array.isArray(seleccion) && seleccion.includes('LACTOSA');
-    const actual = this.lista().find((p) => p.tipo === 'INTOLERANCIA' && p.intolerancia === 'LACTOSA');
-    const resto = this.lista().filter((p) => !(p.tipo === 'INTOLERANCIA' && p.intolerancia === 'LACTOSA'));
-    this.actualizar(
-      marcada ? [...resto, actual ?? { tipo: 'INTOLERANCIA', intolerancia: 'LACTOSA', severidad: 'ESTRICTA' }] : resto,
+  protected alternarAlergia(opcion: OpcionAlergia): void {
+    if (opcion.detalle) {
+      this.alternarDetalle('ALERGIA', opcion.detalle);
+      return;
+    }
+    const quitar = this.alergiaMarcada(opcion);
+    const sin = this.lista().filter(
+      (p) => !(p.tipo === 'ALERGIA' && p.alergeno && opcion.alergenos.includes(p.alergeno)),
     );
-  }
-
-  protected cambiarDietas(seleccion: Dieta[] | Dieta | null): void {
-    const nuevas = new Set(Array.isArray(seleccion) ? seleccion : []);
-    const resto = this.lista().filter((p) => p.tipo !== 'DIETA');
-    const dietas = DIETAS.filter((d) => nuevas.has(d)).map((dieta): PreferenciaDto => ({
-      tipo: 'DIETA',
-      dieta,
+    const nuevas = opcion.alergenos.map((alergeno): PreferenciaDto => ({
+      tipo: 'ALERGIA',
+      alergeno,
       severidad: 'ESTRICTA',
     }));
-    this.actualizar([...resto, ...dietas]);
+    this.actualizar(quitar ? sin : [...sin, ...nuevas]);
+  }
+
+  // ---- Intolerancias
+
+  protected alternarIntolerancia(intolerancia: Intolerancia): void {
+    const marcada = this.intolerancias().has(intolerancia);
+    const sin = this.lista().filter((p) => !(p.tipo === 'INTOLERANCIA' && p.intolerancia === intolerancia));
+    const nueva: PreferenciaDto = {
+      tipo: 'INTOLERANCIA',
+      intolerancia,
+      severidad: severidadInicial(INTOLERANCIAS_FILTRABLES.includes(intolerancia)),
+    };
+    this.actualizar(marcada ? sin : [...sin, nueva]);
+  }
+
+  // ---- Dietas
+
+  protected dietaMarcada(dieta: Dieta | null): boolean {
+    return dieta === null ? this.dietas().size === 0 : this.dietas().has(dieta);
+  }
+
+  /** «Sin restricciones» quita todas las dietas; el resto se marcan y desmarcan (se pueden combinar). */
+  protected alternarDieta(dieta: Dieta | null): void {
+    const sin = this.lista().filter((p) => p.tipo !== 'DIETA' || (dieta !== null && p.dieta !== dieta));
+    if (dieta === null || this.dietas().has(dieta)) {
+      this.actualizar(sin);
+      return;
+    }
+    this.actualizar([...sin, { tipo: 'DIETA', dieta, severidad: severidadInicial(DIETAS_FILTRABLES.includes(dieta)) }]);
+  }
+
+  protected cambiarDetalleDieta(texto: string): void {
+    const detalle = texto.slice(0, MAX_DETALLE);
+    this.actualizar(
+      this.lista().map((p) =>
+        p.tipo === 'DIETA' && p.dieta === 'PERSONALIZADA' ? { ...p, detalle: detalle.trim() ? detalle : undefined } : p,
+      ),
+    );
+  }
+
+  // ---- Textos propios (alergias e intolerancias que no están en la lista)
+
+  protected anadirPropia(tipo: 'ALERGIA' | 'INTOLERANCIA', campo: HTMLInputElement): void {
+    const texto = campo.value.trim().slice(0, MAX_DETALLE);
+    campo.value = '';
+    if (!texto || this.detalles(tipo).some((d) => igual(d, texto))) return;
+    this.actualizar([...this.lista(), { tipo, detalle: texto, severidad: 'PREFERENCIA' }]);
+  }
+
+  protected quitarPropia(tipo: 'ALERGIA' | 'INTOLERANCIA', detalle: string): void {
+    this.actualizar(
+      this.lista().filter((p) => !(p.tipo === tipo && !p.alergeno && !p.intolerancia && p.detalle === detalle)),
+    );
+  }
+
+  private alternarDetalle(tipo: 'ALERGIA' | 'INTOLERANCIA', detalle: string): void {
+    const existe = this.detalles(tipo).some((d) => igual(d, detalle));
+    this.actualizar(
+      existe
+        ? this.lista().filter(
+            (p) => !(p.tipo === tipo && !p.alergeno && !p.intolerancia && p.detalle && igual(p.detalle, detalle)),
+          )
+        : [...this.lista(), { tipo, detalle, severidad: 'PREFERENCIA' }],
+    );
+  }
+
+  /** Textos de las preferencias sin código de ese tipo. */
+  private detalles(tipo: 'ALERGIA' | 'INTOLERANCIA'): string[] {
+    return this.lista()
+      .filter((p) => p.tipo === tipo && !p.alergeno && !p.intolerancia && p.detalle)
+      .map((p) => p.detalle!);
   }
 
   protected cambiarSeveridad(preferencia: PreferenciaDto, severidad: Severidad | null): void {
@@ -204,4 +298,15 @@ export class SelectorPreferenciasComponent extends NsControlValor<PreferenciaDto
 
 function nombreAlimento(alimento: AlimentoResumenResponse): string {
   return alimento.marca ? `${alimento.nombre} (${alimento.marca})` : alimento.nombre;
+}
+
+/** Comparación de textos sin mayúsculas ni tildes. */
+function igual(a: string, b: string): boolean {
+  const normalizar = (t: string) => t.trim().toLocaleLowerCase('es-ES').normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return normalizar(a) === normalizar(b);
+}
+
+/** Si el texto es el de una tarjeta fija («Frutas»). */
+function esDetalleFijo(detalle: string): boolean {
+  return OPCIONES_ALERGIA.some((o) => !!o.detalle && igual(o.detalle, detalle));
 }

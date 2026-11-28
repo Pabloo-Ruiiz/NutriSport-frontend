@@ -102,6 +102,14 @@ export const routes: Routes = [
     ],
   },
 
+  // Política de privacidad: pública, con o sin sesión (la enlaza el registro).
+  {
+    path: 'politica-de-privacidad',
+    title: 'Política de privacidad',
+    loadComponent: () =>
+      import('@features/legal/politica-privacidad.component').then((m) => m.PoliticaPrivacidadComponent),
+  },
+
   // Configuración inicial del perfil: pantalla completa, sin sidebar.
   {
     path: 'bienvenida',

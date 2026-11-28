@@ -12,10 +12,10 @@ import { OnboardingComponent } from './onboarding.component';
 import type { FormularioPerfil } from './perfil-form';
 
 const TIPOS: TipoActividadResponse[] = [
-  { codigo: 'CARRERA', nombre: 'Carrera', met: 9.8, categoria: 'Resistencia' },
-  { codigo: 'CICLISMO', nombre: 'Ciclismo', met: 7.5, categoria: 'Resistencia' },
-  { codigo: 'PESAS', nombre: 'Pesas', met: 5, categoria: 'Fuerza' },
-  { codigo: 'YOGA', nombre: 'Yoga', met: 2.5, categoria: null },
+  { codigo: 'CARRERA_9_7KMH', nombre: 'Carrera a 9,7 km/h', met: 9.8, categoria: 'CARRERA' },
+  { codigo: 'CICLISMO_16_19KMH', nombre: 'Ciclismo a 16-19 km/h', met: 6.8, categoria: 'CICLISMO' },
+  { codigo: 'FUERZA_MODERADA', nombre: 'Entrenamiento de fuerza moderado', met: 3.5, categoria: 'FUERZA' },
+  { codigo: 'YOGA', nombre: 'Yoga', met: 2.5, categoria: 'FLEXIBILIDAD' },
 ];
 
 const OBJETIVOS: ObjetivosResponse = {
@@ -67,9 +67,18 @@ const form = () => (fixture.componentInstance as unknown as { form: FormularioPe
 const titulo = () => raiz().querySelector('h1')?.textContent?.trim();
 /** Radio de una tarjeta por su texto ([value] va a la directiva, no al atributo del DOM). */
 const tarjeta = (texto: string) =>
-  [...raiz().querySelectorAll('label.ns-tarjeta')]
-    .find((l) => l.querySelector('.ns-tarjeta__titulo')?.textContent?.trim() === texto)!
+  [...raiz().querySelectorAll('label.ns-tarjeta, label.ns-deporte, label.ns-objetivo')]
+    .find(
+      (l) =>
+        l.querySelector('.ns-tarjeta__titulo, .ns-deporte__nombre, .ns-objetivo__titulo')?.textContent?.trim() ===
+        texto,
+    )!
     .querySelector('input') as HTMLInputElement;
+const franja = (nombre: string) =>
+  [...raiz().querySelectorAll('label.ns-franja')]
+    .find((l) => l.querySelector('.ns-franja__nombre')?.textContent?.trim() === nombre)!
+    .querySelector('input') as HTMLInputElement;
+const deportes = () => [...raiz().querySelectorAll('.ns-deporte__nombre')].map((e) => e.textContent?.trim());
 
 async function continuar(): Promise<void> {
   raiz().querySelector('form')!.dispatchEvent(new Event('submit'));
@@ -110,7 +119,7 @@ describe('OnboardingComponent', () => {
     expect(document.activeElement?.getAttribute('aria-invalid')).toBe('true');
   });
 
-  it('agrupa los deportes por categoría, con los que no tienen al final', async () => {
+  it('muestra una tarjeta por deporte principal del catálogo y conserva la selección al volver', async () => {
     form().controls.sobreTi.setValue({
       fechaNacimiento: '1995-04-12',
       sexo: 'HOMBRE',
@@ -122,9 +131,19 @@ describe('OnboardingComponent', () => {
     http.expectOne('/api/v1/entrenamientos/tipos').flush(TIPOS);
     await fixture.whenStable();
 
-    const categorias = [...raiz().querySelectorAll('.ns-paso__subtitulo')].map((e) => e.textContent?.trim());
-    expect(categorias).toEqual(['Resistencia', 'Fuerza', 'Otros']);
-    expect(raiz().querySelectorAll('input[type=radio][name=deportePrincipal]').length).toBe(4);
+    // Solo los de la lista que existen en el catálogo, en su orden; YOGA no es de la lista.
+    expect(deportes()).toEqual(['Carrera', 'Ciclismo', 'Gimnasio']);
+    tarjeta('Gimnasio').click();
+    expect(form().controls.deporte.controls.deportePrincipal.value).toBe('FUERZA_MODERADA');
+
+    // Volver al paso anterior y regresar: la tarjeta sigue marcada.
+    (raiz().querySelector('.ns-onboarding__pie button[type=button]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(titulo()).toBe('Sobre ti');
+    await continuar();
+    http.match('/api/v1/entrenamientos/tipos').forEach((p) => p.flush(TIPOS));
+    await fixture.whenStable();
+    expect(tarjeta('Gimnasio').checked).toBe(true);
   });
 
   it('pide la fecha de competición solo con COMPETICION', async () => {
@@ -138,7 +157,7 @@ describe('OnboardingComponent', () => {
     await continuar();
     http.expectOne('/api/v1/entrenamientos/tipos').flush(TIPOS);
     form().controls.deporte.setValue({
-      deportePrincipal: 'CARRERA',
+      deportePrincipal: 'CARRERA_9_7KMH',
       diasEntrenamientoSemana: 3,
       duracionMediaMin: 45,
       nivelActividad: 'MODERADO',
@@ -155,8 +174,29 @@ describe('OnboardingComponent', () => {
     expect(titulo()).toBe('Tu objetivo');
   });
 
+  it('no termina hasta elegir tantas comidas como comidas al día, con contador', async () => {
+    await rellenarHastaElFinal();
+    const contador = () => raiz().querySelector('.ns-franjas__contador')?.textContent?.replace(/\s+/g, ' ').trim();
+    expect(contador()).toBe('0 de 4 comidas seleccionadas');
+
+    await continuar();
+    http.expectNone('/api/v1/perfil');
+    expect(raiz().textContent).toContain('Elige 4 comidas más: tienen que ser 4.');
+
+    for (const nombre of ['Desayuno', 'Comida', 'Merienda']) franja(nombre).click();
+    await fixture.whenStable();
+    expect(contador()).toBe('3 de 4 comidas seleccionadas');
+    franja('Cena').click();
+    await fixture.whenStable();
+    expect(contador()).toBe('4 de 4 comidas seleccionadas');
+    // Cupo lleno: las demás no se pueden marcar.
+    expect(franja('Almuerzo').disabled).toBe(true);
+    expect(form().controls.alimentacion.controls.tiposComida.value).toEqual(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA']);
+  });
+
   it('al terminar guarda el perfil, las preferencias y muestra los objetivos', async () => {
     await rellenarHastaElFinal();
+    form().controls.alimentacion.controls.tiposComida.setValue(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA']);
     form().controls.alimentacion.controls.preferencias.setValue([
       { tipo: 'ALERGIA', alergeno: 'GLUTEN', severidad: 'ESTRICTA' },
     ]);
@@ -170,11 +210,12 @@ describe('OnboardingComponent', () => {
       pesoKg: 61.5,
       objetivo: 'COMPETICION',
       fechaCompeticion: '2027-03-01',
-      deportePrincipal: 'CARRERA',
+      deportePrincipal: 'CARRERA_9_7KMH',
       nivelActividad: 'LIGERO',
       diasEntrenamientoSemana: 4,
       duracionMediaMin: 60,
       comidasPorDia: 4,
+      tiposComida: ['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA'],
     });
     perfil.flush({});
     await continuar();
@@ -197,6 +238,7 @@ describe('OnboardingComponent', () => {
 
   it('un 400 de PUT /perfil vuelve al primer paso con un campo erróneo', async () => {
     await rellenarHastaElFinal();
+    form().controls.alimentacion.controls.tiposComida.setValue(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA']);
     await continuar();
     http.expectOne({ method: 'PUT', url: '/api/v1/perfil' }).flush(
       {

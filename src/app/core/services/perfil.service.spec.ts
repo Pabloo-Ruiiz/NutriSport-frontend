@@ -30,6 +30,26 @@ describe('PerfilService', () => {
     http.expectNone(URL);
   });
 
+  it('recuerda las franjas del perfil (o las de por defecto) y solo las pide si hay perfil', async () => {
+    servicio.cargarTiposComida();
+    http.expectNone(URL); // aún no se sabe si hay perfil
+    expect(servicio.tiposComida()).toBeNull();
+
+    const promesa = servicio.existe();
+    http.expectOne(URL).flush({ comidasPorDia: 3, tiposComida: ['DESAYUNO', 'COMIDA', 'CENA'] });
+    await promesa;
+    expect(servicio.tiposComida()).toEqual(['DESAYUNO', 'COMIDA', 'CENA']);
+    servicio.cargarTiposComida();
+    http.expectNone(URL);
+
+    servicio.limpiar();
+    expect(servicio.tiposComida()).toBeNull();
+    const otra = servicio.existe();
+    http.expectOne(URL).flush({ comidasPorDia: 4 }); // perfil sin franjas: las de por defecto
+    await otra;
+    expect(servicio.tiposComida()).toEqual(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA']);
+  });
+
   it('404 → false, y lo cachea', async () => {
     const promesa = servicio.existe();
     http.expectOne(URL).flush({ codigo: 'NO_ENCONTRADO' }, { status: 404, statusText: 'Not Found' });

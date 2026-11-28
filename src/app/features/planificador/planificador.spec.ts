@@ -135,7 +135,16 @@ describe('Funciones del planificador', () => {
   it('franjasVisibles: las cuatro fijas y las demás solo con comidas, en orden', () => {
     expect(franjasVisibles([null])).toEqual(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA']);
     const d = dia('2026-11-23', [comida('a', '2026-11-23', 'POST_ENTRENO'), comida('b', '2026-11-23', null)]);
-    expect(franjasVisibles([d, null])).toEqual(['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA', 'POST_ENTRENO', 'OTRO']);
+    expect(franjasVisibles([d, null])).toEqual(['DESAYUNO', 'COMIDA', 'MERIENDA', 'POST_ENTRENO', 'CENA', 'OTRO']);
+    // Con las franjas del perfil: solo esas (más las que tengan comidas).
+    expect(franjasVisibles([null], ['DESAYUNO', 'COMIDA', 'CENA'])).toEqual(['DESAYUNO', 'COMIDA', 'CENA']);
+    expect(franjasVisibles([d], ['DESAYUNO', 'PRE_ENTRENO', 'CENA'])).toEqual([
+      'DESAYUNO',
+      'PRE_ENTRENO',
+      'POST_ENTRENO',
+      'CENA',
+      'OTRO',
+    ]);
     expect(comidasDeFranja(d, 'OTRO').map((c) => c.id)).toEqual(['b']);
     expect(comidasDeFranja(null, 'CENA')).toEqual([]);
   });
