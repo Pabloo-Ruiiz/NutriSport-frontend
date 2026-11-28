@@ -160,8 +160,8 @@ let siguienteId = 0;
         border-color var(--ns-duration-fast) var(--ns-ease-out);
 
       &:checked {
-        border-color: var(--ns-action-primary);
-        background: var(--ns-action-primary);
+        border-color: var(--ns-accent);
+        background: var(--ns-accent);
       }
       &:focus-visible {
         outline: 2px solid var(--ns-focus-ring);
@@ -171,7 +171,7 @@ let siguienteId = 0;
     .casilla__check {
       position: absolute;
       left: 4px;
-      color: var(--ns-text-inverse);
+      color: var(--ns-text-on-accent);
       pointer-events: none;
       opacity: 0;
     }

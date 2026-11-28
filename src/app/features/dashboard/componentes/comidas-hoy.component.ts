@@ -247,6 +247,8 @@ export class ComidasHoyComponent {
   readonly esHoy = input(true);
   /** URL a la que vuelve el registro tras guardar (p. ej. "/inicio?fecha=2026-11-20"). */
   readonly volver = input('/inicio');
+  /** Franjas del perfil (solo estas, más las que tengan comidas); null = las de siempre. */
+  readonly tiposComida = input<readonly TipoComida[] | null>(null);
 
   readonly ver = output<RegistroComidaResponse>();
   readonly editar = output<RegistroComidaResponse>();
@@ -264,7 +266,9 @@ export class ComidasHoyComponent {
     }
     return porTipo;
   });
-  protected readonly franjas = computed(() => franjasDelDia(this.comidas(), [...this.pendientesPorTipo().keys()]));
+  protected readonly franjas = computed(() =>
+    franjasDelDia(this.comidas(), [...this.pendientesPorTipo().keys()], this.tiposComida() ?? undefined),
+  );
 
   /** Parámetros del registro: fecha, vuelta y, si se indica, el tipo de comida. */
   protected params(tipoComida?: string): Record<string, string> {

@@ -2,7 +2,7 @@ import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cd
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-import type { ComidaPlanificadaResponse, MenuResponse } from '@core/models';
+import type { ComidaPlanificadaResponse, MenuResponse, TipoComida } from '@core/models';
 import { ETIQUETAS_TIPO_COMIDA } from '@core/models/etiquetas';
 import { hoyLocal } from '@core/util/fechas';
 import { columnasSemana, comidasDeFranja, franjasVisibles } from '../planificador';
@@ -175,7 +175,7 @@ import { MealSlotComponent } from './meal-slot.component';
     }
     // Zona sobre la que se arrastra una comida.
     .ns-wp__zona.cdk-drop-list-receiving {
-      outline: 2px dashed var(--ns-action-primary);
+      outline: 2px dashed var(--ns-accent);
       outline-offset: 2px;
     }
     .ns-wp__zona.cdk-drop-list-dragging .ns-wp__anadir {
@@ -205,9 +205,9 @@ import { MealSlotComponent } from './meal-slot.component';
       cursor: pointer;
 
       &:hover {
-        border-color: var(--ns-action-primary);
+        border-color: var(--ns-accent);
         background: var(--ns-success-bg);
-        color: var(--ns-action-primary);
+        color: var(--ns-accent);
       }
       &:focus-visible {
         outline: 2px solid var(--ns-focus-ring);
@@ -226,13 +226,20 @@ export class WeekPlannerComponent {
   readonly semana = input.required<string>();
   /** Fecha de hoy; se puede fijar en pruebas. */
   readonly hoy = input(hoyLocal());
+  /** Franjas del perfil; null = las de siempre. */
+  readonly fijas = input<readonly TipoComida[] | null>(null);
 
   protected readonly editor = inject(PlanificadorEditor, { optional: true });
   protected readonly etiquetas = ETIQUETAS_TIPO_COMIDA;
   protected readonly comidasDeFranja = comidasDeFranja;
 
   protected readonly columnas = computed(() => columnasSemana(this.menu(), this.semana()));
-  protected readonly franjas = computed(() => franjasVisibles(this.columnas().map((c) => c.dia)));
+  protected readonly franjas = computed(() =>
+    franjasVisibles(
+      this.columnas().map((c) => c.dia),
+      this.fijas() ?? undefined,
+    ),
+  );
 
   /** Al soltar en otra celda: PUT { fecha, tipoComida } (se ve al momento y se revierte si falla). */
   protected soltar(evento: CdkDragDrop<DestinoComida, DestinoComida, ComidaPlanificadaResponse>): void {

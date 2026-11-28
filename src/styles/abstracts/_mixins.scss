@@ -1,13 +1,9 @@
 // Mixins comunes. No generan CSS hasta que se incluyen.
 
-// Foco visible (DESIGN.md §2.7): 2 px sólido en verde 700, separado 2 px.
-// Sobre superficies oscuras (ink-950) se usa green-400.
+// Foco visible: 2 px sólido en verde corporativo, separado 2 px (todo el tema es oscuro, así que el parámetro
+// $sobre-oscuro se mantiene solo por compatibilidad).
 @mixin focus-ring($sobre-oscuro: false) {
-  @if $sobre-oscuro {
-    outline: 2px solid var(--ns-green-400);
-  } @else {
-    outline: 2px solid var(--ns-focus-ring);
-  }
+  outline: 2px solid var(--ns-focus-ring);
   outline-offset: 2px;
 }
 

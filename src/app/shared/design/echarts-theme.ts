@@ -26,7 +26,7 @@ export const nutrisportTheme = {
   textStyle: { ...texto, color: t.textSecondary },
   title: {
     left: 0,
-    textStyle: { ...texto, fontSize: 14, fontWeight: 600, color: t.ink950 },
+    textStyle: { ...texto, fontSize: 14, fontWeight: 600, color: t.texto },
     subtextStyle: { ...texto, color: t.textSecondary },
   },
   legend: {
@@ -59,12 +59,13 @@ export const nutrisportTheme = {
   },
   tooltip: {
     trigger: 'axis',
-    backgroundColor: t.ink950,
-    borderWidth: 0,
+    backgroundColor: t.panel,
+    borderColor: t.border,
+    borderWidth: 1,
     borderRadius: t.radiusMd,
     padding: [8, 12],
-    textStyle: { ...texto, color: t.white },
-    axisPointer: { lineStyle: { color: t.border }, shadowStyle: { color: 'rgba(11, 18, 32, 0.04)' } },
+    textStyle: { ...texto, color: t.texto },
+    axisPointer: { lineStyle: { color: t.border }, shadowStyle: { color: 'rgba(255, 255, 255, 0.04)' } },
   },
   line: {
     smooth: true,
@@ -75,7 +76,7 @@ export const nutrisportTheme = {
     emphasis: { focus: 'series' },
   },
   bar: { itemStyle: { borderRadius: [6, 6, 0, 0] }, barMaxWidth: 32 },
-  pie: { itemStyle: { borderWidth: 2, borderColor: t.white }, label: { ...texto, color: t.textSecondary } },
+  pie: { itemStyle: { borderWidth: 2, borderColor: t.fondo }, label: { ...texto, color: t.textSecondary } },
   heatmap: { label: { ...texto } },
   markLine: { label: { ...texto } },
 };
@@ -85,8 +86,8 @@ export function lineaObjetivo(valor: number, etiqueta = 'Objetivo') {
   return {
     silent: true,
     symbol: 'none',
-    lineStyle: { color: t.ink700, type: 'dashed', width: 1.5 },
-    label: { ...texto, color: t.ink700, formatter: etiqueta, position: 'insideEndTop' },
+    lineStyle: { color: t.linea, type: 'dashed', width: 1.5 },
+    label: { ...texto, color: t.linea, formatter: etiqueta, position: 'insideEndTop' },
     data: [{ yAxis: valor }],
   };
 }

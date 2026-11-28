@@ -175,7 +175,7 @@ type Pestana = 'activas' | 'archivadas';
     }
     .ns-convs__item--activa,
     .ns-convs__item--activa:hover {
-      background: var(--ns-ai-50);
+      background: var(--ns-ai-bg);
     }
     .ns-convs__abrir {
       display: flex;
@@ -212,7 +212,7 @@ type Pestana = 'activas' | 'archivadas';
       font: 600 0.875rem/1.25rem var(--ns-font-body);
     }
     .ns-convs__item--activa .ns-convs__titulo {
-      color: var(--ns-ai-700);
+      color: var(--ns-accent);
     }
     .ns-convs__fecha {
       flex: none;

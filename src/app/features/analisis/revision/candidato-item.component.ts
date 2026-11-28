@@ -129,8 +129,8 @@ import { CambiarAlimentoComponent } from './cambiar-alimento.component';
       }
     }
     :host(.ns-candidato--resaltada) {
-      background: var(--ns-ai-50);
-      border-left-color: var(--ns-action-ai);
+      background: var(--ns-ai-bg);
+      border-left-color: var(--ns-accent);
     }
     :host(.ns-candidato--revisar) {
       background: var(--ns-error-bg);

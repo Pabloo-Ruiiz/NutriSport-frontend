@@ -161,7 +161,7 @@ const TAMANO = 10;
       border-color: var(--ns-border-strong);
     }
     .fila:focus-visible {
-      outline: 2px solid var(--ns-green-600);
+      outline: 2px solid var(--ns-accent);
       outline-offset: 2px;
     }
     .fila:disabled {

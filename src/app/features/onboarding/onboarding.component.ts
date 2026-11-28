@@ -9,6 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
 import {
@@ -71,6 +72,7 @@ const PASOS: readonly InfoPaso[] = [
   imports: [
     ConsentimientoRevocadoComponent,
     LogoComponent,
+    LucideDynamicIcon,
     NsAlertComponent,
     NsButtonComponent,
     NsStepperComponent,
@@ -91,6 +93,8 @@ export class OnboardingComponent {
 
   protected readonly form = crearFormularioPerfil();
   protected readonly etiquetasPasos = PASOS.map((p) => p.etiqueta);
+  /** Icono de la cabecera de cada paso (solo presentación). */
+  protected readonly iconosPasos = ['user', 'dumbbell', 'zap', 'utensils'] as const;
 
   /** Paso actual (0–3). */
   protected readonly paso = signal(0);

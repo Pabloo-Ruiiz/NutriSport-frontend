@@ -1,0 +1,106 @@
+// Registro: bloque de consentimientos y botón principal (DESIGN.md §7.2). Solo tokens --ns-*.
+
+.ns-consentimientos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-3);
+  min-width: 0;
+  margin: var(--ns-space-2) 0 0;
+  padding: var(--ns-space-5) 0 0;
+  border: 0;
+  border-top: 1px solid var(--ns-border);
+}
+
+.ns-consentimientos__titulo {
+  float: left; // saca la leyenda del borde del fieldset para colocarla como un título más
+  width: 100%;
+  margin-bottom: var(--ns-space-1);
+  padding: 0;
+  color: var(--ns-text);
+  font: 700 1rem/1.5rem var(--ns-font-display);
+
+  + * {
+    clear: both;
+  }
+}
+
+.ns-consentimientos__intro,
+.ns-consentimientos__nota {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.ns-consentimientos__nota {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+// Cada decisión, en su propia superficie: se lee y se marca por separado.
+.ns-consentimiento {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-1);
+  padding: var(--ns-space-3) var(--ns-space-4);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface-muted);
+  transition: border-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:has(input:checked) {
+    border-color: var(--ns-brand-border);
+    background: var(--ns-brand-bg);
+  }
+
+  &:has(.ns-auth-form__error:not([hidden]):not(:empty)) {
+    border-color: var(--ns-error-border);
+  }
+
+  ns-checkbox {
+    align-items: flex-start;
+  }
+
+  ::ng-deep .ns-checkbox__fila {
+    align-items: flex-start;
+    font-weight: 500;
+  }
+
+  ::ng-deep .ns-checkbox__caja {
+    margin-top: 1px;
+  }
+}
+
+.ns-consentimiento__tag {
+  display: inline-block;
+  margin-left: var(--ns-space-1);
+  padding: 0 6px;
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-full);
+  color: var(--ns-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
+.ns-consentimiento__detalle {
+  margin: 0 0 0 calc(18px + var(--ns-space-2));
+  color: var(--ns-text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+}
+
+// Los errores y el enlace del diálogo ya van sangrados (auth-formulario.scss).
+.ns-consentimiento .ns-auth-form__error {
+  margin-top: var(--ns-space-1);
+}
+
+// Acción principal destacada: más alta y separada del bloque de consentimientos.
+.ns-registro__enviar {
+  margin-top: var(--ns-space-2);
+  height: 48px;
+  font-size: 0.9375rem;
+}

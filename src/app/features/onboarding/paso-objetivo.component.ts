@@ -14,22 +14,33 @@ import type { GrupoObjetivo } from './perfil-form';
 
 /** Una línea que explica cada objetivo. */
 export const DESCRIPCION_OBJETIVO: Record<ObjetivoDeportivo, string> = {
-  PERDER_GRASA: 'Reducir grasa corporal sin perder músculo ni rendimiento.',
-  MANTENER: 'Mantener tu peso y tu composición corporal actuales.',
-  GANAR_MUSCULO: 'Aumentar masa muscular con un ligero superávit de energía.',
-  RENDIMIENTO: 'Comer para entrenar mejor y recuperarte antes.',
-  COMPETICION: 'Llegar en tu mejor forma a una fecha concreta.',
+  PERDER_GRASA: 'Reduce grasa corporal conservando tu masa muscular y tu rendimiento.',
+  MANTENER: 'Conserva tu peso y tu composición corporal con una dieta equilibrada.',
+  GANAR_MUSCULO: 'Gana masa muscular con un ligero superávit de energía y más proteína.',
+  RENDIMIENTO: 'Come para entrenar con más energía y recuperarte mejor entre sesiones.',
+  COMPETICION: 'Planifica tu alimentación para llegar en tu mejor forma a una fecha.',
 };
 
 const ICONO_OBJETIVO: Record<ObjetivoDeportivo, string> = {
-  PERDER_GRASA: 'scale',
-  MANTENER: 'shield-check',
-  GANAR_MUSCULO: 'dumbbell',
-  RENDIMIENTO: 'zap',
-  COMPETICION: 'star',
+  PERDER_GRASA: 'flame',
+  MANTENER: 'scale',
+  GANAR_MUSCULO: 'biceps-flexed',
+  RENDIMIENTO: 'gauge',
+  COMPETICION: 'trophy',
 };
 
-/** Paso 3 · Tu objetivo: 5 tarjetas grandes; con COMPETICION, la fecha de la competición. */
+/**
+ * Qué cambia en el plan con cada objetivo. Son los valores del cálculo del backend
+ * (CalculadoraObjetivos: ajuste de energía y proteína por kg); si cambian allí, hay que cambiarlos aquí.
+ */
+const CLAVES_OBJETIVO: Record<ObjetivoDeportivo, readonly string[]> = {
+  PERDER_GRASA: ['−15 % de energía', '2,0 g proteína/kg'],
+  MANTENER: ['Energía de mantenimiento', '1,4 g proteína/kg'],
+  GANAR_MUSCULO: ['+10 % de energía', '1,8 g proteína/kg'],
+  RENDIMIENTO: ['Energía de mantenimiento', '1,6 g proteína/kg'],
+  COMPETICION: ['Con fecha objetivo', '1,6 g proteína/kg'],
+};
+
 @Component({
   selector: 'app-paso-objetivo',
   imports: [ReactiveFormsModule, LucideDynamicIcon, ErrorCampoDirective, NsFormFieldComponent, NsInputDirective],
@@ -37,9 +48,12 @@ const ICONO_OBJETIVO: Record<ObjetivoDeportivo, string> = {
     <div class="ns-paso" [formGroup]="grupo()">
       <fieldset class="ns-paso__grupo" #objetivoGrupo>
         <legend class="ns-paso__leyenda">¿Qué quieres conseguir? <span aria-hidden="true">*</span></legend>
-        <div class="ns-tarjetas ns-tarjetas--grandes">
+        <p class="ns-paso__ayuda">
+          Elige uno. Ajustaremos tu energía y tus macros a ese objetivo; podrás cambiarlo cuando quieras.
+        </p>
+        <div class="ns-objetivos">
           @for (o of objetivos; track o.valor) {
-            <label class="ns-tarjeta">
+            <label class="ns-objetivo">
               <input
                 class="ns-tarjeta__radio"
                 type="radio"
@@ -47,12 +61,21 @@ const ICONO_OBJETIVO: Record<ObjetivoDeportivo, string> = {
                 formControlName="objetivo"
                 [value]="o.valor"
               />
-              <svg class="ns-tarjeta__icono" [lucideIcon]="o.icono" [size]="24" aria-hidden="true"></svg>
-              <span class="ns-tarjeta__textos">
-                <span class="ns-tarjeta__titulo">{{ o.etiqueta }}</span>
-                <span class="ns-tarjeta__descripcion">{{ o.descripcion }}</span>
+              <span class="ns-objetivo__cabecera">
+                <span class="ns-objetivo__icono" aria-hidden="true">
+                  <svg [lucideIcon]="o.icono" [size]="22"></svg>
+                </span>
+                <span class="ns-objetivo__indicador" aria-hidden="true">
+                  <svg lucideIcon="check" [size]="12" [strokeWidth]="3"></svg>
+                </span>
               </span>
-              <svg class="ns-tarjeta__check" lucideIcon="circle-check" [size]="20" aria-hidden="true"></svg>
+              <span class="ns-objetivo__titulo">{{ o.etiqueta }}</span>
+              <span class="ns-objetivo__descripcion">{{ o.descripcion }}</span>
+              <span class="ns-objetivo__claves">
+                @for (clave of o.claves; track clave) {
+                  <span class="ns-objetivo__clave">{{ clave }}</span>
+                }
+              </span>
             </label>
           }
         </div>
@@ -60,13 +83,21 @@ const ICONO_OBJETIVO: Record<ObjetivoDeportivo, string> = {
       </fieldset>
 
       @if (compite()) {
-        <ns-form-field label="Fecha de la competición" hint="Ajustaremos tu plan para llegar a esa fecha." obligatorio>
-          <input nsInput type="date" formControlName="fechaCompeticion" [min]="hoy" />
-        </ns-form-field>
+        <div class="ns-objetivo-fecha">
+          <svg class="ns-objetivo-fecha__icono" lucideIcon="calendar-check" [size]="20" aria-hidden="true"></svg>
+          <ns-form-field
+            label="Fecha de la competición"
+            hint="Ajustaremos tu plan para llegar a esa fecha."
+            obligatorio
+          >
+            <input nsInput type="date" formControlName="fechaCompeticion" [min]="hoy" />
+          </ns-form-field>
+        </div>
       }
     </div>
   `,
-  styleUrl: './pasos.scss',
+  styleUrls: ['./pasos.scss', './paso-objetivo.component.scss'],
+
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PasoObjetivoComponent {
@@ -77,6 +108,7 @@ export class PasoObjetivoComponent {
     etiqueta: ETIQUETAS_OBJETIVO[valor],
     descripcion: DESCRIPCION_OBJETIVO[valor],
     icono: ICONO_OBJETIVO[valor],
+    claves: CLAVES_OBJETIVO[valor],
   }));
   protected readonly hoy = hoyLocal();
 

@@ -8,9 +8,9 @@
   height: 100%;
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
+  border-left: 1px solid var(--ns-border);
   background: var(--ns-surface);
   color: var(--ns-text);
-  box-shadow: var(--ns-shadow-xl);
   animation: ns-drawer-entrada var(--ns-duration-slow) var(--ns-ease-out);
 }
 
@@ -78,17 +78,19 @@
 .ns-drawer--izquierda {
   padding-right: 0;
   padding-left: env(safe-area-inset-left);
+  border-right: 1px solid var(--ns-border);
+  border-left: 0;
   animation-name: ns-drawer-entrada-izquierda;
 }
 
 // Estilo de la sidebar (DESIGN.md §5.7 y §6.4).
 .ns-drawer--oscuro {
-  background: var(--ns-surface-inverse);
-  color: var(--ns-text-inverse);
+  background: var(--ns-surface);
+  color: var(--ns-text);
 
   .ns-drawer__cabecera,
   .ns-drawer__pie {
-    border-color: var(--ns-ink-800);
+    border-color: var(--ns-border);
   }
 
   .ns-drawer__cuerpo {
@@ -96,10 +98,10 @@
   }
 
   .ns-drawer__cerrar {
-    color: var(--ns-ink-400);
+    color: var(--ns-text-secondary);
 
     &:hover {
-      background: var(--ns-ink-800);
+      background: var(--ns-surface-sunken);
       color: var(--ns-text-inverse);
     }
 

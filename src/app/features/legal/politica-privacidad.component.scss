@@ -1,0 +1,394 @@
+// Política de privacidad: misma identidad que el login. Sin encapsular (contenido por innerHTML),
+// por eso todo cuelga de .ns-legal. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+.ns-legal {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--ns-gradient-brand);
+  background-attachment: fixed;
+  color: var(--ns-text);
+}
+
+// Isotipo grande y muy tenue, fijo detrás del documento.
+.ns-legal__marca-agua {
+  position: fixed;
+  z-index: -1;
+  right: -10%;
+  bottom: -14%;
+  width: min(70vw, 720px);
+  height: auto;
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Cabecera y pie */
+.ns-legal__cabecera,
+.ns-legal__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-4);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--ns-space-6) var(--ns-space-8);
+
+  @include bp.down(md) {
+    padding-inline: var(--ns-space-4);
+  }
+}
+
+.ns-legal__cabecera {
+  padding-top: max(var(--ns-space-6), env(safe-area-inset-top));
+}
+
+.ns-legal__pie {
+  flex-wrap: wrap;
+  padding-bottom: max(var(--ns-space-8), env(safe-area-inset-bottom));
+  color: var(--ns-text-tertiary);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.ns-legal__inicio {
+  display: inline-flex;
+  border-radius: var(--ns-radius-sm);
+  text-decoration: none;
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-legal__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-4);
+}
+
+.ns-legal__enlace {
+  color: var(--ns-text-link);
+  font: 600 0.875rem/1.25rem var(--ns-font-body);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+    border-radius: var(--ns-radius-xs);
+  }
+}
+
+/* Cuerpo: índice + documento */
+.ns-legal__main {
+  flex: 1;
+  padding: 0 var(--ns-space-8) var(--ns-space-8);
+
+  @include bp.down(md) {
+    padding: 0 var(--ns-space-4) var(--ns-space-6);
+  }
+}
+
+.ns-legal__cuerpo {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 820px);
+  justify-content: center;
+  align-items: start;
+  gap: var(--ns-space-10);
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @include bp.down(lg) {
+    grid-template-columns: minmax(0, 820px);
+  }
+}
+
+.ns-legal__indice {
+  position: sticky;
+  top: var(--ns-space-6);
+  padding: var(--ns-space-5) var(--ns-space-4);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-surface);
+
+  @include bp.down(lg) {
+    display: none;
+  }
+}
+
+.ns-legal__indice-titulo {
+  margin: 0 0 var(--ns-space-3);
+  padding: 0 var(--ns-space-2);
+  color: var(--ns-text-tertiary);
+  font: 700 0.75rem/1rem var(--ns-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ns-legal__indice-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ns-legal__indice-enlace {
+  display: block;
+  width: 100%;
+  padding: var(--ns-space-2);
+  border: 0;
+  border-radius: var(--ns-radius-md);
+  background: none;
+  color: var(--ns-text-secondary);
+  font: 500 0.8125rem/1.125rem var(--ns-font-body);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover {
+    background: var(--ns-brand-bg);
+    color: var(--ns-brand);
+  }
+
+  &:focus-visible {
+    @include m.focus-ring;
+  }
+}
+
+.ns-legal__documento {
+  min-width: 0;
+  padding: var(--ns-space-12) var(--ns-space-16);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-surface);
+
+  @include bp.down(xl) {
+    padding: var(--ns-space-10);
+  }
+
+  @include bp.down(md) {
+    padding: var(--ns-space-6) var(--ns-space-4);
+  }
+}
+
+.ns-legal__cargando {
+  margin: 0;
+  color: var(--ns-text-secondary);
+}
+
+/* Tipografía del documento */
+.ns-legal__documento {
+  color: var(--ns-text-secondary);
+  font: 400 0.9375rem/1.625rem var(--ns-font-body);
+
+  h1,
+  h2,
+  h3 {
+    color: var(--ns-text);
+    font-family: var(--ns-font-display);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    scroll-margin-top: var(--ns-space-6);
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  h1 {
+    margin: 0 0 var(--ns-space-3);
+    font-size: 2.5rem;
+    line-height: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+
+    @include bp.down(md) {
+      font-size: 1.875rem;
+      line-height: 2.375rem;
+    }
+  }
+
+  // Versión y fecha, bajo el título.
+  h1 + p {
+    margin-bottom: var(--ns-space-6);
+    color: var(--ns-text-tertiary);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+
+    strong {
+      color: var(--ns-text-secondary);
+    }
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--ns-space-3);
+    margin: var(--ns-space-12) 0 var(--ns-space-4);
+    padding-top: var(--ns-space-8);
+    border-top: 1px solid var(--ns-border);
+    font-size: 1.375rem;
+    line-height: 1.875rem;
+    font-weight: 700;
+
+    &::before {
+      content: '';
+      flex-shrink: 0;
+      width: 4px;
+      height: 1.25rem;
+      border-radius: var(--ns-radius-full);
+      background: var(--ns-brand);
+    }
+  }
+
+  h3 {
+    margin: var(--ns-space-6) 0 var(--ns-space-3);
+    font-size: 1.0625rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+  }
+
+  p,
+  ul,
+  ol {
+    margin: 0 0 var(--ns-space-4);
+  }
+
+  ul,
+  ol {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ns-space-2);
+    padding-left: var(--ns-space-6);
+  }
+
+  li::marker {
+    color: var(--ns-brand);
+    font-weight: 700;
+  }
+
+  strong {
+    color: var(--ns-text);
+    font-weight: 600;
+  }
+
+  // Marca "(ficticio)" de los datos de demostración.
+  em {
+    color: var(--ns-text-tertiary);
+    font-size: 0.875em;
+  }
+
+  code {
+    padding: 1px 6px;
+    border-radius: var(--ns-radius-xs);
+    background: var(--ns-surface-sunken);
+    color: var(--ns-text);
+    font-size: 0.875em;
+  }
+
+  a {
+    color: var(--ns-text-link);
+    font-weight: 600;
+    text-decoration-color: var(--ns-brand-border);
+    text-underline-offset: 3px;
+
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+
+    &:focus-visible {
+      @include m.focus-ring;
+      border-radius: var(--ns-radius-xs);
+    }
+  }
+
+  blockquote {
+    margin: 0 0 var(--ns-space-8);
+    padding: var(--ns-space-4) var(--ns-space-5);
+    border: 1px solid var(--ns-brand-border);
+    border-left-width: 3px;
+    border-radius: var(--ns-radius-md);
+    background: var(--ns-brand-bg);
+    color: var(--ns-text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  hr {
+    margin: var(--ns-space-8) 0;
+    border: 0;
+    border-top: 1px solid var(--ns-border);
+  }
+}
+
+// Información pendiente (no debería quedar ninguna en la versión publicada).
+.ns-legal__pendiente {
+  padding: 1px 6px;
+  border: 1px dashed var(--ns-warning-border);
+  border-radius: var(--ns-radius-xs);
+  background: var(--ns-warning-bg);
+  color: var(--ns-warning);
+  font-size: 0.875em;
+  font-weight: 600;
+}
+
+.ns-legal__tabla {
+  margin: 0 0 var(--ns-space-6);
+  overflow-x: auto;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+  }
+
+  th,
+  td {
+    padding: var(--ns-space-3) var(--ns-space-4);
+    border-bottom: 1px solid var(--ns-border);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  tbody tr:nth-child(even) {
+    background: var(--ns-surface-muted);
+  }
+
+  thead th {
+    background: var(--ns-brand-bg);
+    color: var(--ns-text);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  tbody th {
+    width: 36%;
+    color: var(--ns-text);
+    font-weight: 600;
+  }
+}

@@ -26,11 +26,11 @@
   transition: background-color var(--ns-duration-fast) var(--ns-ease-out);
 
   &[aria-checked='true'] {
-    background: var(--ns-action-primary);
+    background: var(--ns-accent);
   }
 
   &:hover:not(:disabled)[aria-checked='true'] {
-    background: var(--ns-action-primary-hover);
+    background: var(--ns-accent);
   }
 
   &:focus-visible {

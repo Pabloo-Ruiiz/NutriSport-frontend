@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@angular/core';
 
 /**
- * Logotipo (DESIGN.md §1.5): isotipo (public/marca/logo-mark.svg) + "NutriSport" en Manrope 800 +
+ * Logotipo (DESIGN.md §1.5): isotipo (public/marca/logo-mark.svg) + "NutriSport" en la sans de la interfaz (800) +
  * píldora "AI" en índigo. El texto va en HTML y no dentro del SVG para usar la fuente de la app
  * (un <img> SVG no carga fuentes web).
  *
@@ -35,7 +35,7 @@ import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@an
       border-radius: 25%;
     }
     :host(.ns-logo--negativo) .ns-logo__isotipo {
-      box-shadow: 0 0 0 1px var(--ns-ink-800);
+      box-shadow: 0 0 0 1px var(--ns-border);
     }
     .ns-logo__texto {
       font-family: var(--ns-font-display);

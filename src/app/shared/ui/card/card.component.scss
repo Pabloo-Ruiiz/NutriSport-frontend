@@ -9,9 +9,9 @@
   padding: var(--ns-space-5);
   border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius-xl);
-  background: var(--ns-surface);
+  // Ghost Card: transparente, definida solo por la línea fina (sin sombra).
+  background: transparent;
   color: var(--ns-text);
-  box-shadow: var(--ns-shadow-xs);
   text-align: start;
 }
 
@@ -61,13 +61,13 @@
 
 /* Variante IA: borde índigo claro e icono sparkles (§2.3: índigo solo para IA) */
 :host(.ns-card--ai) {
-  border-color: var(--ns-ai-100);
+  border-color: var(--ns-ai-border);
 }
 
 .ns-card__icono-ia {
   flex-shrink: 0;
   margin-top: 3px;
-  color: var(--ns-action-ai);
+  color: var(--ns-accent);
 }
 
 /* Variante interactiva: toda la tarjeta es un enlace o un botón */
@@ -77,12 +77,12 @@
   cursor: pointer;
   transition:
     border-color var(--ns-duration-fast) var(--ns-ease-out),
-    box-shadow var(--ns-duration-fast) var(--ns-ease-out);
+    background-color var(--ns-duration-fast) var(--ns-ease-out);
 }
 
 :host(.ns-card--interactive:hover:not(:disabled)) {
   border-color: var(--ns-border-strong);
-  box-shadow: var(--ns-shadow-sm);
+  background: var(--ns-surface-muted);
 }
 
 :host(.ns-card--interactive:focus-visible) {
@@ -92,5 +92,4 @@
 :host(.ns-card--interactive:disabled) {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: var(--ns-shadow-xs);
 }

@@ -238,13 +238,13 @@ export function racionesValidas(raciones: number | null | undefined): raciones i
       }
     }
     .ns-ar__receta--elegida {
-      border-color: var(--ns-action-primary);
+      border-color: var(--ns-accent);
       background: var(--ns-success-bg);
     }
     .ns-ar__radio {
       flex-shrink: 0;
       margin: 2px 0 0;
-      accent-color: var(--ns-action-primary);
+      accent-color: var(--ns-accent);
     }
     .ns-ar__datos {
       display: flex;

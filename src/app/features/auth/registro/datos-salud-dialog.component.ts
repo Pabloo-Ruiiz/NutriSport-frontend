@@ -14,9 +14,31 @@ import { TextoDatosSaludComponent } from '../componentes/texto-datos-salud.compo
   imports: [DialogShellComponent, NsButtonComponent, TextoDatosSaludComponent],
   template: `
     <ns-dialog-shell>
-      <app-texto-datos-salud [nivelTitulos]="3" />
+      <div class="ns-datos-salud">
+        <img class="ns-datos-salud__marca-agua" src="marca/logo-watermark.svg" alt="" aria-hidden="true" />
+        <app-texto-datos-salud [nivelTitulos]="3" />
+      </div>
       <button nsDialogAcciones nsButton type="button" (click)="ref.close()">Entendido</button>
     </ns-dialog-shell>
+  `,
+  styles: `
+    .ns-datos-salud {
+      position: relative;
+      isolation: isolate;
+    }
+    // Isotipo de fondo, muy tenue, para mantener la identidad del registro sin restar legibilidad.
+    .ns-datos-salud__marca-agua {
+      position: absolute;
+      z-index: -1;
+      top: 50%;
+      right: -8%;
+      width: min(60%, 320px);
+      height: auto;
+      opacity: 0.05;
+      transform: translateY(-50%);
+      pointer-events: none;
+      user-select: none;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

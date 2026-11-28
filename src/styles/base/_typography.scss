@@ -64,10 +64,11 @@ $ns-escala: (
     700,
     -0.01em,
   ),
+  // Texto corrido en serif con interlineado amplio (DESIGN.md: Times 16 px, 1,88).
   body-lg: (
-    body,
+    prose,
     16,
-    24,
+    30,
     400,
     0,
   ),
@@ -141,6 +142,13 @@ body {
 
 .ns-text-overline {
   text-transform: uppercase;
+}
+
+// Los párrafos sin clase son texto corrido: serif (DESIGN.md «Times»). Los que llevan clase son
+// piezas de la interfaz (títulos de aviso, etiquetas…) y heredan la sans. :where() deja la
+// especificidad a 0 para que cualquier regla de un componente lo sustituya.
+:where(p:not([class])) {
+  font-family: var(--ns-font-prose);
 }
 
 // Cifras alineadas en tablas, contadores y métricas.

@@ -120,8 +120,8 @@
     background: var(--ns-surface);
 
     &--radio {
-      background: var(--ns-green-100);
-      border: 1px solid var(--ns-green-500);
+      background: var(--ns-surface-inverse);
+      border: 1px solid var(--ns-accent);
     }
 
     &--sombra {

@@ -95,8 +95,8 @@ import { idUnico } from './control-campo';
         background-color 150ms ease-out;
     }
     :host(.ns-dropzone--arrastrando) {
-      border-color: var(--ns-action-ai);
-      background: var(--ns-ai-50);
+      border-color: var(--ns-accent);
+      background: var(--ns-ai-bg);
     }
     :host(.ns-dropzone--deshabilitado) {
       opacity: 0.6;
@@ -128,8 +128,8 @@ import { idUnico } from './control-campo';
       height: 64px;
       margin-bottom: var(--ns-space-2);
       border-radius: var(--ns-radius-full);
-      background: var(--ns-ai-50);
-      color: var(--ns-action-ai);
+      background: var(--ns-ai-bg);
+      color: var(--ns-accent);
     }
     .ns-dropzone__titulo {
       color: var(--ns-text);

@@ -43,13 +43,13 @@
     border-color var(--ns-duration-fast) var(--ns-ease-out);
 
   &:hover:not(:disabled) {
-    border-color: var(--ns-ink-700);
+    border-color: var(--ns-accent);
   }
 
   &:checked,
   &:indeterminate {
-    border-color: var(--ns-action-primary);
-    background: var(--ns-action-primary);
+    border-color: var(--ns-accent);
+    background: var(--ns-accent);
   }
 
   &:focus-visible {
@@ -60,7 +60,7 @@
 .ns-checkbox__check {
   position: absolute;
   inset: 2px;
-  color: var(--ns-text-inverse);
+  color: var(--ns-text-on-accent);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--ns-duration-fast) var(--ns-ease-out);

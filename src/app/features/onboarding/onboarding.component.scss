@@ -1,14 +1,35 @@
 // Configuración inicial del perfil (DESIGN.md §7.3). Solo tokens --ns-*.
+// Misma identidad que el login y el registro: superficie verde oscura, isotipo de fondo y el verde
+// corporativo para lo seleccionado. Los ajustes de los controles compartidos (stepper, segmented,
+// chips) van bajo :host ::ng-deep, así solo afectan a esta pantalla.
 @use 'abstracts/breakpoints' as bp;
 @use 'abstracts/mixins' as m;
 
 :host {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: var(--ns-bg);
+  overflow-x: clip;
+  background: var(--ns-gradient-brand);
+  background-attachment: fixed;
 }
 
+// Isotipo grande y muy tenue, fijo detrás del contenido.
+.ns-onboarding__marca-agua {
+  position: fixed;
+  z-index: -1;
+  right: -12%;
+  bottom: -16%;
+  width: min(72vw, 720px);
+  height: auto;
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Cabecera */
 .ns-onboarding__cabecera {
   display: flex;
   align-items: center;
@@ -17,39 +38,50 @@
   height: calc(var(--ns-topbar-height) + env(safe-area-inset-top));
   padding: env(safe-area-inset-top) max(var(--ns-space-6), env(safe-area-inset-right)) 0
     max(var(--ns-space-6), env(safe-area-inset-left));
-  border-bottom: 1px solid var(--ns-border);
-  background: var(--ns-surface);
+  border-bottom: 1px solid var(--ns-brand-border);
+  background: var(--ns-brand-surface);
 }
 
+// Cerrar sesión: botón fantasma en verde corporativo.
 .ns-onboarding__salir {
-  min-height: 44px;
-  padding: 0 var(--ns-space-3);
-  border: 0;
-  border-radius: var(--ns-radius-md);
-  background: transparent;
-  color: var(--ns-text-secondary);
-  font: inherit;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-2);
+  min-height: 40px;
+  padding: 0 var(--ns-space-4);
+  border: 1px solid var(--ns-brand-border);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+  font: 600 0.875rem/1.25rem var(--ns-font-body);
   cursor: pointer;
+  transition:
+    background-color var(--ns-duration-fast) var(--ns-ease-out),
+    border-color var(--ns-duration-fast) var(--ns-ease-out);
 
   &:hover {
-    background: var(--ns-surface-muted);
-    color: var(--ns-text);
+    border-color: var(--ns-brand);
+    background: rgba(50, 213, 131, 0.18);
   }
 
   &:focus-visible {
     @include m.focus-ring;
   }
+
+  @include bp.down(md) {
+    min-height: 44px;
+  }
 }
 
+/* Contenido */
 .ns-onboarding__main {
   display: flex;
   flex: 1;
   flex-direction: column;
   align-items: center;
-  gap: var(--ns-space-6);
+  gap: var(--ns-space-5);
   width: 100%;
-  padding: var(--ns-space-8) var(--ns-space-6);
+  padding: var(--ns-space-10) var(--ns-space-6);
 
   @include bp.down(md) {
     gap: var(--ns-space-4);
@@ -61,14 +93,26 @@
 .ns-onboarding__formulario,
 .ns-onboarding__main > .ns-onboarding__tarjeta {
   width: 100%;
-  max-width: 640px;
+  max-width: 720px;
+}
+
+// Progreso en su propia superficie, alineado con la tarjeta.
+.ns-onboarding__stepper {
+  padding: var(--ns-space-3) var(--ns-space-5);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-surface);
+
+  @include bp.down(md) {
+    padding: var(--ns-space-3) var(--ns-space-4);
+  }
 }
 
 .ns-onboarding__formulario {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--ns-space-6);
+  gap: var(--ns-space-5);
 
   @include bp.down(md) {
     gap: 0;
@@ -79,23 +123,29 @@
   display: flex;
   flex-direction: column;
   gap: var(--ns-space-6);
-  padding: var(--ns-space-8);
+  padding: var(--ns-space-10);
   border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius-xl);
-  background: var(--ns-surface);
-  box-shadow: var(--ns-shadow-sm);
+  background: var(--ns-brand-surface);
 
-  // Móvil: a ancho completo, sin marco.
   @include bp.down(md) {
-    padding: var(--ns-space-5) var(--ns-space-4);
+    padding: var(--ns-space-6) var(--ns-space-4);
     border-radius: var(--ns-radius-lg);
   }
 }
 
 .ns-onboarding__encabezado {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ns-space-1);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--ns-space-4);
+  row-gap: var(--ns-space-1);
+  align-items: center;
+  padding-bottom: var(--ns-space-6);
+  border-bottom: 1px solid var(--ns-border);
+
+  > :not(.ns-onboarding__icono) {
+    grid-column: 2;
+  }
 
   h1 {
     margin: 0;
@@ -106,11 +156,39 @@
   }
 }
 
+.ns-onboarding__icono {
+  display: inline-flex;
+  grid-row: span 3;
+  align-items: center;
+  justify-content: center;
+  align-self: start;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--ns-brand-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+
+  @include bp.down(sm) {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.ns-onboarding__paso {
+  margin: 0;
+  color: var(--ns-brand);
+  font: 600 0.75rem/1rem var(--ns-font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .ns-onboarding__descripcion {
   margin: 0;
   color: var(--ns-text-secondary);
 }
 
+/* Pie con las acciones */
 .ns-onboarding__pie {
   display: flex;
   align-items: center;
@@ -123,12 +201,22 @@
     z-index: var(--ns-z-sticky);
     margin: var(--ns-space-4) calc(-1 * var(--ns-space-4)) 0;
     padding: var(--ns-space-3) var(--ns-space-4) max(var(--ns-space-3), env(safe-area-inset-bottom));
-    border-top: 1px solid var(--ns-border);
-    background: var(--ns-surface);
+    border-top: 1px solid var(--ns-brand-border);
+    background: var(--ns-brand-surface);
 
     > button {
       flex: 1;
     }
+  }
+}
+
+// Acción principal destacada: más ancha que la secundaria.
+.ns-onboarding__principal {
+  min-width: 200px;
+
+  @include bp.down(md) {
+    min-width: 0;
+    flex: 2 !important;
   }
 }
 
@@ -137,5 +225,54 @@
 
   @include bp.down(md) {
     display: none;
+  }
+}
+
+/* Controles compartidos, solo en esta pantalla */
+:host ::ng-deep {
+  // Stepper: número del paso actual relleno en verde; los pendientes, en una superficie.
+  .ns-stepper__numero {
+    border-width: 1px;
+    border-color: var(--ns-border-strong);
+    background: var(--ns-surface-muted);
+  }
+
+  // Más específico que la regla del propio stepper (que pinta el número en verde).
+  .ns-stepper__lista .ns-stepper__paso.ns-stepper__paso--actual .ns-stepper__numero {
+    border-color: var(--ns-brand);
+    background: var(--ns-brand);
+    color: var(--ns-text-on-accent);
+  }
+
+  .ns-stepper__marca--boton:hover .ns-stepper__etiqueta {
+    color: var(--ns-brand);
+  }
+
+  // Control segmentado (sexo, días, actividad, comidas): la opción elegida, en verde, nunca negra.
+  .ns-segmented__grupo {
+    border: 1px solid var(--ns-border);
+  }
+
+  .ns-segmented__opcion:hover:not(:disabled):not(.ns-segmented__opcion--activa) {
+    background: var(--ns-surface-sunken);
+  }
+
+  .ns-segmented__grupo .ns-segmented__opcion.ns-segmented__opcion--activa {
+    border-color: var(--ns-brand);
+    background: var(--ns-brand-bg);
+    color: var(--ns-brand);
+    box-shadow: inset 0 0 0 1px var(--ns-brand);
+  }
+
+  // Chips de alergias e intolerancias (ya llevan check al marcarse).
+  .ns-chip:hover:not(:disabled):not(.ns-chip--marcado) {
+    background: var(--ns-surface-sunken);
+  }
+
+  .ns-chip-group__lista .ns-chip.ns-chip--marcado {
+    border-color: var(--ns-brand);
+    background: var(--ns-brand-bg);
+    color: var(--ns-brand);
+    font-weight: 600;
   }
 }

@@ -1,9 +1,11 @@
-// Fuentes autoalojadas con Fontsource (DESIGN.md §3.1): sin Google Fonts en producción.
-// Son fuentes variables: Manrope cubre los pesos 200–800 e Inter, 100–900.
-@use '@fontsource-variable/manrope';
+// Tipografía (docs/DESIGN.md «Tokens — Typography»).
+// - Interfaz (navegación, botones, etiquetas, títulos y cifras): sans geométrica. nbarchitekt no es
+//   libre; se usa Inter, uno de los sustitutos que admite el manual, autoalojada con Fontsource.
+// - Texto corrido (párrafos y descripciones): la serif del sistema (Times), contrapunto editorial.
 @use '@fontsource-variable/inter';
 
 :root {
-  --ns-font-display: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ns-font-display: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --ns-font-body: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ns-font-prose: 'Times New Roman', Times, Georgia, serif;
 }

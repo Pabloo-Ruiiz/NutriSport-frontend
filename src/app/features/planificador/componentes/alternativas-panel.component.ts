@@ -186,7 +186,7 @@ import { formatearRaciones } from './meal-slot.component';
       cursor: pointer;
 
       &:hover:not(:disabled) {
-        border-color: var(--ns-action-primary);
+        border-color: var(--ns-accent);
         background: var(--ns-success-bg);
       }
       &:focus-visible {

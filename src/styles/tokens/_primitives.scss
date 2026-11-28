@@ -1,37 +1,32 @@
-// Tokens primitivos: la paleta (DESIGN.md §9.1 y §2).
+// Tokens primitivos: la paleta (docs/DESIGN.md «Tokens — Colors» y «Surfaces»).
+// Tema oscuro: negro absoluto, blancos y grises acromáticos y un único acento violeta.
 // Los componentes NO los usan directamente: usan los semánticos de _semantic.scss.
 :root {
-  /* Verde Vital */
-  --ns-green-50: #ecfdf3;
-  --ns-green-100: #d1fadf;
-  --ns-green-200: #a6f4c5;
-  --ns-green-300: #6ce9a6;
-  --ns-green-400: #32d583;
-  --ns-green-500: #12b76a;
-  --ns-green-600: #0b9a5d;
-  --ns-green-700: #087a50;
-  --ns-green-800: #066b46;
-  --ns-green-900: #054f31;
-  /* Tinta */
-  --ns-ink-950: #0b1220;
-  --ns-ink-900: #101828;
-  --ns-ink-800: #1a2436;
-  --ns-ink-700: #344054;
-  --ns-ink-400: #94a3b8;
-  /* Índigo IA */
-  --ns-ai-50: #eef0ff;
-  --ns-ai-100: #e0e3ff;
-  --ns-ai-500: #6366f1;
-  --ns-ai-600: #4f46e5;
-  --ns-ai-700: #4338ca;
-  --ns-ai-violet: #7a5af8;
-  /* Neutros */
-  --ns-gray-0: #ffffff;
-  --ns-gray-25: #f7f9fb;
-  --ns-gray-50: #f2f4f7;
-  --ns-gray-100: #eaecf0;
-  --ns-gray-200: #d0d5dd;
-  --ns-gray-500: #5d6b82;
-  --ns-gray-550: #7d8798;
-  --ns-gray-600: #475467;
+  /* Acromáticos */
+  --ns-void: #000000; // Void Black: lienzo de la página
+  --ns-void-raised: #070707; // casi negro: paneles opacos (diálogos, menús) sobre el lienzo
+  --ns-ghost: #ffffff; // Ghost White: texto principal
+  --ns-mist: #c6c6c6; // Pale Mist: texto terciario y enlaces
+  --ns-fog: #999999; // Fog: contornos de controles
+  --ns-smoke: #808080; // Smoke: bordes apagados
+  --ns-ash: #4d4d4d; // Ash Border: líneas finas de tarjetas y separadores
+  /* Acento (el único cromático) */
+  --ns-dusk: #343755; // Dusk Violet: relleno de la acción principal
+  --ns-dusk-hover: #41456b;
+  --ns-dusk-active: #2a2d47;
+  // Tono claro del mismo violeta: el Dusk Violet sobre negro solo llega a 1,6:1, así que los
+  // indicadores, bordes y textos de acento usan este (≈ 9:1) para cumplir WCAG 2.2 AA.
+  --ns-dusk-light: #a3a7d9;
+  /* Verde corporativo: el del isotipo (public/marca/logo-mark.svg, #0B9A5D → #32D583) */
+  --ns-leaf: #0b9a5d; // verde del logotipo
+  --ns-leaf-light: #32d583; // tono claro del logotipo (≈ 11:1 sobre negro): acentos, enlaces, foco
+  --ns-leaf-deep: #087a49; // relleno de la acción principal (texto blanco ≈ 5,4:1)
+  --ns-leaf-deep-hover: #0a844f; // ≈ 4,8:1 con texto blanco
+  --ns-leaf-deep-active: #066b40;
+  --ns-leaf-ink: #050d0a; // negro con matiz verde: superficies de marca
+  --ns-leaf-ink-raised: #0a1712;
+  /* Translucidez (Surfaces 1 y 3) */
+  --ns-overlay: rgba(0, 0, 0, 0.5); // Translucent Overlay
+  --ns-frost: rgba(255, 255, 255, 0.1); // Frosted Glass
+  --ns-frost-soft: rgba(255, 255, 255, 0.05);
 }

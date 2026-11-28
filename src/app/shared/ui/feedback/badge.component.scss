@@ -38,8 +38,8 @@
 }
 
 :host(.ns-badge--ai) {
-  background: var(--ns-ai-50);
-  color: var(--ns-action-ai);
+  background: var(--ns-ai-bg);
+  color: var(--ns-accent);
 }
 
 :host(.ns-badge--activity) {

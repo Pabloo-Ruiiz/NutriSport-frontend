@@ -95,14 +95,14 @@ const ALTO_MAXIMO = 200;
       align-items: center;
       min-height: 36px;
       padding: 0 var(--ns-space-3);
-      border: 1px solid var(--ns-ai-100);
+      border: 1px solid var(--ns-accent);
       border-radius: var(--ns-radius-full);
       background: var(--ns-surface);
-      color: var(--ns-ai-700);
+      color: var(--ns-accent);
       font: 500 0.875rem/1.25rem var(--ns-font-body);
       cursor: pointer;
       &:hover:not(:disabled) {
-        background: var(--ns-ai-50);
+        background: var(--ns-ai-bg);
       }
       &:focus-visible {
         outline: 2px solid var(--ns-focus-ring);
@@ -122,7 +122,7 @@ const ALTO_MAXIMO = 200;
       border-radius: var(--ns-radius-xl);
       background: var(--ns-surface);
       &:focus-within {
-        border-color: var(--ns-ai-500);
+        border-color: var(--ns-accent);
         outline: 2px solid var(--ns-focus-ring);
         outline-offset: 1px;
       }
@@ -156,11 +156,11 @@ const ALTO_MAXIMO = 200;
       height: 40px;
       border: 0;
       border-radius: var(--ns-radius-lg);
-      background: var(--ns-ai-600);
+      background: var(--ns-accent);
       color: var(--ns-text-inverse);
       cursor: pointer;
       &:hover:not(:disabled) {
-        background: var(--ns-ai-700);
+        background: var(--ns-accent);
       }
       &:focus-visible {
         outline: 2px solid var(--ns-focus-ring);

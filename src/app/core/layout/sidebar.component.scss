@@ -8,8 +8,9 @@
   width: calc(var(--ns-sidebar-width) + env(safe-area-inset-left));
   height: 100%;
   padding-left: env(safe-area-inset-left);
-  background: var(--ns-surface-inverse);
-  color: var(--ns-text-inverse);
+  border-right: 1px solid var(--ns-border);
+  background: var(--ns-bg);
+  color: var(--ns-text);
 }
 
 :host(.ns-sidebar--colapsada) {
@@ -55,7 +56,7 @@
   align-items: center;
   gap: var(--ns-space-3);
   padding: var(--ns-space-4) var(--ns-space-5);
-  border-top: 1px solid var(--ns-ink-800);
+  border-top: 1px solid var(--ns-border);
 }
 
 :host(.ns-sidebar--colapsada) .ns-sidebar__usuario {
@@ -71,7 +72,7 @@
   width: 32px;
   height: 32px;
   border-radius: var(--ns-radius-full);
-  background: var(--ns-green-700);
+  background: var(--ns-action-primary);
   color: var(--ns-text-inverse);
   font-size: 0.75rem;
   font-weight: 700;
@@ -90,6 +91,6 @@
 
 .ns-sidebar__email {
   @include m.truncate;
-  color: var(--ns-ink-400);
+  color: var(--ns-text-secondary);
   font-size: 0.75rem;
 }

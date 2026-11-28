@@ -45,7 +45,7 @@
   left: 0;
   z-index: calc(var(--ns-z-sidebar) + 1);
   height: 3px;
-  background: var(--ns-ai-600);
+  background: var(--ns-accent);
 }
 
 .ns-shell__sidebar {
@@ -126,7 +126,7 @@
 
 .ns-shell__drawer-email {
   @include m.truncate;
-  color: var(--ns-ink-400);
+  color: var(--ns-text-secondary);
   font-size: 0.75rem;
 }
 
@@ -136,7 +136,7 @@
   gap: var(--ns-space-3);
   min-height: 44px;
   padding: 0 var(--ns-space-3);
-  border: 1px solid var(--ns-ink-800);
+  border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius-md);
   background: transparent;
   color: var(--ns-text-inverse);
@@ -145,7 +145,7 @@
   cursor: pointer;
 
   &:hover {
-    background: var(--ns-ink-800);
+    background: var(--ns-surface-sunken);
   }
 
   &:focus-visible {

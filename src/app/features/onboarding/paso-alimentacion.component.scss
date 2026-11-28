@@ -1,0 +1,194 @@
+// Paso «Tu alimentación»: bloques y selector de franjas. Solo tokens --ns-*.
+@use 'abstracts/breakpoints' as bp;
+@use 'abstracts/mixins' as m;
+
+.ns-paso {
+  gap: var(--ns-space-4);
+}
+
+/* Bloques */
+.ns-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ns-space-4);
+  padding: var(--ns-space-5);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface-muted);
+
+  @include bp.down(sm) {
+    padding: var(--ns-space-4);
+  }
+}
+
+.ns-bloque__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+}
+
+.ns-bloque__icono {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ns-brand-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+}
+
+.ns-bloque__titulo {
+  margin: 0;
+  font: 700 1rem/1.375rem var(--ns-font-display);
+}
+
+.ns-bloque__texto {
+  margin: 0;
+  color: var(--ns-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+/* Franjas */
+.ns-franjas__leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ns-space-2);
+  width: 100%;
+}
+
+.ns-franjas__contador {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ns-space-1);
+  padding: 2px var(--ns-space-3);
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-full);
+  color: var(--ns-text-secondary);
+  font: 600 0.75rem/1.125rem var(--ns-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.ns-franjas__contador--completo {
+  border-color: var(--ns-brand-border);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+}
+
+.ns-franjas__contador--exceso {
+  border-color: var(--ns-warning-border);
+  background: var(--ns-warning-bg);
+  color: var(--ns-warning);
+}
+
+.ns-franjas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: var(--ns-space-3);
+}
+
+.ns-franja {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ns-space-3);
+  min-height: 60px;
+  padding: var(--ns-space-3);
+  padding-right: var(--ns-space-8);
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-lg);
+  background: var(--ns-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    background-color var(--ns-duration-fast) var(--ns-ease-out);
+
+  &:hover:not(.ns-franja--bloqueada) {
+    border-color: var(--ns-brand-border);
+    background: var(--ns-surface-sunken);
+  }
+
+  // Seleccionada: borde verde de 2 px, fondo verde suave y check.
+  &:has(input:checked) {
+    border-color: var(--ns-brand);
+    background: var(--ns-brand-bg);
+    box-shadow: inset 0 0 0 1px var(--ns-brand);
+  }
+
+  &:has(input:focus-visible) {
+    @include m.focus-ring;
+  }
+}
+
+// Cupo lleno: las no elegidas se atenúan.
+.ns-franja--bloqueada {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ns-franja__icono {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-full);
+  background: var(--ns-surface-sunken);
+  color: var(--ns-text-secondary);
+}
+
+.ns-franja:has(input:checked) .ns-franja__icono {
+  border-color: var(--ns-brand-border);
+  background: var(--ns-brand-bg);
+  color: var(--ns-brand);
+}
+
+.ns-franja__textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ns-franja__nombre {
+  font: 600 0.875rem/1.25rem var(--ns-font-body);
+}
+
+.ns-franja__cuando {
+  color: var(--ns-text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.ns-franja__indicador {
+  position: absolute;
+  top: 50%;
+  right: var(--ns-space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--ns-border-strong);
+  border-radius: var(--ns-radius-sm);
+  color: transparent;
+  transform: translateY(-50%);
+}
+
+.ns-franja:has(input:checked) .ns-franja__indicador {
+  border-color: var(--ns-brand);
+  background: var(--ns-brand);
+  color: var(--ns-text-on-accent);
+}
+
+@include m.reduced-motion {
+  .ns-franja {
+    transition: none;
+  }
+}

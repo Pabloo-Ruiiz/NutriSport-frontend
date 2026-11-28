@@ -7,10 +7,10 @@
   flex-direction: column;
   // Ocupa el alto máximo que da el panel del overlay (90dvh en móvil).
   max-height: inherit;
+  border: 1px solid var(--ns-border);
   border-radius: var(--ns-radius-2xl);
   background: var(--ns-surface);
   color: var(--ns-text);
-  box-shadow: var(--ns-shadow-xl);
   animation: ns-dialog-entrada var(--ns-duration-base) var(--ns-ease-out);
 }
 

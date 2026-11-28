@@ -4,7 +4,7 @@ describe('EtiquetaPipe', () => {
   const pipe = new EtiquetaPipe();
 
   it('traduce el valor con el mapa indicado', () => {
-    expect(pipe.transform('MEDIA_MANANA', 'tipoComida')).toBe('Media mañana');
+    expect(pipe.transform('MEDIA_MANANA', 'tipoComida')).toBe('Almuerzo');
     expect(pipe.transform('COMPETICION', 'objetivo')).toBe('Preparar una competición');
     expect(pipe.transform('FRUTOS_DE_CASCARA', 'alergeno')).toBe('Frutos de cáscara');
     expect(pipe.transform('ADMIN', 'fuenteAlimento')).toBe('NutriSport');

@@ -35,7 +35,7 @@
   height: 16px;
   margin-top: -8px;
   border: 2px solid var(--ns-border-strong);
-  border-top-color: var(--ns-action-primary);
+  border-top-color: var(--ns-accent);
   border-radius: var(--ns-radius-full);
   animation: ns-combobox-giro 0.8s linear infinite;
 }
@@ -72,7 +72,7 @@
   // Activa: fondo y borde izquierdo (no solo color).
   &.ns-combobox__opcion--activa {
     background: var(--ns-surface-muted);
-    box-shadow: inset 3px 0 0 var(--ns-action-primary);
+    box-shadow: inset 3px 0 0 var(--ns-accent);
   }
 
   @include bp.down(md) {

@@ -10,14 +10,14 @@
 .ns-nav__titulo {
   margin: 0 0 var(--ns-space-2);
   padding: 0 var(--ns-space-3);
-  color: var(--ns-ink-400);
+  color: var(--ns-text-secondary);
 }
 
 .ns-nav__separador {
   display: block;
   height: 1px;
   margin: 0 var(--ns-space-3) var(--ns-space-3);
-  background: var(--ns-ink-800);
+  background: var(--ns-surface-sunken);
 }
 
 .ns-nav__grupo:first-child .ns-nav__separador {
@@ -41,7 +41,7 @@
   min-height: 40px;
   padding: 0 var(--ns-space-3);
   border-radius: var(--ns-radius-md);
-  color: var(--ns-ink-400);
+  color: var(--ns-text-secondary);
   font-weight: 500;
   text-decoration: none;
   transition:
@@ -49,7 +49,7 @@
     color var(--ns-duration-fast) var(--ns-ease-out);
 
   &:hover {
-    background: var(--ns-ink-800);
+    background: var(--ns-surface-sunken);
     color: var(--ns-text-inverse);
   }
 
@@ -71,7 +71,7 @@
       left: calc(-1 * var(--ns-space-3));
       width: 3px;
       border-radius: 0 var(--ns-radius-xs) var(--ns-radius-xs) 0;
-      background: var(--ns-green-400);
+      background: var(--ns-accent);
     }
   }
 }
@@ -107,7 +107,7 @@
       z-index: var(--ns-z-tooltip);
       padding: var(--ns-space-1) var(--ns-space-2);
       border-radius: var(--ns-radius-sm);
-      background: var(--ns-ink-900);
+      background: var(--ns-surface);
       color: var(--ns-text-inverse);
       font-size: 0.75rem;
       font-weight: 500;

@@ -1,12 +1,23 @@
 // Perfil, preferencias y objetivos (NutriSport_API.md §5).
-import type { Alergeno } from './comun';
+import type { Alergeno, TipoComida } from './comun';
 
 export type Sexo = 'HOMBRE' | 'MUJER';
 export type ObjetivoDeportivo = 'PERDER_GRASA' | 'MANTENER' | 'GANAR_MUSCULO' | 'RENDIMIENTO' | 'COMPETICION';
 export type NivelActividad = 'SEDENTARIO' | 'LIGERO' | 'MODERADO' | 'ALTO';
 export type TipoPreferencia = 'ALERGIA' | 'INTOLERANCIA' | 'DIETA' | 'RECHAZO' | 'FAVORITO';
-export type Intolerancia = 'LACTOSA';
-export type Dieta = 'VEGETARIANA' | 'VEGANA' | 'PESCETARIANA' | 'HALAL' | 'KOSHER';
+export type Intolerancia = 'LACTOSA' | 'GLUTEN' | 'FRUCTOSA' | 'SORBITOL' | 'HISTAMINA';
+export type Dieta =
+  | 'VEGETARIANA'
+  | 'VEGANA'
+  | 'PESCETARIANA'
+  | 'HALAL'
+  | 'KOSHER'
+  | 'MEDITERRANEA'
+  | 'OMNIVORA'
+  | 'FLEXITARIANA'
+  | 'ALTA_PROTEINA'
+  | 'PALEO'
+  | 'PERSONALIZADA';
 export type Severidad = 'ESTRICTA' | 'PREFERENCIA';
 
 export interface PerfilRequest {
@@ -23,6 +34,8 @@ export interface PerfilRequest {
   duracionMediaMin: number; // 0–600
   comidasPorDia: number; // 3–6
   tiempoMaxCocinaMin?: number; // 0–600
+  /** Franjas elegidas: exactamente comidasPorDia distintas (sin OTRO). Si falta, el backend usa las de por defecto. */
+  tiposComida?: TipoComida[];
 }
 export interface PerfilResponse {
   fechaNacimiento: string; // "AAAA-MM-DD"
@@ -37,6 +50,8 @@ export interface PerfilResponse {
   diasEntrenamientoSemana: number;
   duracionMediaMin: number;
   comidasPorDia: number;
+  /** Franjas del usuario en el orden del día (las de por defecto si no las ha elegido). */
+  tiposComida: TipoComida[];
   tiempoMaxCocinaMin: number | null;
   objetivoKcal: number;
   objetivoProteinaG: number;
@@ -52,6 +67,8 @@ export interface PreferenciaDto {
   alimentoId?: string; // UUID
   categoriaId?: string; // UUID
   severidad: Severidad;
+  /** Alergia o intolerancia que no está en la lista (sin código), o descripción de la dieta PERSONALIZADA. Máx. 80. */
+  detalle?: string;
 }
 export interface PreferenciasRequest {
   preferencias: PreferenciaDto[]; // 0–100 elementos

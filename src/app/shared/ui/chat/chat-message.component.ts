@@ -173,7 +173,7 @@ export type NsEstadoChat = 'enviado' | 'pendiente' | 'error';
       overflow-wrap: anywhere;
     }
     :host(.ns-chat-msg--usuario) .ns-chat-msg__burbuja {
-      background: var(--ns-ink-950);
+      background: var(--ns-bg);
       color: var(--ns-text-inverse);
     }
     :host(.ns-chat-msg--asistente) .ns-chat-msg__burbuja {
@@ -252,7 +252,7 @@ export type NsEstadoChat = 'enviado' | 'pendiente' | 'error';
         outline-offset: 1px;
       }
       &[aria-pressed='true'] {
-        color: var(--ns-ai-600);
+        color: var(--ns-accent);
       }
     }
     .ns-chat-msg__accion--texto {

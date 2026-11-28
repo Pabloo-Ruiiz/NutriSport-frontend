@@ -1,4 +1,6 @@
-// Botón (DESIGN.md §5.1). Solo tokens --ns-*.
+// Botón (docs/DESIGN.md «Pill Primary Button» y «Ghost Navigation Button»). Solo tokens --ns-*.
+// Las acciones con relleno (primary, ai, danger) son píldoras; secondary y ghost, rectángulos
+// fantasma de 5 px. No hay radios intermedios.
 @use 'abstracts/breakpoints' as bp;
 @use 'abstracts/mixins' as m;
 
@@ -12,7 +14,7 @@
   padding: 0 var(--ns-space-4);
   border: 1px solid transparent;
   border-radius: var(--ns-radius-md);
-  font: 600 0.875rem/1.25rem var(--ns-font-body);
+  font: 700 0.875rem/1.25rem var(--ns-font-display);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -20,7 +22,8 @@
   -webkit-tap-highlight-color: transparent;
   transition:
     background-color var(--ns-duration-fast) var(--ns-ease-out),
-    border-color var(--ns-duration-fast) var(--ns-ease-out);
+    border-color var(--ns-duration-fast) var(--ns-ease-out),
+    opacity var(--ns-duration-fast) var(--ns-ease-out);
 
   &:focus-visible {
     @include m.focus-ring;
@@ -59,6 +62,12 @@
 }
 
 /* Variantes */
+:host(.ns-button--primary),
+:host(.ns-button--ai),
+:host(.ns-button--danger) {
+  border-radius: var(--ns-radius-full);
+}
+
 :host(.ns-button--primary) {
   background: var(--ns-action-primary);
   color: var(--ns-text-inverse);
@@ -73,18 +82,20 @@
 :host(.ns-button--ai) {
   background: var(--ns-action-ai);
   color: var(--ns-text-inverse);
+  border-color: var(--ns-ai-border);
 }
 :host(.ns-button--ai:hover:not(:disabled):not(.ns-button--disabled)) {
   background: var(--ns-action-ai-hover);
 }
 
 :host(.ns-button--secondary) {
-  background: var(--ns-surface);
-  color: var(--ns-ink-700);
-  border-color: var(--ns-border-strong);
+  background: transparent;
+  color: var(--ns-text);
+  border-color: var(--ns-border-ghost);
 }
 :host(.ns-button--secondary:hover:not(:disabled):not(.ns-button--disabled)) {
-  background: var(--ns-surface-muted);
+  background: var(--ns-surface-sunken);
+  border-color: var(--ns-text);
 }
 
 :host(.ns-button--ghost) {
@@ -92,7 +103,8 @@
   color: var(--ns-text-secondary);
 }
 :host(.ns-button--ghost:hover:not(:disabled):not(.ns-button--disabled)) {
-  background: var(--ns-surface-muted);
+  background: var(--ns-surface-sunken);
+  color: var(--ns-text);
 }
 
 :host(.ns-button--danger) {
@@ -126,7 +138,6 @@
   padding: 0 var(--ns-space-5);
   font-size: 1rem;
   line-height: 1.5rem;
-  border-radius: var(--ns-radius-lg);
 
   @include bp.down(md) {
     height: 48px;

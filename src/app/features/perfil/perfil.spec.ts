@@ -29,6 +29,7 @@ const PERFIL: PerfilResponse = {
   diasEntrenamientoSemana: 5,
   duracionMediaMin: 60,
   comidasPorDia: 4,
+  tiposComida: ['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA'],
   tiempoMaxCocinaMin: 30,
   objetivoKcal: 2680,
   objetivoProteinaG: 140,
@@ -59,6 +60,7 @@ const PETICION_PERFIL = {
   diasEntrenamientoSemana: 5,
   duracionMediaMin: 60,
   comidasPorDia: 4,
+  tiposComida: ['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA'],
   tiempoMaxCocinaMin: 30,
 };
 
@@ -173,12 +175,22 @@ describe('PerfilComponent', () => {
 
   it('alimentación guarda el perfil (comidas y tiempo) y las preferencias', async () => {
     await crear();
-    componente().form.controls.alimentacion.controls.comidasPorDia.setValue(5);
+    const { comidasPorDia, tiposComida } = componente().form.controls.alimentacion.controls;
+    comidasPorDia.setValue(5);
+    tiposComida.setValue(['DESAYUNO', 'COMIDA', 'MERIENDA', 'PRE_ENTRENO', 'CENA']);
 
     enviarPestana('alimentacion');
     const perfil = http.expectOne({ method: 'PUT', url: '/api/v1/perfil' });
-    expect(perfil.request.body).toStrictEqual({ ...PETICION_PERFIL, comidasPorDia: 5 });
-    perfil.flush({ ...PERFIL, comidasPorDia: 5 });
+    expect(perfil.request.body).toStrictEqual({
+      ...PETICION_PERFIL,
+      comidasPorDia: 5,
+      tiposComida: ['DESAYUNO', 'COMIDA', 'MERIENDA', 'PRE_ENTRENO', 'CENA'],
+    });
+    perfil.flush({
+      ...PERFIL,
+      comidasPorDia: 5,
+      tiposComida: ['DESAYUNO', 'COMIDA', 'MERIENDA', 'PRE_ENTRENO', 'CENA'],
+    });
     await esperar();
     const preferencias = http.expectOne({ method: 'PUT', url: '/api/v1/perfil/preferencias' });
     expect(preferencias.request.body).toEqual({

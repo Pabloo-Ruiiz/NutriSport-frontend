@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 30 28" fill="none" aria-hidden="true">
+  <!-- Isotipo de NutriSport AI (logo-mark.svg) sin el fondo, para usarlo como marca de agua. -->
+  <defs>
+    <linearGradient id="nsWmLeaf" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0B9A5D"/>
+      <stop offset="1" stop-color="#32D583"/>
+    </linearGradient>
+    <mask id="nsWmPulse" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <rect width="40" height="40" fill="#fff"/>
+      <polyline points="8,22.5 14.5,22.5 17.5,16.5 21.5,27 24.5,20.5 28,20.5" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  <path d="M9 31C9 18.5 17.5 9 31 9C31 22.5 22 31 9 31Z" fill="url(#nsWmLeaf)" mask="url(#nsWmPulse)"/>
+  <circle cx="31" cy="20.5" r="2.6" fill="#32D583"/>
+</svg>

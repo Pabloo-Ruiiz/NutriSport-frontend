@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, model } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 
-import type { MenuResponse } from '@core/models';
+import type { MenuResponse, TipoComida } from '@core/models';
 import { ETIQUETAS_TIPO_COMIDA } from '@core/models/etiquetas';
 import { hoyLocal } from '@core/util/fechas';
 import { NsDateStripComponent } from '@shared/ui/nav/date-strip.component';
@@ -113,6 +113,8 @@ export class DiaPlanificadorComponent {
   readonly fecha = model.required<string>();
   /** Fecha de hoy; se puede fijar en pruebas. */
   readonly hoy = input(hoyLocal());
+  /** Franjas del perfil; null = las de siempre. */
+  readonly fijas = input<readonly TipoComida[] | null>(null);
 
   protected readonly editor = inject(PlanificadorEditor, { optional: true });
   protected readonly etiquetas = ETIQUETAS_TIPO_COMIDA;
@@ -122,7 +124,7 @@ export class DiaPlanificadorComponent {
     const fecha = this.fecha();
     return { fecha, dia: this.menu().dias.find((d) => d.fecha === fecha) ?? null };
   });
-  protected readonly franjas = computed(() => franjasVisibles([this.columna().dia]));
+  protected readonly franjas = computed(() => franjasVisibles([this.columna().dia], this.fijas() ?? undefined));
   protected readonly diasConComidas = computed(() =>
     this.menu()
       .dias.filter((d) => d.comidas.length > 0)
